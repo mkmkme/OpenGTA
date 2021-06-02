@@ -139,7 +139,7 @@ namespace OpenGTA {
       pagedClutSize += (65536 - (clutSize % 65536));
     rawClut = new unsigned char[pagedClutSize];
     assert(rawClut);
-    PHYSFS_read(fd, rawClut, 1, pagedClutSize);
+    PHYSFS_readBytes(fd, rawClut, pagedClutSize);
     //write(2, rawClut, pagedClutSize);
   }
 
@@ -176,15 +176,15 @@ namespace OpenGTA {
     PHYSFS_uint32 _bytes_read = 0;
     while (_bytes_read < spriteInfoSize) {
       SpriteInfo *si = new SpriteInfo();
-      PHYSFS_read(fd, static_cast<void*>(&si->w), 1, 1);
-      PHYSFS_read(fd, static_cast<void*>(&si->h), 1, 1);
-      PHYSFS_read(fd, static_cast<void*>(&si->deltaCount), 1, 1);
-      PHYSFS_read(fd, static_cast<void*>(&v), 1, 1);
+      PHYSFS_readBytes(fd, static_cast<void*>(&si->w), 1);
+      PHYSFS_readBytes(fd, static_cast<void*>(&si->h), 1);
+      PHYSFS_readBytes(fd, static_cast<void*>(&si->deltaCount), 1);
+      PHYSFS_readBytes(fd, static_cast<void*>(&v), 1);
       PHYSFS_readULE16(fd, &si->size);
       _bytes_read += 6;
       PHYSFS_readULE16(fd, &si->clut);
-      PHYSFS_read(fd, static_cast<void*>(&si->xoffset), 1, 1);
-      PHYSFS_read(fd, static_cast<void*>(&si->yoffset), 1, 1);
+      PHYSFS_readBytes(fd, static_cast<void*>(&si->xoffset), 1);
+      PHYSFS_readBytes(fd, static_cast<void*>(&si->yoffset), 1);
       PHYSFS_readULE16(fd, &si->page);
       _bytes_read += 6;
       /*
@@ -241,7 +241,7 @@ namespace OpenGTA {
 
     rawSprites = new unsigned char[spriteGraphicsSize];
     assert(rawSprites != NULL);
-    PHYSFS_read(fd, static_cast<void*>(rawSprites), spriteGraphicsSize, 1);
+    PHYSFS_readBytes(fd, static_cast<void*>(rawSprites), spriteGraphicsSize);
 
     std::vector<SpriteInfo*>::const_iterator i = spriteInfos.begin();
     std::vector<SpriteInfo*>::const_iterator end = spriteInfos.end();
@@ -249,10 +249,10 @@ namespace OpenGTA {
     while (i != end) {
       SpriteInfo *info = *i;
       for (uint8_t k = 0; k < info->deltaCount; ++k) {
-        PHYSFS_uint32 offset = reinterpret_cast<PHYSFS_uint32>(info->delta[k].ptr);
-        PHYSFS_uint32 page = offset / 65536;
-        PHYSFS_uint32 y = (offset % 65536) / 256;
-        PHYSFS_uint32 x = (offset % 65536) % 256;
+        const auto offset = reinterpret_cast<uintptr_t>(info->delta[k].ptr);
+        const auto page = offset / 65536;
+        const auto y = (offset % 65536) / 256;
+        const auto x = (offset % 65536) % 256;
         info->delta[k].ptr = rawSprites + page * _pagewise + 256 * y + x;
       }
       i++;
@@ -370,7 +370,7 @@ namespace OpenGTA {
 
     unsigned char * page_start = rawSprites + info->page * page_size;
     
-    BufferCache & bcache = BufferCacheHolder::Instance();
+    BufferCache & bcache = BufferCache::Instance();
     unsigned char * dest = bcache.requestBuffer(page_size);
     bcache.lockBuffer(dest);
     memcpy(dest, page_start, page_size);
@@ -470,8 +470,8 @@ int main(int argc, char* argv[]) {
   atexit(on_exit);
   int idx = 0;
 
-  PHYSFS_addToSearchPath(PHYSFS_getBaseDir(), 1);
-  PHYSFS_addToSearchPath("gtadata.zip", 1);
+  PHYSFS_mount(PHYSFS_getBaseDir(), nullptr, 1);
+  PHYSFS_mount("gtadata.zip", nullptr, 1);
 
   OpenGTA::Graphics24Bit graphics(argv[1]);
   graphics.dumpClut("foo.bmp");

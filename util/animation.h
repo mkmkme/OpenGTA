@@ -22,8 +22,8 @@
 ************************************************************************/
 #ifndef UTIL_ANIMATION_H
 #define UTIL_ANIMATION_H
+#include <functional>
 #include <vector>
-#include "Functor.h"
 #include "log.h"
 
 namespace Util {
@@ -50,14 +50,14 @@ namespace Util {
       } OnDone;
       Animation(uint16_t numFrames, uint16_t fps);
       Animation(const Animation & o);
-      inline const uint16_t & getCurrentFrameNumber() { return currentFrame; }
+      inline const uint16_t & getCurrentFrameNumber() const { return currentFrame; }
       inline void set(const Status doThis, const OnDone done = STOP) { status = doThis; onDone = done; }
       inline const Status & get() const { return status; }
       inline const OnDone & getDone() const { return onDone; }
       void jumpToFrame(const uint16_t num, const Status andDo);
       void update(const uint32_t & nowTicks);
-      typedef Loki::Functor<void> CallbackType;
-      void setCallback(CallbackType & cb) { callback = cb; }
+      using CallbackType = std::function<void()>;
+      void setCallback(const CallbackType & cb) { callback = cb; }
 
       uint16_t currentFrame;
       uint16_t numFrames;

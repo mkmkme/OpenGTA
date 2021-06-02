@@ -106,8 +106,8 @@ int main(int argc, char* argv[]) {
   atexit(at_exit);
   PHYSFS_init(argv[0]);
   // add pwd to search path
-  PHYSFS_addToSearchPath(PHYSFS_getBaseDir(), 1);
-  PHYSFS_addToSearchPath("gtadata.zip", 1);
+  PHYSFS_mount(PHYSFS_getBaseDir(), nullptr, 1);
+  PHYSFS_mount("gtadata.zip", nullptr, 1);
   char* file = NULL;
   SDL_Init(SDL_INIT_VIDEO);
 
@@ -187,8 +187,8 @@ int main(int argc, char* argv[]) {
   }
   try {
     // exception handling of the constructor doesn't work here; urgh...
-    OpenGTA::StyleHolder::Instance().load(file);
-    OpenGTA::GraphicsBase & graphics = OpenGTA::StyleHolder::Instance().get();
+    OpenGTA::ActiveStyle::Instance().load(file);
+    OpenGTA::GraphicsBase & graphics = OpenGTA::ActiveStyle::Instance().get();
     if (delta_set)
       graphics.setDeltaHandling(true);
 

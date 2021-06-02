@@ -22,7 +22,9 @@
 ************************************************************************/
 #include "dataholder.h"
 #include "log.h"
-#include "cistring.h"
+#include "string_helpers.h"
+
+#include <cassert>
 
 namespace OpenGTA {
   template<> ActiveStyle::ActiveData() {
@@ -47,7 +49,7 @@ namespace OpenGTA {
   
   template<> void ActiveStyle::load(const std::string & file) {
     unload();
-    Util::ci_string tmpname(file.c_str());
+    std::string tmpname { Util::string_lower(file) };
     if (tmpname.find(".g24") != std::string::npos) {
       m_data = new Graphics24Bit(file);
     }

@@ -10,9 +10,9 @@
 ************************************************************************/
 #include <iostream>
 #include <cassert>
-#include <sstream>
 #include "opengta.h"
 #include "buffercache.h"
+#include "file_helper.h"
 #include "log.h"
 #include "m_exceptions.h"
 #include "set.h"
@@ -262,10 +262,8 @@ namespace OpenGTA {
       ++i;
     }
     //throw std::string("Failed to find car by model");
-    std::ostringstream o;
-    o << "Searching for car model " << int(model) << " failed";
-    throw E_UNKNOWNKEY(o.str());
-    return NULL;
+    throw E_UNKNOWNKEY("Searching for car model " + std::to_string(int(model))
+                       + " failed");
   }
 
   unsigned int GraphicsBase::getRandomPedRemapNumber() {
@@ -289,18 +287,7 @@ namespace OpenGTA {
   }    
 
   Graphics8Bit::Graphics8Bit(const std::string& style) : GraphicsBase() {
-    fd = PHYSFS_openRead(style.c_str());
-    if (fd == NULL) {
-      std::string style2(style);
-      transform(style2.begin(), style2.end(), style2.begin(), tolower);
-      fd = PHYSFS_openRead(style2.c_str());
-    }
-    if (fd == NULL) {
-      //throw std::string("FileNotFound: ") + style;
-      std::ostringstream o;
-      o << style << " with error: " << SDL_GetError();
-      throw E_FILENOTFOUND(o.str());
-    }
+    fd = Util::FileHelper::OpenReadVFS(style);
     _topHeaderSize = 52;
     rawTiles = NULL;
     rawSprites = NULL;
@@ -423,13 +410,13 @@ namespace OpenGTA {
       sideSize + lidSize + auxSize + auxBlockTrailSize;
     PHYSFS_seek(fd, st);
     PHYSFS_uint8 numAnim;
-    PHYSFS_read(fd, static_cast<void*>(&numAnim), 1, 1);
+    PHYSFS_readBytes(fd, static_cast<void*>(&numAnim), 1);
     for (int i=0; i<numAnim;i++) {
       uint8_t block, which, speed, frameCount;
-      PHYSFS_read(fd, static_cast<void*>(&block), 1, 1);
-      PHYSFS_read(fd, static_cast<void*>(&which), 1, 1);
-      PHYSFS_read(fd, static_cast<void*>(&speed), 1, 1);
-      PHYSFS_read(fd, static_cast<void*>(&frameCount), 1, 1);
+      PHYSFS_readBytes(fd, static_cast<void*>(&block), 1);
+      PHYSFS_readBytes(fd, static_cast<void*>(&which), 1);
+      PHYSFS_readBytes(fd, static_cast<void*>(&speed), 1);
+      PHYSFS_readBytes(fd, static_cast<void*>(&frameCount), 1);
       LoadedAnim *animation = new LoadedAnim(frameCount);
       animation->block = block;
       animation->which = which;
@@ -442,7 +429,7 @@ namespace OpenGTA {
       }
       for (int j=0; j<animation->frameCount; j++) {
         uint8_t val;
-        PHYSFS_read(fd, static_cast<void*>(&val), 1, 1);
+        PHYSFS_readBytes(fd, static_cast<void*>(&val), 1);
         animation->frame[j] = val;
         //PHYSFS_read(fd, static_cast<void*>(&animations[i].frame[j]), 1, 1);
       }
@@ -463,7 +450,7 @@ namespace OpenGTA {
     PHYSFS_uint64 st = static_cast<PHYSFS_uint64>(_topHeaderSize) +
       sideSize + lidSize + auxSize + auxBlockTrailSize + animSize + paletteSize;
     PHYSFS_seek(fd, st);
-    PHYSFS_read(fd, static_cast<void*>(remapTables), 256, 256);
+    PHYSFS_readBytes(fd, static_cast<void*>(remapTables), sizeof(remapTables));
     /*
     for (int i=0; i < 256; i++) {
       for (int j = 0; j < 256; j++) {
@@ -478,7 +465,7 @@ namespace OpenGTA {
       sideSize + lidSize + auxSize + auxBlockTrailSize + animSize + paletteSize +
       remapSize;
     PHYSFS_seek(fd, st);
-    PHYSFS_read(fd, static_cast<void*>(&remapIndex), 4, 256);
+    PHYSFS_readBytes(fd, static_cast<void*>(remapIndex), sizeof(remapIndex));
     /*
     std::cout << "LID remap tables" << std::endl;
     for (int i=0; i<256; ++i) {
@@ -500,8 +487,8 @@ namespace OpenGTA {
       PHYSFS_readULE16(fd, &obj->sprNum);
       PHYSFS_readULE16(fd, &obj->weight);
       PHYSFS_readULE16(fd, &obj->aux);
-      PHYSFS_read(fd, static_cast<void*>(&obj->status), 1, 1);
-      PHYSFS_read(fd, static_cast<void*>(&obj->numInto), 1, 1);
+      PHYSFS_readBytes(fd, static_cast<void*>(&obj->status), 1);
+      PHYSFS_readBytes(fd, static_cast<void*>(&obj->numInto), 1);
 
       objectInfos.push_back(obj);
     }
@@ -544,22 +531,22 @@ namespace OpenGTA {
       }
       bytes_read += 12 * 3 * 2;
       for (int i=0; i < 12; i++) {
-        PHYSFS_read(fd, static_cast<void*>(&car->remap8[i]), 1, 1);
+        PHYSFS_readBytes(fd, static_cast<void*>(&car->remap8[i]), 1);
       }
       bytes_read += 12;
 
-      PHYSFS_read(fd, static_cast<void*>(&car->vtype), 1, 1);
-      PHYSFS_read(fd, static_cast<void*>(&car->model), 1, 1);
-      PHYSFS_read(fd, static_cast<void*>(&car->turning), 1, 1);
-      PHYSFS_read(fd, static_cast<void*>(&car->damagable), 1, 1);
+      PHYSFS_readBytes(fd, static_cast<void*>(&car->vtype), 1);
+      PHYSFS_readBytes(fd, static_cast<void*>(&car->model), 1);
+      PHYSFS_readBytes(fd, static_cast<void*>(&car->turning), 1);
+      PHYSFS_readBytes(fd, static_cast<void*>(&car->damagable), 1);
       bytes_read += 4;
 
       for (int i=0; i < 4; i++)
         PHYSFS_readULE16(fd, &car->value[i]);
       bytes_read += 4 * 2;
 
-      PHYSFS_read(fd, static_cast<void*>(&car->cx), 1, 1);
-      PHYSFS_read(fd, static_cast<void*>(&car->cy), 1, 1);
+      PHYSFS_readBytes(fd, static_cast<void*>(&car->cx), 1);
+      PHYSFS_readBytes(fd, static_cast<void*>(&car->cy), 1);
       PHYSFS_readULE32(fd, &car->moment);
       bytes_read += 2 + 4;
 
@@ -591,12 +578,12 @@ namespace OpenGTA {
       car->handBrakeSlideValue = float(fixed_tmp)/65536;
       bytes_read += 2 * 4;
 
-      PHYSFS_read(fd, static_cast<void*>(&car->convertible), 1, 1);
-      PHYSFS_read(fd, static_cast<void*>(&car->engine), 1, 1);
-      PHYSFS_read(fd, static_cast<void*>(&car->radio), 1, 1);
-      PHYSFS_read(fd, static_cast<void*>(&car->horn), 1, 1);
-      PHYSFS_read(fd, static_cast<void*>(&car->soundFunction), 1, 1);
-      PHYSFS_read(fd, static_cast<void*>(&car->fastChangeFlag), 1, 1);
+      PHYSFS_readBytes(fd, static_cast<void*>(&car->convertible), 1);
+      PHYSFS_readBytes(fd, static_cast<void*>(&car->engine), 1);
+      PHYSFS_readBytes(fd, static_cast<void*>(&car->radio), 1);
+      PHYSFS_readBytes(fd, static_cast<void*>(&car->horn), 1);
+      PHYSFS_readBytes(fd, static_cast<void*>(&car->soundFunction), 1);
+      PHYSFS_readBytes(fd, static_cast<void*>(&car->fastChangeFlag), 1);
       bytes_read += 6;
 
       PHYSFS_readSLE16(fd, &car->numDoors);
@@ -638,10 +625,10 @@ namespace OpenGTA {
     PHYSFS_uint32 _bytes_read = 0;
     while (_bytes_read < spriteInfoSize) {
       SpriteInfo *si = new SpriteInfo();
-      PHYSFS_read(fd, static_cast<void*>(&si->w), 1, 1);
-      PHYSFS_read(fd, static_cast<void*>(&si->h), 1, 1);
-      PHYSFS_read(fd, static_cast<void*>(&si->deltaCount), 1, 1);
-      PHYSFS_read(fd, static_cast<void*>(&v), 1, 1);
+      PHYSFS_readBytes(fd, static_cast<void*>(&si->w), 1);
+      PHYSFS_readBytes(fd, static_cast<void*>(&si->h), 1);
+      PHYSFS_readBytes(fd, static_cast<void*>(&si->deltaCount), 1);
+      PHYSFS_readBytes(fd, static_cast<void*>(&v), 1);
       PHYSFS_readULE16(fd, &si->size);
       PHYSFS_readULE32(fd, &w);
       _bytes_read += 10;
@@ -695,7 +682,7 @@ namespace OpenGTA {
     PHYSFS_seek(fd, st);
     rawSprites = new unsigned char[spriteGraphicsSize];
     assert(rawSprites != NULL);
-    PHYSFS_read(fd, static_cast<void*>(rawSprites), spriteGraphicsSize, 1);
+    PHYSFS_readBytes(fd, static_cast<void*>(rawSprites), spriteGraphicsSize);
 
     if (spriteInfos.size() == 0) {
       INFO << "No SpriteInfo post-loading work done - structure is empty" << std::endl;
@@ -716,10 +703,11 @@ namespace OpenGTA {
       //std::cout << offset << " page " << page << " x,y " << x <<","<<y<< std::endl;
 //info->ptr = rawSprites + page * _pagewise + 256 * y + x;
       for (uint8_t k = 0; k < info->deltaCount; ++k) {
-        PHYSFS_uint32 offset = reinterpret_cast<PHYSFS_uint32>(info->delta[k].ptr);
-        PHYSFS_uint32 page = offset / 65536;
-        PHYSFS_uint32 y = (offset % 65536) / 256;
-        PHYSFS_uint32 x = (offset % 65536) % 256;
+        const auto tmp = reinterpret_cast<uintptr_t>(info->delta[k].ptr);
+        const auto offset = static_cast<PHYSFS_uint32>(tmp);
+        const auto page = offset / 65536;
+        const auto y = (offset % 65536) / 256;
+        const auto x = (offset % 65536) % 256;
         info->delta[k].ptr = rawSprites + page * _pagewise + 256 * y + x;
       }
       i++;
@@ -769,7 +757,7 @@ namespace OpenGTA {
 
     PHYSFS_uint64 ts = sideSize+lidSize+auxSize;
     rawTiles = new unsigned char[ts];
-    int r = PHYSFS_read(fd, static_cast<void*>(rawTiles), 1, ts);
+    int r = PHYSFS_readBytes(fd, static_cast<void*>(rawTiles), ts);
     if ( PHYSFS_uint64(r) == ts )
         return;
     else if ( r == -1) {
@@ -825,7 +813,7 @@ namespace OpenGTA {
     unsigned char * page_start = rawSprites + info->page * page_size;// + 256 * y + x;
     assert(page_start != NULL);
     
-    BufferCache & bcache = BufferCacheHolder::Instance();
+    BufferCache & bcache = BufferCache::Instance();
     unsigned char * dest = bcache.requestBuffer(page_size);
     bcache.lockBuffer(dest);
 
@@ -917,17 +905,15 @@ namespace OpenGTA {
   }
   
   unsigned char* Graphics8Bit::getSide(unsigned int idx, unsigned int palIdx, bool rgba = false) {
-    prepareSideTexture(idx-1, reinterpret_cast<unsigned char*>(tileTmp));
+    prepareSideTexture(idx-1, tileTmp);
     unsigned char *res;
     if (rgba) {
-      masterRGB->apply(4096, reinterpret_cast<unsigned char*>(tileTmp), 
-          reinterpret_cast<unsigned char*>(tileTmpRGBA), true);
-      res = reinterpret_cast<unsigned char*>(tileTmpRGBA);
+      masterRGB->apply(4096, tileTmp, tileTmpRGBA, true);
+      res = tileTmpRGBA;
     }
     else {
-      masterRGB->apply(4096, reinterpret_cast<unsigned char*>(tileTmp), 
-          reinterpret_cast<unsigned char*>(tileTmpRGB), false);
-      res = reinterpret_cast<unsigned char*>(tileTmpRGB);
+      masterRGB->apply(4096, tileTmp, tileTmpRGB, false);
+      res = tileTmpRGB;
     }
     return res;
   }
@@ -946,20 +932,18 @@ namespace OpenGTA {
   }
   
   unsigned char *Graphics8Bit::getLid(unsigned int idx, unsigned int palIdx, bool rgba = false) {
-    prepareLidTexture(idx-1, reinterpret_cast<unsigned char*>(tileTmp));
+    prepareLidTexture(idx-1, tileTmp);
     if (palIdx > 0)
-      applyRemap(4096, palIdx, reinterpret_cast<unsigned char*>(tileTmp));
+      applyRemap(4096, palIdx, tileTmp);
     
     unsigned char *res;
     if (rgba) {
-      masterRGB->apply(4096, reinterpret_cast<unsigned char*>(tileTmp), 
-        reinterpret_cast<unsigned char*>(tileTmpRGBA), true);
-      res = reinterpret_cast<unsigned char*>(tileTmpRGBA);
+      masterRGB->apply(4096, tileTmp, tileTmpRGBA, true);
+      res = tileTmpRGBA;
     }
     else {
-      masterRGB->apply(4096, reinterpret_cast<unsigned char*>(tileTmp), 
-        reinterpret_cast<unsigned char*>(tileTmpRGB), false);
-      res = reinterpret_cast<unsigned char*>(tileTmpRGB);
+      masterRGB->apply(4096, tileTmp, tileTmpRGB, false);
+      res = tileTmpRGB;
     }
     return res;
   }
@@ -978,26 +962,24 @@ namespace OpenGTA {
   }
   
   unsigned char* Graphics8Bit::getAux(unsigned int idx, unsigned int palIdx, bool rgba = false) {
-    prepareAuxTexture(idx-1, reinterpret_cast<unsigned char*>(tileTmp));
+    prepareAuxTexture(idx-1, tileTmp);
     unsigned char *res;
     if (rgba) {
 
-      masterRGB->apply(4096, reinterpret_cast<unsigned char*>(tileTmp), 
-          reinterpret_cast<unsigned char*>(tileTmpRGBA), true);
-      res = reinterpret_cast<unsigned char*>(tileTmpRGBA);
+      masterRGB->apply(4096, tileTmp, tileTmpRGBA, true);
+      res = tileTmpRGBA;
     }
     else {
-      masterRGB->apply(4096, reinterpret_cast<unsigned char*>(tileTmp), 
-          reinterpret_cast<unsigned char*>(tileTmpRGB), false);
-      res = reinterpret_cast<unsigned char*>(tileTmpRGB);
+      masterRGB->apply(4096, tileTmp, tileTmpRGB, false);
+      res = tileTmpRGB;
     }
     return res;
   }
 
   unsigned char* GraphicsBase::getTmpBuffer(bool rgba = false) {
     if (rgba)
-      return reinterpret_cast<unsigned char*>(tileTmpRGBA);
-    return reinterpret_cast<unsigned char*>(tileTmpRGB);
+      return tileTmpRGBA;
+    return tileTmpRGB;
   }
         
   /* RGBPalette */
@@ -1005,17 +987,7 @@ namespace OpenGTA {
   }
   
   Graphics8Bit::RGBPalette::RGBPalette(const std::string& palette) {
-    PHYSFS_file* fd = PHYSFS_openRead(palette.c_str());
-    if (fd == NULL) {
-      std::string pal2(palette);
-      transform(pal2.begin(), pal2.end(), pal2.begin(), tolower);
-      fd = PHYSFS_openRead(pal2.c_str());
-    }
-    if (!fd) {
-      std::ostringstream o;
-      o << palette << " with error: " << PHYSFS_getLastError();
-      throw E_FILENOTFOUND(o.str());
-    }
+    PHYSFS_file* fd = Util::FileHelper::OpenReadVFS(palette);
     loadFromFile(fd);
   }
   
@@ -1024,7 +996,7 @@ namespace OpenGTA {
   }
   
   int Graphics8Bit::RGBPalette::loadFromFile(PHYSFS_file* fd) {
-    PHYSFS_read(fd, static_cast<void*>(&data), 1, 256*3);
+    PHYSFS_readBytes(fd, static_cast<void*>(data), sizeof(data));
     /*
     int max_sum = 0;
     for (int i = 1; i < 256; i+=3) {

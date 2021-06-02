@@ -6,26 +6,25 @@
 #ifdef WITH_LUA
 #include "lua_vm.h"
 #endif
-#include <sstream>
 #include "localplayer.h"
 
 extern float screen_gamma;
 namespace GUI {
   Object::Object(const SDL_Rect & r) :
     id(0), rect(), color(), borderColor(), drawBorder(false),
-    manager(ManagerHolder::Instance()) {
+    manager(Manager::Instance()) {
       copyRect(r);
       color.r = 255; color.g = 255; color.b = 255; color.unused = 255;
     }
   Object::Object(const size_t Id, const SDL_Rect & r) :
     id(Id), rect(), color(), borderColor(), drawBorder(false),
-    manager(ManagerHolder::Instance()) {
+    manager(Manager::Instance()) {
       copyRect(r);
       color.r = 255; color.g = 255; color.b = 255; color.unused = 255;
     }
   Object::Object(const size_t Id, const SDL_Rect & r, const SDL_Color & c) :
     id(Id), rect(), color(),  borderColor(), drawBorder(false),
-    manager(ManagerHolder::Instance()) {
+    manager(Manager::Instance()) {
       copyRect(r);
       copyColor(c);
     }
@@ -46,7 +45,7 @@ namespace GUI {
     glDisable(GL_BLEND);
   }
   void Object::draw_border() {
-    glColor4ub(borderColor.r, borderColor.g, borderColor.b, 
+    glColor4ub(borderColor.r, borderColor.g, borderColor.b,
       borderColor.unused);
     glBegin(GL_LINE_LOOP);
     glVertex2i(rect.x, rect.y);
@@ -138,7 +137,7 @@ namespace GUI {
        glVertex2i(rect.x, rect.y);
        glEnd();
        */
-    glDisable(GL_TEXTURE_2D); 
+    glDisable(GL_TEXTURE_2D);
     if (drawBorder)
       draw_border();
   }
@@ -189,7 +188,7 @@ namespace GUI {
 
   void Manager::draw() {
     GuiObjectListMap::iterator layer_it = guiLayers.begin();
-    
+
     while (layer_it != guiLayers.end()) {
       GuiObjectList & inThisLayer = layer_it->second;
       for (GuiObjectList::iterator obj_it = inThisLayer.begin();
@@ -237,11 +236,8 @@ namespace GUI {
 
   const OpenGL::PagedTexture & Manager::getCachedImage(size_t Id) {
     GuiTextureCache::iterator i = findByCacheId(Id);
-    if (i == texCache.end()) {
-      std::ostringstream o;
-      o << "cached texture id " << int(Id);
-      throw E_UNKNOWNKEY(o.str());
-    }
+    if (i == texCache.end())
+      throw E_UNKNOWNKEY("cached texture id " + std::to_string(int(Id)));
     return i->second;
   }
 
@@ -254,27 +250,27 @@ namespace GUI {
   }
 
   void Manager::cacheImageRAW(const std::string & file, size_t k) {
-    texCache.insert(std::make_pair<size_t, OpenGL::PagedTexture>(k, ImageUtil::loadImageRAW(file)));
+    texCache.insert(std::make_pair(k, ImageUtil::loadImageRAW(file)));
   }
 
   void Manager::cacheImageRAT(const std::string & file, const std::string & palette, size_t k) {
-    texCache.insert(std::make_pair<size_t, OpenGL::PagedTexture>(k, 
+    texCache.insert(std::make_pair(k,
           ImageUtil::loadImageRATWithPalette(file, palette)));
   }
 
   ImageUtil::WidthHeightPair Manager::cacheStyleArrowSprite(const size_t id, int remap) {
-    OpenGTA::GraphicsBase & graphics = OpenGTA::StyleHolder::Instance().get();
+    OpenGTA::GraphicsBase & graphics = OpenGTA::ActiveStyle::Instance().get();
     PHYSFS_uint16 t = graphics.spriteNumbers.reIndex(id, OpenGTA::GraphicsBase::SpriteNumbers::ARROW);
     OpenGTA::GraphicsBase::SpriteInfo * info = graphics.getSprite(t);
-    texCache.insert(std::make_pair<size_t, OpenGL::PagedTexture>(
-          id, OpenGL::SpriteCacheHolder::Instance().createSprite(size_t(t), remap, 0, info)
+    texCache.insert(std::make_pair(
+          id, OpenGL::SpriteCache::Instance().createSprite(size_t(t), remap, 0, info)
           ));
     return ImageUtil::WidthHeightPair(info->w, info->h);
   }
 
 #ifdef WITH_SDL_IMAGE
   void Manager::cacheImageSDL(const std::string & file, size_t k) {
-    texCache.insert(std::make_pair<size_t, OpenGL::PagedTexture>(k, 
+    texCache.insert(std::make_pair<size_t, OpenGL::PagedTexture>(k,
           ImageUtil::loadImageSDL(file)));
   }
 #endif
@@ -284,7 +280,7 @@ namespace GUI {
     if (l == guiLayers.end()) {
       GuiObjectList list;
       list.push_back(obj);
-      guiLayers.insert(std::make_pair<uint8_t, GuiObjectList>(onLevel, list));
+      guiLayers.insert(std::make_pair(onLevel, list));
       return;
     }
     GuiObjectList & list = l->second;
@@ -315,11 +311,7 @@ namespace GUI {
           return o;
       }
     }
-    std::ostringstream o;
-    o << "object by id " << int(id);
-    throw E_UNKNOWNKEY(o.str());
-
-    return 0;
+    throw E_UNKNOWNKEY("object by id " + std::to_string(int(id)));
   }
 
   void Manager::removeById(const size_t id) {
@@ -337,7 +329,7 @@ namespace GUI {
     return false;
   }
   void Manager::receive(SDL_MouseButtonEvent & mb_event) {
-    Uint32 sh = OpenGL::ScreenHolder::Instance().getHeight();
+    Uint32 sh = OpenGL::Screen::Instance().getHeight();
     GuiObjectListMap::reverse_iterator l = guiLayers.rbegin();
     while (l != guiLayers.rend()) {
       GuiObjectList & list = l->second;
@@ -375,7 +367,7 @@ namespace GUI {
   }
   void Manager::createAnimation(const std::vector<uint16_t> & indices, uint16_t fps, size_t k) {
     Animation * anim = new Animation(indices, fps);
-    guiAnimations.insert(std::make_pair<size_t, Animation*>(k, anim));
+    guiAnimations.insert(std::make_pair(k, anim));
     anim->set(Util::Animation::PLAY_FORWARD, Util::Animation::LOOP);
   }
 
@@ -409,7 +401,7 @@ namespace GUI {
       return 0;
     if (wt < 5)
       return 1000 + wt;
-    
+
     return 0;
   }
 
@@ -437,7 +429,7 @@ namespace GUI {
 
   void ScrollBar::receive(SDL_MouseButtonEvent & mb_event) {
     value = (mb_event.x - rect.x) / float(rect.w - 4);
-    INFO << value << std::endl; 
+    INFO << value << std::endl;
     if (changeCB)
       changeCB(value * 2);
     else
@@ -445,7 +437,7 @@ namespace GUI {
         std::endl;
     /*
     SDL_SetGamma(value * 2, value * 2, value * 2);
-    Object * o = ManagerHolder::Instance().findObject(101);
+    Object * o = Manager::Instance().findObject(101);
     if (o) {
       std::ostringstream os;
       os << "Gamma: " << value * 2;
@@ -458,7 +450,7 @@ namespace GUI {
     screen_gamma = v;
     SDL_SetGamma(v, v, v);
 #ifdef WITH_LUA
-    OpenGTA::Script::LuaVM & vm = OpenGTA::Script::LuaVMHolder::Instance();
+    OpenGTA::Script::LuaVM & vm = OpenGTA::Script::LuaVM::Instance();
     lua_State *L = vm.getInternalState();
     int top = lua_gettop(L);
     lua_getglobal(L, "config");
@@ -468,21 +460,18 @@ namespace GUI {
       lua_pushvalue(L, -1);
       lua_setglobal(L, "config");
     }
-    uint8_t sf = OpenGTA::StyleHolder::Instance().get().getFormat();
+    uint8_t sf = OpenGTA::ActiveStyle::Instance().get().getFormat();
     if (sf)
       vm.setFloat("screen_gamma_g24", v);
     else
       vm.setFloat("screen_gamma_gry", v);
     lua_settop(L, top);
 #endif
-    Object * o = ManagerHolder::Instance().findObject(GAMMA_LABEL_ID);
-    if (o) {
-      std::ostringstream os;
-      os << "Gamma: " << v;
-      static_cast<Label*>(o)->text = os.str();
-    }
+    Object * o = Manager::Instance().findObject(GAMMA_LABEL_ID);
+    if (o)
+      static_cast<Label*>(o)->text = "Gamma: " + std::to_string(v);
     /*
-    Object * o2 = ManagerHolder::Instance().findObject(1001);
+    Object * o2 = Manager::Instance().findObject(1001);
     if (o2) {
       static_cast<ImageStatusDisplay*>(o2)->number = screen_gamma * 3;
     }*/
@@ -493,8 +482,8 @@ namespace GUI {
   Label*             cashLabel   = NULL;
 
   void create_ingame_gui(bool is32bit) {
-    OpenGL::Screen & screen = OpenGL::ScreenHolder::Instance();
-    GUI::Manager & gm = ManagerHolder::Instance();
+    OpenGL::Screen & screen = OpenGL::Screen::Instance();
+    GUI::Manager & gm = Manager::Instance();
     assert(!wantedLevel);
     {
       SDL_Rect r;
@@ -527,24 +516,21 @@ namespace GUI {
       cashLabel->align = 1;
       gm.add(cashLabel, 50);
     }
-    
+
   }
 
   void update_ingame_gui_values() {
-    OpenGTA::PlayerController & pc = OpenGTA::LocalPlayer::Instance();
+    OpenGTA::LocalPlayer & pc = OpenGTA::LocalPlayer::Instance();
 
     if (wantedLevel)
       wantedLevel->number = pc.getWantedLevel();
 
-    if (cashLabel) {
-      std::ostringstream os;
-      os << pc.getCash();
-      cashLabel->text = os.str();
-    }
+    if (cashLabel)
+      cashLabel->text = std::to_string(pc.getCash());
   }
 
   void remove_ingame_gui() {
-    GUI::Manager & gm = ManagerHolder::Instance();
+    GUI::Manager & gm = Manager::Instance();
 
     if (wantedLevel)
       gm.remove(wantedLevel);
@@ -556,4 +542,3 @@ namespace GUI {
   }
 
 }
-

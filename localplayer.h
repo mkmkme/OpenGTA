@@ -1,18 +1,29 @@
 #ifndef OGTA_LOCAL_PLAYER_H
 #define OGTA_LOCAL_PLAYER_H
-#include "Singleton.h"
 #include "game_objects.h"
 #include "entity_controller.h"
 #include "id_sys.h"
 #include "key_handler.h"
+#include "m_exceptions.h"
 
 namespace OpenGTA {
 
-  class PlayerController : public Util::KeyHandler {
-    public:
-      PlayerController() {
+  class LocalPlayer : public Util::KeyHandler {
+    private:
+      LocalPlayer() {
         reset();
       }
+      ~LocalPlayer() = default;
+    public:
+      LocalPlayer(const LocalPlayer& copy) = delete;
+      LocalPlayer& operator=(const LocalPlayer& copy) = delete;
+
+      static LocalPlayer& Instance()
+      {
+        static LocalPlayer instance;
+        return instance;
+      }
+
       void reset() {
         playerId = TypeIdBlackBox::getPlayerId();
         cash = 0;
@@ -22,7 +33,8 @@ namespace OpenGTA {
         pc_ptr = NULL;
       }
       PedController & getCtrl() {
-        assert(pc_ptr);
+        if (pc_ptr == nullptr)
+          throw E_NOTSUPPORTED("Player is not available");
         return *pc_ptr;
       }
       void setCtrl(PedController & pc) {
@@ -51,9 +63,6 @@ namespace OpenGTA {
       int32_t  numLives;
       PedController * pc_ptr;
   };
-
-  typedef Loki::SingletonHolder<PlayerController, Loki::CreateUsingNew,
-    Loki::DefaultLifetime, Loki::SingleThreaded> LocalPlayer;
 }
 
 #endif

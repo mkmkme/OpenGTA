@@ -74,11 +74,11 @@ namespace OpenGTA {
     isADummy = 0;
     assert(fd);
     //memset(name2, 0, 30);
-    PHYSFS_read(fd, static_cast<void*>(&x), 1, 1);
-    PHYSFS_read(fd, static_cast<void*>(&y), 1, 1);
-    PHYSFS_read(fd, static_cast<void*>(&w), 1, 1);
-    PHYSFS_read(fd, static_cast<void*>(&h), 1, 1);
-    PHYSFS_read(fd, static_cast<void*>(&sam), 1, 1);
+    PHYSFS_readBytes(fd, static_cast<void*>(&x), 1);
+    PHYSFS_readBytes(fd, static_cast<void*>(&y), 1);
+    PHYSFS_readBytes(fd, static_cast<void*>(&w), 1);
+    PHYSFS_readBytes(fd, static_cast<void*>(&h), 1);
+    PHYSFS_readBytes(fd, static_cast<void*>(&sam), 1);
     // seek over the name embedded in the mapfile; use sample-num to
     // lookup in msg-db
     //PHYSFS_read(fd, static_cast<void*>(&name2), 30, 1);
@@ -95,41 +95,52 @@ namespace OpenGTA {
     //memset(name2, 0, 30);
   }
 
-  const char* NavData::Sector::getFullName() {
-    if (isADummy)
-      return "";
+  std::string NavData::Sector::getFullName() const {
     std::string n;
-    if (lastSubLocation == 0)
+    if (isADummy)
+      return n;
+    switch (lastSubLocation) {
+    case 0:
       //n.append("Central ");
       n.append(_c);
-    else if (lastSubLocation == 1)
+      break;
+    case 1:
       //n.append("North ");
       n.append(_n);
-    else if (lastSubLocation == 2)
-      n.append(_s);
+      break;
+    case 2:
       //n.append("South ");
-    else if (lastSubLocation == 4)
-      n.append(_e);
+      n.append(_s);
+      break;
+    case 4:
       //n.append("East ");
-    else if (lastSubLocation == 8)
-      n.append(_w);
-      //n.append("West ");
-    else if (lastSubLocation == 9)
-      n.append(_nw);
-      //n.append("Northwest ");
-    else if (lastSubLocation == 10)
-      n.append(_sw);
-      //n.append("Southwest ");
-    else if (lastSubLocation == 5)
-      n.append(_ne);
+      n.append(_e);
+      break;
+    case 5:
       //n.append("Northeast ");
-    else if (lastSubLocation == 6)
-      n.append(_se);
+      n.append(_ne);
+      break;
+    case 6:
       //n.append("Southeast ");
+      n.append(_se);
+      break;
+    case 8:
+      //n.append("West ");
+      n.append(_w);
+      break;
+    case 9:
+      //n.append("Northwest ");
+      n.append(_nw);
+      break;
+    case 10:
+      //n.append("Southwest ");
+      n.append(_sw);
+      break;
+    }
 
     n.append(" ");
     n.append(name);
-    return n.c_str();
+    return n;
   }
 
   std::string NavData::_c;
@@ -144,15 +155,14 @@ namespace OpenGTA {
 
   NavData::NavData(PHYSFS_uint32 size, PHYSFS_file *fd, const size_t level_num) {
     if (size % 35) {
-      std::ostringstream o;
-      o << "Navdata size: " << size << " % 35 != 0";
-      throw E_INVALIDFORMAT(o.str());
-      //throw std::string("Invalid NavData size in mapfile");
+        throw E_INVALIDFORMAT("Navdata size: " + std::to_string(size)
+                              + " % 35 != 0");
+        // throw std::string("Invalid NavData size in mapfile");
     }
     PHYSFS_uint32 c = size / 35;
     assert(fd);
 
-    MessageDB & msg = MainMsgHolder::Instance().get();
+    MessageDB & msg = MainMsgLookup::Instance().get();
     _c =msg.getText("c");
     _n = msg.getText("n");
     _s = msg.getText("s");
@@ -205,10 +215,8 @@ namespace OpenGTA {
         return it->second;
       ++it;
     }
-    std::ostringstream o;
-    o << "Querying invalid sector at " << int(x) << ", " << int(y);
-    throw E_OUTOFRANGE(o.str());
-    return NULL;
+    throw E_OUTOFRANGE("Querying invalid sector at " + std::to_string(int(x))
+                       + ", " + std::to_string(int(y)));
   }
 
   void NavData::clear() {

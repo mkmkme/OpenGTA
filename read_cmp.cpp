@@ -10,7 +10,7 @@
 ************************************************************************/
 #include <iostream>
 #include <cassert>
-#include <sstream>
+#include "file_helper.h"
 #include "opengta.h"
 #include "navdata.h"
 #include "log.h"
@@ -88,17 +88,10 @@ namespace OpenGTA {
 
   Map::Map(const std::string& filename) {
     nav = 0;
-    fd = PHYSFS_openRead(filename.c_str());
-    if (fd == NULL) {
-      std::string f2(filename);
-      transform(f2.begin(), f2.end(), f2.begin(), tolower);
-      fd = PHYSFS_openRead(f2.c_str());
-    }
+    fd = Util::FileHelper::OpenReadVFS(filename);
     if (!fd) {
       //throw std::string("FileNotFound: ") + filename;
-      std::ostringstream o;
-      o << filename << " with error: " << SDL_GetError();
-      throw E_FILENOTFOUND(o.str());
+      throw E_FILENOTFOUND(filename + " with error: " + SDL_GetError());
     }
     size_t level_as_num = Helper::mapFileName2Number(filename);
     loadHeader();
@@ -130,9 +123,9 @@ namespace OpenGTA {
     PHYSFS_readULE32(fd, &vc);
     //INFO << "Map version code: " << vc << std::endl;
     PHYSFS_uint8 sn;
-    PHYSFS_read(fd, static_cast<void*>(&styleNumber), 1, 1);
+    PHYSFS_readBytes(fd, static_cast<void*>(&styleNumber), 1);
     //INFO << "Style number: " << int(styleNumber) << std::endl;
-    PHYSFS_read(fd, static_cast<void*>(&sn), 1, 1);
+    PHYSFS_readBytes(fd, static_cast<void*>(&sn), 1);
     //INFO << "Sample number: " << int(sn) << std::endl;
     PHYSFS_uint16 reserved;
     PHYSFS_readULE16(fd, &reserved);
@@ -172,7 +165,7 @@ namespace OpenGTA {
   int Map::loadColumn() {
     if (!PHYSFS_seek(fd, _baseSize + _topHeaderSize)) {
       //throw std::string("IO Error while seeking in mapfile");
-      throw E_IOERROR(PHYSFS_getLastError());
+      throw E_IOERROR(PHYSFS_getErrorByCode(PHYSFS_getLastErrorCode()));
     }
     //PHYSFS_uint16 v;
     for (unsigned int i = 0; i < columnSize/2; i++) {
@@ -188,12 +181,12 @@ namespace OpenGTA {
     //uint8_t tmp;
     for (i = 0; i < max; i++) {
       PHYSFS_readULE16(fd, &block[i].typeMap);
-      PHYSFS_read(fd, static_cast<void*>(&block[i].typeMapExt), 1, 1);
-      PHYSFS_read(fd, static_cast<void*>(&block[i].left), 1, 1);
-      PHYSFS_read(fd, static_cast<void*>(&block[i].right), 1, 1);
-      PHYSFS_read(fd, static_cast<void*>(&block[i].top), 1, 1);
-      PHYSFS_read(fd, static_cast<void*>(&block[i].bottom), 1, 1);
-      PHYSFS_read(fd, static_cast<void*>(&block[i].lid), 1, 1);
+      PHYSFS_readBytes(fd, static_cast<void*>(&block[i].typeMapExt), 1);
+      PHYSFS_readBytes(fd, static_cast<void*>(&block[i].left), 1);
+      PHYSFS_readBytes(fd, static_cast<void*>(&block[i].right), 1);
+      PHYSFS_readBytes(fd, static_cast<void*>(&block[i].top), 1);
+      PHYSFS_readBytes(fd, static_cast<void*>(&block[i].bottom), 1);
+      PHYSFS_readBytes(fd, static_cast<void*>(&block[i].lid), 1);
       //block[i].animMode = 0;
     }
     return 0;
@@ -207,8 +200,8 @@ namespace OpenGTA {
       PHYSFS_readULE16(fd, &objects[i].x);
       PHYSFS_readULE16(fd, &objects[i].y);
       PHYSFS_readULE16(fd, &objects[i].z);
-      PHYSFS_read(fd, static_cast<void*>(&objects[i].type), 1, 1);
-      PHYSFS_read(fd, static_cast<void*>(&objects[i].remap), 1, 1);
+      PHYSFS_readBytes(fd, static_cast<void*>(&objects[i].type), 1);
+      PHYSFS_readBytes(fd, static_cast<void*>(&objects[i].remap), 1);
       PHYSFS_readULE16(fd, &objects[i].rotation);
       PHYSFS_readULE16(fd, &objects[i].pitch);
       PHYSFS_readULE16(fd, &objects[i].roll);
@@ -234,14 +227,14 @@ namespace OpenGTA {
     while (_counted < routeSize) {
       PHYSFS_uint8 num_vertices = 0;
       PHYSFS_uint8 route_type = 0;
-      PHYSFS_read(fd, static_cast<void*>(&num_vertices), 1, 1);
-      PHYSFS_read(fd, static_cast<void*>(&route_type), 1, 1);
+      PHYSFS_readBytes(fd, static_cast<void*>(&num_vertices), 1);
+      PHYSFS_readBytes(fd, static_cast<void*>(&route_type), 1);
       //INFO << "route-t " << int(route_type) << " with " << int(num_vertices) << " vertices" << std::endl;
       PHYSFS_uint8 x, y, z;
       for (int i=0; i < num_vertices; i++) {
-        PHYSFS_read(fd, static_cast<void*>(&x), 1, 1);
-        PHYSFS_read(fd, static_cast<void*>(&y), 1, 1);
-        PHYSFS_read(fd, static_cast<void*>(&z), 1, 1);
+        PHYSFS_readBytes(fd, static_cast<void*>(&x), 1);
+        PHYSFS_readBytes(fd, static_cast<void*>(&y), 1);
+        PHYSFS_readBytes(fd, static_cast<void*>(&z), 1);
         //INFO << int(x) << "," << int(y) << "," << int(z) << std::endl;
         _counted += 3;
       }
@@ -265,9 +258,9 @@ namespace OpenGTA {
     Location loc;
     PHYSFS_uint8 loc_type = 0;
     for (int i = 0; i < 36; ++i) {
-      PHYSFS_read(fd, static_cast<void*>(&loc.x), 1, 1);
-      PHYSFS_read(fd, static_cast<void*>(&loc.y), 1, 1);
-      PHYSFS_read(fd, static_cast<void*>(&loc.z), 1, 1);
+      PHYSFS_readBytes(fd, static_cast<void*>(&loc.x), 1);
+      PHYSFS_readBytes(fd, static_cast<void*>(&loc.y), 1);
+      PHYSFS_readBytes(fd, static_cast<void*>(&loc.z), 1);
       // skip dummy entries at 0,0,0
       if ((loc.x == 0) && (loc.y == 0) && (loc.z == 0))
         continue;
@@ -335,11 +328,9 @@ namespace OpenGTA {
     INFO << int(t) << " at " << int(x) << " " << int(y) << std::endl;
     LocationMap::iterator i = locations.find(t);
     LocationMap::iterator j;
-    if (i == locations.end()) {
-      std::ostringstream o;
-      o << "location-type " << int(t) << " not found in map";
-      throw E_UNKNOWNKEY(o.str());
-    }
+    if (i == locations.end())
+      throw E_UNKNOWNKEY("location-type " + std::to_string(int(t))
+                         + " not found in map");
     int _x(x);
     int _y(y);
     int min_d = 255 * 255;
@@ -368,7 +359,7 @@ int main(int argc, char* argv[]) {
   PHYSFS_init(argv[0]);
   atexit(do_exit);
   std::cout << "Physfs-Base: " << PHYSFS_getBaseDir() << std::endl;
-  PHYSFS_addToSearchPath(PHYSFS_getBaseDir(), 1);
+  PHYSFS_mount(PHYSFS_getBaseDir(), nullptr, 1);
   std::cout << "Has: " << argv[1] << " : " << PHYSFS_exists(argv[1]) << std::endl;
   OpenGTA::Map a(argv[1]);
   a.dump();

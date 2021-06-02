@@ -1,6 +1,6 @@
+#include <cassert>
 #include <iostream>
 #include <string>
-#include <sstream>
 #include "opengta.h"
 #include "dataholder.h"
 
@@ -36,8 +36,7 @@ void parse_args(int argc, char* argv[]) {
 }
 
 void print_car(OpenGTA::GraphicsBase::CarInfo & ci) {
-  std::ostringstream ostr;
-  ostr << "car" << int(ci.model);
+  std::string model = "car" + std::to_string(int(ci.model));
 #define PRINT(c)  << #c << ":" << ci.c << "|"
 #define PRINTC(c) << #c << ":" << int(ci.c) << "|"
   std::cout  PRINT(width)  PRINT(height)  PRINT(depth)
@@ -45,7 +44,7 @@ void print_car(OpenGTA::GraphicsBase::CarInfo & ci) {
   PRINT(acceleration) PRINT(braking) PRINT(grip) PRINT(handling)
   // remaps
   PRINTC(vtype) PRINTC(model) PRINTC(turning) PRINTC(damagable) <<
-  "model-name:" << OpenGTA::MainMsgHolder::Instance().get().getText(ostr.str()) << "|"
+  "model-name:" << OpenGTA::MainMsgLookup::Instance().get().getText(model) << "|"
   PRINTC(cx)  PRINTC(cy)  PRINT(moment) 
   PRINT(rbpMass) PRINT(g1_Thrust) PRINT(tyreAdhesionX) PRINT(tyreAdhesionY)
   PRINT(handBrakeFriction) PRINT(footBrakeFriction) PRINT(frontBrakeBias)
@@ -67,15 +66,15 @@ void print_car(OpenGTA::GraphicsBase::CarInfo & ci) {
 
 void run_init(const char*) {
   PHYSFS_init("mapview");
-  PHYSFS_addToSearchPath(PHYSFS_getBaseDir(), 1);
-  PHYSFS_addToSearchPath("gtadata.zip", 1);
+  PHYSFS_mount(PHYSFS_getBaseDir(), nullptr, 1);
+  PHYSFS_mount("gtadata.zip", nullptr, 1);
 }
 
 // dump all cars in style
 void run_main() {
-  OpenGTA::MainMsgHolder::Instance().load(msg_file);
-  OpenGTA::StyleHolder::Instance().load(style_file);
-  OpenGTA::GraphicsBase & style = OpenGTA::StyleHolder::Instance().get();
+  OpenGTA::MainMsgLookup::Instance().load(msg_file);
+  OpenGTA::ActiveStyle::Instance().load(style_file);
+  OpenGTA::GraphicsBase & style = OpenGTA::ActiveStyle::Instance().get();
   std::cout << "DUMP_OBJ_INFO BEGIN" << std::endl;
   for (size_t i = 0; i < style.carInfos.size(); ++i) {
     OpenGTA::GraphicsBase::CarInfo * cinfo = style.carInfos[i];

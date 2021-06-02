@@ -10,22 +10,15 @@
 ************************************************************************/
 #include <iostream>
 #include <cassert>
-#include "cistring.h"
+#include "file_helper.h"
 #include "opengta.h"
 #include "m_exceptions.h"
 #include "log.h"
+#include "string_helpers.h"
 
 namespace OpenGTA {
   Font::Font(const std::string &file) {
-    PHYSFS_file *fd = PHYSFS_openRead(file.c_str());
-    if (fd == NULL) {
-      std::string f2(file);
-      transform(f2.begin(), f2.end(), f2.begin(), tolower);
-      fd = PHYSFS_openRead(f2.c_str());
-    }
-    if (!fd)
-      throw E_FILENOTFOUND(file);
-      //throw std::string("FileNotFound: ") + file;
+    PHYSFS_file *fd = Util::FileHelper::OpenReadVFS(file);
     readHeader(fd);
     int ww = 0;
     int lw = 0;
@@ -57,8 +50,8 @@ namespace OpenGTA {
     delete [] workBuffer;
   }
   void Font::readHeader(PHYSFS_file *fd) {
-    PHYSFS_read(fd, static_cast<void*>(&numChars), 1, 1);
-    PHYSFS_read(fd, static_cast<void*>(&charHeight), 1, 1);
+    PHYSFS_readBytes(fd, static_cast<void*>(&numChars), 1);
+    PHYSFS_readBytes(fd, static_cast<void*>(&charHeight), 1);
     INFO << "Font contains " << int(numChars) << 
       " characters of height " << int(charHeight) << std::endl;
   }
@@ -136,19 +129,18 @@ namespace OpenGTA {
   SDL_FreeSurface(s);
   }
   Font::Character::Character(PHYSFS_file *fd, uint8_t height) {
-    PHYSFS_read(fd, static_cast<void*>(&width), 1, 1);
-    int c = int(width);
-    c *= int(height);
+    PHYSFS_readBytes(fd, static_cast<void*>(&width), 1);
+    size_t c = size_t(width) * size_t(height);
     //std::cout <<"width " << int(width) << " going to read " << c << " bytes" << std::endl;
     rawData = new uint8_t[c];
-    PHYSFS_read(fd, static_cast<void*>(rawData), 1, c);
+    PHYSFS_readBytes(fd, static_cast<void*>(rawData), c);
   }
   Font::Character::~Character() {
     delete [] rawData;
   }
   
   void Font::loadMapping(const std::string & name) {
-    Util::ci_string name2(name.c_str());
+    std::string name2 { Util::string_lower(name) };
 #define chr(n) ((char)(n))
     if (name2.find("big1.fon") != std::string::npos) {
       INFO << "found mapping: big1.fon - " << name << std::endl;
@@ -418,8 +410,8 @@ int main(int argc, char* argv[]) {
   PHYSFS_init(argv[0]);
   atexit(do_exit);
   std::cout << "Physfs-Base: " << PHYSFS_getBaseDir() << std::endl;
-  PHYSFS_addToSearchPath(PHYSFS_getBaseDir(), 1);
-  PHYSFS_addToSearchPath("gtadata.zip", 1);
+  PHYSFS_mount(PHYSFS_getBaseDir(), nullptr, 1);
+  PHYSFS_mount("gtadata.zip", nullptr, 1);
   std::cout << "Has: " << argv[1] << " : " << PHYSFS_exists(argv[1]) << std::endl;
   OpenGTA::Font a(argv[1]);
   a.dumpAs("out.bmp", atoi(argv[2]));

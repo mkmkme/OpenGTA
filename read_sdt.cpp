@@ -20,8 +20,9 @@
 * 3. This notice may not be removed or altered from any source          *
 * distribution.                                                         *
 ************************************************************************/
-#include <sstream>
 #include <cassert>
+#include <cstring>
+#include "file_helper.h"
 #include "m_exceptions.h"
 #include "fx_sdt.h"
 
@@ -40,21 +41,12 @@ namespace OpenGTA {
   }
 
   SoundsDB::SoundsDB(const std::string & sdt_file) {
-    dataFile = PHYSFS_openRead(sdt_file.c_str());
-    if (!dataFile) {
-      std::string sdt2(sdt_file);
-      transform(sdt2.begin(), sdt2.end(), sdt2.begin(), tolower);
-      dataFile = PHYSFS_openRead(sdt2.c_str());
-    }
-    if (!dataFile)
-      throw E_FILENOTFOUND(sdt_file); 
-      //throw std::string("FileNotFound: ") + sdt_file;
+    dataFile = Util::FileHelper::OpenReadVFS(sdt_file);
     PHYSFS_uint32 num_e = PHYSFS_fileLength(dataFile);
     if (num_e % 12) {
       //throw std::string("Ups: invalid SDT file?");
-      std::stringstream o;
-      o << "SDT filesize " << num_e << " % 12 != 0";
-      throw E_INVALIDFORMAT(o.str());
+      throw E_INVALIDFORMAT("SDT filesize " + std::to_string(uint32_t(num_e))
+                            + " % 12 != 0");
     }
     num_e /= 12;
     PHYSFS_uint32 r1, r2, sr;
@@ -65,19 +57,13 @@ namespace OpenGTA {
 #ifdef SOUND_DUMPER
       std::cout << i << " " << r1 << " " << r2 << " " << sr << std::endl;
 #endif
-      knownEntries.insert( std::make_pair<KeyType, Entry>(i, Entry(r1, r2, sr)));
+      knownEntries.insert(std::make_pair(i, Entry(r1, r2, sr)));
     }
     PHYSFS_close(dataFile);
 
     std::string raw_file(sdt_file);
     raw_file.replace(raw_file.size() - 3, 3, "RAW");
-    dataFile = PHYSFS_openRead(raw_file.c_str());
-    if (!dataFile) {
-      std::string sdt2(raw_file);
-      transform(sdt2.begin(), sdt2.end(), sdt2.begin(), tolower);
-      dataFile = PHYSFS_openRead(sdt2.c_str());
-    }
-    assert(dataFile);
+    dataFile = Util::FileHelper::OpenReadVFS(raw_file);
 
   }
 
@@ -98,9 +84,8 @@ namespace OpenGTA {
     MapType::iterator i = knownEntries.find(key);
     if (i == knownEntries.end()) {
       //throw std::string("Unknown sound-db entry");
-      std::ostringstream o;
-      o << "Querying for sound id: " << key;
-      throw E_UNKNOWNKEY(o.str());
+      throw E_UNKNOWNKEY("Querying for sound id: "
+                         + std::to_string(unsigned(key)));
     }
     return i->second;
   }
@@ -112,7 +97,7 @@ namespace OpenGTA {
     assert(buf);
     memset(buf, 0, t_len);
     PHYSFS_seek(dataFile, e.rawStart);
-    PHYSFS_read(dataFile, buf, 1, e.rawSize);
+    PHYSFS_readBytes(dataFile, buf, e.rawSize);
     return buf;
   }
   
@@ -121,7 +106,7 @@ namespace OpenGTA {
 #ifdef SOUND_DUMPER
 int main(int argc, char*argv[]) {
   PHYSFS_init(argv[0]);
-  PHYSFS_addToSearchPath("gtadata.zip", 1);
+  PHYSFS_mount("gtadata.zip", nullptr, 1);
   try {
     OpenGTA::SoundsDB sounds(argv[1]);
   }

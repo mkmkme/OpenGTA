@@ -254,10 +254,14 @@ namespace OpenGL {
       h = 1;
     surface = SDL_SetVideoMode(w, h, bpp, videoFlags);
     if (surface == NULL) {
-      ERROR << "vide-mode: " << w << ", " << h << " bpp: " << bpp << 
-      " hw-surface: " << (videoFlags & SDL_HWSURFACE == SDL_HWSURFACE ? "on" : "off") << 
-      " hw-blit: " << (videoFlags & SDL_HWACCEL == SDL_HWACCEL ? "on" : "off") << std::endl;
-      throw E_NOTSUPPORTED(SDL_GetError());
+        ERROR << "vide-mode: " << w << ", " << h << " bpp: " << bpp
+              << " hw-surface: "
+              << (((videoFlags & SDL_HWSURFACE) == SDL_HWSURFACE) ? "on"
+                                                                  : "off")
+              << " hw-blit: "
+              << (((videoFlags & SDL_HWACCEL) == SDL_HWACCEL) ? "on" : "off")
+              << std::endl;
+        throw E_NOTSUPPORTED(SDL_GetError());
     }
 
     glViewport(0, 0, w, h);
@@ -285,7 +289,7 @@ namespace OpenGL {
 
   void Screen::makeScreenshot(const char* filename) {
     INFO << "saving screen as: " << filename << std::endl;
-    uint8_t *pixels = Util::BufferCacheHolder::Instance().requestBuffer(width * height * 3);
+    uint8_t *pixels = Util::BufferCache::Instance().requestBuffer(width * height * 3);
 
     glReadBuffer(GL_FRONT);
     glReadPixels(0, 0, width, height, GL_RGB, GL_UNSIGNED_BYTE, reinterpret_cast<GLvoid*>(pixels));

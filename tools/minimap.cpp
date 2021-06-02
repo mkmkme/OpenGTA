@@ -1,5 +1,4 @@
 #include <cassert>
-#include <sstream>
 #include "opengta.h"
 #include "dataholder.h"
 #include "log.h"
@@ -48,9 +47,9 @@ void save_map_level(OpenGTA::Map & map, size_t level, const char* out_prefix) {
   }
 
   SDL_UnlockSurface(surface);
-  std::ostringstream ostr;
-  ostr << out_prefix << "_" << level << ".bmp";
-  SDL_SaveBMP(surface, ostr.str().c_str());
+  std::string filename =
+      std::string { out_prefix } + "_" + std::to_string(level) + ".bmp";
+  SDL_SaveBMP(surface, filename.c_str());
 
 
 }
@@ -64,11 +63,11 @@ int main(int argc, char* argv[]) {
   }
 
   PHYSFS_init(argv[0]);
-  PHYSFS_addToSearchPath(PHYSFS_getBaseDir(), 1);
-  PHYSFS_addToSearchPath("gtadata.zip", 1);
+  PHYSFS_mount(PHYSFS_getBaseDir(), nullptr, 1);
+  PHYSFS_mount("gtadata.zip", nullptr, 1);
 
   std::string map_filename(argv[1]);
-  OpenGTA::MainMsgHolder::Instance().load("ENGLISH.FXT");
+  OpenGTA::MainMsgLookup::Instance().load("ENGLISH.FXT");
   OpenGTA::Map map(map_filename);
 
 

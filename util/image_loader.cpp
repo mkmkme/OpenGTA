@@ -26,22 +26,22 @@
 #include "file_helper.h"
 #include "buffercache.h"
 #include "log.h"
-#include "cistring.h"
 #include "opengta.h"
 #include "physfsrwops.h"
 #include "SDL_image.h"
 #include "m_exceptions.h"
+#include "string_helpers.h"
 
 namespace ImageUtil {
 using OpenGL::PagedTexture;
 
   WidthHeightPair lookupImageSize(const std::string & name, const uint32_t size) {
-    Util::ci_string iname(name.c_str());
+    std::string iname { Util::string_upper(name) };
     uint16_t width = 0;
     uint16_t height = 0;
     uint32_t bpp = 0;
 
-    // m4 tools/raw_images.m4 
+    // m4 tools/raw_images.m4
     if ((iname.find("CUT") == 0) && (iname.find(".RA") == 4)) {
       width = 640; height = 480;
     }
@@ -76,13 +76,13 @@ using OpenGL::PagedTexture;
 
     if (!(bpp && bpp * width * height == size))
       ERROR << "could not identify image: " << name << " size: " << size << std::endl;
-    return std::make_pair<uint16_t, uint16_t>(width, height);
+    return std::make_pair(width, height);
   }
 
 
   OpenGL::PagedTexture loadImageRAW(const std::string & name) {
 
-    PHYSFS_file * fd = GET_FILE_HELPER.openReadVFS(name);
+    PHYSFS_file * fd = Util::FileHelper::OpenReadVFS(name);
 
     uint32_t nbytes = PHYSFS_fileLength(fd);
 
@@ -96,23 +96,21 @@ using OpenGL::PagedTexture;
 
     Util::BufferCache::LockedBuffer lbuf(nbytes);
     /*
-    uint8_t * buffer = Util::BufferCacheHolder::Instance().
+    uint8_t * buffer = Util::BufferCache::Instance().
       requestBuffer(nbytes);
     */
     uint8_t *buffer = lbuf();
-    PHYSFS_read(fd, buffer, 1, nbytes);
+    PHYSFS_readBytes(fd, buffer, nbytes);
     PHYSFS_close(fd);
 
-    return createEmbeddedTexture(whp.first, whp.second, false, buffer); 
+    return createEmbeddedTexture(whp.first, whp.second, false, buffer);
   }
 
-  
+
   OpenGL::PagedTexture loadImageRATWithPalette(const std::string & name,
       const std::string & palette_file) {
-    
-    Util::FileHelper & fh = GET_FILE_HELPER;
 
-    PHYSFS_file * fd = fh.openReadVFS(name);
+    PHYSFS_file * fd = Util::FileHelper::OpenReadVFS(name);
     uint32_t nbytes = PHYSFS_fileLength(fd);
 
     WidthHeightPair whp = lookupImageSize(name, nbytes);
@@ -122,11 +120,11 @@ using OpenGL::PagedTexture;
       throw E_UNKNOWNKEY(name + " - RAT file size unknown");
     }
     Util::BufferCache::LockedBuffer lb1(nbytes);
-    PHYSFS_read(fd, lb1(), 1, nbytes);
+    PHYSFS_readBytes(fd, lb1(), nbytes);
     PHYSFS_close(fd);
 
     // if this causes an exception, the buffercache will cleanup
-    fd = fh.openReadVFS(palette_file);
+    fd = Util::FileHelper::OpenReadVFS(palette_file);
     OpenGTA::Graphics8Bit::RGBPalette rgb(fd);
     PHYSFS_close(fd);
 
@@ -145,7 +143,7 @@ using OpenGL::PagedTexture;
     NextPowerOfTwo npot(surface->w, surface->h);
     uint16_t bpp = surface->format->BytesPerPixel;
 
-    uint8_t * buffer = Util::BufferCacheHolder::Instance().requestBuffer(npot.w * npot.h * bpp);
+    uint8_t * buffer = Util::BufferCache::Instance().requestBuffer(npot.w * npot.h * bpp);
     SDL_LockSurface(surface);
     copyImage2Image(buffer, (uint8_t*)surface->pixels, surface->pitch, surface->h,
         npot.w * bpp);
@@ -153,7 +151,7 @@ using OpenGL::PagedTexture;
     SDL_FreeSurface(surface);
 
     GLuint texture = createGLTexture(npot.w, npot.h, (bpp == 4) ? true : false, buffer);
-    return OpenGL::PagedTexture(texture, 0, 0, GLfloat(surface->w)/npot.w, 
+    return OpenGL::PagedTexture(texture, 0, 0, GLfloat(surface->w)/npot.w,
       GLfloat(surface->h)/npot.h);
   }
 #endif
@@ -187,7 +185,7 @@ using OpenGL::PagedTexture;
     GL_CHECKERROR;
     return tex;
   }
-  
+
   void copyImage2Image(uint8_t *dest, const uint8_t *src, const uint16_t
     srcWidth, const uint16_t srcHeight, const uint16_t destWidth) {
     uint8_t *d = dest;
@@ -199,16 +197,16 @@ using OpenGL::PagedTexture;
     }
   }
 
-  OpenGL::PagedTexture createEmbeddedTexture(GLsizei w, GLsizei h, 
+  OpenGL::PagedTexture createEmbeddedTexture(GLsizei w, GLsizei h,
       bool rgba, const void* pixels) {
-    
+
     NextPowerOfTwo npot(w, h);
     uint8_t* buff = (uint8_t*)pixels;
 
     if (!(npot.w == uint32_t(w) && npot.h == uint32_t(h))) {
       uint32_t bpp = (rgba ? 4 : 3);
       uint32_t bufSize = npot.w * npot.h * bpp;
-      buff = Util::BufferCacheHolder::Instance().requestBuffer(bufSize);
+      buff = Util::BufferCache::Instance().requestBuffer(bufSize);
       copyImage2Image(buff, (uint8_t*)pixels, w * bpp, h, npot.w * bpp);
     }
 
@@ -218,14 +216,14 @@ using OpenGL::PagedTexture;
 
 #define MAX(a,b)    (((a) > (b)) ? (a) : (b))
 #define MIN(a,b)    (((a) < (b)) ? (a) : (b))
-#define READINT24(x)      ((x)[0]<<16 | (x)[1]<<8 | (x)[2]) 
+#define READINT24(x)      ((x)[0]<<16 | (x)[1]<<8 | (x)[2])
 #define WRITEINT24(x, i)  {(x)[0]=i>>16; (x)[1]=(i>>8)&0xff; x[2]=i&0xff; }
 
   uint8_t* scale2x_24bit(const uint8_t* src, const int src_width, const int src_height) {
     const int srcpitch = src_width * 3;
     const int dstpitch = src_width * 6;
 
-    uint8_t *dstpix = Util::BufferCacheHolder::Instance().requestBuffer(src_width *
+    uint8_t *dstpix = Util::BufferCache::Instance().requestBuffer(src_width *
         src_height * 3 * 4);
     int E0, E1, E2, E3, B, D, E, F, H;
     for(int looph = 0; looph < src_height; ++looph)
@@ -256,7 +254,7 @@ using OpenGL::PagedTexture;
     const int srcpitch = src_width * 4;
     const int dstpitch = src_width * 8;
 
-    uint8_t* dstpix = Util::BufferCacheHolder::Instance().requestBuffer(src_width * 
+    uint8_t* dstpix = Util::BufferCache::Instance().requestBuffer(src_width *
         src_height * 4 * 4);
     Uint32 E0, E1, E2, E3, B, D, E, F, H;
     for(int looph = 0; looph < src_height; ++looph)

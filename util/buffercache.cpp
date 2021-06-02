@@ -22,8 +22,8 @@
 ************************************************************************/
 #include <iostream>
 #include <string>
-#include <sstream>
 #include <cassert>
+#include <cstring>
 #include "buffercache.h"
 #include "log.h"
 #include "m_exceptions.h"
@@ -64,7 +64,7 @@ namespace Util {
     else {
       result = i->second;
     }
-    std::memset(result, 0, len);
+    memset(result, 0, len);
     return result;
   }
 
@@ -84,18 +84,16 @@ namespace Util {
       }
       ++i;
     }
-    std::ostringstream o;
-    o << "Cannot lock unknown buffer " << tb;
-    throw E_UNKNOWNKEY(o.str());
+    throw E_UNKNOWNKEY(std::string { "Cannot lock unknown buffer " }
+                       + reinterpret_cast<char *>(tb));
     //throw std::string("Unknown buffer - cannot lock it");
   }
 
   void BufferCache::unlockBuffer(unsigned char* tb) {
     BufferMap_T::const_iterator i = locked.find(tb);
     if (i == locked.end()) {
-      std::ostringstream o;
-      o << "Cannot unlock unknown buffer " << tb;
-      throw E_UNKNOWNKEY(o.str());
+      throw E_UNKNOWNKEY(std::string { "Cannot unlock unknown buffer " }
+                         + reinterpret_cast<char *>(tb));
       //throw std::string("Unknow buffer - cannot unlock it");
     }
     allocated[i->second] = i->first;
@@ -137,11 +135,11 @@ namespace Util {
   }
 
   BufferCache::LockedBuffer::LockedBuffer(unsigned int len) {
-    buf_p = BufferCacheHolder::Instance().requestLockedBuffer(len);
+    buf_p = BufferCache::Instance().requestLockedBuffer(len);
   }
 
   BufferCache::LockedBuffer::~LockedBuffer() {
-    BufferCacheHolder::Instance().unlockBuffer(buf_p);
+    BufferCache::Instance().unlockBuffer(buf_p);
   }
 
 }

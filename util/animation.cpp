@@ -20,7 +20,6 @@
 * 3. This notice may not be removed or altered from any source          *
 * distribution.                                                         *
 ************************************************************************/
-#include <sstream>
 #include "animation.h"
 #include "m_exceptions.h"
 
@@ -60,27 +59,23 @@ namespace Util {
   }
 
   void Animation::flipFrame(bool forward = true) {
-    switch(forward) {
-      case true:
-        if (currentFrame < numFrames - 1)
-          ++currentFrame;
-        else if (currentFrame == numFrames - 1)
-          isDone();
-        break;
-      case false:
-        if (currentFrame == 0)
-          isDone();
-        else
-          --currentFrame;
+    if (forward) {
+      if (currentFrame < numFrames - 1)
+        ++currentFrame;
+      else if (currentFrame == numFrames - 1)
+        isDone();
+    } else {
+      if (currentFrame == 0)
+        isDone();
+      else
+        --currentFrame;
     }
   }
 
   void Animation::jumpToFrame(const uint16_t num, const Status andDo) {
-    if (num >= numFrames) { 
-      std::ostringstream o;
-      o << num << " >= " << numFrames;
-      throw E_OUTOFRANGE(o.str());
-    }
+    if (num >= numFrames)
+      throw E_OUTOFRANGE(std::to_string(num)
+                         + " >= " + std::to_string(numFrames));
     currentFrame = num;
     status = andDo;
   }

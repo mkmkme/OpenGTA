@@ -27,7 +27,8 @@ template <typename T> class Lunar {
 		// store method table in globals so that
 		// scripts can add functions written in Lua.
 		lua_pushvalue(L, methods);
-		set(L, LUA_GLOBALSINDEX, T::className);
+		// set(L, LUA_GLOBALSINDEX, T::className);
+		lua_setglobal(L, T::className);
 
 		// hide metatable from Lua getmetatable()
 		lua_pushvalue(L, methods);
@@ -70,7 +71,8 @@ template <typename T> class Lunar {
 		// store method table in globals so that
 		// scripts can add functions written in Lua.
 		lua_pushvalue(L, methods);
-		set(L, LUA_GLOBALSINDEX, T::className);
+		// set(L, LUA_GLOBALSINDEX, T::className);
+		lua_setglobal(L, T::className);
 
 		// hide metatable from Lua getmetatable()
 		lua_pushvalue(L, methods);
@@ -163,7 +165,7 @@ template <typename T> class Lunar {
 	static T *check(lua_State *L, int narg) {
 		userdataType *ud =
 			static_cast<userdataType*>(luaL_checkudata(L, narg, T::className));
-		if(!ud) luaL_typerror(L, narg, T::className);
+		if(!ud) luaL_typeerror(L, narg, T::className);
 		return ud->pT;  // pointer to T object
 	}
 

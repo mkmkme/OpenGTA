@@ -12,7 +12,7 @@ namespace OpenGTA {
         static int getScale2x(lua_State *L);
         static int setScale2x(lua_State *L);
 
-        static const luaL_reg methods[];
+        static const luaL_Reg methods[];
     };
   }
 }

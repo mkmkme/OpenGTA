@@ -187,11 +187,11 @@ namespace OpenGTA {
     }
   }
 
-  void ScriptParser::acceptDefinition(const char* str) {
+  void ScriptParser::acceptDefinition(char* str) {
     INFO << "def: " << str << std::endl;
   }
 
-  void ScriptParser::acceptCommand(const char* str) {
+  void ScriptParser::acceptCommand(char* str) {
     INFO << "cmd: " << str << std::endl;
   }
 

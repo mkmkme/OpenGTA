@@ -16,7 +16,7 @@ extern int global_Done;
 namespace OpenGTA {
   namespace Script {
     LuaVM::LuaVM() : L(NULL) {
-      L = lua_open();
+      L = luaL_newstate();
       if (L == NULL)
         throw E_SCRIPTERROR("Failed to create Lua state!");
       
@@ -46,9 +46,13 @@ namespace OpenGTA {
         Lunar<LMap>::Register2(L);
 #ifndef LUA_MAP_ONLY
         Lunar<CityView>::Register2(L);
-        luaL_openlib(L, "camera",      Camera::methods, 0);
-        luaL_openlib(L, "screen",      Screen::methods, 0);
-        luaL_openlib(L, "spritecache", SpriteCache::methods, 0);
+        lua_newtable(L);
+        luaL_setfuncs(L, Camera::methods, 0);
+        luaL_setfuncs(L, Screen::methods, 0);
+        luaL_setfuncs(L, SpriteCache::methods, 0);
+        // luaL_openlib(L, "camera",      Camera::methods, 0);
+        // luaL_openlib(L, "screen",      Screen::methods, 0);
+        // luaL_openlib(L, "spritecache", SpriteCache::methods, 0);
 #endif
         lua_pushcfunction(L, vm_quit);
         lua_setglobal(L, "quit");
@@ -63,22 +67,24 @@ namespace OpenGTA {
     void LuaVM::setMap(OpenGTA::Map & map) {
       LGUARD(L);
       LMap * mptr = static_cast<LMap*>(&map);
-      lua_gettable(L, LUA_GLOBALSINDEX);
+      // lua_gettable(L, LUA_GLOBALSINDEX);
       int scv_ref = Lunar<LMap>::push(L, mptr, false);
-      lua_pushliteral(L, "map");
+      // lua_pushliteral(L, "map");
       lua_pushvalue(L, scv_ref);
-      lua_settable(L, LUA_GLOBALSINDEX);
+      // lua_settable(L, LUA_GLOBALSINDEX);
+      lua_setglobal(L, "map");
     }
 
     void LuaVM::setCityView(OpenGTA::CityView & cv) {
 #ifndef LUA_MAP_ONLY
       LGUARD(L);
       CityView *scv = static_cast<CityView*>(&cv);
-      lua_gettable(L, LUA_GLOBALSINDEX);
+      // lua_gettable(L, LUA_GLOBALSINDEX);
       int scv_ref = Lunar<CityView>::push(L, scv, false);
-      lua_pushliteral(L, "city_view");
+      // lua_pushliteral(L, "city_view");
       lua_pushvalue(L, scv_ref);
-      lua_settable(L, LUA_GLOBALSINDEX);
+      // lua_settable(L, LUA_GLOBALSINDEX);
+      lua_setglobal(L, "city_view");
 #endif
     }
 

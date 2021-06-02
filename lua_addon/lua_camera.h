@@ -24,7 +24,7 @@ namespace OpenGTA {
           static int unmute(lua_State *L);*/
 
 
-        static const luaL_reg methods[];
+        static const luaL_Reg methods[];
     };
   }
 }

@@ -20,8 +20,8 @@ namespace OpenGTA {
     protected:
       std::string  section_info;
       std::string  section_vars;
-      virtual void acceptDefinition(const char*);
-      virtual void acceptCommand(const char*);
+      virtual void acceptDefinition(char*);
+      virtual void acceptCommand(char*);
   };
 
 }

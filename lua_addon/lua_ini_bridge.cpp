@@ -1,4 +1,5 @@
 #include <cassert>
+#include <cstring>
 #include "lua_ini_bridge.h"
 #include "log.h"
 
@@ -8,7 +9,7 @@ namespace OpenGTA { namespace Script {
 
 IniScriptBridge::IniScriptBridge(const std::string & file) :
   ScriptParser(file) {
-    L = lua_open();
+    L = luaL_newstate();
     luaL_openlibs(L);
 }
 
@@ -29,7 +30,7 @@ void IniScriptBridge::loadLevel(PHYSFS_uint32 level) {
   ScriptParser::loadLevel(level);
 }
 
-void IniScriptBridge::acceptCommand(const char* cmd) {
+void IniScriptBridge::acceptCommand(char* cmd) {
   char *skip_idx = strchr(cmd, ' ');
   assert(skip_idx);
   *skip_idx = 0;
@@ -46,7 +47,7 @@ void IniScriptBridge::acceptCommand(const char* cmd) {
   lua_settop(L, 0);
 }
 
-void IniScriptBridge::acceptDefinition(const char* def) {
+void IniScriptBridge::acceptDefinition(char* def) {
   char *skip_idx = strchr(def, ' ');
   assert(skip_idx);
   *skip_idx = 0;

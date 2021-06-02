@@ -13,7 +13,7 @@ namespace OpenGTA {
         static int setFullscreen(lua_State *L);
         static int makeScreenShot(lua_State *L);
 
-        static const luaL_reg methods[];
+        static const luaL_Reg methods[];
     };
   }
 }

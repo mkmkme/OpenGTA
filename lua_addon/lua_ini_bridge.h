@@ -15,8 +15,8 @@ namespace OpenGTA {
         void loadLevel(PHYSFS_uint32 level);
       protected:
         void reset();
-        void acceptDefinition(const char*);
-        void acceptCommand(const char*);
+        void acceptDefinition(char*);
+        void acceptCommand(char*);
 
     };
   }

@@ -8,6 +8,8 @@
 *                                                                       *
 * This notice may not be removed or altered.                            *
 ************************************************************************/
+#include "message-db.h"
+
 #include <stdio.h>
 #include <iostream>
 #include "file_helper.h"

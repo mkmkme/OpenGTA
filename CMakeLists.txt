@@ -48,9 +48,9 @@ add_library(ogta STATIC
     game_objects.cpp
     id_sys.cpp
     localplayer.cpp
+    message-db.cpp
     navdata.cpp
     read_cmp.cpp
-    read_fxt.cpp
     read_g24.cpp
     read_gry.cpp
     read_ini.cpp

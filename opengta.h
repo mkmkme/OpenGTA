@@ -496,20 +496,5 @@ namespace OpenGTA {
       static const PHYSFS_uint64 _baseSize = 262144;
   };
 
-  class MessageDB {
-    public:
-      MessageDB();
-      MessageDB(const std::string &file);
-      ~MessageDB();
-      void load(const std::string &file);
-      const std::string& getText(const char* id);
-      const std::string& getText(const std::string &id);
-      const std::string& getText(const uint32_t id);
-    private:
-      std::map<std::string, std::string> messages;
-      std::string _error;
-  };
-
-
 }
 #endif

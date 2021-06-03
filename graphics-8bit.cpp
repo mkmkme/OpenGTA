@@ -13,6 +13,7 @@
 #include <iostream>
 #include <cassert>
 #include "buffercache.h"
+#include "car-info.h"
 #include "file_helper.h"
 #include "loaded-anim.h"
 #include "log.h"
@@ -243,7 +244,7 @@ namespace OpenGTA {
     return false;
   }
 
-  GraphicsBase::CarInfo* GraphicsBase::findCarByModel(PHYSFS_uint8 model) {
+  CarInfo* GraphicsBase::findCarByModel(PHYSFS_uint8 model) {
     std::vector<CarInfo*>::iterator i = carInfos.begin();
     while (i != carInfos.end()) {
       if ((*i)->model == model)

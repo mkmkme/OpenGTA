@@ -22,6 +22,7 @@
  ************************************************************************/
 #include <SDL_opengl.h>
 #include "gl_spritecache.h"
+#include "car-info.h"
 #include "dataholder.h"
 #include "spritemanager.h"
 #include "log.h"

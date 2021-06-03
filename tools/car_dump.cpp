@@ -1,7 +1,7 @@
 #include <cassert>
 #include <iostream>
 #include <string>
-#include "graphics-base.h"
+#include "car-info.h"
 #include "dataholder.h"
 
 extern int global_EC;
@@ -35,7 +35,7 @@ void parse_args(int argc, char* argv[]) {
 
 }
 
-void print_car(OpenGTA::GraphicsBase::CarInfo & ci) {
+void print_car(OpenGTA::CarInfo & ci) {
   std::string model = "car" + std::to_string(int(ci.model));
 #define PRINT(c)  << #c << ":" << ci.c << "|"
 #define PRINTC(c) << #c << ":" << int(ci.c) << "|"
@@ -77,7 +77,7 @@ void run_main() {
   OpenGTA::GraphicsBase & style = OpenGTA::ActiveStyle::Instance().get();
   std::cout << "DUMP_OBJ_INFO BEGIN" << std::endl;
   for (size_t i = 0; i < style.carInfos.size(); ++i) {
-    OpenGTA::GraphicsBase::CarInfo * cinfo = style.carInfos[i];
+    OpenGTA::CarInfo * cinfo = style.carInfos[i];
     assert(cinfo);
     print_car(*cinfo);
   }

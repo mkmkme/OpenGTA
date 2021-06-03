@@ -36,6 +36,7 @@
 
 namespace OpenGTA {
   
+  struct CarInfo;
   struct GameObject_common;
   typedef OpenSteer::AbstractTokenForProximityDatabase<GameObject_common*> ProximityToken;
   typedef OpenSteer::AbstractProximityDatabase<GameObject_common*> ProximityDatabase;
@@ -148,7 +149,7 @@ namespace OpenGTA {
       Car(Vector3D & _pos, float _rot, uint32_t id, uint8_t _type, int16_t _remap = -1);
       uint32_t carId;
       inline uint32_t id() const { return carId; }
-      GraphicsBase::CarInfo & carInfo;
+      CarInfo & carInfo;
       uint8_t type;
       void update(Uint32 ticks);
       Uint32 lastUpdateAt;

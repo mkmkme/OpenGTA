@@ -22,6 +22,7 @@
 ************************************************************************/
 #include <cmath>
 #include <cassert>
+#include "car-info.h"
 #include "gl_cityview.h"
 #include "gl_spritecache.h"
 #include "spritemanager.h"
@@ -613,7 +614,7 @@ namespace OpenGTA {
     GraphicsBase::SpriteInfo *info = NULL;
     GraphicsBase::SpriteNumbers::SpriteTypes st;
     if (obj->remap >= 128) { // car
-      GraphicsBase::CarInfo* cinfo = style->findCarByModel(obj->type);
+      CarInfo* cinfo = style->findCarByModel(obj->type);
       assert(cinfo);
       sprNum = cinfo->sprNum;
       spriteNumAbs = style->spriteNumbers.reIndex(cinfo->sprNum, GraphicsBase::SpriteNumbers::CAR);

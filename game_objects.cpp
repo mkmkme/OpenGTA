@@ -21,6 +21,7 @@
  * distribution.                                                         *
  ************************************************************************/
 #include "game_objects.h"
+#include "car-info.h"
 #include "spritemanager.h"
 #include "dataholder.h"
 #include "cell_iterator.h"

@@ -53,6 +53,7 @@ add_library(ogta STATIC
     map.cpp
     message-db.cpp
     navdata.cpp
+    object-info.cpp
     read_ini.cpp
     read_sdt.cpp
     slope_height_func.cpp

@@ -228,12 +228,6 @@ namespace OpenGTA {
       i2++;
     }
     spriteInfos.clear();
-    std::vector<ObjectInfo*>::iterator i3 = objectInfos.begin();
-    while (i3 != objectInfos.end()) {
-      delete *i3;
-      i3++;
-    }
-    objectInfos.clear();
     std::vector<CarInfo*>::iterator i4 = carInfos.begin();
     while (i4 != carInfos.end()) {
       delete *i4;
@@ -471,19 +465,8 @@ namespace OpenGTA {
     assert(objectInfoSize % 20 == 0);
     int c = objectInfoSize / 20;
 
-    for (int i=0; i< c; i++) {
-      ObjectInfo *obj = new ObjectInfo();
-      PHYSFS_readULE32(fd, &obj->width);
-      PHYSFS_readULE32(fd, &obj->height);
-      PHYSFS_readULE32(fd, &obj->depth);
-      PHYSFS_readULE16(fd, &obj->sprNum);
-      PHYSFS_readULE16(fd, &obj->weight);
-      PHYSFS_readULE16(fd, &obj->aux);
-      PHYSFS_readBytes(fd, static_cast<void*>(&obj->status), 1);
-      PHYSFS_readBytes(fd, static_cast<void*>(&obj->numInto), 1);
-
-      objectInfos.push_back(obj);
-    }
+    for (int i=0; i< c; i++)
+      objectInfos.emplace_back(fd);
     
   }
 

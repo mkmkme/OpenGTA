@@ -623,8 +623,8 @@ namespace OpenGTA {
       st = GraphicsBase::SpriteNumbers::CAR;
     }
     else {
-      spriteNumAbs = style->spriteNumbers.reIndex(style->objectInfos[obj->type]->sprNum, GraphicsBase::SpriteNumbers::OBJECT);
-      sprNum = style->objectInfos[obj->type]->sprNum;
+      sprNum = style->objectInfos[obj->type].sprNum;
+      spriteNumAbs = style->spriteNumbers.reIndex(sprNum, GraphicsBase::SpriteNumbers::OBJECT);
       info = style->getSprite(spriteNumAbs);
       assert(info);
       w = float(info->w) / 64.0f;

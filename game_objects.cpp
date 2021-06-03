@@ -759,10 +759,11 @@ activeWeapon = chooseWeapon;
     Sprite(0, -1, GraphicsBase::SpriteNumbers::OBJECT), OBox() {
       objId = id;
       GraphicsBase & style = ActiveStyle::Instance().get();
-      sprNum = style.objectInfos[op.type]->sprNum;
-      m_Extent = Vector3D(INT2F_DIV128(style.objectInfos[op.type]->width),
-          INT2F_DIV128(style.objectInfos[op.type]->depth),
-          INT2F_DIV128(style.objectInfos[op.type]->height));
+      const auto &info = style.objectInfos[op.type];
+      sprNum = info.sprNum;
+      m_Extent = Vector3D(INT2F_DIV128(info.width),
+          INT2F_DIV128(info.depth),
+          INT2F_DIV128(info.height));
       m_M = TranslateMatrix3D(pos);
       m_M.RotZ(-rot);
       rot = op.rotation * 360 / 1024;

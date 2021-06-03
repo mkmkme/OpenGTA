@@ -205,7 +205,7 @@ public:
 
     std::vector<LoadedAnim *> animations;
     std::vector<SpriteInfo *> spriteInfos;
-    std::vector<ObjectInfo *> objectInfos;
+    std::vector<ObjectInfo> objectInfos;
     std::vector<CarInfo *> carInfos;
 
     bool getDeltaHandling();

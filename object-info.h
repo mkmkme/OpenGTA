@@ -5,6 +5,7 @@
 namespace OpenGTA {
 
 struct ObjectInfo {
+    ObjectInfo(PHYSFS_file *fd);
     PHYSFS_uint32 width, height, depth;
     PHYSFS_uint16 sprNum, weight, aux;
     PHYSFS_sint8 status;

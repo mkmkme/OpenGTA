@@ -29,8 +29,7 @@
 #include "dataholder.h"
 #include "buffercache.h"
 #include "log.h"
-//#include "physfsrwops.h"
-//#include "image_loader.h"
+#include "sprite-info.h"
 
 namespace OpenGL {
   SpriteIdentifier::SpriteIdentifier() : sprNum(0), remap(-1), delta(0) {}
@@ -175,7 +174,7 @@ namespace OpenGL {
     OpenGTA::GraphicsBase & style = OpenGTA::ActiveStyle::Instance().get();
     PHYSFS_uint16 real_num = style.spriteNumbers.reIndex(sprNum, st);
 
-    OpenGTA::GraphicsBase::SpriteInfo* info = style.getSprite(real_num);
+    OpenGTA::SpriteInfo* info = style.getSprite(real_num);
     assert(info);
     
     OpenGL::PagedTexture t = createSprite(real_num, remap, delta, info);
@@ -185,7 +184,7 @@ namespace OpenGL {
   }
 
   OpenGL::PagedTexture SpriteCache::createSprite(size_t sprite_num, PHYSFS_sint16 remap,
-    PHYSFS_uint32 delta, OpenGTA::GraphicsBase::SpriteInfo* info) {
+    PHYSFS_uint32 delta, OpenGTA::SpriteInfo* info) {
     INFO << "creating new sprite: " << sprite_num << " remap: " << remap << std::endl;
     unsigned char* src = OpenGTA::ActiveStyle::Instance().get().
       getSpriteBitmap(sprite_num, remap , delta);

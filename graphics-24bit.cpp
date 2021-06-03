@@ -14,6 +14,7 @@
 #include <cassert>
 #include "buffercache.h"
 #include "log.h"
+#include "sprite-info.h"
 
 using namespace Util;
 namespace OpenGTA {

@@ -37,6 +37,7 @@
 #include "gl_screen.h"
 #include "blockdata.h"
 #include "image_loader.h"
+#include "sprite-info.h"
 #include "blockanim.h"
 #include "id_sys.h"
 #include "map_helper.h"
@@ -611,7 +612,7 @@ namespace OpenGTA {
     float y = float(obj->y >> 6) + float(obj->y % 64)/64.0f;
     float z = float(obj->z >> 6) + float(obj->z % 64)/64.0f;
     size_t spriteNumAbs, sprNum;
-    GraphicsBase::SpriteInfo *info = NULL;
+    SpriteInfo *info = NULL;
     GraphicsBase::SpriteNumbers::SpriteTypes st;
     if (obj->remap >= 128) { // car
       CarInfo &cinfo = style->findCarByModel(obj->type);

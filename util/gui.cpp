@@ -3,6 +3,7 @@
 #include "dataholder.h"
 #include "gl_spritecache.h"
 #include "gl_screen.h"
+#include "sprite-info.h"
 #ifdef WITH_LUA
 #include "lua_vm.h"
 #endif
@@ -261,7 +262,7 @@ namespace GUI {
   ImageUtil::WidthHeightPair Manager::cacheStyleArrowSprite(const size_t id, int remap) {
     OpenGTA::GraphicsBase & graphics = OpenGTA::ActiveStyle::Instance().get();
     PHYSFS_uint16 t = graphics.spriteNumbers.reIndex(id, OpenGTA::GraphicsBase::SpriteNumbers::ARROW);
-    OpenGTA::GraphicsBase::SpriteInfo * info = graphics.getSprite(t);
+    OpenGTA::SpriteInfo * info = graphics.getSprite(t);
     texCache.insert(std::make_pair(
           id, OpenGL::SpriteCache::Instance().createSprite(size_t(t), remap, 0, info)
           ));

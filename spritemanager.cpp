@@ -24,6 +24,7 @@
 #include "gl_spritecache.h"
 #include "car-info.h"
 #include "dataholder.h"
+#include "sprite-info.h"
 #include "spritemanager.h"
 #include "log.h"
 #include "timer.h"
@@ -267,7 +268,7 @@ void SpriteManager::draw(Car & car) {
   PHYSFS_uint16 sprNum = style.spriteNumbers.reIndex(car.sprNum, car.sprType);
       //+ car.anim.firstFrameOffset + car.anim.currentFrame, car.sprType);
 
-  GraphicsBase::SpriteInfo * info = style.getSprite(sprNum);
+  SpriteInfo * info = style.getSprite(sprNum);
   assert(info);
   float w = float(info->w) / 64.0f;
   float h = float(info->h) / 64.0f;
@@ -342,7 +343,7 @@ void SpriteManager::draw(SpriteObject & obj) {
   PHYSFS_uint16 sprNum = style.spriteNumbers.reIndex(obj.sprNum + 
       obj.anim.firstFrameOffset + obj.anim.currentFrame, obj.sprType);
 
-  GraphicsBase::SpriteInfo * info = style.getSprite(sprNum);
+  SpriteInfo * info = style.getSprite(sprNum);
   assert(info);
   float w = float(info->w) / 64.0f;
   float h = float(info->h) / 64.0f;
@@ -381,7 +382,7 @@ void SpriteManager::draw(Pedestrian & ped) {
   PHYSFS_uint16 sprNum = style.spriteNumbers.reIndex(ped.sprNum + 
       ped.anim.firstFrameOffset + ped.anim.currentFrame, ped.sprType);
 
-  GraphicsBase::SpriteInfo * info = style.getSprite(sprNum);
+  SpriteInfo * info = style.getSprite(sprNum);
   assert(info);
   float w = float(info->w) / 64.0f;
   float h = float(info->h) / 64.0f;
@@ -428,7 +429,7 @@ void SpriteManager::drawExplosion(SpriteObject & obj) {
   PHYSFS_uint16 sprNum = style.spriteNumbers.reIndex(obj.sprNum + 
       obj.anim.firstFrameOffset + obj.anim.currentFrame, obj.sprType);
 
-  GraphicsBase::SpriteInfo * info = style.getSprite(sprNum);
+  SpriteInfo * info = style.getSprite(sprNum);
   assert(info);
   float w = float(info->w) / 64.0f;
   float h = float(info->h) / 64.0f;

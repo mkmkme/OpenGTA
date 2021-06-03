@@ -28,6 +28,10 @@
 #include "gl_texturecache.h"
 #include "graphics-base.h"
 
+namespace OpenGTA {
+class SpriteInfo;
+}
+
 namespace OpenGL {
   
   struct SpriteIdentifier;
@@ -75,7 +79,7 @@ namespace OpenGL {
         PHYSFS_sint16 remap, PHYSFS_uint32 delta);
 
       OpenGL::PagedTexture createSprite(size_t sprite_num, PHYSFS_sint16 remap, 
-        PHYSFS_uint32 delta, OpenGTA::GraphicsBase::SpriteInfo* info);
+        PHYSFS_uint32 delta, OpenGTA::SpriteInfo* info);
     private:
 
       typedef std::map<SpriteIdentifier, PagedTexture> SpriteMapType;

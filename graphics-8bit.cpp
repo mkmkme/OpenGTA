@@ -19,6 +19,7 @@
 #include "log.h"
 #include "m_exceptions.h"
 #include "object-info.h"
+#include "sprite-info.h"
 #include "set.h"
 
 using namespace Util;

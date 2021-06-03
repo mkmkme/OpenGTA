@@ -26,6 +26,7 @@
 #include "dataholder.h"
 #include "cell_iterator.h"
 #include "object-info.h"
+#include "sprite-info.h"
 #include "timer.h"
 #include "plane.h"
 #include "ai.h"
@@ -504,7 +505,7 @@ activeWeapon = chooseWeapon;
   bool CarSprite::assertDeltaById(uint8_t k) {
     GraphicsBase & style = ActiveStyle::Instance().get();
     PHYSFS_uint16 absNum = style.spriteNumbers.reIndex(sprNum, sprType);
-    GraphicsBase::SpriteInfo * info = style.getSprite(absNum);
+    SpriteInfo * info = style.getSprite(absNum);
     if (k >= info->deltaCount)
       return false;
     return true;

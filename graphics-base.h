@@ -30,14 +30,14 @@ public:
     virtual ~GraphicsBase();
     uint8_t getFormat();
 
-    typedef struct ObjectInfo {
+    struct ObjectInfo {
         PHYSFS_uint32 width, height, depth;
         PHYSFS_uint16 sprNum, weight, aux;
         PHYSFS_sint8 status;
         PHYSFS_uint8 numInto;
         // PHYSFS_uint16 into[255]; // FIXME: MAX_INTO ???
-    } ObjectInfo;
-    typedef struct LoadedAnim {
+    };
+    struct LoadedAnim {
         LoadedAnim(size_t size)
             : frame(size)
         {}
@@ -46,19 +46,19 @@ public:
         PHYSFS_uint8 speed;
         PHYSFS_uint8 frameCount;
         std::vector<PHYSFS_uint8> frame;
-    } LoadedAnim;
+    };
 
-    typedef struct DoorInfo {
+    struct DoorInfo {
         PHYSFS_sint16 rpx, rpy;
         PHYSFS_sint16 object;
         PHYSFS_sint16 delta;
-    } DoorInfo;
+    };
 
-    typedef struct HlsInfo {
+    struct HlsInfo {
         PHYSFS_sint16 h, l, s;
-    } HlsInfo;
+    };
 
-    typedef struct CarInfo {
+    struct CarInfo {
         PHYSFS_sint16 width, height, depth;
         PHYSFS_sint16 sprNum;
         PHYSFS_sint16 weightDescriptor;
@@ -94,7 +94,7 @@ public:
         PHYSFS_uint8 fastChangeFlag;
         PHYSFS_sint16 numDoors;
         DoorInfo door[4]; // FIXME: MAX_DOORS
-    } CarInfo;
+    };
     /*
      * float->fixed:
      *  fixed = int(floatnum * 65536)
@@ -109,12 +109,12 @@ public:
      *   int = fixedNum >> 16
      */
 
-    typedef struct DeltaInfo {
+    struct DeltaInfo {
         PHYSFS_uint16 size;
         unsigned char *ptr;
-    } DeltaInfo;
+    };
 
-    typedef struct SpriteInfo {
+    struct SpriteInfo {
         PHYSFS_uint8 w;
         PHYSFS_uint8 h;
         PHYSFS_uint8 deltaCount;
@@ -125,9 +125,9 @@ public:
         PHYSFS_uint16 page;
         // unsigned char* ptr;
         DeltaInfo delta[33]; // FIXME: GTA_SPRITE_MAX_DELTAS
-    } SpriteInfo;
+    };
 
-    typedef struct SpriteNumbers {
+    struct SpriteNumbers {
         PHYSFS_uint16 GTA_SPRITE_ARROW;
         PHYSFS_uint16 GTA_SPRITE_DIGITS;
         PHYSFS_uint16 GTA_SPRITE_BOAT;
@@ -177,7 +177,7 @@ public:
         PHYSFS_uint16 reIndex(const PHYSFS_uint16 &id,
                               const enum SpriteTypes &st) const;
         PHYSFS_uint16 countByType(const SpriteTypes &t) const;
-    } SpriteNumbers;
+    };
 
     bool isAnimatedBlock(uint8_t area_code, uint8_t id);
 

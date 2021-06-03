@@ -168,8 +168,6 @@ void print_version_info() {
 #define PRINT_FORMATED(spaces) std::setw(spaces) << std::left <<
 #define PRINT_OFFSET PRINT_FORMATED(19)
   std::cout << PRINT_OFFSET "OpenGTA version:" << OGTA_VERSION_INFO << std::endl <<
-  PRINT_OFFSET "platform:" << OGTA_PLATFORM_INFO << std::endl << 
-
   PRINT_OFFSET "Lua support:" << 
 #ifdef WITH_LUA
   "yes [" << LUA_RELEASE << "]" <<
@@ -219,10 +217,7 @@ void print_version_info() {
 #else
   "GRY - 8 bit" <<
 #endif
-  std::endl <<
-
-  PRINT_OFFSET "compiler: " << USED_GCC_VERSION
-  << std::endl;
+  std::endl;
 }
 
 void parse_args(int argc, char* argv[]) {

@@ -143,9 +143,9 @@ void print_usage(const char* argv0) {
   " -M k : texture mipmaps: 0 = disable, 1 = enable" << std::endl <<
   " -x k : scale2x sprites: 0 = disable, 1 = enable" << std::endl <<
   " -v k : vertical sync: 0 = disable, 1 = try with SDL" <<
-#ifdef LINUX
+#ifdef __linux__
   ", 2 = try with GLX" <<
-#elif WIN32
+#elif defined(_WIN32)
   ", 2 = try with GLW" <<
 #endif
     std::endl <<
@@ -901,11 +901,11 @@ void handleKeyPress( SDL_keysym *keysym ) {
       break;
     case 'f':
 //FIXME: simply ignored on windows for now
-#ifndef WIN32
+#ifndef _WIN32
       OpenGL::Screen::Instance().toggleFullscreen();
 #endif
 #if 0
-#ifdef WIN32
+#ifdef _WIN32
       city->resetTextures();
       //m_font->resetTextures();
       OpenGL::SpriteCache::Instance().clearAll();

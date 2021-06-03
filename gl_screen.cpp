@@ -195,7 +195,7 @@ namespace OpenGL {
   void Screen::initGL() {
     GL_CHECKERROR;
     if (useVsync == 2) {
-#ifdef LINUX
+#ifdef __linux__
       int (*fp)(int) = (int(*)(int)) SDL_GL_GetProcAddress("glXSwapIntervalMESA");
       if (fp) {
         fp(1);

@@ -24,15 +24,17 @@
 #define GL_CITYVIEW_H
 
 #include "map.h"
-#include "opengta.h"
 #include "navdata.h"
 #include "gl_texturecache.h"
 #include "gl_frustum.h"
 #include "gl_pagedtexture.h"
 
+#include <SDL.h>
+
 namespace OpenGTA {
 
   class BlockAnimCtrl;
+  class GraphicsBase;
   class CityView {
     public:
       CityView();

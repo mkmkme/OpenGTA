@@ -12,7 +12,6 @@
 
 #include <iostream>
 #include <cassert>
-#include "opengta.h"
 #include "buffercache.h"
 #include "log.h"
 

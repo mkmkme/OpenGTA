@@ -1,6 +1,4 @@
 #include "datahelper.h"
-#include "opengta.h"
-#include "m_exceptions.h"
 #include "log.h"
 #include "string_helpers.h"
 

@@ -26,7 +26,7 @@
 #include <physfs.h>
 #include "gl_pagedtexture.h"
 #include "gl_texturecache.h"
-#include "opengta.h"
+#include "graphics-base.h"
 
 namespace OpenGL {
   

@@ -1,6 +1,5 @@
 #include <cassert>
 #include "ai.h"
-#include "opengta.h"
 #include "game_objects.h"
 #include "cell_iterator.h"
 #include "log.h"

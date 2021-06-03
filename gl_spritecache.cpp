@@ -26,7 +26,6 @@
 #include "config.h"
 #include "gl_spritecache.h"
 #include "image_loader.h"
-#include "opengta.h"
 #include "dataholder.h"
 #include "buffercache.h"
 #include "log.h"

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "opengta.h"
+#include "graphics-base.h"
 
 namespace OpenGTA {
 

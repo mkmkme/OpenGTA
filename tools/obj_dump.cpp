@@ -1,7 +1,7 @@
 #include <cassert>
 #include <iostream>
 #include <string>
-#include "opengta.h"
+#include "graphics-base.h"
 
 extern int global_EC;
 extern int global_Done;

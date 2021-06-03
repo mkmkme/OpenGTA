@@ -13,7 +13,6 @@
 #include <stdio.h>
 #include <iostream>
 #include "file_helper.h"
-#include "opengta.h"
 #include "m_exceptions.h"
 #include "log.h"
 

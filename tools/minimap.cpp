@@ -1,5 +1,4 @@
 #include <cassert>
-#include "opengta.h"
 #include "dataholder.h"
 #include "log.h"
 

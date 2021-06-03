@@ -23,7 +23,6 @@
 #ifndef OGTA_TRAINSYSTEM_H
 #define OGTA_TRAINSYSTEM_H
 
-#include "opengta.h"
 //#include "pedestrian.h"
 #include "game_objects.h"
 #include "cell_iterator.h"

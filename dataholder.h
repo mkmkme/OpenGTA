@@ -23,7 +23,7 @@
 #ifndef STYLE_HOLDER_H
 #define STYLE_HOLDER_H
 #include <string>
-#include "opengta.h"
+#include "graphics-base.h"
 #include "m_exceptions.h"
 #include "map.h"
 #include "message-db.h"

@@ -4,7 +4,6 @@
 #include <SDL_opengl.h>
 #include "common_sdl_gl.h"
 #include "log.h"
-#include "opengta.h"
 
 extern SDL_Surface* screen;
 GLfloat mapPos[2] = {0.0f, 0.0f};

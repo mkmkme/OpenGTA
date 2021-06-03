@@ -24,7 +24,7 @@
 #include <SDL_opengl.h>
 #include <unistd.h>
 #include "gl_screen.h"
-#include "opengta.h"
+#include "graphics-base.h"
 #include "log.h"
 #include "spritemanager.h"
 #include "m_exceptions.h"

@@ -24,7 +24,6 @@
 #define M_OPENGL_FONT_H
 #include <string>
 #include <map>
-#include "opengta.h"
 #include "gl_base.h"
 #include "gl_texturecache.h"
 

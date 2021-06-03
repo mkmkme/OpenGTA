@@ -23,7 +23,6 @@
 #ifndef UTIL_CELLITERATOR_H
 #define UTIL_CELLITERATOR_H
 #include <cassert>
-#include "opengta.h"
 #include "dataholder.h"
 #include "math3d.h"
 #include "SDL_video.h"

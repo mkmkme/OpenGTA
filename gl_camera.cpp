@@ -1,6 +1,5 @@
 #include "gl_camera.h"
 #include "gl_screen.h"
-#include "opengta.h"
 #include "dataholder.h"
 #include <iostream>
 #include "log.h"

@@ -1,7 +1,6 @@
 #include <filesystem>
 #include <string>
 #include "lua_vm.h"
-#include "opengta.h"
 #include "dataholder.h"
 #include "file_helper.h"
 #include "log.h"

@@ -28,6 +28,7 @@
 #include "buffercache.h"
 #include "gl_camera.h"
 #include "dataholder.h"
+#include "graphics-base.h"
 #include "math3d.h"
 #include "localplayer.h"
 #include "log.h"

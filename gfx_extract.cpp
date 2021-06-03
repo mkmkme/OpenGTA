@@ -31,8 +31,8 @@
 #include <fcntl.h>
 #endif
 
-#include "opengta.h"
 #include "dataholder.h"
+#include "graphics-base.h"
 #include "m_exceptions.h"
 #include "set.h"
 

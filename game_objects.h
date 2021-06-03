@@ -26,7 +26,7 @@
 #include "math3d.h"
 #include "obox.h"
 #include "animation.h"
-#include "opengta.h"
+#include "graphics-base.h"
 #include "cell_iterator.h"
 #include "entity_controller.h"
 #include "OpenSteer/Proximity.h"

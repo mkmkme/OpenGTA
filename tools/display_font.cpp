@@ -3,7 +3,6 @@
 #include <SDL_image.h>
 #include <SDL_opengl.h>
 #include "common_sdl_gl.h"
-#include "opengta.h"
 #include "gl_base.h"
 #include "gl_font.h"
 

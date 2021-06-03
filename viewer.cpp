@@ -41,7 +41,6 @@
 #include "log.h"
 #include "m_exceptions.h"
 #include "navdata.h"
-#include "opengta.h"
 #include "spritemanager.h"
 #include "gl_spritecache.h"
 #include "timer.h"

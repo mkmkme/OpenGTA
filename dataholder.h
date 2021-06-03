@@ -25,6 +25,7 @@
 #include <string>
 #include "opengta.h"
 #include "m_exceptions.h"
+#include "map.h"
 #include "message-db.h"
 
 namespace OpenGTA {

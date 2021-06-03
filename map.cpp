@@ -11,6 +11,7 @@
 #include <iostream>
 #include <cassert>
 #include "file_helper.h"
+#include "map.h"
 #include "opengta.h"
 #include "navdata.h"
 #include "log.h"

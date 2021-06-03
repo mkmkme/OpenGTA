@@ -48,9 +48,9 @@ add_library(ogta STATIC
     game_objects.cpp
     id_sys.cpp
     localplayer.cpp
+    map.cpp
     message-db.cpp
     navdata.cpp
-    read_cmp.cpp
     read_g24.cpp
     read_gry.cpp
     read_ini.cpp
@@ -90,7 +90,7 @@ add_executable(gfxextract EXCLUDE_FROM_ALL
     gfx_extract.cpp
     read_gry.cpp
     read_g24.cpp
-    read_cmp.cpp
+    map.cpp
     navdata.cpp
     dataholder.cpp)
 
@@ -145,7 +145,7 @@ add_executable(slopeview EXCLUDE_FROM_ALL
     main.cpp
     tools/display_slopes.cpp
     navdata.cpp
-    read_cmp.cpp
+    map.cpp
     common_sdl_gl.cpp)
 
 target_link_libraries(slopeview
@@ -190,7 +190,7 @@ add_executable(objdump_map EXCLUDE_FROM_ALL
     main2.cpp
     tools/obj_dump.cpp
     read_gry.cpp
-    read_cmp.cpp
+    map.cpp
     navdata.cpp)
 
 target_compile_definitions(objdump_map PRIVATE DUMP_OBJ_IN_MAP)

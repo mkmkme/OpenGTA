@@ -23,6 +23,7 @@
 #ifndef GL_CITYVIEW_H
 #define GL_CITYVIEW_H
 
+#include "map.h"
 #include "opengta.h"
 #include "navdata.h"
 #include "gl_texturecache.h"

@@ -22,22 +22,13 @@
 ************************************************************************/
 #include <string>
 #include "gl_screen.h"
+#include "config.h"
 #include "log.h"
 #include "buffercache.h"
 #include "m_exceptions.h"
 #include "image_loader.h"
 
 namespace OpenGL {
-#ifndef DEFAULT_SCREEN_WIDTH
-#define DEFAULT_SCREEN_WIDTH 640
-#endif
-#ifndef DEFAULT_SCREEN_HEIGHT
-#define DEFAULT_SCREEN_HEIGHT 480
-#endif
-#ifndef DEFAULT_SCREEN_VSYNC
-#define DEFAULT_SCREEN_VSYNC 0
-#endif
-
   Screen::Screen() {
     surface = NULL;
     videoFlags = defaultVideoFlags; 

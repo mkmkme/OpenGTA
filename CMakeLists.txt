@@ -49,6 +49,7 @@ add_library(ogta STATIC
     graphics-24bit.cpp
     graphics-8bit.cpp
     id_sys.cpp
+    loaded-anim.cpp
     localplayer.cpp
     map.cpp
     message-db.cpp

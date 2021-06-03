@@ -193,7 +193,7 @@ public:
                                            int remap,
                                            Uint32 delta) = 0;
 
-    std::vector<LoadedAnim *> animations;
+    std::vector<LoadedAnim> animations;
     std::vector<SpriteInfo *> spriteInfos;
     std::vector<ObjectInfo> objectInfos;
     std::vector<CarInfo *> carInfos;

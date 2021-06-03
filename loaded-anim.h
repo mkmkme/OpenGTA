@@ -7,9 +7,7 @@
 namespace OpenGTA {
 
 struct LoadedAnim {
-    LoadedAnim(size_t size)
-        : frame(size)
-    {}
+    LoadedAnim(PHYSFS_file *fd);
     PHYSFS_uint8 block;
     PHYSFS_uint8 which;
     PHYSFS_uint8 speed;

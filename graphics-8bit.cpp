@@ -217,12 +217,6 @@ namespace OpenGTA {
   GraphicsBase::~GraphicsBase() {
     if (fd)
       PHYSFS_close(fd);
-    std::vector<LoadedAnim*>::iterator i = animations.begin();
-    while (i != animations.end()) {
-      delete *i;
-      i++;
-    }
-    animations.clear();
     std::vector<SpriteInfo*>::iterator i2 = spriteInfos.begin();
     while (i2 != spriteInfos.end()) {
       delete *i2;
@@ -242,11 +236,9 @@ namespace OpenGTA {
   }
 
   bool GraphicsBase::isAnimatedBlock(uint8_t area_code, uint8_t id) {
-    std::vector<LoadedAnim*>::iterator i = animations.begin();
-    while (i != animations.end()) {
-      if ((*i)->which == area_code && (*i)->block == id)
+    for (const auto &anim : animations) {
+      if (anim.which == area_code && anim.block == id)
         return true;
-      ++i;
     }
     return false;
   }
@@ -400,30 +392,8 @@ namespace OpenGTA {
     PHYSFS_seek(fd, st);
     PHYSFS_uint8 numAnim;
     PHYSFS_readBytes(fd, static_cast<void*>(&numAnim), 1);
-    for (int i=0; i<numAnim;i++) {
-      uint8_t block, which, speed, frameCount;
-      PHYSFS_readBytes(fd, static_cast<void*>(&block), 1);
-      PHYSFS_readBytes(fd, static_cast<void*>(&which), 1);
-      PHYSFS_readBytes(fd, static_cast<void*>(&speed), 1);
-      PHYSFS_readBytes(fd, static_cast<void*>(&frameCount), 1);
-      LoadedAnim *animation = new LoadedAnim(frameCount);
-      animation->block = block;
-      animation->which = which;
-      animation->speed = speed;
-      animation->frameCount = frameCount;
-      
-      if (animation->frameCount > 180) {
-        ERROR << "found animation with " << int(animation->frameCount) 
-          << " frames ???" << std::endl;
-      }
-      for (int j=0; j<animation->frameCount; j++) {
-        uint8_t val;
-        PHYSFS_readBytes(fd, static_cast<void*>(&val), 1);
-        animation->frame[j] = val;
-        //PHYSFS_read(fd, static_cast<void*>(&animations[i].frame[j]), 1, 1);
-      }
-      animations.push_back(animation);
-    }
+    for (int i=0; i<numAnim;i++)
+      animations.emplace_back(fd);
   }
   
   void Graphics8Bit::loadPalette() {

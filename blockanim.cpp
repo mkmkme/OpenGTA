@@ -23,8 +23,8 @@
 #include "blockanim.h"
 
 namespace OpenGTA {
-  BlockAnimCtrl::BlockAnimCtrl(const std::vector<LoadedAnim*> & v) {
-    for (const auto &anim : v) {
+  BlockAnimCtrl::BlockAnimCtrl(std::vector<LoadedAnim> & v) {
+    for (auto &anim : v) {
       anims_.emplace_back(anim);
     }
    /* while (i != v.end()) {
@@ -38,7 +38,7 @@ namespace OpenGTA {
   std::optional<BlockAnim> BlockAnimCtrl::getAnim(uint8_t area, uint8_t id)
   {
     for (const auto &anim : anims_) {
-      if ((anim.ad_ptr->which == area) && (anim.ad_ptr->block == id))
+      if ((anim.ad_ptr.which == area) && (anim.ad_ptr.block == id))
         return anim;
     }
     return std::nullopt;

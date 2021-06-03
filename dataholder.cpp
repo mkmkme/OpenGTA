@@ -21,6 +21,7 @@
 * distribution.                                                         *
 ************************************************************************/
 #include "dataholder.h"
+#include "graphics-24bit.h"
 #include "log.h"
 #include "string_helpers.h"
 

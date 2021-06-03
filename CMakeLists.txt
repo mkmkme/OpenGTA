@@ -46,12 +46,12 @@ add_library(ogta STATIC
     font.cpp
     font_cache.cpp
     game_objects.cpp
+    graphics-24bit.cpp
     id_sys.cpp
     localplayer.cpp
     map.cpp
     message-db.cpp
     navdata.cpp
-    read_g24.cpp
     read_gry.cpp
     read_ini.cpp
     read_sdt.cpp
@@ -88,8 +88,8 @@ target_link_libraries(viewer
 
 add_executable(gfxextract EXCLUDE_FROM_ALL
     gfx_extract.cpp
+    graphics-24bit.cpp
     read_gry.cpp
-    read_g24.cpp
     map.cpp
     navdata.cpp
     dataholder.cpp)
@@ -166,7 +166,7 @@ target_link_libraries(blockview
     ${GLU_LIBRARIES})
 
 add_executable(g24 EXCLUDE_FROM_ALL
-    read_g24.cpp
+    graphics-24bit.cpp
     read_gry.cpp)
 
 target_compile_definitions(g24 PRIVATE G24_DUMPER)

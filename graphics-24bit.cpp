@@ -8,6 +8,8 @@
 *                                                                       *
 * This notice may not be removed or altered.                            *
 ************************************************************************/
+#include "graphics-24bit.h"
+
 #include <iostream>
 #include <cassert>
 #include "opengta.h"

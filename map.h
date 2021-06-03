@@ -126,11 +126,11 @@ public:
         PHYSFS_uint16 roll;
     };
     struct Location {
-        Location();
-        Location(const Location &other);
-        PHYSFS_uint8 x, y, z;
+        PHYSFS_uint8 x = 0;
+        PHYSFS_uint8 y = 0;
+        PHYSFS_uint8 z = 0;
     };
-    using LocationMap = std::multimap<PHYSFS_uint8, Location *>;
+    using LocationMap = std::multimap<PHYSFS_uint8, Location>;
     //...
     PHYSFS_uint16 getNumBlocksAt(PHYSFS_uint8 x, PHYSFS_uint8 y);
     PHYSFS_uint16 getNumBlocksAtNew(PHYSFS_uint8 x, PHYSFS_uint8 y);

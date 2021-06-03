@@ -110,12 +110,6 @@ namespace OpenGTA {
     if (block)   delete [] block;
     if (objects) delete [] objects;
     if (nav)     delete    nav;
-    LocationMap::iterator i = locations.begin();
-    while (i != locations.end()) {
-      delete i->second;
-      ++i;
-    }
-    locations.clear();
     if (fd)
       PHYSFS_close(fd);
   }
@@ -243,8 +237,6 @@ namespace OpenGTA {
       _counted += 2;
     }
   }
-  Map::Location::Location() : x(0), y(0), z(0) {}
-  Map::Location::Location(const Map::Location & other) : x(other.x), y(other.y), z(other.z) {}
   void Map::loadLocations() {
     //FIXME: missing
     PHYSFS_uint32 _si = _baseSize + columnSize + _topHeaderSize +
@@ -256,9 +248,9 @@ namespace OpenGTA {
     // unused
     // fire
     // unused
-    Location loc;
     PHYSFS_uint8 loc_type = 0;
     for (int i = 0; i < 36; ++i) {
+      Location loc;
       PHYSFS_readBytes(fd, static_cast<void*>(&loc.x), 1);
       PHYSFS_readBytes(fd, static_cast<void*>(&loc.y), 1);
       PHYSFS_readBytes(fd, static_cast<void*>(&loc.z), 1);
@@ -274,7 +266,7 @@ namespace OpenGTA {
       else
         continue;
       //std::cout << int(loc_type) <<": " << int(loc.x) << ", " << int(loc.y) << ", " << int(loc.z) << std::endl;
-      locations.insert(std::pair<PHYSFS_uint8, Location*>(loc_type, new Location(loc)));
+      locations.insert({loc_type, std::move(loc)});
     }
 
   }
@@ -335,18 +327,16 @@ namespace OpenGTA {
     int _x(x);
     int _y(y);
     int min_d = 255 * 255;
-#define ABS(a) (a > 0 ? a : -a)
 
     while (i != locations.end()) {
-    INFO << int(i->first) << ": "<< int(i->second->x) << " " << int(i->second->y) << std::endl;
-      int d = ABS((_x - i->second->x)) + ABS((_y - i->second->y));
+    INFO << int(i->first) << ": "<< int(i->second.x) << " " << int(i->second.y) << std::endl;
+      int d = abs(_x - i->second.x) + abs(_y - i->second.y);
       if (d < min_d) {
         min_d = d;
         j = i;
       }
     }
-#undef ABS
-    return *j->second;
+    return j->second;
   }
 
 }

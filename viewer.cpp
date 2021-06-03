@@ -1069,8 +1069,8 @@ void draw_mapmode() {
       }
       // uint8_t l_type = i->first;
       float l_x, l_y;
-      l_x = i->second->x / 255.0f * h;// *  map_tex.coords[1].u;
-      l_y = i->second->y / 255.0f * h;// * map_tex.coords[1].u;
+      l_x = i->second.x / 255.0f * h;// *  map_tex.coords[1].u;
+      l_y = i->second.y / 255.0f * h;// * map_tex.coords[1].u;
       //INFO << int(l_type) << ": " << l_x << " " << l_y << std::endl;
       glBegin(GL_LINE_STRIP);
       glVertex2f(l_x - 5, l_y - 5);

@@ -23,7 +23,7 @@
 #include "blockanim.h"
 
 namespace OpenGTA {
-  BlockAnimCtrl::BlockAnimCtrl(const std::vector<GraphicsBase::LoadedAnim*> & v) {
+  BlockAnimCtrl::BlockAnimCtrl(const std::vector<LoadedAnim*> & v) {
     for (const auto &anim : v) {
       anims_.emplace_back(anim);
     }

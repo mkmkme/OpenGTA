@@ -21,6 +21,7 @@
 
 namespace OpenGTA {
 
+struct LoadedAnim;
 struct ObjectInfo;
 
 /** The common class for all graphics wrappers.
@@ -31,17 +32,6 @@ public:
     GraphicsBase();
     virtual ~GraphicsBase();
     uint8_t getFormat();
-
-    struct LoadedAnim {
-        LoadedAnim(size_t size)
-            : frame(size)
-        {}
-        PHYSFS_uint8 block;
-        PHYSFS_uint8 which;
-        PHYSFS_uint8 speed;
-        PHYSFS_uint8 frameCount;
-        std::vector<PHYSFS_uint8> frame;
-    };
 
     struct DoorInfo {
         PHYSFS_sint16 rpx, rpy;

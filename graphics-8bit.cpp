@@ -14,6 +14,7 @@
 #include <cassert>
 #include "buffercache.h"
 #include "file_helper.h"
+#include "loaded-anim.h"
 #include "log.h"
 #include "m_exceptions.h"
 #include "object-info.h"

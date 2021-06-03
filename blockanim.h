@@ -20,15 +20,15 @@
 * 3. This notice may not be removed or altered from any source          *
 * distribution.                                                         *
 ************************************************************************/
-#include "graphics-base.h"
 #include "animation.h"
+#include "loaded-anim.h"
 
 #include <optional>
 
 namespace OpenGTA {
   class BlockAnim : public Util::Animation {
     public:
-      BlockAnim(GraphicsBase::LoadedAnim * anim_data) : 
+      BlockAnim(LoadedAnim * anim_data) :
         // fix for STYLE001.G24 water anim seems one frame longer than data exists!
         Util::Animation(
           (anim_data->frameCount == 11 && anim_data->which == 1 ? anim_data->frameCount : anim_data->frameCount + 1),
@@ -44,12 +44,12 @@ namespace OpenGTA {
       inline uint8_t getFrame(uint8_t num) const noexcept {
         return ad_ptr->frame[num];
       }
-      GraphicsBase::LoadedAnim * ad_ptr;
+      LoadedAnim * ad_ptr;
   };
 
   class BlockAnimCtrl {
     public:
-      BlockAnimCtrl(const std::vector<GraphicsBase::LoadedAnim*> & v);
+      BlockAnimCtrl(const std::vector<LoadedAnim*> & v);
       void update(uint32_t ticks);
       std::optional<BlockAnim> getAnim(uint8_t area, uint8_t id);
     private:

@@ -28,8 +28,11 @@
 #include "gl_base.h"
 #include "gl_texturecache.h"
 
+namespace OpenGTA {
+class Font;
+}
+
 namespace OpenGL {
-  
   class DrawableFont {
     public:
       DrawableFont();

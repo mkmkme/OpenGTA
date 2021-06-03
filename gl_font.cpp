@@ -22,6 +22,7 @@
 ************************************************************************/
 #include <cassert>
 #include "gl_font.h"
+#include "font.h"
 #include "log.h"
 #include "buffercache.h"
 #include "m_exceptions.h"

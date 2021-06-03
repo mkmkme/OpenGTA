@@ -11,7 +11,7 @@
 #include <iostream>
 #include <cassert>
 #include "file_helper.h"
-#include "opengta.h"
+#include "font.h"
 #include "m_exceptions.h"
 #include "log.h"
 #include "string_helpers.h"

@@ -43,13 +43,13 @@ add_library(ogta STATIC
     datahelper.cpp
     dataholder.cpp
     entity_controller.cpp
+    font.cpp
     font_cache.cpp
     game_objects.cpp
     id_sys.cpp
     localplayer.cpp
     navdata.cpp
     read_cmp.cpp
-    read_fnt.cpp
     read_fxt.cpp
     read_g24.cpp
     read_gry.cpp

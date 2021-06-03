@@ -24,6 +24,7 @@
 #include "spritemanager.h"
 #include "dataholder.h"
 #include "cell_iterator.h"
+#include "object-info.h"
 #include "timer.h"
 #include "plane.h"
 #include "ai.h"

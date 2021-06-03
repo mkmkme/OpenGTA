@@ -32,6 +32,7 @@
 #include "math3d.h"
 #include "localplayer.h"
 #include "log.h"
+#include "object-info.h"
 #include "gl_screen.h"
 #include "blockdata.h"
 #include "image_loader.h"

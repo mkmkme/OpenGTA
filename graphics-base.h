@@ -21,6 +21,8 @@
 
 namespace OpenGTA {
 
+struct ObjectInfo;
+
 /** The common class for all graphics wrappers.
  * Contains a number of common variables; does essentially nothing.
  */
@@ -30,13 +32,6 @@ public:
     virtual ~GraphicsBase();
     uint8_t getFormat();
 
-    struct ObjectInfo {
-        PHYSFS_uint32 width, height, depth;
-        PHYSFS_uint16 sprNum, weight, aux;
-        PHYSFS_sint8 status;
-        PHYSFS_uint8 numInto;
-        // PHYSFS_uint16 into[255]; // FIXME: MAX_INTO ???
-    };
     struct LoadedAnim {
         LoadedAnim(size_t size)
             : frame(size)

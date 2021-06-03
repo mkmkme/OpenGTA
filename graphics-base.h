@@ -11,6 +11,7 @@
 #ifndef OPENGTA_MAIN_H
 #define OPENGTA_MAIN_H
 
+#include "car-info.h"
 #include "set.h"
 
 #include <SDL.h>
@@ -21,7 +22,6 @@
 
 namespace OpenGTA {
 
-struct CarInfo;
 struct LoadedAnim;
 struct ObjectInfo;
 
@@ -129,8 +129,8 @@ public:
 
     SpriteNumbers spriteNumbers;
 
-    CarInfo *findCarByModel(PHYSFS_uint8);
-    size_t getNumCarModels() { return carInfos.size(); }
+    CarInfo &findCarByModel(PHYSFS_uint8);
+    inline size_t getNumCarModels() const noexcept { return carInfos.size(); }
     unsigned char *getTmpBuffer(bool rgba);
     SpriteInfo *getSprite(size_t id) { return spriteInfos[id]; }
 
@@ -151,7 +151,7 @@ public:
     std::vector<LoadedAnim> animations;
     std::vector<SpriteInfo *> spriteInfos;
     std::vector<ObjectInfo> objectInfos;
-    std::vector<CarInfo *> carInfos;
+    std::vector<CarInfo> carInfos;
 
     bool getDeltaHandling();
     void setDeltaHandling(bool delta_as_set);

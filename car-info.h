@@ -15,6 +15,8 @@ struct HlsInfo {
 };
 
 struct CarInfo {
+    CarInfo(PHYSFS_file *fd);
+    inline PHYSFS_uint32 bytes_read() const noexcept { return bytes_read_; }
     PHYSFS_sint16 width, height, depth;
     PHYSFS_sint16 sprNum;
     PHYSFS_sint16 weightDescriptor;
@@ -50,6 +52,9 @@ struct CarInfo {
     PHYSFS_uint8 fastChangeFlag;
     PHYSFS_sint16 numDoors;
     DoorInfo door[4]; // FIXME: MAX_DOORS
+
+private:
+    PHYSFS_uint32 bytes_read_ = 0;
 };
 
 } // namespace OpenGTA

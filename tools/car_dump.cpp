@@ -76,10 +76,7 @@ void run_main() {
   OpenGTA::ActiveStyle::Instance().load(style_file);
   OpenGTA::GraphicsBase & style = OpenGTA::ActiveStyle::Instance().get();
   std::cout << "DUMP_OBJ_INFO BEGIN" << std::endl;
-  for (size_t i = 0; i < style.carInfos.size(); ++i) {
-    OpenGTA::CarInfo * cinfo = style.carInfos[i];
-    assert(cinfo);
-    print_car(*cinfo);
-  }
+  for (auto &cinfo : style.carInfos)
+    print_car(cinfo);
 
 }

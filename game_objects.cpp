@@ -630,7 +630,7 @@ activeWeapon = chooseWeapon;
   Car::Car(Vector3D & _pos, float _rot, uint32_t id, uint8_t _type, int16_t _remap) :
     GameObject_common(_pos, _rot),
     CarSprite(0, -1, GraphicsBase::SpriteNumbers::CAR), OBox(),
-    carInfo(*ActiveStyle::Instance().get().findCarByModel(_type)) {
+    carInfo(ActiveStyle::Instance().get().findCarByModel(_type)) {
       type = _type;
       carId = id;
       sprNum = carInfo.sprNum;
@@ -657,7 +657,7 @@ activeWeapon = chooseWeapon;
   Car::Car(OpenGTA::Map::ObjectPosition& op, uint32_t id) :
     GameObject_common(Vector3D(INT2FLOAT_WRLD(op.x), 6.05f-INT2FLOAT_WRLD(op.z), INT2FLOAT_WRLD(op.y))),
     CarSprite(0, -1, GraphicsBase::SpriteNumbers::CAR), OBox(),
-    carInfo(*ActiveStyle::Instance().get().findCarByModel(op.type)){
+    carInfo(ActiveStyle::Instance().get().findCarByModel(op.type)){
       carId = id;
       type = op.type;
       if (op.remap - 128 > 0) {
@@ -681,7 +681,7 @@ activeWeapon = chooseWeapon;
 
   Car::Car(const Car & other) :
     GameObject_common(other), CarSprite(other), OBox(other),
-    carInfo(*ActiveStyle::Instance().get().findCarByModel(other.type)) {
+    carInfo(ActiveStyle::Instance().get().findCarByModel(other.type)) {
       type = other.type;
       m_M = TranslateMatrix3D(pos);
       m_M.RotZ(-rot);

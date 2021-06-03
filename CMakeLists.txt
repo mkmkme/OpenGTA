@@ -40,6 +40,7 @@ add_library(ogta STATIC
     ai.cpp
     blockanim.cpp
     blockdata.cpp
+    car-info.cpp
     datahelper.cpp
     dataholder.cpp
     entity_controller.cpp

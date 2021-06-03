@@ -614,10 +614,9 @@ namespace OpenGTA {
     GraphicsBase::SpriteInfo *info = NULL;
     GraphicsBase::SpriteNumbers::SpriteTypes st;
     if (obj->remap >= 128) { // car
-      CarInfo* cinfo = style->findCarByModel(obj->type);
-      assert(cinfo);
-      sprNum = cinfo->sprNum;
-      spriteNumAbs = style->spriteNumbers.reIndex(cinfo->sprNum, GraphicsBase::SpriteNumbers::CAR);
+      CarInfo &cinfo = style->findCarByModel(obj->type);
+      sprNum = cinfo.sprNum;
+      spriteNumAbs = style->spriteNumbers.reIndex(cinfo.sprNum, GraphicsBase::SpriteNumbers::CAR);
       info = style->getSprite(spriteNumAbs);
       w = float(info->w) / 64.0f;
       h = float(info->h) / 64.0f;

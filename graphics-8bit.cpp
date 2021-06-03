@@ -224,12 +224,6 @@ namespace OpenGTA {
       i2++;
     }
     spriteInfos.clear();
-    std::vector<CarInfo*>::iterator i4 = carInfos.begin();
-    while (i4 != carInfos.end()) {
-      delete *i4;
-      i4++;
-    }
-    carInfos.clear();
     if (rawTiles)
       delete [] rawTiles;
     if (rawSprites)
@@ -244,12 +238,10 @@ namespace OpenGTA {
     return false;
   }
 
-  CarInfo* GraphicsBase::findCarByModel(PHYSFS_uint8 model) {
-    std::vector<CarInfo*>::iterator i = carInfos.begin();
-    while (i != carInfos.end()) {
-      if ((*i)->model == model)
-        return *i;
-      ++i;
+  CarInfo &GraphicsBase::findCarByModel(PHYSFS_uint8 model) {
+    for (auto &car : carInfos) {
+      if (car.model == model)
+        return car;
     }
     //throw std::string("Failed to find car by model");
     throw E_UNKNOWNKEY("Searching for car model " + std::to_string(int(model))
@@ -452,106 +444,13 @@ namespace OpenGTA {
   void GraphicsBase::loadCarInfo_shared(PHYSFS_uint64 offset) {
     PHYSFS_seek(fd, offset);
 
-    //INFO << "starting at offset " << offset << std::endl;
     PHYSFS_uint32 bytes_read = 0;
     while (bytes_read < carInfoSize) {
-      //INFO << bytes_read << ": " << carInfoSize << std::endl;
-      CarInfo * car = new CarInfo();
-
-      PHYSFS_readSLE16(fd, &car->width);
-      PHYSFS_readSLE16(fd, &car->height);
-      PHYSFS_readSLE16(fd, &car->depth);
-      PHYSFS_readSLE16(fd, &car->sprNum);
-      PHYSFS_readSLE16(fd, &car->weightDescriptor);
-      PHYSFS_readSLE16(fd, &car->maxSpeed);
-      PHYSFS_readSLE16(fd, &car->minSpeed);
-      PHYSFS_readSLE16(fd, &car->acceleration);
-      PHYSFS_readSLE16(fd, &car->braking);
-      PHYSFS_readSLE16(fd, &car->grip);
-      PHYSFS_readSLE16(fd, &car->handling);
-      bytes_read += 2 * 11;
-
-      for (int i=0; i < 12; i++) {
-        PHYSFS_readSLE16(fd, &car->remap24[i].h);
-        PHYSFS_readSLE16(fd, &car->remap24[i].l);
-        PHYSFS_readSLE16(fd, &car->remap24[i].s);
-      }
-      bytes_read += 12 * 3 * 2;
-      for (int i=0; i < 12; i++) {
-        PHYSFS_readBytes(fd, static_cast<void*>(&car->remap8[i]), 1);
-      }
-      bytes_read += 12;
-
-      PHYSFS_readBytes(fd, static_cast<void*>(&car->vtype), 1);
-      PHYSFS_readBytes(fd, static_cast<void*>(&car->model), 1);
-      PHYSFS_readBytes(fd, static_cast<void*>(&car->turning), 1);
-      PHYSFS_readBytes(fd, static_cast<void*>(&car->damagable), 1);
-      bytes_read += 4;
-
-      for (int i=0; i < 4; i++)
-        PHYSFS_readULE16(fd, &car->value[i]);
-      bytes_read += 4 * 2;
-
-      PHYSFS_readBytes(fd, static_cast<void*>(&car->cx), 1);
-      PHYSFS_readBytes(fd, static_cast<void*>(&car->cy), 1);
-      PHYSFS_readULE32(fd, &car->moment);
-      bytes_read += 2 + 4;
-
-      PHYSFS_uint32 fixed_tmp;
-      PHYSFS_readULE32(fd, &fixed_tmp);
-      car->rbpMass = float(fixed_tmp)/65536;
-      PHYSFS_readULE32(fd, &fixed_tmp);
-      car->g1_Thrust = float(fixed_tmp)/65536;
-      PHYSFS_readULE32(fd, &fixed_tmp);
-      car->tyreAdhesionX = float(fixed_tmp)/65536;
-      PHYSFS_readULE32(fd, &fixed_tmp);
-      car->tyreAdhesionY = float(fixed_tmp)/65536;
-      PHYSFS_readULE32(fd, &fixed_tmp);
-      car->handBrakeFriction = float(fixed_tmp)/65536;
-      PHYSFS_readULE32(fd, &fixed_tmp);
-      car->footBrakeFriction = float(fixed_tmp)/65536;
-      PHYSFS_readULE32(fd, &fixed_tmp);
-      car->frontBrakeBias = float(fixed_tmp)/65536;
-      bytes_read += 7 * 4;
-
-      PHYSFS_readSLE16(fd, &car->turnRatio);
-      PHYSFS_readSLE16(fd, &car->driveWheelOffset);
-      PHYSFS_readSLE16(fd, &car->steeringWheelOffset);
-      bytes_read += 3 * 2;
-
-      PHYSFS_readULE32(fd, &fixed_tmp);
-      car->backEndSlideValue = float(fixed_tmp)/65536;
-      PHYSFS_readULE32(fd, &fixed_tmp);
-      car->handBrakeSlideValue = float(fixed_tmp)/65536;
-      bytes_read += 2 * 4;
-
-      PHYSFS_readBytes(fd, static_cast<void*>(&car->convertible), 1);
-      PHYSFS_readBytes(fd, static_cast<void*>(&car->engine), 1);
-      PHYSFS_readBytes(fd, static_cast<void*>(&car->radio), 1);
-      PHYSFS_readBytes(fd, static_cast<void*>(&car->horn), 1);
-      PHYSFS_readBytes(fd, static_cast<void*>(&car->soundFunction), 1);
-      PHYSFS_readBytes(fd, static_cast<void*>(&car->fastChangeFlag), 1);
-      bytes_read += 6;
-
-      PHYSFS_readSLE16(fd, &car->numDoors);
-      bytes_read += 2;
-      if (car->numDoors > 2) {
-        WARN << "num-doors: " << car->numDoors << " > 2 ???" << std::endl;
-        car->numDoors = 0;
-      }
-
-      for (int i=0; i < car->numDoors; i++) {
-        PHYSFS_readSLE16(fd, &car->door[i].rpy);
-        PHYSFS_readSLE16(fd, &car->door[i].rpx);
-        PHYSFS_readSLE16(fd, &car->door[i].object);
-        PHYSFS_readSLE16(fd, &car->door[i].delta);
-        bytes_read += 4 * 2;
-      }
-      carInfos.push_back(car);
-
+      CarInfo car { fd };
+      bytes_read += car.bytes_read();
+      carInfos.emplace_back(std::move(car));
     }
     assert(bytes_read == carInfoSize);
-
   }
 
   void Graphics8Bit::loadCarInfo() {

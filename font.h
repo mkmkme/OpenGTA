@@ -1,6 +1,6 @@
 #pragma once
 
-#include "opengta.h"
+#include "graphics-8bit.h"
 
 #include <cstddef>
 #include <cstdint>

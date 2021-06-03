@@ -8,9 +8,10 @@
 *                                                                       *
 * This notice may not be removed or altered.                            *
 ************************************************************************/
+#include "graphics-8bit.h"
+
 #include <iostream>
 #include <cassert>
-#include "opengta.h"
 #include "buffercache.h"
 #include "file_helper.h"
 #include "log.h"
@@ -291,7 +292,6 @@ namespace OpenGTA {
     _topHeaderSize = 52;
     rawTiles = NULL;
     rawSprites = NULL;
-    masterRGB = NULL;
     auxBlockTrailSize = 0;
     loadHeader();
     setupBlocking(style);
@@ -299,13 +299,6 @@ namespace OpenGTA {
     lastValidPedRemap = 187;
   }
 
-  Graphics8Bit::~Graphics8Bit() {
-    //if (rawSprites)
-    //  delete [] rawSprites;
-    if (masterRGB)
-      delete masterRGB;
-  }
-  
   void Graphics8Bit::dump() {
     
     uint32_t gs = sideSize + lidSize + auxSize;
@@ -441,9 +434,7 @@ namespace OpenGTA {
     PHYSFS_uint64 st = static_cast<PHYSFS_uint64>(_topHeaderSize) +
       sideSize + lidSize + auxSize + auxBlockTrailSize + animSize;
     PHYSFS_seek(fd, st);
-    if (masterRGB)
-      delete masterRGB;
-    masterRGB = new RGBPalette(fd);
+    masterRGB_.reset(new RGBPalette(fd));
   }
   
   void Graphics8Bit::loadRemapTables() {
@@ -832,7 +823,7 @@ namespace OpenGTA {
       applyRemap(page_size, remap, result);
     unsigned char* bigbuf = bcache.requestBuffer(page_size * 4);
     
-    masterRGB->apply(page_size, result, bigbuf, true);
+    masterRGB_->apply(page_size, result, bigbuf, true);
     assert(page_size > PHYSFS_uint32(info->w * info->h * 4));
     for (uint16_t i = 0; i < info->h; i++) {
       memcpy(result, bigbuf+(256*y+x)*4, info->w * 4);
@@ -908,11 +899,11 @@ namespace OpenGTA {
     prepareSideTexture(idx-1, tileTmp);
     unsigned char *res;
     if (rgba) {
-      masterRGB->apply(4096, tileTmp, tileTmpRGBA, true);
+      masterRGB_->apply(4096, tileTmp, tileTmpRGBA, true);
       res = tileTmpRGBA;
     }
     else {
-      masterRGB->apply(4096, tileTmp, tileTmpRGB, false);
+      masterRGB_->apply(4096, tileTmp, tileTmpRGB, false);
       res = tileTmpRGB;
     }
     return res;
@@ -938,11 +929,11 @@ namespace OpenGTA {
     
     unsigned char *res;
     if (rgba) {
-      masterRGB->apply(4096, tileTmp, tileTmpRGBA, true);
+      masterRGB_->apply(4096, tileTmp, tileTmpRGBA, true);
       res = tileTmpRGBA;
     }
     else {
-      masterRGB->apply(4096, tileTmp, tileTmpRGB, false);
+      masterRGB_->apply(4096, tileTmp, tileTmpRGB, false);
       res = tileTmpRGB;
     }
     return res;
@@ -966,11 +957,11 @@ namespace OpenGTA {
     unsigned char *res;
     if (rgba) {
 
-      masterRGB->apply(4096, tileTmp, tileTmpRGBA, true);
+      masterRGB_->apply(4096, tileTmp, tileTmpRGBA, true);
       res = tileTmpRGBA;
     }
     else {
-      masterRGB->apply(4096, tileTmp, tileTmpRGB, false);
+      masterRGB_->apply(4096, tileTmp, tileTmpRGB, false);
       res = tileTmpRGB;
     }
     return res;

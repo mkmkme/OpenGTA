@@ -47,12 +47,12 @@ add_library(ogta STATIC
     font_cache.cpp
     game_objects.cpp
     graphics-24bit.cpp
+    graphics-8bit.cpp
     id_sys.cpp
     localplayer.cpp
     map.cpp
     message-db.cpp
     navdata.cpp
-    read_gry.cpp
     read_ini.cpp
     read_sdt.cpp
     slope_height_func.cpp
@@ -89,7 +89,7 @@ target_link_libraries(viewer
 add_executable(gfxextract EXCLUDE_FROM_ALL
     gfx_extract.cpp
     graphics-24bit.cpp
-    read_gry.cpp
+    graphics-8bit.cpp
     map.cpp
     navdata.cpp
     dataholder.cpp)
@@ -167,7 +167,7 @@ target_link_libraries(blockview
 
 add_executable(g24 EXCLUDE_FROM_ALL
     graphics-24bit.cpp
-    read_gry.cpp)
+    graphics-8bit.cpp)
 
 target_compile_definitions(g24 PRIVATE G24_DUMPER)
 
@@ -178,7 +178,7 @@ target_link_libraries(g24
 
 add_executable(objdump EXCLUDE_FROM_ALL
     main2.cpp
-    read_gry.cpp
+    graphics-8bit.cpp
     tools/obj_dump.cpp)
 
 target_link_libraries(objdump EXCLUDE_FROM_ALL
@@ -189,7 +189,7 @@ target_link_libraries(objdump EXCLUDE_FROM_ALL
 add_executable(objdump_map EXCLUDE_FROM_ALL
     main2.cpp
     tools/obj_dump.cpp
-    read_gry.cpp
+    graphics-8bit.cpp
     map.cpp
     navdata.cpp)
 

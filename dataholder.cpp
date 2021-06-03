@@ -22,6 +22,7 @@
 ************************************************************************/
 #include "dataholder.h"
 #include "graphics-24bit.h"
+#include "graphics-8bit.h"
 #include "log.h"
 #include "string_helpers.h"
 

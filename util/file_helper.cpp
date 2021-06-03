@@ -23,28 +23,13 @@
 #include "file_helper.h"
 
 #include "buffercache.h"
+#include "config.h"
 #include "log.h"
 #include "m_exceptions.h"
 #include "string_helpers.h"
 
 #include <cassert>
 #include <physfs.h>
-
-#ifndef OGTA_DEFAULT_DATA_PATH
-#define OGTA_DEFAULT_DATA_PATH "gtadata.zip"
-#endif
-#ifndef OGTA_DEFAULT_MOD_PATH
-#define OGTA_DEFAULT_MOD_PATH ""
-#endif
-
-#ifndef OGTA_DEFAULT_HOME_PATH
-//#ifdef LINUX
-//#define OGTA_DEFAULT_HOME_PATH PHYSFS_getUserDir()
-//#elif WIN32
-//#define OGTA_DEFAULT_HOME_PATH "config"
-//#endif
-#define OGTA_DEFAULT_HOME_PATH PHYSFS_getBaseDir()
-#endif
 
 namespace {
 

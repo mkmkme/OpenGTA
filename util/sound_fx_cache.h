@@ -22,6 +22,9 @@
 ************************************************************************/
 #ifndef SOUND_FX_CACHE_H
 #define SOUND_FX_CACHE_H
+
+#include "config.h"
+
 #ifdef WITH_SOUND
 
 #include <map>

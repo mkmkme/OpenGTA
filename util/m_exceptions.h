@@ -73,7 +73,7 @@ struct NotSupported : public LocalException {
 // to avoid the need for the namespace when writing catch-all blocks
 typedef Util::LocalException Exception;
 
-#ifdef WIN32
+#ifdef _WIN32
 #undef E_OUTOFMEMORY
 #endif
 

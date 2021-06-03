@@ -30,7 +30,7 @@
 #include "localplayer.h"
 
 // ugly fix for win32
-#ifdef WIN32
+#ifdef _WIN32
 #undef ERROR
 #define ERROR Util::Log::error(__FILE__, __LINE__)
 #endif
@@ -186,8 +186,10 @@ namespace OpenGTA {
       lastUpdateAt = ticks;
       return;
     }
-    if (pedId < 0xffffffff)
-      ai_step_fake(this);
+    // TODO reverendhomer: right now it calls the function from another module
+    // which appears to be empty. Need to check why.
+    // if (pedId < 0xffffffff)
+    //   ai_step_fake(this);
       //AI::Pedestrian::walk_pavement(this);
     if (aiMode) {
       AI::Pedestrian::moveto_shortrange(this);

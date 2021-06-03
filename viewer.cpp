@@ -143,9 +143,9 @@ void print_usage(const char* argv0) {
   " -M k : texture mipmaps: 0 = disable, 1 = enable" << std::endl <<
   " -x k : scale2x sprites: 0 = disable, 1 = enable" << std::endl <<
   " -v k : vertical sync: 0 = disable, 1 = try with SDL" <<
-#ifdef LINUX
+#ifdef __linux__
   ", 2 = try with GLX" <<
-#elif WIN32
+#elif defined(_WIN32)
   ", 2 = try with GLW" <<
 #endif
     std::endl <<
@@ -168,8 +168,6 @@ void print_version_info() {
 #define PRINT_FORMATED(spaces) std::setw(spaces) << std::left <<
 #define PRINT_OFFSET PRINT_FORMATED(19)
   std::cout << PRINT_OFFSET "OpenGTA version:" << OGTA_VERSION_INFO << std::endl <<
-  PRINT_OFFSET "platform:" << OGTA_PLATFORM_INFO << std::endl << 
-
   PRINT_OFFSET "Lua support:" << 
 #ifdef WITH_LUA
   "yes [" << LUA_RELEASE << "]" <<
@@ -219,10 +217,7 @@ void print_version_info() {
 #else
   "GRY - 8 bit" <<
 #endif
-  std::endl <<
-
-  PRINT_OFFSET "compiler: " << USED_GCC_VERSION
-  << std::endl;
+  std::endl;
 }
 
 void parse_args(int argc, char* argv[]) {
@@ -901,11 +896,11 @@ void handleKeyPress( SDL_keysym *keysym ) {
       break;
     case 'f':
 //FIXME: simply ignored on windows for now
-#ifndef WIN32
+#ifndef _WIN32
       OpenGL::Screen::Instance().toggleFullscreen();
 #endif
 #if 0
-#ifdef WIN32
+#ifdef _WIN32
       city->resetTextures();
       //m_font->resetTextures();
       OpenGL::SpriteCache::Instance().clearAll();

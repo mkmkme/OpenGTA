@@ -23,6 +23,7 @@
 #include <map>
 #include <cassert>
 #include <SDL_image.h>
+#include "config.h"
 #include "gl_spritecache.h"
 #include "image_loader.h"
 #include "opengta.h"

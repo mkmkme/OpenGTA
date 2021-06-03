@@ -34,7 +34,7 @@ void parse_args(int argc, char* argv[]) {
 }
 
 
-void run_init() {
+void run_init(const char*) {
   PHYSFS_init("mapview");
   PHYSFS_mount(PHYSFS_getBaseDir(), nullptr, 1);
   PHYSFS_mount("gtadata.zip", nullptr, 1);

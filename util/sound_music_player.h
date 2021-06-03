@@ -22,6 +22,9 @@
 ************************************************************************/
 #ifndef SOUND_MUSIC_PLAYER_H
 #define SOUND_MUSIC_PLAYER_H
+
+#include "config.h"
+
 #ifdef WITH_SOUND
 
 #include <SDL_sound.h>

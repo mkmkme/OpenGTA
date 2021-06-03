@@ -91,6 +91,7 @@ namespace Audio {
 }
 
 #ifdef SOUND_TEST
+#include <SDL_mixer.h>
 using namespace Audio;
 int main(int argc, char* argv[]) {
   PHYSFS_init(argv[0]);

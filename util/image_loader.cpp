@@ -24,7 +24,6 @@
 #include <physfs.h>
 #include "image_loader.h"
 #include "file_helper.h"
-#include "buffercache.h"
 #include "graphics-8bit.h"
 #include "log.h"
 #include "physfsrwops.h"
@@ -94,16 +93,11 @@ using OpenGL::PagedTexture;
       throw E_UNKNOWNKEY(name + " - RAW file size unknown");
     }
 
-    Util::BufferCache::LockedBuffer lbuf(nbytes);
-    /*
-    uint8_t * buffer = Util::BufferCache::Instance().
-      requestBuffer(nbytes);
-    */
-    uint8_t *buffer = lbuf();
-    PHYSFS_readBytes(fd, buffer, nbytes);
+    auto buffer = std::make_unique<uint8_t[]>(nbytes);
+    PHYSFS_readBytes(fd, buffer.get(), nbytes);
     PHYSFS_close(fd);
 
-    return createEmbeddedTexture(whp.first, whp.second, false, buffer);
+    return createEmbeddedTexture(whp.first, whp.second, false, std::move(buffer));
   }
 
 
@@ -119,19 +113,18 @@ using OpenGL::PagedTexture;
       WARN << "aborting image load" << std::endl;
       throw E_UNKNOWNKEY(name + " - RAT file size unknown");
     }
-    Util::BufferCache::LockedBuffer lb1(nbytes);
-    PHYSFS_readBytes(fd, lb1(), nbytes);
+    auto lb1 = std::make_unique<uint8_t[]>(nbytes);
+    PHYSFS_readBytes(fd, lb1.get(), nbytes);
     PHYSFS_close(fd);
 
-    // if this causes an exception, the buffercache will cleanup
     fd = Util::FileHelper::OpenReadVFS(palette_file);
     OpenGTA::Graphics8Bit::RGBPalette rgb(fd);
     PHYSFS_close(fd);
 
-    Util::BufferCache::LockedBuffer lb2(nbytes * 3);
-    rgb.apply(nbytes, lb1(), lb2(), false);
+    auto lb2 = std::make_unique<uint8_t[]>(nbytes * 3);
+    rgb.apply(nbytes, lb1.get(), lb2.get(), false);
 
-    return createEmbeddedTexture(whp.first, whp.second, false, lb2());
+    return createEmbeddedTexture(whp.first, whp.second, false, std::move(lb2));
   }
 
 #ifdef WITH_SDL_IMAGE
@@ -143,14 +136,15 @@ using OpenGL::PagedTexture;
     NextPowerOfTwo npot(surface->w, surface->h);
     uint16_t bpp = surface->format->BytesPerPixel;
 
-    uint8_t * buffer = Util::BufferCache::Instance().requestBuffer(npot.w * npot.h * bpp);
+    auto buff_smart = std::make_unique<uint8_t>(npot.w * npot.h * bpp);
+    auto buffer = buff_smart.get();
     SDL_LockSurface(surface);
     copyImage2Image(buffer, (uint8_t*)surface->pixels, surface->pitch, surface->h,
         npot.w * bpp);
     SDL_UnlockSurface(surface);
     SDL_FreeSurface(surface);
 
-    GLuint texture = createGLTexture(npot.w, npot.h, (bpp == 4) ? true : false, buffer);
+    GLuint texture = createGLTexture(npot.w, npot.h, bpp == 4, buffer);
     return OpenGL::PagedTexture(texture, 0, 0, GLfloat(surface->w)/npot.w,
       GLfloat(surface->h)/npot.h);
   }
@@ -198,19 +192,20 @@ using OpenGL::PagedTexture;
   }
 
   OpenGL::PagedTexture createEmbeddedTexture(GLsizei w, GLsizei h,
-      bool rgba, const void* pixels) {
+      bool rgba, std::unique_ptr<uint8_t[]> pixels) {
 
     NextPowerOfTwo npot(w, h);
-    uint8_t* buff = (uint8_t*)pixels;
+    auto buff = std::move(pixels);
 
     if (!(npot.w == uint32_t(w) && npot.h == uint32_t(h))) {
       uint32_t bpp = (rgba ? 4 : 3);
       uint32_t bufSize = npot.w * npot.h * bpp;
-      buff = Util::BufferCache::Instance().requestBuffer(bufSize);
-      copyImage2Image(buff, (uint8_t*)pixels, w * bpp, h, npot.w * bpp);
+      auto tmp = std::make_unique<uint8_t[]>(bufSize);
+      copyImage2Image(tmp.get(), buff.get(), w * bpp, h, npot.w * bpp);
+      buff = std::move(tmp);
     }
 
-    GLuint tex = createGLTexture(npot.w, npot.h, rgba, buff);
+    GLuint tex = createGLTexture(npot.w, npot.h, rgba, buff.get());
     return PagedTexture(tex, 0, 0, float(w) / npot.w, float(h) / npot.h);
   }
 
@@ -219,63 +214,61 @@ using OpenGL::PagedTexture;
 #define READINT24(x)      ((x)[0]<<16 | (x)[1]<<8 | (x)[2])
 #define WRITEINT24(x, i)  {(x)[0]=i>>16; (x)[1]=(i>>8)&0xff; x[2]=i&0xff; }
 
-  uint8_t* scale2x_24bit(const uint8_t* src, const int src_width, const int src_height) {
+  std::unique_ptr<uint8_t[]> scale2x_24bit(std::unique_ptr<uint8_t[]> src, const int src_width, const int src_height) {
     const int srcpitch = src_width * 3;
     const int dstpitch = src_width * 6;
 
-    uint8_t *dstpix = Util::BufferCache::Instance().requestBuffer(src_width *
-        src_height * 3 * 4);
+    auto dstpix = std::make_unique<uint8_t[]>(src_width * src_height * 3 * 4);
     int E0, E1, E2, E3, B, D, E, F, H;
     for(int looph = 0; looph < src_height; ++looph)
     {
       for(int loopw = 0; loopw < src_width; ++ loopw)
       {
-        B = READINT24(src + (MAX(0,looph-1)*srcpitch) + (3*loopw));
-        D = READINT24(src + (looph*srcpitch) + (3*MAX(0,loopw-1)));
-        E = READINT24(src + (looph*srcpitch) + (3*loopw));
-        F = READINT24(src + (looph*srcpitch) + (3*MIN(src_width-1,loopw+1)));
-        H = READINT24(src + (MIN(src_height-1,looph+1)*srcpitch) + (3*loopw));
+        B = READINT24(src.get() + (MAX(0,looph-1)*srcpitch) + (3*loopw));
+        D = READINT24(src.get() + (looph*srcpitch) + (3*MAX(0,loopw-1)));
+        E = READINT24(src.get() + (looph*srcpitch) + (3*loopw));
+        F = READINT24(src.get() + (looph*srcpitch) + (3*MIN(src_width-1,loopw+1)));
+        H = READINT24(src.get() + (MIN(src_height-1,looph+1)*srcpitch) + (3*loopw));
 
         E0 = D == B && B != F && D != H ? D : E;
         E1 = B == F && B != D && F != H ? F : E;
         E2 = D == H && D != B && H != F ? D : E;
         E3 = H == F && D != H && B != F ? F : E;
 
-        WRITEINT24((dstpix + looph*2*dstpitch + loopw*2*3), E0);
-        WRITEINT24((dstpix + looph*2*dstpitch + (loopw*2+1)*3), E1);
-        WRITEINT24((dstpix + (looph*2+1)*dstpitch + loopw*2*3), E2);
-        WRITEINT24((dstpix + (looph*2+1)*dstpitch + (loopw*2+1)*3), E3);
+        WRITEINT24((dstpix.get() + looph*2*dstpitch + loopw*2*3), E0);
+        WRITEINT24((dstpix.get() + looph*2*dstpitch + (loopw*2+1)*3), E1);
+        WRITEINT24((dstpix.get() + (looph*2+1)*dstpitch + loopw*2*3), E2);
+        WRITEINT24((dstpix.get() + (looph*2+1)*dstpitch + (loopw*2+1)*3), E3);
       }
     }
     return dstpix;
   }
 
-  uint8_t* scale2x_32bit(const uint8_t* src, const int src_width, const int src_height) {
+std::unique_ptr<uint8_t[]> scale2x_32bit(std::unique_ptr<uint8_t[]> src, const int src_width, const int src_height) {
     const int srcpitch = src_width * 4;
     const int dstpitch = src_width * 8;
 
-    uint8_t* dstpix = Util::BufferCache::Instance().requestBuffer(src_width *
-        src_height * 4 * 4);
+    auto dstpix = std::make_unique<uint8_t[]>(src_width * src_height * 4 * 4);
     Uint32 E0, E1, E2, E3, B, D, E, F, H;
     for(int looph = 0; looph < src_height; ++looph)
     {
       for(int loopw = 0; loopw < src_width; ++ loopw)
       {
-        B = *(Uint32*)(src + (MAX(0,looph-1)*srcpitch) + (4*loopw));
-        D = *(Uint32*)(src + (looph*srcpitch) + (4*MAX(0,loopw-1)));
-        E = *(Uint32*)(src + (looph*srcpitch) + (4*loopw));
-        F = *(Uint32*)(src + (looph*srcpitch) + (4*MIN(src_width-1,loopw+1)));
-        H = *(Uint32*)(src + (MIN(src_height-1,looph+1)*srcpitch) + (4*loopw));
+        B = *(Uint32*)(src.get() + (MAX(0,looph-1)*srcpitch) + (4*loopw));
+        D = *(Uint32*)(src.get() + (looph*srcpitch) + (4*MAX(0,loopw-1)));
+        E = *(Uint32*)(src.get() + (looph*srcpitch) + (4*loopw));
+        F = *(Uint32*)(src.get() + (looph*srcpitch) + (4*MIN(src_width-1,loopw+1)));
+        H = *(Uint32*)(src.get() + (MIN(src_height-1,looph+1)*srcpitch) + (4*loopw));
 
         E0 = D == B && B != F && D != H ? D : E;
         E1 = B == F && B != D && F != H ? F : E;
         E2 = D == H && D != B && H != F ? D : E;
         E3 = H == F && D != H && B != F ? F : E;
 
-        *(Uint32*)(dstpix + looph*2*dstpitch + loopw*2*4) = E0;
-        *(Uint32*)(dstpix + looph*2*dstpitch + (loopw*2+1)*4) = E1;
-        *(Uint32*)(dstpix + (looph*2+1)*dstpitch + loopw*2*4) = E2;
-        *(Uint32*)(dstpix + (looph*2+1)*dstpitch + (loopw*2+1)*4) = E3;
+        *(Uint32*)(dstpix.get() + looph*2*dstpitch + loopw*2*4) = E0;
+        *(Uint32*)(dstpix.get() + looph*2*dstpitch + (loopw*2+1)*4) = E1;
+        *(Uint32*)(dstpix.get() + (looph*2+1)*dstpitch + loopw*2*4) = E2;
+        *(Uint32*)(dstpix.get() + (looph*2+1)*dstpitch + (loopw*2+1)*4) = E3;
       }
     }
     return dstpix;

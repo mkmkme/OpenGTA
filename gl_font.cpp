@@ -21,10 +21,10 @@
 * distribution.                                                         *
 ************************************************************************/
 #include <cassert>
+#include <memory>
 #include "gl_font.h"
 #include "font.h"
 #include "log.h"
-#include "buffercache.h"
 #include "m_exceptions.h"
 
 namespace OpenGL {
@@ -146,11 +146,9 @@ namespace OpenGL {
     while(glheight < h)
       glheight <<= 1;
 
-    Util::BufferCache & bc = Util::BufferCache::Instance();
-    
-    unsigned char* dst = bc.requestBuffer(glwidth * glheight * 4);
+    auto dst = std::make_unique<unsigned char[]>(glwidth * glheight * 4);
     assert(dst != NULL);
-    unsigned char * t = dst;
+    unsigned char * t = dst.get();
     unsigned char * r = src;
     for (unsigned int i = 0; i < h; i++) {
       memcpy(t, r, w * 4);
@@ -163,7 +161,7 @@ namespace OpenGL {
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, glwidth, glheight, 0, GL_RGBA, GL_UNSIGNED_BYTE, dst);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, glwidth, glheight, 0, GL_RGBA, GL_UNSIGNED_BYTE, dst.get());
     texCache->addTexture(c, texid);
 
     FontQuad* res = new FontQuad();

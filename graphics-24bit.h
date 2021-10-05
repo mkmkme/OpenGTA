@@ -13,7 +13,9 @@ public:
     unsigned char *getLid(unsigned int idx, unsigned int palIdx, bool rgba);
     unsigned char *getAux(unsigned int idx, unsigned int palIdx, bool rgba);
 
-    unsigned char *getSpriteBitmap(size_t id, int remap, Uint32 delta);
+    std::unique_ptr<unsigned char[]> getSpriteBitmap(size_t id,
+                                                     int remap,
+                                                     Uint32 delta) override;
 
     void dumpClut(const char *fname);
 

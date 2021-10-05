@@ -212,7 +212,8 @@ int main(int argc, char* argv[]) {
         OpenGTA::GraphicsBase::SpriteInfo *sprite = graphics.getSprite(idx);
         std::cout << "Sprite is " << int(sprite->w) << "x" << int(sprite->h) <<
           " with " << int(sprite->deltaCount) << " deltas" << std::endl;
-        image = get_image(graphics.getSpriteBitmap(idx, remap, delta), sprite->w, sprite->h);
+        auto sbitmap = graphics.getSpriteBitmap(idx, remap, delta);
+        image = get_image(sbitmap.get(), sprite->w, sprite->h);
 #ifdef DUMP_DELTA_DEBUG
         if (delta && !delta_set) {
           std::cout << "dumping delta" << std::endl;

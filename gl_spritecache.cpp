@@ -21,13 +21,13 @@
 * distribution.                                                         *
 ************************************************************************/
 #include <map>
+#include <memory>
 #include <cassert>
 #include <SDL_image.h>
 #include "config.h"
 #include "gl_spritecache.h"
 #include "image_loader.h"
 #include "dataholder.h"
-#include "buffercache.h"
 #include "log.h"
 #include "sprite-info.h"
 
@@ -186,8 +186,10 @@ namespace OpenGL {
   OpenGL::PagedTexture SpriteCache::createSprite(size_t sprite_num, PHYSFS_sint16 remap,
     PHYSFS_uint32 delta, OpenGTA::SpriteInfo* info) {
     INFO << "creating new sprite: " << sprite_num << " remap: " << remap << std::endl;
-    unsigned char* src = OpenGTA::ActiveStyle::Instance().get().
-      getSpriteBitmap(sprite_num, remap , delta);
+    auto src_smart = OpenGTA::ActiveStyle::Instance().get().getSpriteBitmap(
+      sprite_num, remap , delta
+    );
+    unsigned char* src = src_smart.get();
     #if 0
     if (sprite_num == 257) {
       info->w = 72;
@@ -217,7 +219,6 @@ namespace OpenGL {
     while(glheight < info->h)
       glheight <<= 1;
     unsigned char* dst = Util::BufferCache::Instance().requestBuffer(glwidth * glheight * 4);
-    Util::BufferCache::Instance().unlockBuffer(src);
     assert(dst != NULL);
     unsigned char * t = dst;
     unsigned char * r = src;
@@ -228,18 +229,14 @@ namespace OpenGL {
     }
 #endif
     ImageUtil::NextPowerOfTwo npot(info->w, info->h);
-    Util::BufferCache & bc = Util::BufferCache::Instance();
-    uint8_t* dst = bc.requestBuffer(npot.w * npot.h * 4);
+    auto dst = std::make_unique<uint8_t[]>(npot.w * npot.h * 4);
 
-    ImageUtil::copyImage2Image(dst, src, info->w * 4, info->h, npot.w * 4);
-    bc.unlockBuffer(src);
+    ImageUtil::copyImage2Image(dst.get(), src, info->w * 4, info->h, npot.w * 4);
 
 #ifdef DO_SCALE2X
     if (doScale2x) {
-      bc.lockBuffer(dst);
-      uint8_t* dst_scalex = ImageUtil::scale2x_32bit(dst, npot.w, npot.h);
-      bc.unlockBuffer(dst);
-      dst = dst_scalex;
+      auto dst_scalex = ImageUtil::scale2x_32bit(std::move(dst), npot.w, npot.h);
+      dst = std::move(dst_scalex);
 #if 0
 #define MAX(a,b)    (((a) > (b)) ? (a) : (b))
 #define MIN(a,b)    (((a) < (b)) ? (a) : (b))
@@ -278,8 +275,8 @@ namespace OpenGL {
 #endif
 
     GLuint texid = (doScale2x) ?
-        ImageUtil::createGLTexture(npot.w * 2, npot.h * 2, true, dst)
-      : ImageUtil::createGLTexture(npot.w, npot.h, true, dst);
+        ImageUtil::createGLTexture(npot.w * 2, npot.h * 2, true, dst.get())
+      : ImageUtil::createGLTexture(npot.w, npot.h, true, dst.get());
 #if 0
     glGenTextures(1, &texid);
     glBindTexture(GL_TEXTURE_2D, texid);

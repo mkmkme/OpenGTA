@@ -22,11 +22,11 @@
 ************************************************************************/
 #include <cmath>
 #include <cassert>
+#include <memory>
 #include "car-info.h"
 #include "gl_cityview.h"
 #include "gl_spritecache.h"
 #include "spritemanager.h"
-#include "buffercache.h"
 #include "gl_camera.h"
 #include "dataholder.h"
 #include "graphics-base.h"
@@ -378,7 +378,8 @@ namespace OpenGTA {
     return OpenGL::PagedTexture(txtnumber, 0, 0, 1, 1);
 */
     uint32_t img_size = gl_h * gl_h * 3; 
-    uint8_t *img_buf = Util::BufferCache::Instance().requestBuffer(img_size);
+    auto img_buf_smart = std::make_unique<uint8_t[]>(img_size);
+    uint8_t *img_buf = img_buf_smart.get();
 
     glReadBuffer(GL_BACK);
     //for (uint32_t i = 0; i < gl_h; i++) {

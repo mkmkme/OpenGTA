@@ -20,11 +20,11 @@
 * 3. This notice may not be removed or altered from any source          *
 * distribution.                                                         *
 ************************************************************************/
+#include <memory>
 #include <string>
 #include "gl_screen.h"
 #include "config.h"
 #include "log.h"
-#include "buffercache.h"
 #include "m_exceptions.h"
 #include "image_loader.h"
 
@@ -280,10 +280,10 @@ namespace OpenGL {
 
   void Screen::makeScreenshot(const char* filename) {
     INFO << "saving screen as: " << filename << std::endl;
-    uint8_t *pixels = Util::BufferCache::Instance().requestBuffer(width * height * 3);
+    auto pixels = std::make_unique<uint8_t[]>(width * height * 3);
 
     glReadBuffer(GL_FRONT);
-    glReadPixels(0, 0, width, height, GL_RGB, GL_UNSIGNED_BYTE, reinterpret_cast<GLvoid*>(pixels));
+    glReadPixels(0, 0, width, height, GL_RGB, GL_UNSIGNED_BYTE, reinterpret_cast<GLvoid*>(pixels.get()));
 
     SDL_Surface* image = SDL_CreateRGBSurface(SDL_SWSURFACE, width, height, 24,
         255U << (0),
@@ -294,7 +294,7 @@ namespace OpenGL {
 
     uint8_t *imagepixels = reinterpret_cast<uint8_t*>(image->pixels);
     for (int y = (height - 1); y >= 0; --y) {
-      uint8_t *row_begin = pixels + y * width * 3;
+      uint8_t *row_begin = pixels.get() + y * width * 3;
       uint8_t *row_end = row_begin + width * 3;
 
       std::copy(row_begin, row_end, imagepixels);

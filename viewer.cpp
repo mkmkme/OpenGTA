@@ -321,7 +321,7 @@ void run_init(const char* prg_name) {
   // check for a configfile
 #ifdef WITH_LUA
   if (PHYSFS_exists("config")) {
-    char* config_as_string = (char*)Util::FileHelper::BufferFromVFS(
+    const auto config_as_string = Util::FileHelper::BufferFromVFS(
       Util::FileHelper::OpenReadVFS("config"));
     
     OpenGTA::Script::LuaVM & vm = OpenGTA::Script::LuaVM::Instance();
@@ -329,7 +329,7 @@ void run_init(const char* prg_name) {
       //vm.runString(config_as_string);
       lua_State *L = vm.getInternalState();
       Util::LGUARD(L);
-      if (luaL_loadbuffer(L, config_as_string, strlen(config_as_string), "config"))
+      if (luaL_loadbuffer(L, config_as_string.get(), strlen(config_as_string.get()), "config"))
         throw E_SCRIPTERROR("Error running string: " + std::string(lua_tostring(L, -1)));
       lua_newtable(L);
       lua_pushvalue(L, -1);
@@ -642,8 +642,6 @@ void add_auto_ped() {
 
 void toggle_player_run() {
   OpenGTA::PedController * pc = &OpenGTA::LocalPlayer::Instance().getCtrl();
-  INFO << std::endl;
-
   if (!pc) {
     WARN << "no player yet!" << std::endl;
     return;

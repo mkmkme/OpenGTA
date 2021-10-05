@@ -22,13 +22,13 @@
  ************************************************************************/
 #include "file_helper.h"
 
-#include "buffercache.h"
 #include "config.h"
 #include "log.h"
 #include "m_exceptions.h"
 #include "string_helpers.h"
 
 #include <cassert>
+#include <map>
 #include <physfs.h>
 
 namespace {
@@ -96,14 +96,14 @@ PHYSFS_file *OpenReadVFS(const std::string &file)
     return fd;
 }
 
-unsigned char *BufferFromVFS(PHYSFS_file *file)
+std::unique_ptr<char[]> BufferFromVFS(PHYSFS_file *file)
 {
     assert(file != nullptr);
     unsigned int size = PHYSFS_fileLength(file);
-    unsigned char *buffer = BufferCache::Instance().requestBuffer(size + 1);
-    size = PHYSFS_readBytes(file, buffer, size);
+    auto buffer = std::make_unique<char[]>(size + 1);
+    size = PHYSFS_readBytes(file, buffer.get(), size);
     PHYSFS_close(file);
-    return buffer;
+    return std::move(buffer);
 }
 
 } // namespace FileHelper

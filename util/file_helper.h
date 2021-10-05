@@ -23,6 +23,7 @@
 #ifndef UTIL_FILEHELPER_H
 #define UTIL_FILEHELPER_H
 
+#include <memory>
 #include <physfs.h>
 #include <string>
 #include <string_view>
@@ -36,7 +37,7 @@ const std::string &UserHomeDir();
 std::string Lang2MsgFilename(std::string_view lang);
 
 PHYSFS_file *OpenReadVFS(const std::string &file);
-unsigned char *BufferFromVFS(PHYSFS_file *file);
+std::unique_ptr<char[]> BufferFromVFS(PHYSFS_file *file);
 
 } // namespace FileHelper
 } // namespace Util

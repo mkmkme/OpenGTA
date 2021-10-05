@@ -12,7 +12,6 @@
 
 #include <iostream>
 #include <cassert>
-#include "buffercache.h"
 #include "car-info.h"
 #include "file_helper.h"
 #include "loaded-anim.h"
@@ -648,7 +647,9 @@ namespace OpenGTA {
     }
   }
 
-  unsigned char* Graphics8Bit::getSpriteBitmap(size_t id, int remap = -1, Uint32 delta = 0) {
+  std::unique_ptr<unsigned char[]> Graphics8Bit::getSpriteBitmap(
+    size_t id, int remap = -1, Uint32 delta = 0
+  ) {
     SpriteInfo *info = spriteInfos[id];
     assert(info != NULL);
     //PHYSFS_uint32 offset = reinterpret_cast<PHYSFS_uint32>(info->ptr);
@@ -660,13 +661,10 @@ namespace OpenGTA {
     unsigned char * page_start = rawSprites + info->page * page_size;// + 256 * y + x;
     assert(page_start != NULL);
     
-    BufferCache & bcache = BufferCache::Instance();
-    unsigned char * dest = bcache.requestBuffer(page_size);
-    bcache.lockBuffer(dest);
+    auto dest = std::make_unique<unsigned char[]>(page_size);
 
-    unsigned char * result = dest;
-    assert(dest != NULL);
-    memcpy(dest, page_start, page_size);
+    unsigned char * result = dest.get();
+    memcpy(dest.get(), page_start, page_size);
     if (delta > 0) {
       handleDeltas(*info, result, delta);
       /*
@@ -677,7 +675,8 @@ namespace OpenGTA {
     }
     if (remap > -1)
       applyRemap(page_size, remap, result);
-    unsigned char* bigbuf = bcache.requestBuffer(page_size * 4);
+    auto bigbuf_smart = std::make_unique<unsigned char[]>(page_size * 4);
+    auto bigbuf = bigbuf_smart.get();
     
     masterRGB_->apply(page_size, result, bigbuf, true);
     assert(page_size > PHYSFS_uint32(info->w * info->h * 4));

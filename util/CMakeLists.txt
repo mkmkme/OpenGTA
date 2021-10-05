@@ -1,6 +1,5 @@
 add_library(ogta-util STATIC
     animation.cpp
-    buffercache.cpp
     cell_iterator.cpp
     file_helper.cpp
     gui.cpp

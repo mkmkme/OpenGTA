@@ -12,7 +12,6 @@
 
 #include <iostream>
 #include <cassert>
-#include "buffercache.h"
 #include "log.h"
 #include "sprite-info.h"
 
@@ -363,7 +362,9 @@ namespace OpenGTA {
     SDL_FreeSurface(s);
   }
 
-  unsigned char* Graphics24Bit::getSpriteBitmap(size_t id, int remap = -1, Uint32 delta = 0) {
+  std::unique_ptr<unsigned char[]> Graphics24Bit::getSpriteBitmap(
+    size_t id, int remap = -1, Uint32 delta = 0
+  ) {
     const SpriteInfo *info = spriteInfos[id];
     assert(info != NULL);
     const PHYSFS_uint32 y = info->yoffset;
@@ -372,12 +373,10 @@ namespace OpenGTA {
 
     unsigned char * page_start = rawSprites + info->page * page_size;
     
-    BufferCache & bcache = BufferCache::Instance();
-    unsigned char * dest = bcache.requestBuffer(page_size);
-    bcache.lockBuffer(dest);
-    memcpy(dest, page_start, page_size);
+    auto dest = std::make_unique<unsigned char[]>(page_size);
+    memcpy(dest.get(), page_start, page_size);
     if (delta > 0) {
-      handleDeltas(*info, dest, delta);
+      handleDeltas(*info, dest.get(), delta);
       /*
       assert(delta < info->deltaCount);
       DeltaInfo & di = info->delta[delta];
@@ -385,15 +384,16 @@ namespace OpenGTA {
       */
     }
 
-    unsigned char* bigbuf = bcache.requestBuffer(page_size * 4);
-    unsigned char* result = dest;
+    auto bigbuf_smart = std::make_unique<unsigned char[]>(page_size * 4);
+    unsigned char* bigbuf = bigbuf_smart.get();
+    unsigned char* result = dest.get();
     unsigned int skip_cluts = 0;
     if (remap > -1)
       skip_cluts = spriteclutSize / 1024 + remap + 1;
 
     PHYSFS_uint16 clutIdx = palIndex[info->clut + tileclutSize / 1024] + skip_cluts;
     //  PHYSFS_uint16 clutIdx = palIndex[info->clut + (spriteclutSize + tileclutSize) / 1024] + (remap > -1 ? remap+2 : 0);
-    applyClut(dest, bigbuf, page_size, clutIdx, true);
+    applyClut(dest.get(), bigbuf, page_size, clutIdx, true);
     assert(page_size > PHYSFS_uint32(info->w * info->h * 4));
     for (uint16_t i = 0; i < info->h; i++) {
       memcpy(result, bigbuf+(256*y+x)*4, info->w * 4);
@@ -481,7 +481,8 @@ int main(int argc, char* argv[]) {
     idx = atoi(argv[2]);
   //image = get_image(graphics.getAux(idx, 0, true), 64,64);
   OpenGTA::GraphicsBase::SpriteInfo * sinfo = graphics.getSprite(idx);
-  image = get_image(graphics.getSpriteBitmap(idx, -1, 0), sinfo->w, sinfo->h);
+  auto sbm = graphics.getSpriteBitmap(idx, -1, 0);
+  image = get_image(sbm.get(), sinfo->w, sinfo->h);
   if (argc == 4)
     SDL_SaveBMP(image, argv[3]);
   else

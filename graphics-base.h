@@ -16,6 +16,7 @@
 
 #include <SDL.h>
 #include <map>
+#include <memory>
 #include <physfs.h>
 #include <string>
 #include <vector>
@@ -113,9 +114,9 @@ public:
                                   unsigned int palIdx,
                                   bool rgba) = 0;
 
-    virtual unsigned char *getSpriteBitmap(size_t id,
-                                           int remap,
-                                           Uint32 delta) = 0;
+    virtual std::unique_ptr<unsigned char[]> getSpriteBitmap(size_t id,
+                                                             int remap,
+                                                             Uint32 delta) = 0;
 
     std::vector<LoadedAnim> animations;
     std::vector<SpriteInfo *> spriteInfos;

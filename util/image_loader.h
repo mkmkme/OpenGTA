@@ -24,6 +24,7 @@
 #define UTIL_IMAGE_LOADER_H
 
 #include <SDL_opengl.h>
+#include <memory>
 #include <string>
 #include "gl_pagedtexture.h"
 
@@ -46,9 +47,9 @@ namespace ImageUtil {
    * \note Uses Util::BufferCache for dst memory; lock 'src' before calling
    * if it also is a BufferCache buffer.
    */
-  uint8_t* scale2x_32bit(const uint8_t* src, const int src_width, const int src_height);
+  std::unique_ptr<uint8_t[]> scale2x_32bit(std::unique_ptr<uint8_t[]> src, const int src_width, const int src_height);
 
-  uint8_t* scale2x_24bit(const uint8_t* src, const int src_width, const int src_height);
+  std::unique_ptr<uint8_t[]> scale2x_24bit(std::unique_ptr<uint8_t[]> src, const int src_width, const int src_height);
 
   typedef std::pair<uint16_t, uint16_t> WidthHeightPair;
   // hardcoded data for known images
@@ -77,7 +78,7 @@ namespace ImageUtil {
 
   // texture-class instance from pixel data; does transform to 2^k if required
   OpenGL::PagedTexture createEmbeddedTexture(GLsizei w, GLsizei h, bool rgba, 
-    const void *pixels);
+    std::unique_ptr<uint8_t[]> pixels);
 }
 
 #endif

@@ -1,4 +1,5 @@
 #include <iostream>
+#include <memory>
 #include <SDL_image.h>
 #include <SDL_opengl.h>
 #include <unistd.h>
@@ -6,7 +7,6 @@
 #include "gl_screen.h"
 #include "gl_pagedtexture.h"
 #include "log.h"
-#include "buffercache.h"
 #include "physfsrwops.h"
 #include "m_exceptions.h"
 #include "gui.h"
@@ -247,13 +247,14 @@ namespace GUI {
     ImageUtil::NextPowerOfTwo npot(surface->w, surface->h);
     uint16_t bpp = surface->format->BytesPerPixel;
 
-    uint8_t * buffer = Util::BufferCache::Instance().requestBuffer(npot.w * npot.h * bpp);
+    auto buff_smart = std::make_unique<uint8_t[]>(npot.w * npot.h * bpp);
+    auto buffer = buff_smart.get();
     SDL_LockSurface(surface);
     ImageUtil::copyImage2Image(buffer, (uint8_t*)surface->pixels, surface->pitch, surface->h,
         npot.w * bpp);
     SDL_UnlockSurface(surface);
 
-    GLuint texture = ImageUtil::createGLTexture(npot.w, npot.h, (bpp == 4) ? true : false, buffer);
+    GLuint texture = ImageUtil::createGLTexture(npot.w, npot.h, bpp == 4, buffer);
     texCache.insert(std::make_pair<size_t, OpenGL::PagedTexture>(k, 
           OpenGL::PagedTexture(texture, 0, 0, GLfloat(surface->w)/npot.w, GLfloat(surface->h)/npot.h)));
     SDL_FreeSurface(surface);

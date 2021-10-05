@@ -3,6 +3,7 @@ project(OpenGTA)
 set(CMAKE_CXX_STANDARD_REQUIRED 17)
 
 find_package(PkgConfig REQUIRED)
+find_package(fmt REQUIRED)
 
 pkg_check_modules(SDL REQUIRED sdl)
 pkg_check_modules(SDL_MIXER SDL_mixer)

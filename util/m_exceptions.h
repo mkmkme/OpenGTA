@@ -3,18 +3,19 @@
 
 #include <exception>
 #include <iostream>
+#include <fmt/format.h>
 
 namespace Util {
 
 struct LocalException : public std::exception {
-    LocalException(const std::string &f, const size_t l, const std::string &n)
-        : msg { n + " (" + f + ":" + std::to_string(l) }
+    LocalException(const char *f, const size_t l, const std::string &n)
+        : msg { fmt::format("{} ({}:{})", n, f, l) }
     {}
     LocalException(const std::string &f,
                    const size_t l,
                    const std::string &n,
                    const std::string &m)
-        : msg { n + " (" + f + ":" + std::to_string(l) + "): " + m }
+        : msg { fmt::format("{} ({}:{}): {}", n, f, l, m) }
     {}
     virtual ~LocalException() noexcept = default;
     const char *what() const noexcept { return msg.c_str(); }
@@ -22,49 +23,49 @@ struct LocalException : public std::exception {
 };
 
 struct FileNotFound : public LocalException {
-    FileNotFound(const std::string &f, const size_t l, const std::string &_msg)
+    FileNotFound(const char *f, const size_t l, const std::string &_msg)
         : LocalException(f, l, "FileNotFound", _msg)
     {}
 };
 
 struct IOError : public LocalException {
-    IOError(const std::string &f, const size_t l, const std::string &_msg)
+    IOError(const char *f, const size_t l, const std::string &_msg)
         : LocalException(f, l, "IOError", _msg)
     {}
 };
 
 struct InvalidFormat : public LocalException {
-    InvalidFormat(const std::string &f, const size_t l, const std::string &_msg)
+    InvalidFormat(const char *f, const size_t l, const std::string &_msg)
         : LocalException(f, l, "InvalidFormat", _msg)
     {}
 };
 
 struct UnknownKey : public LocalException {
-    UnknownKey(const std::string &f, const size_t l, const std::string &_msg)
+    UnknownKey(const char *f, const size_t l, const std::string &_msg)
         : LocalException(f, l, "UnknownKey", _msg)
     {}
 };
 
 struct OutOfRange : public LocalException {
-    OutOfRange(const std::string &f, const size_t l, const std::string &_msg)
+    OutOfRange(const char *f, const size_t l, const std::string &_msg)
         : LocalException(f, l, "OutOfRange", _msg)
     {}
 };
 
 struct OutOfMemory : public LocalException {
-    OutOfMemory(const std::string &f, const size_t l, const std::string &_msg)
+    OutOfMemory(const char *f, const size_t l, const std::string &_msg)
         : LocalException(f, l, "OutOfMemory", _msg)
     {}
 };
 
 struct ScriptError : public LocalException {
-    ScriptError(const std::string &f, const size_t l, const std::string &_msg)
+    ScriptError(const char *f, const size_t l, const std::string &_msg)
         : LocalException(f, l, "ScriptError", _msg)
     {}
 };
 
 struct NotSupported : public LocalException {
-    NotSupported(const std::string &f, const size_t l, const std::string &_msg)
+    NotSupported(const char *f, const size_t l, const std::string &_msg)
         : LocalException(f, l, "NotSupported", _msg)
     {}
 };

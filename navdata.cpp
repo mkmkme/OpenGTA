@@ -10,8 +10,8 @@
 ************************************************************************/
 #include <cassert>
 #include <iostream>
-#include <sstream>
 #include <iomanip>
+#include <fmt/format.h>
 #include "navdata.h"
 #include "log.h"
 #include "dataholder.h"
@@ -180,12 +180,10 @@ namespace OpenGTA {
         continue;
       }
       else {
-        std::ostringstream os;
-        os << std::setfill('0') << std::setw(3) << level_num << "area" << std::setfill('0') <<
-          std::setw(3) << int(sec->sam);
-
         //INFO << i << " " << sec->name2 << std::endl << os.str() << " : " << msg.getText(os.str()) << std::endl;
-        sec->name = msg.getText(os.str());
+        sec->name = msg.getText(
+          fmt::format("{:03}area{:03}", level_num, int(sec->sam))
+        );
 
         areas.insert(std::pair<PHYSFS_uint16, Sector*>(sec->getSize(), sec));
       }

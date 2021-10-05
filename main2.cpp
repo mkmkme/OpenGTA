@@ -15,9 +15,9 @@ int global_Done = 0;
 int global_Restart = 0;
 
 #ifndef DONT_CATCH 
-bool catch_exceptions = true;
+constexpr bool catch_exceptions = true;
 #else
-bool catch_exceptions = false;
+constexpr bool catch_exceptions = false;
 #endif
 
 using namespace std;
@@ -28,7 +28,7 @@ int main(int argc, char* argv[]) {
 
   atexit(on_exit);
 
-  if (!catch_exceptions)
+  if constexpr (!catch_exceptions)
     INFO << "ignoring exceptions" << std::endl;
   
   if (!catch_exceptions)
@@ -43,7 +43,7 @@ int main(int argc, char* argv[]) {
       exit(1);
     }
   }
-  if (!catch_exceptions)
+  if constexpr (!catch_exceptions)
     run_main();
   else {
     try {

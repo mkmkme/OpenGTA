@@ -133,35 +133,34 @@ void on_exit() {
 }
 
 void print_usage(const char* argv0) {
-  std::cout << "USAGE: " << argv0 << " [options] [city-num]" << std::endl <<
-  std::endl <<
-  "Options: " << std::endl <<
-  " -l k : log-level (default: 0; 1, 2)" << std::endl <<
-  " -c k : 0 = 8bit GRY, 1 = 24bit G24" << std::endl <<
-  " -f   : fullscreen on program-start" << std::endl <<
-  " -V   : show version & compile-time switches" << std::endl <<
-  " -M k : texture mipmaps: 0 = disable, 1 = enable" << std::endl <<
-  " -x k : scale2x sprites: 0 = disable, 1 = enable" << std::endl <<
-  " -v k : vertical sync: 0 = disable, 1 = try with SDL" <<
+  std::cout << "USAGE: " << argv0 << " [options] [city-num]\n"
+  "\n"
+  "Options:\n"
+  " -l k : log-level (default: 0; 1, 2)\n"
+  " -c k : 0 = 8bit GRY, 1 = 24bit G24\n"
+  " -f   : fullscreen on program-start\n"
+  " -V   : show version & compile-time switches\n"
+  " -M k : texture mipmaps: 0 = disable, 1 = enable\n"
+  " -x k : scale2x sprites: 0 = disable, 1 = enable\n"
+  " -v k : vertical sync: 0 = disable, 1 = try with SDL"
 #ifdef __linux__
-  ", 2 = try with GLX" <<
+  ", 2 = try with GLX"
 #elif defined(_WIN32)
-  ", 2 = try with GLW" <<
+  ", 2 = try with GLW"
 #endif
-    std::endl <<
-  " -a f : anisotropic texture filtering degree: 1.0 = disabled" 
-    << std::endl <<
-  std::endl <<
-  " -m map_file -g style_file : load specified files" << std::endl <<
-  " -w width -h height        : screen dimension" << std::endl <<
-  std::endl <<
-  "City-num: 0 (default), 1, 2" << std::endl <<
-  std::endl <<
-  "The following environment variables are used when defined:" << std::endl <<
-  " OGTA_DATA : PhysicsFS source for main data file lookup" << std::endl <<
-  " OGTA_HOME : unused - will be config/save dir" << std::endl <<
-  " OGTA_MOD  : PhysicsFS source to override main data files" << std::endl <<
-  " OGTA_LANG : defines the fxt language file to load" << std::endl;
+  "\n"
+  " -a f : anisotropic texture filtering degree: 1.0 = disabled\n"
+  "\n"
+  " -m map_file -g style_file : load specified files\n"
+  " -w width -h height        : screen dimension\n\n"
+  ""
+  "City-num: 0 (default), 1, 2\n"
+  "\n"
+  "The following environment variables are used when defined:\n"
+  " OGTA_DATA : PhysicsFS source for main data file lookup\n"
+  " OGTA_HOME : unused - will be config/save dir\n"
+  " OGTA_MOD  : PhysicsFS source to override main data files\n"
+  " OGTA_LANG : defines the fxt language file to load\n";
 }
 
 void print_version_info() {
@@ -170,7 +169,7 @@ void print_version_info() {
   std::cout << PRINT_OFFSET "OpenGTA version:" << OGTA_VERSION_INFO << std::endl <<
   PRINT_OFFSET "Lua support:" << 
 #ifdef WITH_LUA
-  "yes [" << LUA_RELEASE << "]" <<
+  "yes [" LUA_RELEASE "]" <<
 #else
   "no" <<
 #endif
@@ -206,10 +205,10 @@ void print_version_info() {
   std::endl <<
 
 #ifdef OGTA_DEFAULT_DATA_PATH
-  PRINT_OFFSET "data-path:" << "[" << OGTA_DEFAULT_DATA_PATH << "]" << std::endl <<
+  PRINT_OFFSET "data-path:" << "[" OGTA_DEFAULT_DATA_PATH "]" << std::endl <<
 #endif
 #ifdef OGTA_DEFAULT_MOD_PATH
-  PRINT_OFFSET "mod-path:" << "[" << OGTA_DEFAULT_MOD_PATH << "]" << std::endl <<
+  PRINT_OFFSET "mod-path:" << "[" OGTA_DEFAULT_MOD_PATH "]" << std::endl <<
 #endif
   PRINT_OFFSET "default graphics:" <<
 #ifdef OGTA_DEFAULT_GRAPHICS_G24

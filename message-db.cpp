@@ -99,37 +99,23 @@ namespace OpenGTA {
     }
     PHYSFS_close(f);
   }
-
-  const std::string& MessageDB::getText(const char* id) {
-    std::map<std::string, std::string>::iterator i = messages.find(std::string(id));
-    if (i == messages.end()) {
-        ERROR << "string lookup failed for key: " << id
-              << ", map = " << format_map(messages) << std::endl;
-        return _error;
-    }
-    return i->second;
-  }
   
   const std::string& MessageDB::getText(const std::string &id) {
-    std::map<std::string, std::string>::iterator i = messages.find(id);
-    if (i == messages.end()) {
-        ERROR << "string lookup failed for key: " << id
-              << ", map = " << format_map(messages) << std::endl;
-        return _error;
-    }
-    return i->second;
+    if (auto i = messages.find(id); i != messages.end())
+      return i->second;
+    
+    ERROR << "string lookup failed for key: " << id
+          << ", map = " << format_map(messages) << std::endl;
+    return _error;
   }
   
   const std::string& MessageDB::getText(const uint32_t id) {
-    char tmp[10];
-    snprintf(reinterpret_cast<char*>(&tmp), 10, "%i", id);
-    std::map<std::string, std::string>::iterator i = messages.find(std::string(tmp));
-    if (i == messages.end()) {
-        ERROR << "string lookup failed for key: " << id
-              << ", map = " << format_map(messages) << std::endl;
-        return _error;
-    }
-    return i->second;
+    if (auto i = messages.find(std::to_string(id)); i != messages.end())
+      return i->second;
+
+    ERROR << "string lookup failed for key: " << id
+          << ", map = " << format_map(messages) << std::endl;
+    return _error;
   }
 
 }

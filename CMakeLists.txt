@@ -11,7 +11,7 @@ pkg_check_modules(SDL REQUIRED sdl)
 pkg_check_modules(SDL_MIXER SDL_mixer)
 pkg_check_modules(GLU REQUIRED glu)
 pkg_check_modules(PHYSFS REQUIRED physfs)
-pkg_check_modules(LUA lua)
+pkg_check_modules(LUA lua52)
 
 include(compile-options.cmake)
 include(cmake/force-compiler-colors.cmake)

@@ -53,17 +53,13 @@ namespace Util {
   }
 
   int item_count(MapOfPair2Int & m, int a, int b) {
-    MapOfPair2Int::iterator j = m.find( std::make_pair(a, b) );
-    if (j == m.end())
-      return 0;
-    return j->second;
+    if (auto it = m.find({a, b}); it != m.end())
+      return it->second;
+    return 0;
   }
 
   void register_item1(MapOfPair2Int & m, int a, int b) {
-    m.insert( std::make_pair< Pair2Int, int>(
-          std::make_pair(a, b),
-          1)
-        );
+      m.insert({ { a, b }, 1 });
   }
 
   void register_item(MapOfPair2Int & m, int a, int b) {

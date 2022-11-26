@@ -63,12 +63,12 @@ void handleKeyPress( SDL_keysym *keysym ) {
       which++;
       if (which >= numBlockTypes)
         which = numBlockTypes - 1;
-      INFO << "slope-type: " << int(which) << std::endl;
+      INFO("slope-type: {}", which);
       break;
     case SDLK_DOWN:
       if (which > 0)
         which--;
-      INFO << "slope-type: " << int(which) << std::endl;
+      INFO("slope-type: {}", which);
       break;
 
     default:

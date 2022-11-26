@@ -63,6 +63,6 @@ namespace Util {
         if (kh == *i)
           activeHandlers.erase(i);
     }
-    ERROR << "not a valid handler pointer" << std::endl;
+    ERROR("not a valid handler pointer");
   }
 }

@@ -57,10 +57,12 @@ namespace Audio {
     SDL_AudioDriverName (cardName, sizeof (cardName));
     if (!Mix_QuerySpec(&rate, &format, &channels))
       throw E_NOTSUPPORTED(SDL_GetError());
-    INFO << 
-      "Sound-device [" << cardName << "], rate " << rate << " Hz, " <<
-      (format & 0xff) << " bit, " << std::endl << "  " << 
-      channels << " channels, " << bufSize << " buffer size" << std::endl;
+    INFO("Sound-device [{}], rate {} Hz, {} bit, {} channels, {} buffer size",
+         cardName,
+         rate,
+         (format & 0xff),
+         channels,
+         bufSize);
 
     status = OPEN;
   }

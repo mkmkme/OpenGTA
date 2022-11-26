@@ -75,8 +75,7 @@ std::string Lang2MsgFilename(std::string_view l)
     auto it = langmap.find(l);
     if (it != langmap.end())
         return it->second;
-    WARN << "Unknown language: " << l << " - falling back to english"
-         << std::endl;
+    WARN("Unknown language: {} - falling back to english", l);
     return "ENGLISH.FXT";
 }
 

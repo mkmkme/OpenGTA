@@ -90,7 +90,7 @@ OpenGTA::CarInfo::CarInfo(PHYSFS_file *fd)
     PHYSFS_readSLE16(fd, &numDoors);
     bytes_read_ += 2;
     if (numDoors > 2) {
-        WARN << "num-doors: " << numDoors << " > 2 ???" << std::endl;
+        WARN("num-doors: {} > 2 ???", numDoors);
         numDoors = 0;
     }
 
@@ -102,6 +102,5 @@ OpenGTA::CarInfo::CarInfo(PHYSFS_file *fd)
         bytes_read_ += 4 * 2;
     }
 
-    // INFO << "car of size " << int(bytes_read_) << " is read (" << int(numDoors)
-    //  << " doors)" << std::endl;
+    DEBUG("car of size {} is read ({} doors)", int(bytes_read_), int(numDoors));
 }

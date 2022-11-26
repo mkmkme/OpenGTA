@@ -29,7 +29,7 @@ int main(int argc, char* argv[]) {
   atexit(on_exit);
 
   if constexpr (!catch_exceptions)
-    INFO << "ignoring exceptions" << std::endl;
+    INFO("ignoring exceptions");
   
   if (!catch_exceptions)
     run_init(argv[0]);
@@ -38,7 +38,7 @@ int main(int argc, char* argv[]) {
       run_init(argv[0]);
     }
     catch (Exception & e) {
-      ERROR << "Exception during startup: " << e.what() << endl;
+      ERROR("Exception during startup: {}", e.what());
       global_EC = 1;
       exit(1);
     }
@@ -50,7 +50,7 @@ int main(int argc, char* argv[]) {
       run_main();
     }
     catch (const Exception & e) {
-      ERROR << "Exception during game: " << e.what() << endl;
+      ERROR("Exception during game: {}", e.what());
       global_EC = 1;
       exit(1);
     }

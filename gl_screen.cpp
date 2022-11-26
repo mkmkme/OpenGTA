@@ -49,7 +49,7 @@ namespace OpenGL {
       height = h;
     initSDL();
     resize(width, height);
-    INFO << "activating screen: " << width << "x" << height << std::endl;
+    INFO("activating screen: {}x{}", width, height);
     initGL();
     setSystemMouseCursor(false);
   }
@@ -114,7 +114,7 @@ namespace OpenGL {
 
     const char* sdl_err = SDL_GetError();
     if (strlen(sdl_err) > 0)
-      WARN << "SDL_Init complained: " << sdl_err << std::endl;
+      WARN("SDL_Init complained: {}", sdl_err);
     SDL_ClearError();
 
     const SDL_VideoInfo *vInfo = SDL_GetVideoInfo();
@@ -132,10 +132,10 @@ namespace OpenGL {
 
     bpp = vInfo->vfmt->BitsPerPixel;
  
-    INFO << "video-probe:" << std::endl <<
-     " hw-surface: " << (vInfo->hw_available == 1 ? "on" : "off") << std::endl <<
-     " hw-blit: " << (vInfo->blit_hw ? "on" : "off") << std::endl <<
-     " bpp: " << int (bpp) << std::endl;
+    INFO("video-probe:");
+    INFO(" hw-surface: {}", (vInfo->hw_available == 1 ? "on" : "off"));
+    INFO(" hw-blit: {}", (vInfo->blit_hw ? "on" : "off"));
+    INFO(" bpp: {}", bpp);
 
     size_t color_depth_triple[3];
     switch(bpp) {
@@ -170,16 +170,16 @@ namespace OpenGL {
 #ifdef HAVE_SDL_VSYNC
     if (useVsync == 1) {
       SDL_GL_SetAttribute( SDL_GL_SWAP_CONTROL, 1);
-      INFO << "enabling vertical sync:" << " SDL" << std::endl;
+      INFO("enabling vertical sync: SDL");
     }
 #else
     if (useVsync == 1)
-      WARN << "Cannot use SDL vsync - option disabled while compiling" << std::endl;
+      WARN("Cannot use SDL vsync - option disabled while compiling");
 #endif
 
     sdl_err = SDL_GetError();
     if (strlen(sdl_err) > 0)
-      ERROR << "setting sdl_gl attributes: " << sdl_err << std::endl;
+      ERROR("setting sdl_gl attributes: {}", sdl_err);
 
   }
 
@@ -190,10 +190,10 @@ namespace OpenGL {
       int (*fp)(int) = (int(*)(int)) SDL_GL_GetProcAddress("glXSwapIntervalMESA");
       if (fp) {
         fp(1);
-        INFO << "enabling vertical sync:" << " GLX" << std::endl;
+        INFO("enabling vertical sync: GLX");
       }
       else
-        ERROR << "No symbol 'glXSwapIntervalMESA' found - cannot use GLX vsync" << std::endl;
+        ERROR("No symbol 'glXSwapIntervalMESA' found - cannot use GLX vsync");
 #else
       typedef void (APIENTRY * WGLSWAPINTERVALEXT) (int);
       WGLSWAPINTERVALEXT wglSwapIntervalEXT = 
@@ -201,10 +201,10 @@ namespace OpenGL {
       if (wglSwapIntervalEXT)
       {
         wglSwapIntervalEXT(1); // set vertical synchronisation
-        INFO << "enabling vertical sync:" << " WGL" << std::endl;
+        INFO("enabling vertical sync: WGL");
       }
       else
-        ERROR << "No symbol 'wglSwapIntervalEXT' found - cannot use WGL vsync" << std::endl;
+        ERROR("No symbol 'wglSwapIntervalEXT' found - cannot use WGL vsync");
 #endif
     }
     /*
@@ -234,7 +234,7 @@ namespace OpenGL {
       glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &maxAniso);
       //if (maxAniso >= 2.0f)
       ImageUtil::supportedMaxAnisoDegree = maxAniso;
-      INFO << "GL supports anisotropic filtering with degree: " << maxAniso << std::endl;
+      INFO("GL supports anisotropic filtering with degree: {}", maxAniso);
     }
 
     GL_CHECKERROR;
@@ -245,13 +245,12 @@ namespace OpenGL {
       h = 1;
     surface = SDL_SetVideoMode(w, h, bpp, videoFlags);
     if (surface == NULL) {
-        ERROR << "vide-mode: " << w << ", " << h << " bpp: " << bpp
-              << " hw-surface: "
-              << (((videoFlags & SDL_HWSURFACE) == SDL_HWSURFACE) ? "on"
-                                                                  : "off")
-              << " hw-blit: "
-              << (((videoFlags & SDL_HWACCEL) == SDL_HWACCEL) ? "on" : "off")
-              << std::endl;
+        ERROR("video-mode: {}, {} bpp: {} hw-surface: {} hw-blit: {}",
+              w,
+              h,
+              bpp,
+              ((videoFlags & SDL_HWSURFACE) ? "on" : "off"),
+              ((videoFlags & SDL_HWACCEL) ? "on" : "off"));
         throw E_NOTSUPPORTED(SDL_GetError());
     }
 
@@ -279,16 +278,16 @@ namespace OpenGL {
   }
 
   void Screen::makeScreenshot(const char* filename) {
-    INFO << "saving screen as: " << filename << std::endl;
+    INFO("saving screen as: {}", filename);
     auto pixels = std::make_unique<uint8_t[]>(width * height * 3);
 
     glReadBuffer(GL_FRONT);
     glReadPixels(0, 0, width, height, GL_RGB, GL_UNSIGNED_BYTE, reinterpret_cast<GLvoid*>(pixels.get()));
 
     SDL_Surface* image = SDL_CreateRGBSurface(SDL_SWSURFACE, width, height, 24,
-        255U << (0),
-        255U << (8),
-        255U << (16),
+        255U << 0,
+        255U << 8,
+        255U << 16,
         0);
     SDL_LockSurface(image);
 

@@ -82,7 +82,7 @@ int main(int argc, char* argv[]) {
   p.loadLevel(atoi(argv[2]));
 
   if (luaL_loadfile(p.L, argv[3]) || lua_pcall(p.L, 0, 0, 0))
-        ERROR << lua_tostring(p.L, -1);
+        ERROR("{}", lua_tostring(p.L, -1));
 
   return 0;
 }

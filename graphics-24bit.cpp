@@ -45,7 +45,7 @@ namespace OpenGTA {
       // already set
     }
     else {
-      WARN << "Unknown g24 style - ped remaps most likely broken!" << std::endl;
+      WARN("Unknown g24 style - ped remaps most likely broken!");
     }
   }
 
@@ -61,8 +61,9 @@ namespace OpenGTA {
     PHYSFS_uint32 vc;
     PHYSFS_readULE32(fd, &vc);
     if(vc != GTA_GRAPHICS_G24) {
-      ERROR << "graphics file specifies version " << vc <<
-        " instead of " << GTA_GRAPHICS_G24 << std::endl;
+      ERROR("graphics file specifies version {} (should be {})",
+            vc,
+            GTA_GRAPHICS_G24);
       return;
     }
     PHYSFS_readULE32(fd, &sideSize);
@@ -86,15 +87,15 @@ namespace OpenGTA {
       lidSize / 4096 << " A " << auxSize / 4096 << std::endl;
       */
     if (sideSize % 4096 != 0) {
-      ERROR << "Side-Block texture size is not a multiple of 4096" << std::endl;
+      ERROR("Side-Block texture size is not a multiple of 4096");
       return;
     }
     if (lidSize % 4096 != 0) {
-      ERROR << "Lid-Block texture size is not a multiple of 4096" << std::endl;
+      ERROR("Lid-Block texture size is not a multiple of 4096");
       return;
     }
     if (auxSize % 4096 != 0) {
-      ERROR << "Aux-Block texture size is not a multiple of 4096" << std::endl;
+      ERROR("Aux-Block texture size is not a multiple of 4096");
       return;
     }
     
@@ -102,23 +103,29 @@ namespace OpenGTA {
     tmp = tmp % 4;
     if (tmp) {
       auxBlockTrailSize = (4 - tmp) * 4096;
-      INFO << "adjusting aux-block by " << auxBlockTrailSize << std::endl;
+      INFO("adjusting aux-block by {}", auxBlockTrailSize);
     }
-    INFO << "Anim size: " << animSize << std::endl;
-    INFO << "Obj-info size: " << objectInfoSize << " car-size: " << carInfoSize <<
-      " sprite-info size: " << spriteInfoSize << " graphic size: " << spriteGraphicsSize <<
-      " numbers s: " << spriteNumberSize << std::endl;
+    INFO("Anim size: {}", animSize);
+    INFO(
+        "Obj-info size: {} car-size: {} sprite-info size: {} graphic size: {} "
+        "numbers s: {}",
+        objectInfoSize,
+        carInfoSize,
+        spriteNumberSize,
+        spriteGraphicsSize,
+        spriteNumberSize);
     if (spriteNumberSize != 42) {
-      ERROR << "spriteNumberSize is " << spriteNumberSize << " (should be 42)" << std::endl;
+      ERROR("spriteNumberSize is {} (should be 42)", spriteNumberSize);
       return;
     }
 
-    INFO << " clut: " << clutSize << " tileclut: " << tileclutSize << " spriteclut: "<< spriteclutSize << 
-    " newcar: " << newcarclutSize << " fontclut: " << fontclutSize << std::endl <<
-    
-    "Obj-info size: " << objectInfoSize << " car-size: " << carInfoSize << 
-    " pal-index size: " << paletteIndexSize << 
-    std::endl;
+    INFO("clut: {} tileclut: {} spriteclut: {} newcar: {} fontclut: {}",
+         clutSize,
+         tileclutSize,
+         spriteclutSize,
+         newcarclutSize,
+         fontclutSize);
+    INFO("pal-index size: {}", paletteIndexSize);
 
     loadTileTextures();
     loadAnim();
@@ -141,7 +148,6 @@ namespace OpenGTA {
     rawClut = new unsigned char[pagedClutSize];
     assert(rawClut);
     PHYSFS_readBytes(fd, rawClut, pagedClutSize);
-    //write(2, rawClut, pagedClutSize);
   }
 
   void Graphics24Bit::loadPalIndex() {
@@ -161,7 +167,7 @@ namespace OpenGTA {
     PHYSFS_uint64 st = static_cast<PHYSFS_uint64>(_topHeaderSize) +
       sideSize + lidSize + auxSize + auxBlockTrailSize + animSize +
       pagedClutSize + paletteIndexSize + objectInfoSize;
-    //INFO << "seek for " << st << std::endl;
+    // INFO("seek for {}", st);
     loadCarInfo_shared(st);
   }
 
@@ -195,14 +201,16 @@ namespace OpenGTA {
       */
       // sanity check
       if (v)
-        WARN << "Compression flag active in sprite!" << std::endl;
+        WARN("Compression flag active in sprite!");
       if (int(si->w) * int(si->h) != int(si->size)) {
-        ERROR << "Sprite info size mismatch: " << int(si->w) << "x" << int(si->h) <<
-          " != " << si->size << std::endl;
+        ERROR("Sprite info size mismatch: {}x{} != {}",
+              int(si->w),
+              int(si->h),
+              si->size);
         return;
       }
       if (si->deltaCount > 32) {
-        ERROR << "Delta count of sprite is " << si->deltaCount << std::endl;
+        ERROR("Delta count of sprite is {}", si->deltaCount);
         return;
       }
       for (PHYSFS_uint8 j = 0; j < si->deltaCount; j++) {

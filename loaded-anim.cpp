@@ -9,10 +9,8 @@ OpenGTA::LoadedAnim::LoadedAnim(PHYSFS_file *fd)
     PHYSFS_readBytes(fd, static_cast<void *>(&speed), 1);
     PHYSFS_readBytes(fd, static_cast<void *>(&frameCount), 1);
 
-    if (frameCount > 180) {
-        ERROR << "found animation with " << int(frameCount) << " frames ???"
-              << std::endl;
-    }
+    if (frameCount > 180)
+        ERROR("found animation with {} frames ???", frameCount);
 
     frame.reserve(frameCount);
     for (int i = 0; i < frameCount; i++) {

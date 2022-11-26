@@ -425,7 +425,7 @@ void run_main() {
           screen = SDL_SetVideoMode( event.resize.w,
               event.resize.h, 32, videoFlags );
           if (!screen)
-            ERROR << "Failed to set video mode after resize event" << std::endl;
+            ERROR("Failed to set video mode after resize event");
           resize(event.resize.w, event.resize.h);
           break;
         case SDL_QUIT:

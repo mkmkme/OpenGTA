@@ -56,13 +56,13 @@ namespace OpenGTA {
         typeMap |= (16 | 32 | 64);
         break;
       default:
-        ERROR << "Invalid block-type: " << int(v) << std::endl;
+        ERROR("Invalid block-type: {}", int(v));
         break;
     }
   }
 
   void Map::BlockInfo::setSlopeType(uint8_t v) {
-    WARN << "NOT IMPLEMENTED" << std::endl;
+    WARN("NOT IMPLEMENTED");
   }
 
   void Map::BlockInfo::setRotation(uint8_t v) {
@@ -82,7 +82,7 @@ namespace OpenGTA {
         typeMap |= (16384 | 32768);
         break;
       default:
-        ERROR << "Invalid rotation: " << int(v) << std::endl;
+        ERROR("Invalid rotation: {}", int(v));
         break;
     }
   }
@@ -116,12 +116,12 @@ namespace OpenGTA {
   int Map::loadHeader() {
     PHYSFS_uint32 vc;
     PHYSFS_readULE32(fd, &vc);
-    //INFO << "Map version code: " << vc << std::endl;
+    // INFO("Map version code: {}", vc);
     PHYSFS_uint8 sn;
     PHYSFS_readBytes(fd, static_cast<void*>(&styleNumber), 1);
-    //INFO << "Style number: " << int(styleNumber) << std::endl;
+    // INFO("Style number: {}", int(styleNumber));
     PHYSFS_readBytes(fd, static_cast<void*>(&sn), 1);
-    //INFO << "Sample number: " << int(sn) << std::endl;
+    // INFO("Sample number: {}", int(n));
     PHYSFS_uint16 reserved;
     PHYSFS_readULE16(fd, &reserved);
     PHYSFS_readULE32(fd, &routeSize);
@@ -318,7 +318,7 @@ namespace OpenGTA {
     }
   }
   const Map::Location & Map::getNearestLocationByType(uint8_t t, uint8_t x, uint8_t y) {
-    INFO << int(t) << " at " << int(x) << " " << int(y) << std::endl;
+    INFO("{} at {} {}", int(t), int(x), int(y));
     LocationMap::iterator i = locations.find(t);
     LocationMap::iterator j;
     if (i == locations.end())
@@ -329,7 +329,7 @@ namespace OpenGTA {
     int min_d = 255 * 255;
 
     while (i != locations.end()) {
-    INFO << int(i->first) << ": "<< int(i->second.x) << " " << int(i->second.y) << std::endl;
+    INFO("{}: {} {}", int(i->first), int(i->second.x), int(i->second.y));
       int d = abs(_x - i->second.x) + abs(_y - i->second.y);
       if (d < min_d) {
         min_d = d;

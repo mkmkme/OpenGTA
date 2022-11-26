@@ -101,11 +101,11 @@ namespace Util {
       if (callback)
         callback();
       else
-        ERROR << "Wanted to call callback, but nobody was there" << std::endl;
+        ERROR("Wanted to call callback, but nobody was there");
     }
   }
 }
 
 void AnimCallback() {
-  WARN << "EmptyAnimCallback called" << std::endl;
+  WARN("EmptyAnimCallback called");
 }

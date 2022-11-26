@@ -63,13 +63,13 @@ namespace OpenGTA {
         m_data = new Graphics8Bit(file);
       }
       catch (const Exception & e) {
-        INFO << "loading 8 bit failed: " << e.what() << std::endl;
+        WARN("loading 8 bit failed: {}", e.what());
         m_data = 0;
         try {
           m_data = new Graphics24Bit(file);
         }
         catch (const Exception & e) {
-          ERROR << "loading 24 bit failed " << e.what() << std::endl;
+          ERROR("loading 24 bit failed: {}", e.what());
           m_data = 0;
         }
       }
@@ -97,7 +97,7 @@ namespace OpenGTA {
       m_data = new Map(file); 
     }
     catch (const Exception & e) {
-      ERROR << "loading map failed: " << e.what();
+      ERROR("loading map failed: {}", e.what());
       m_data = 0;
     }
     assert(m_data);
@@ -120,11 +120,11 @@ namespace OpenGTA {
   template<> void MainMsgLookup::load(const std::string & file) {
     unload();
     try {
-      INFO << "Trying to load: " << file << std::endl;
+      INFO("Trying to load: {}", file);
       m_data = new MessageDB(file); 
     }
     catch (const Exception & e) {
-      ERROR << "loading message-db failed: " << e.what();
+      ERROR("loading message-db failed: {}", e.what());
       m_data = 0;
     }
     assert(m_data);

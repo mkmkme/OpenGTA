@@ -99,10 +99,10 @@ namespace OpenGTA {
   GLfloat* map_block_type_color(uint8_t k) {
     // k = 6  now used to fix pavement cols
     if (k == 7)
-      WARN << "block-type: " << int(k) << " should be unused!" << std::endl;
+      WARN("block-type: {} should be unused!", k);
     if (k < 8)
       return block_colors[k].rgb;
-    ERROR << "Invalid block-type: " << int(k) << std::endl;
+    ERROR("Invalid block-type: {}", k);
     return block_colors[0].rgb;
   }
 
@@ -279,7 +279,7 @@ namespace OpenGTA {
     int yi = int(z);
     //int zi = int(z);
     float h = 0.5f;
-    WARN << "THIS FUNCTION SHOULD NOT BE USED!" << std::endl;
+    WARN("THIS FUNCTION SHOULD NOT BE USED!");
     PHYSFS_uint16 emptycount = loadedMap->getNumBlocksAt(xi, yi);
     for (int c=6-emptycount; c >= 1; c--) {
       OpenGTA::Map::BlockInfo* bi = loadedMap->getBlockAt(xi, yi, c);
@@ -331,7 +331,7 @@ namespace OpenGTA {
         v_off.x -= 0.2f;
       else
         persp_find_done |= 1;
-      INFO << winx << " " << winy << std::endl;
+      INFO("{} {}", winx, winy);
       gluProject(256, 0, 256, mvmatrix, projmatrix, viewport, &winx, &winy, &winz);
       if (winy < -0.5f)
         v_off.y += 0.2f;
@@ -341,10 +341,10 @@ namespace OpenGTA {
         persp_find_done |= 2;
       break_loop_safe--;
       if (break_loop_safe == 0) {
-        WARN << "breaking out of loop - NOT GOOD!" << std::endl;
+        WARN("breaking out of loop - NOT GOOD!");
         persp_find_done = 3;
       }
-      INFO << winx << " " << winy << std::endl;
+      INFO("{} {}", winx, winy);
     }
 
     //glTranslatef(-35, 0, 0);
@@ -402,12 +402,12 @@ namespace OpenGTA {
     while (*(img_buf + y_off * gl_h * 3 + x) == 0 && *(img_buf + y_off * gl_h * 3 + x+1) == 0 &&
       *(img_buf + y_off * gl_h * 3 + x + 2) == 0)
       x += 3;
-    INFO << "color after x = " << x/3 << std::endl;
+    INFO("color after x = {}", x / 3);
     x = gl_h-3;
      while (*(img_buf + y_off * gl_h * 3 + x) == 0 && *(img_buf + y_off * gl_h * 3 + x+1) == 0 &&
       *(img_buf + y_off * gl_h * 3 + x+2) == 0)
       x -= 3;
-    INFO << "color after x = " << x/3 << std::endl;
+    INFO("color after x = {}", x / 3);
 
 
     GLuint tex = ImageUtil::createGLTexture(gl_h, gl_h, false, img_buf);

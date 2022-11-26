@@ -155,7 +155,7 @@ void OBox::lineCrossBox(const Vector3D& L1, const Vector3D& L2, Vector3D & isecL
     isecLocal = p_copy;
     return;
   }
-  ERROR << "Did not find intersection when OBB says there is one :-(" << std::endl;
+  ERROR("Did not find intersection when OBB says there is one :-(");
   isecLocal = L1;
 }
 

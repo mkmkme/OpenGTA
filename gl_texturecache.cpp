@@ -47,7 +47,7 @@ namespace OpenGL {
     TextureCache<key_type>::~TextureCache() {
       unsigned int ts = cached.size();
       clearAll();
-      INFO << m_name << " exited - " << ts << " textures recycled" << std::endl;
+      INFO("{} exited - {} textures recycled", m_name, ts);
       m_name.clear();
       instance_count--;
     }
@@ -66,8 +66,9 @@ namespace OpenGL {
 
   template <typename key_type>
     void TextureCache<key_type>::status() {
-      std::cout << "* " << m_name << " status: " << cached.size() << " textures total" << std::endl
-        << "position = game_id : usage_count" << std::endl;
+      INFO("* {} status: {} textures total, position = game_id : usage_count",
+           m_name,
+           cached.size());
       printStats();
     }
 
@@ -80,13 +81,11 @@ namespace OpenGL {
         else if (i->second->refCount < _max_4)
           i->second->refCount = i->second->refCount >> 1;
         else if (i->second->refCount < _max_2) {
-          INFO << m_name << " texture id " << int(i->first) << 
-            " -- half-count reached" << std::endl;
+          INFO("{} texture id {} -- half-count reached", m_name, int(i->first));
           i->second->refCount = i->second->refCount >> 2;
         }
         else {
-          WARN << m_name << " texture id " << int(i->first) << 
-            " -- going critical" << std::endl;
+          WARN("{} texture id {} -- going critical", m_name, int(i->first));
           i->second->refCount = i->second->refCount >> 3;
         }
         i++;
@@ -112,7 +111,7 @@ namespace OpenGL {
         }
         i++;
       }
-      INFO << m_name << " " << numCleared << " textures recycled" << std::endl;
+      INFO("{} {} textures recycled", m_name, numCleared);
     }
 
   template <typename key_type>
@@ -137,7 +136,7 @@ namespace OpenGL {
         i++;
         c++;
       }
-      std::cout << c_active << " different textures used" << std::endl;
+      INFO("{} different textures used", c_active);
     }
 
   template <typename key_type>
@@ -148,7 +147,7 @@ namespace OpenGL {
       }
       typename std::map<key_type, texTuple*>::iterator i = cached.find(id);
       if (i == cached.end()) {
-        ERROR << m_name << " failed to find texture " << int(id) << std::endl;
+        ERROR("{} failed to find texture {}", m_name, int(id));
         return 0;
       }
       else {
@@ -178,7 +177,7 @@ namespace OpenGL {
     void TextureCache<key_type>::setToAlpha(key_type id) {
       typename std::map<key_type, texTuple*>::iterator i = cached.find(id);
       if (i == cached.end()) {
-        ERROR << m_name << " texture not found when trying to set alpha" << std::endl;
+        ERROR("{} texture not found when trying to set alpha", m_name);
         return;
       }
       i->second->hasAlpha = true;
@@ -188,7 +187,7 @@ namespace OpenGL {
     void TextureCache<key_type>::setToAnimated(key_type id) {
       typename std::map<key_type, texTuple*>::iterator i = cached.find(id);
       if (i == cached.end()) {
-        ERROR << m_name << " texture not found when trying to set animation" << std::endl;
+        ERROR("{} texture not found when trying to set animation", m_name);
         return;
       }
       i->second->isAnimated = true;
@@ -206,7 +205,7 @@ namespace OpenGL {
       tt->hasAlpha = false;
       tt->isAnimated = false;
       cached[id] = tt;
-      INFO << m_name << " GL texture " << texId << " added for key: " << int(id) << std::endl;
+      DEBUG("{} GL texture {} added for key: {}", m_name, texId, int(id));
     }
 
   template <typename key_type>

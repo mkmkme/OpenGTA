@@ -39,7 +39,7 @@ namespace OpenGTA {
     messages.clear();
   }
   void MessageDB::load(const std::string &file) {
-    INFO << "Trying to load file " << file << std::endl;
+    INFO("Trying to load file {}", file);
     PHYSFS_file* f = Util::FileHelper::OpenReadVFS(file);
     
     messages.clear();
@@ -77,7 +77,7 @@ namespace OpenGTA {
           i = 0;
         }
         else if (v == 0x00) {
-          INFO << "v == 0, tmp = " << tmp << std::endl;
+          INFO("v == 0, tmp = {}", tmp);
           buff[i] = 0x00;
           if (tmp.length() > 0)
             messages[tmp] = std::string(buff);
@@ -103,9 +103,10 @@ namespace OpenGTA {
   const std::string& MessageDB::getText(const std::string &id) {
     if (auto i = messages.find(id); i != messages.end())
       return i->second;
-    
-    ERROR << "string lookup failed for key: " << id
-          << ", map = " << format_map(messages) << std::endl;
+
+    ERROR("string lookup failed for key: {}, map = {}",
+          id,
+          format_map(messages));
     return _error;
   }
   
@@ -113,8 +114,9 @@ namespace OpenGTA {
     if (auto i = messages.find(std::to_string(id)); i != messages.end())
       return i->second;
 
-    ERROR << "string lookup failed for key: " << id
-          << ", map = " << format_map(messages) << std::endl;
+    ERROR("string lookup failed for key: {}, map = {}",
+          id,
+          format_map(messages));
     return _error;
   }
 

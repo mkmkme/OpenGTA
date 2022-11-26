@@ -176,7 +176,7 @@ namespace OpenGTA {
       Sector *sec = new Sector(fd);
       if (sec->getSize() == 0) { // workaround for 'NYC.CMP' (empty sectors)
         delete sec;
-        WARN << "skipping zero size sector" << std::endl;
+        WARN("skipping zero size sector");
         continue;
       }
       else {

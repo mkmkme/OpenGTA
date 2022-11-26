@@ -29,7 +29,7 @@ namespace OpenGTA {
         lw = ch->width;
       chars.push_back(ch);
     }
-    INFO << "total width " << ww << " largest width " << lw << std::endl;
+    INFO("total width {} largest width {}", ww, lw);
     palette.loadFromFile(fd);
     PHYSFS_close(fd);
     size_t ih = charHeight;
@@ -52,8 +52,7 @@ namespace OpenGTA {
   void Font::readHeader(PHYSFS_file *fd) {
     PHYSFS_readBytes(fd, static_cast<void*>(&numChars), 1);
     PHYSFS_readBytes(fd, static_cast<void*>(&charHeight), 1);
-    INFO << "Font contains " << int(numChars) << 
-      " characters of height " << int(charHeight) << std::endl;
+    INFO("Font contains {} characters of height {}", numChars, charHeight);
   }
   void Font::addMapping(char c, size_t num) {
     mapping[c] = num;
@@ -143,7 +142,7 @@ namespace OpenGTA {
     std::string name2 { Util::string_lower(name) };
 #define chr(n) ((char)(n))
     if (name2.find("big1.fon") != std::string::npos) {
-      INFO << "found mapping: big1.fon - " << name << std::endl;
+      INFO("found mapping: big1.fon - {}", name);
       addMapping('!', 0);
       addMapping('-', 12);
       for (int j = 65; j < 91; j++) {
@@ -202,7 +201,7 @@ namespace OpenGTA {
       addMapping(223, 117);
     }
     else if (name2.find("street1.fon") != std::string::npos) {
-      INFO << "found mapping: street1.fon - " << name << std::endl;
+      INFO("found mapping: streen1.fon - {}", name);
       for (int j = 65; j < 91; j++) {
         addMapping(chr(j), j - 33);
       }
@@ -212,7 +211,7 @@ namespace OpenGTA {
       for (int j = 97; j < 123; j++) {
         addMapping(chr(j), j - 33);
       }
-      WARN << "incomplete mapping" << std::endl;
+      WARN("incomplete mapping");
     }
     else if ((name2.find("m_mmiss.fon") != std::string::npos)) {
       addMapping('!', 0);
@@ -396,7 +395,7 @@ namespace OpenGTA {
       }
     }
     else {
-      ERROR << "mapping for font " << name << " is not known" << std::endl;
+      ERROR("mapping for font {} is not known", name);
     }
   }
 }

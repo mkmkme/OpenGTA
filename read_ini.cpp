@@ -17,11 +17,10 @@ namespace OpenGTA {
 
   ScriptParser::ScriptParser(const std::string &file) : section_info(""), section_vars("") {
     fd = PHYSFS_openRead(file.c_str());
-    if (!fd) {
-      std::cerr << "Error: could not open file " << file << " for reading!" << std::endl;
-    }
+    if (!fd)
+      ERROR("could not open file {} for reading!", file);
     else {
-      std::cout << "* Loading script " << file << " ... ";
+      INFO("* Loading script {} ...", file);
 /*
       unsigned char v;
       unsigned char m = 0;
@@ -77,7 +76,7 @@ namespace OpenGTA {
         fd_off += fd_off_add;
       }
     }
-    std::cout << int(levels.size()) << " sections indexed" << std::endl;
+    INFO("{} sections indexed", levels.size());
   }
   /*
    * * Loading script MISSION.INI ... 1 4
@@ -122,7 +121,7 @@ namespace OpenGTA {
   void ScriptParser::loadLevel(PHYSFS_uint32 level) {
     LevelMapType::iterator i = levels.find(level);
     if (i == levels.end()) {
-      std::cerr << "not a valid level: " << level << std::endl;
+      WARN("not a valid level: {}", level);
       return;
     }
     PHYSFS_sint64 end_of_section = sectionEndOffset(i->second);
@@ -188,11 +187,11 @@ namespace OpenGTA {
   }
 
   void ScriptParser::acceptDefinition(char* str) {
-    INFO << "def: " << str << std::endl;
+    INFO("def: {}", str);
   }
 
   void ScriptParser::acceptCommand(char* str) {
-    INFO << "cmd: " << str << std::endl;
+    INFO("cmd: {}", str);
   }
 
 }

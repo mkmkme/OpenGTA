@@ -30,12 +30,12 @@ using namespace Util;
 namespace OpenGL {
   template<class T> void ImmediateRenderer<T>::assertCorrectPrimitive(GLenum newType) {
     if (!insideBegin) {
-      WARN << "Missing glBegin() call" << std::endl;
+      WARN("Missing glBegin() call");
     }
     else {
       if (currentPrimitiveType == newType)
         return;
-      WARN << "Forcing switch of primitive type" << std::endl;
+      WARN("Forcing switch of primitive type");
       glEnd();
     }
     glBegin(newType);

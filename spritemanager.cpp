@@ -161,7 +161,7 @@ namespace OpenGTA {
       lastCreateTick = ticks;
       while (1) {
         Util::TupleOfUint8 tu8 = creationArea.getValidCoord();
-        INFO << "testing: " << int(tu8.first) << ", " << int(tu8.second) << std::endl;
+        INFO("testing: {}, {}", tu8.first, tu8.second);
         int k = -1;
         for (int i = 0; i < map.getNumBlocksAtNew(tu8.first, tu8.second); ++i) {
           Map::BlockInfo * bi = map.getBlockAtNew(tu8.first, tu8.second, i);
@@ -173,7 +173,7 @@ namespace OpenGTA {
         if (k == -1)
           continue;
 
-        INFO << int(tu8.first) << " " << int(tu8.second) << " " << k << std::endl;
+        INFO("{} {} {}", tu8.first, tu8.second, k);
 
         Vector3D pos(tu8.first + 0.5f, k+1, tu8.second+0.5f);
         int id = OpenGTA::TypeIdBlackBox::requestId();
@@ -622,7 +622,7 @@ void SpriteManager::removeDeadStuff() {
 SpriteObject::Animation & SpriteManager::getAnimationById(const Uint32 & id) {
   AnimLookupType::iterator i = animations.find(id);
   if (i == animations.end()) {
-    ERROR << "Failed to find anim id: " << id << std::endl;
+    ERROR("Failed to find anim id: {}", id);
     return animations.begin()->second;
   }
   return i->second;

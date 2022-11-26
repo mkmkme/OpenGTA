@@ -76,7 +76,7 @@ namespace OpenGTA {
       default:
         break;
     }
-    INFO << "UPS: " << t << std::endl;
+    ERROR("UPS: {}", t);
     assert(0);
   }
   PHYSFS_uint16 GraphicsBase::SpriteNumbers::reIndex(const PHYSFS_uint16 & id, const SpriteTypes & t) const {
@@ -255,7 +255,7 @@ namespace OpenGTA {
   }
 
   unsigned int GraphicsBase::getPedRemapNumberType(unsigned int _type) {
-    ERROR << "not implemented"<< std::endl;
+    ERROR("not implemented");
     return _type;
   }
   
@@ -284,44 +284,46 @@ namespace OpenGTA {
     
     uint32_t gs = sideSize + lidSize + auxSize;
 
-    INFO << "* graphics info *" << std::endl <<
-    gs << " bytes in " << gs / 65536 << " pages " << gs / 4096 
-    << " images" << std::endl <<
-    spriteInfos.size() << " sprites (" << spriteInfoSize <<") total: " << 
-    spriteGraphicsSize << " bytes" << std::endl <<
-    "sprite numbers: " << std::endl <<
-    spriteNumbers.GTA_SPRITE_ARROW << " arrows" << std::endl <<
-    spriteNumbers.GTA_SPRITE_DIGITS << " digits" << std::endl <<
-    spriteNumbers.GTA_SPRITE_BOAT << " boats" << std::endl <<
-    spriteNumbers.GTA_SPRITE_BOX << " boxes" << std::endl <<
-    spriteNumbers.GTA_SPRITE_BUS << " buses" << std::endl <<
-    spriteNumbers.GTA_SPRITE_CAR << " cars" << std::endl <<
-    spriteNumbers.GTA_SPRITE_OBJECT << " objects" << std::endl <<
-    spriteNumbers.GTA_SPRITE_PED << " peds" << std::endl <<
-    spriteNumbers.GTA_SPRITE_SPEEDO << " speedos" << std::endl <<
-    spriteNumbers.GTA_SPRITE_TANK << " tanks" << std::endl <<
-    spriteNumbers.GTA_SPRITE_TRAFFIC_LIGHTS << " traffic lights" << std::endl <<
-    spriteNumbers.GTA_SPRITE_TRAIN << " trains" << std::endl <<
-    spriteNumbers.GTA_SPRITE_TRDOORS << " train doors" << std::endl <<
-    spriteNumbers.GTA_SPRITE_BIKE << " bikes" << std::endl <<
-    spriteNumbers.GTA_SPRITE_TRAM << " trams" << std::endl <<
-    spriteNumbers.GTA_SPRITE_WBUS << " wbuses" << std::endl <<
-    spriteNumbers.GTA_SPRITE_WCAR << " wcars" << std::endl <<
-    spriteNumbers.GTA_SPRITE_EX << " exes"<< std::endl <<
-    spriteNumbers.GTA_SPRITE_TUMCAR << " tumcars" << std::endl <<
-    spriteNumbers.GTA_SPRITE_TUMTRUCK << " tumtrucks" << std::endl <<
-    spriteNumbers.GTA_SPRITE_FERRY << " ferries"<< std::endl <<
-    "#object-info: " << objectInfos.size() << " #car-info: " << carInfos.size() << std::endl;
+    INFO("* graphics info *");
+    INFO("{} bytes in {} pages {} images", gs, gs / 65536, gs / 4096);
+    INFO("{} sprites ({}) total: {} bytes",
+         spriteInfos.size(),
+         spriteInfoSize,
+         spriteGraphicsSize);
+    INFO("sprite numbers:");
+    INFO("{} arrows", spriteNumbers.GTA_SPRITE_ARROW);
+    INFO("{} digits", spriteNumbers.GTA_SPRITE_DIGITS);
+    INFO("{} boats", spriteNumbers.GTA_SPRITE_BOAT);
+    INFO("{} boxes", spriteNumbers.GTA_SPRITE_BOX);
+    INFO("{} buses", spriteNumbers.GTA_SPRITE_BUS);
+    INFO("{} cars", spriteNumbers.GTA_SPRITE_CAR);
+    INFO("{} objects", spriteNumbers.GTA_SPRITE_OBJECT);
+    INFO("{} peds", spriteNumbers.GTA_SPRITE_PED);
+    INFO("{} speedos", spriteNumbers.GTA_SPRITE_SPEEDO);
+    INFO("{} tanks", spriteNumbers.GTA_SPRITE_TANK);
+    INFO("{} traffic lights", spriteNumbers.GTA_SPRITE_TRAFFIC_LIGHTS);
+    INFO("{} trains", spriteNumbers.GTA_SPRITE_TRAIN);
+    INFO("{} train doors", spriteNumbers.GTA_SPRITE_TRDOORS);
+    INFO("{} bikes", spriteNumbers.GTA_SPRITE_BIKE);
+    INFO("{} trams", spriteNumbers.GTA_SPRITE_TRAM);
+    INFO("{} wbuses", spriteNumbers.GTA_SPRITE_WBUS);
+    INFO("{} wcars", spriteNumbers.GTA_SPRITE_WCAR);
+    INFO("{} exes", spriteNumbers.GTA_SPRITE_EX);
+    INFO("{} tumcars", spriteNumbers.GTA_SPRITE_TUMCAR);
+    INFO("{} tumtrucks", spriteNumbers.GTA_SPRITE_TUMTRUCK);
+    INFO("{} ferries", spriteNumbers.GTA_SPRITE_FERRY);
+    INFO("#object-info: {} #car-info: {}", objectInfos.size(), carInfos.size());
   }
 
   void Graphics8Bit::loadHeader() {
     PHYSFS_uint32 vc;
     PHYSFS_readULE32(fd, &vc);
     if(vc != GTA_GRAPHICS_GRY) {
-      ERROR << "graphics file specifies version " << vc <<
-        " instead of " << GTA_GRAPHICS_GRY << std::endl;
-      throw E_INVALIDFORMAT("8-bit loader failed");
-      return;
+        ERROR("graphics file specifies version {} instead of {}",
+              vc,
+              GTA_GRAPHICS_GRY);
+        throw E_INVALIDFORMAT("8-bit loader failed");
+        return;
     }
     PHYSFS_readULE32(fd, &sideSize);
     PHYSFS_readULE32(fd, &lidSize);
@@ -336,18 +338,20 @@ namespace OpenGTA {
     PHYSFS_readULE32(fd, &spriteGraphicsSize);
     PHYSFS_readULE32(fd, &spriteNumberSize);
     
-    INFO << "Block textures: S " << sideSize / 4096 << " L " <<
-      lidSize / 4096 << " A " << auxSize / 4096 << std::endl;
+    INFO("Block textures: S {} L {} A {}",
+         sideSize / 4096,
+         lidSize / 4096,
+         auxSize / 4096);
     if (sideSize % 4096 != 0) {
-      ERROR << "Side-Block texture size is not a multiple of 4096" << std::endl;
+      ERROR("Side-Block texture size is not a multiple of 4096");
       return;
     }
     if (lidSize % 4096 != 0) {
-      ERROR << "Lid-Block texture size is not a multiple of 4096" << std::endl;
+      ERROR("Lid-Block texture size is not a multiple of 4096");
       return;
     }
     if (auxSize % 4096 != 0) {
-      ERROR << "Aux-Block texture size is not a multiple of 4096" << std::endl;
+      ERROR("Aux-Block texture size is not a multiple of 4096");
       return;
     }
     
@@ -355,15 +359,23 @@ namespace OpenGTA {
     tmp = tmp % 4;
     if (tmp) {
       auxBlockTrailSize = (4 - tmp) * 4096;
-      INFO << "adjusting aux-block by " << auxBlockTrailSize << std::endl;
+      INFO("adjusting aux-block by {}", auxBlockTrailSize);
     }
-    INFO << "Anim size: " << animSize << " palette size: " << paletteSize << 
-      " remap size: " << remapSize << " remap-index size: " << remapIndexSize << std::endl;
-    INFO << "Obj-info size: " << objectInfoSize << " car-size: " << carInfoSize <<
-      " sprite-info size: " << spriteInfoSize << " graphic size: " << spriteGraphicsSize <<
-      " numbers s: " << spriteNumberSize << std::endl;
+    INFO("Anim size: {} palette size: {} remap size: {} remap-index size: {}",
+         animSize,
+         paletteSize,
+         remapSize,
+         remapIndexSize);
+    INFO(
+        "Obj-info size: {} car-size: {} sprite-info size: {} graphic size: {} "
+        "numbers s: {}",
+        objectInfoSize,
+        carInfoSize,
+        spriteInfoSize,
+        spriteGraphicsSize,
+        spriteNumberSize);
     if (spriteNumberSize != 42) {
-      ERROR << "spriteNumberSize is " << spriteNumberSize << " (should be 42)" << std::endl;
+      ERROR("spriteNumberSize is {} (should be 42)", spriteNumberSize);
       return;
     }
     loadTileTextures();
@@ -491,14 +503,16 @@ namespace OpenGTA {
 
       // sanity check
       if (v)
-        WARN << "Compression flag active in sprite!" << std::endl;
+        WARN("Compression flag active in sprite!");
       if (int(si->w) * int(si->h) != int(si->size)) {
-        ERROR << "Sprite info size mismatch: " << int(si->w) << "x" << int(si->h) <<
-          " != " << si->size << std::endl;
+        ERROR("Sprite info size mismatch: {}x{} != {}",
+              int(si->w),
+              int(si->h),
+              si->size);
         return;
       }
       if (si->deltaCount > 32) {
-        ERROR << "Delta count of sprite is " << si->deltaCount << std::endl;
+        ERROR("Delta count of sprite is {} (should be <= 32)", si->deltaCount);
         return;
       }
       for (PHYSFS_uint8 j = 0; j < 33; ++j) {
@@ -531,7 +545,7 @@ namespace OpenGTA {
     PHYSFS_readBytes(fd, static_cast<void*>(rawSprites), spriteGraphicsSize);
 
     if (spriteInfos.size() == 0) {
-      INFO << "No SpriteInfo post-loading work done - structure is empty" << std::endl;
+      INFO("No SpriteInfo post-loading work done - structure is empty");
       return;
     }
     std::vector<SpriteInfo*>::const_iterator i = spriteInfos.begin();
@@ -607,11 +621,11 @@ namespace OpenGTA {
     if ( PHYSFS_uint64(r) == ts )
         return;
     else if ( r == -1) {
-       INFO << "Could not read texture raw data" << std::endl;
+       ERROR("Could not read texture raw data");
        return;
     }
     else
-      INFO << "This message should never be displayed! (" << std::endl;
+      ERROR("This message should never be displayed!");
   }
 
   void GraphicsBase::handleDeltas(const SpriteInfo & info, unsigned char* buffer, Uint32 delta) {

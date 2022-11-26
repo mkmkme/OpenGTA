@@ -17,7 +17,7 @@ namespace OpenGTA {
       else if (STRING_TEST("miami.cmp"))
         num = 3;
       else
-        ERROR << "unknown level: " << file << std::endl;
+        ERROR("unknown level: {}", file);
 #undef STRING_TEST
       return num;
     }

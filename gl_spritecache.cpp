@@ -72,13 +72,13 @@ namespace OpenGL {
     if (enabled)
       // FIXME: for some reason I can not catch this exception, thus it only prints
       //throw E_NOTSUPPORTED("Scale2x feature disabled at compile time");
-      ERROR << "scale2x feature disabled at compile time - ignoring request" << std::endl;
+      ERROR("scale2x feature disabled at compile time - ignoring request");
 #endif
     if (loadedSprites.begin() == loadedSprites.end()) {
       doScale2x = enabled;
     }
     else {
-      ERROR << "scale2x cannot be set during game - ignoring request" << std::endl;
+      ERROR("scale2x cannot be set during game - ignoring request");
     }
   }
 
@@ -103,7 +103,7 @@ namespace OpenGL {
     SpriteMapType::iterator i = loadedSprites.find(SpriteIdentifier(sprNum, -1, 0));
     if (i != loadedSprites.end())
       return true;
-    INFO << "sprite not loaded sprnum: " << sprNum <<std::endl;
+    INFO("sprite not loaded sprnum: {}", sprNum);
     return false;
   }
 
@@ -111,7 +111,7 @@ namespace OpenGL {
     SpriteMapType::iterator i = loadedSprites.find(SpriteIdentifier(sprNum, remap, 0));
     if (i != loadedSprites.end())
       return true;
-    INFO << "sprite not loaded sprnum: " << sprNum << " remap: " << remap <<std::endl;
+    INFO("sprite not loaded sprnum: {} remap: {}", sprNum, remap);
     return false;
   }
 
@@ -119,8 +119,10 @@ namespace OpenGL {
     SpriteMapType::iterator i = loadedSprites.find(si);
     if (i != loadedSprites.end())
       return true;
-    INFO << "sprite not loaded sprnum: " << si.sprNum << " remap: " << si.remap << 
-      " delta: " << si.delta << std::endl;
+    INFO("sprite not loaded sprnum: {} remap: {} delta: {}",
+         si.sprNum,
+         si.remap,
+         si.delta);
     return false;
   }
 
@@ -185,7 +187,7 @@ namespace OpenGL {
 
   OpenGL::PagedTexture SpriteCache::createSprite(size_t sprite_num, PHYSFS_sint16 remap,
     PHYSFS_uint32 delta, OpenGTA::SpriteInfo* info) {
-    INFO << "creating new sprite: " << sprite_num << " remap: " << remap << std::endl;
+    INFO("creating new sprite: {} remap: {}", sprite_num, remap);
     auto src_smart = OpenGTA::ActiveStyle::Instance().get().getSpriteBitmap(
       sprite_num, remap , delta
     );

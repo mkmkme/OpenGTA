@@ -81,7 +81,7 @@ namespace OpenGTA {
     }
     catch (Util::UnknownKey & uk) {
       car = NULL;
-      ERROR << "not a model" << std::endl;
+      ERROR("not a model");
       return;
     }
     car_last_model_ok = model_id;
@@ -187,10 +187,12 @@ void drawScene(Uint32 ticks) {
 
     std::string sprite_info;
     if (car != nullptr) {
-      sprite_info = std::string { vtype2name(car->carInfo.vtype) }
-            + " model: " + std::to_string(int(car_model)) + " name: "
-            + OpenGTA::MainMsgLookup::Instance().get().getText(
-                "car" + std::to_string(int(car_model)));
+        sprite_info =
+            fmt::format("{} model: {} name: {}",
+                        vtype2name(car->carInfo.vtype),
+                        car_model,
+                        OpenGTA::MainMsgLookup::Instance().get().getText(
+                            fmt::format("car{}", car_model)));
     } else {
       sprite_info = "not a model: " + std::to_string(int(car_model));
     }
@@ -314,7 +316,7 @@ void handleKeyPress( SDL_keysym *keysym ) {
         car_remap -= 1;
         if (car_remap < -1)
           car_remap = -1;
-        INFO << "remap: " << int(car_remap) << std::endl;
+        INFO("remap: {}", car_remap);
       }
       do {
         spr_type -= 1;
@@ -331,7 +333,7 @@ void handleKeyPress( SDL_keysym *keysym ) {
         car_remap += 1;
         if (car_remap > 11)
           car_remap = 11;
-        INFO << "remap: " << int(car_remap) << std::endl;
+        INFO("remap: {}", car_remap);
       }
       do {
         spr_type += 1;
@@ -421,9 +423,9 @@ void parse_args(int argc, char* argv[]) {
         exit(0);
       default:
         if (isprint (optopt))
-          ERROR << "Unknown option `-" << char(optopt) << "'" << std::endl;
+          ERROR("Unknown option '-{}'", char(optopt));
         else
-          ERROR << "Unknown option character `" << optopt << "'" << std::endl;
+          ERROR("Unknown option character '{}'", optopt);
         abort ();
     }
 

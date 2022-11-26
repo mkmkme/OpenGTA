@@ -15,7 +15,7 @@ void on_exit() {
 
 void parse_args(int argc, char* argv[]) {
   if (argc != 3) {
-    ERROR << "invalid args" << std::endl;
+    ERROR("invalid args");
     exit(1);
   }
   map_filename = std::string(argv[1]);
@@ -29,7 +29,7 @@ void run_init(const char* prg_name) {
   if (std::filesystem::exists(data_path))
     PHYSFS_mount(data_path.c_str(), nullptr, 1);
   else
-    WARN << "Could not load data-source: " << data_path << std::endl;
+    WARN("Could not load data-source: {}", data_path);
 
   PHYSFS_mount(PHYSFS_getBaseDir(), nullptr, 1);
 

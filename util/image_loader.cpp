@@ -74,7 +74,7 @@ using OpenGL::PagedTexture;
       bpp = 1;
 
     if (!(bpp && bpp * width * height == size))
-      ERROR << "could not identify image: " << name << " size: " << size << std::endl;
+      ERROR("could not identify image: {} size: {}", name, size);
     return std::make_pair(width, height);
   }
 
@@ -89,7 +89,7 @@ using OpenGL::PagedTexture;
 
     if (whp.first == 0 || whp.second == 0) {
       PHYSFS_close(fd);
-      WARN << "aborting image load" << std::endl;
+      WARN("aborting image load");
       throw E_UNKNOWNKEY(name + " - RAW file size unknown");
     }
 
@@ -110,7 +110,7 @@ using OpenGL::PagedTexture;
     WidthHeightPair whp = lookupImageSize(name, nbytes);
     if (whp.first == 0 || whp.second == 0) {
       PHYSFS_close(fd);
-      WARN << "aborting image load" << std::endl;
+      WARN("aborting image load");
       throw E_UNKNOWNKEY(name + " - RAT file size unknown");
     }
     auto lb1 = std::make_unique<uint8_t[]>(nbytes);

@@ -68,7 +68,7 @@ void initVideo(int w, int h, int bpp) {
   */
 
   if (!videoInfo)
-    ERROR << "VideoInfo query failed" << std::endl;
+    ERROR("VideoInfo query failed");
   videoFlags  = SDL_OPENGL;
   videoFlags |= SDL_GL_DOUBLEBUFFER;
   videoFlags |= SDL_HWPALETTE;
@@ -76,22 +76,22 @@ void initVideo(int w, int h, int bpp) {
   //videoFlags |= SDL_FULLSCREEN;
   
   if ( videoInfo->hw_available ) {
-    INFO << "Using HWSURFACE" << std::endl;
+    INFO("Using HWSURFACE");
     videoFlags |= SDL_HWSURFACE;
   }
   else {
-    INFO << "Using SWSURFACE" << std::endl;
+    INFO("Using SWSURFACE");
     videoFlags |= SDL_SWSURFACE;
   }
   if ( videoInfo->blit_hw ) {
-    INFO <<  "Using HWACCEL" << std::endl;
+    INFO("Using HWACCEL");
     videoFlags |= SDL_HWACCEL;
   }
   SDL_GL_SetAttribute( SDL_GL_DOUBLEBUFFER, 1 );
 
   screen = SDL_SetVideoMode( w, h, bpp, videoFlags );
   if (!screen)
-    ERROR << "SDL failed to generate requested VideoSurface!" << std::endl;
+    ERROR("SDL failed to generate requested VideoSurface!");
 
   resize(w, h);
 }

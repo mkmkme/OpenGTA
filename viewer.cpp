@@ -136,7 +136,7 @@ void print_usage(const char* argv0) {
   std::cout << "USAGE: " << argv0 << " [options] [city-num]\n"
   "\n"
   "Options:\n"
-  " -l k : log-level (default: 0; 1, 2)\n"
+  " -l k : log-level (default: 2; 0, 1, 2, 3)\n"
   " -c k : 0 = 8bit GRY, 1 = 24bit G24\n"
   " -f   : fullscreen on program-start\n"
   " -V   : show version & compile-time switches\n"
@@ -260,7 +260,23 @@ void parse_args(int argc, char* argv[]) {
         arg_screen_h = atoi(optarg);
         break;
       case 'l':
-        Util::Log::setOutputLevel(atoi(optarg));
+        switch (atoi(optarg)) {
+          case 0:
+            Util::Log::setOutputLevel(Util::LogLevel::error);
+            break;
+          case 1:
+            Util::Log::setOutputLevel(Util::LogLevel::warn);
+            break;
+          case 2:
+            Util::Log::setOutputLevel(Util::LogLevel::info);
+            break;
+          case 3:
+            Util::Log::setOutputLevel(Util::LogLevel::debug);
+            break;
+          default:
+            ERROR("Unknown log level (expected 0, 1 or 2)");
+            break;
+        }
         break;
       case 'f':
         full_screen = true;
@@ -281,9 +297,9 @@ void parse_args(int argc, char* argv[]) {
           exit(0);
         }
         else if (isprint (optopt))
-          ERROR << "Unknown option `-" << char(optopt) << "'" << std::endl;
+          ERROR("Unknown option '-{}'", char(optopt));
         else
-          ERROR << "Unknown option character `" << optopt << "'" << std::endl;
+          ERROR("Unknown option character '{}'", optopt);
         print_usage(argv[0]);
         exit(1);
     }
@@ -292,7 +308,7 @@ void parse_args(int argc, char* argv[]) {
     city_num = atoi(argv[index]);
 
   if (city_num > 2) {
-    ERROR << "Invalid city number: " << city_num << std::endl;
+    ERROR("Invalid city number: {}", city_num);
     exit(1);
   }
 }
@@ -306,7 +322,7 @@ void run_init(const char* prg_name) {
   if (std::filesystem::exists(data_path))
     PHYSFS_mount(data_path.c_str(), nullptr, 1);
   else
-    WARN << "Could not load data-source: " << data_path << std::endl;
+    WARN("Could not load data-source: {}", data_path);
 
   PHYSFS_mount(PHYSFS_getBaseDir(), nullptr, 1);
 
@@ -419,8 +435,9 @@ void run_init(const char* prg_name) {
 
   // check both width & height defined
   if ((arg_screen_h && !arg_screen_w) || (!arg_screen_h && arg_screen_w)) {
-    WARN << "Invalid screen specified: " << arg_screen_w << "x" <<
-      arg_screen_h << " - using default" << std::endl;
+    WARN("Invalid screen specified: {}x{} - using default",
+         arg_screen_w,
+         arg_screen_h);
     arg_screen_h = 0; arg_screen_w = 0;
   }
   
@@ -459,8 +476,9 @@ void run_init(const char* prg_name) {
   if (ImageUtil::supportedMaxAnisoDegree >= anisotropic_filter_degree)
     ImageUtil::supportedMaxAnisoDegree = anisotropic_filter_degree;
   else
-    WARN << "Using filter degree " << ImageUtil::supportedMaxAnisoDegree <<
-    ", requested " << anisotropic_filter_degree << " not supported" << std::endl;
+    WARN("Using filter degree {}, requested {} not supported",
+         ImageUtil::supportedMaxAnisoDegree,
+         anisotropic_filter_degree);
 
   switch(mipmap_textures) {
     case -1:
@@ -545,7 +563,7 @@ void draw_mapmode();
 void create_ped_at(const Vector3D v) {
   OpenGTA::Pedestrian p(Vector3D(0.2f, 0.5f, 0.2f), v, 0xffffffff);
   p.remap = OpenGTA::ActiveStyle::Instance().get().getRandomPedRemapNumber();
-  INFO << "using remap: "  << p.remap << std::endl;
+  INFO("using remap: {}", p.remap);
   OpenGTA::Pedestrian & pr = OpenGTA::SpriteManager::Instance().addPed(p);
   pr.switchToAnim(1);
   OpenGTA::LocalPlayer::Instance().setCtrl(pr.m_control);
@@ -562,7 +580,7 @@ void explode_ped() {
   OpenGTA::SpriteManager::Instance().createExplosion(p);
   }
   catch (Util::UnknownKey & e) {
-    WARN << "Cannot place explosion - press F4 to switch to player-mode first!" << std::endl;
+    WARN("Cannot place explosion - press F4 to switch to player-mode first!");
   }
 }
 
@@ -630,19 +648,20 @@ void add_auto_ped() {
   OpenGTA::SpriteManager::Instance().addPed(p);
   OpenGTA::Pedestrian & pr2 = OpenGTA::SpriteManager::Instance().getPedById(id);
   pr2.switchToAnim(1);
-  INFO << "now " << OpenGTA::SpriteManager::Instance().getNum<OpenGTA::Pedestrian>() << " peds " << std::endl;
+  INFO("now {} peds",
+       OpenGTA::SpriteManager::Instance().getNum<OpenGTA::Pedestrian>());
 
   //pr2.m_control = &OpenGTA::nullAI;
   }
   catch (Util::UnknownKey & e) {
-    WARN << "Cannot place peds now - press F4 to switch to player-mode first!" << std::endl;
+    WARN("Cannot place peds now - press F4 to switch to player-mode first!");
   }
 }
 
 void toggle_player_run() {
   OpenGTA::PedController * pc = &OpenGTA::LocalPlayer::Instance().getCtrl();
   if (!pc) {
-    WARN << "no player yet!" << std::endl;
+    WARN("no player yet!");
     return;
   }
   if (!pc->getRunning()) 
@@ -940,11 +959,11 @@ void handleKeyPress( SDL_keysym *keysym ) {
       break;
     case '.':
       city->setVisibleRange(city->getVisibleRange()-1);
-      INFO << " new visible range " << city->getVisibleRange() << std::endl;
+      INFO(" new visible range {}", city->getVisibleRange());
       break;
     case ',':
       city->setVisibleRange(city->getVisibleRange()+1);
-      INFO << " new visible range " << city->getVisibleRange() << std::endl;
+      INFO(" new visible range {}", city->getVisibleRange());
       break;
     case SDLK_PRINT:
       OpenGL::Screen::Instance().makeScreenshot("screenshot.bmp"); 
@@ -1003,7 +1022,7 @@ void draw_mapmode() {
   screen.setSystemMouseCursor(true);
   glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
   glDisable(GL_DEPTH_TEST);
-  INFO << map_tex.coords[1].u << std::endl;
+  INFO("{}", map_tex.coords[1].u);
   while(!done_map) {
     while (SDL_PollEvent(&event)) {
       switch(event.type) {
@@ -1020,7 +1039,9 @@ void draw_mapmode() {
           }
           break;
         case SDL_MOUSEBUTTONDOWN:
-          INFO << event.button.x  / 600.0f * 255<< " " << event.button.y / 600.0f * 255 << std::endl;
+          INFO("{} {}",
+               event.button.x  / 600.0f * 255,
+               event.button.y / 600.0f * 255);
           mapPos[0] = event.button.x  / 600.0f * 255;
           mapPos[2] = event.button.y / 600.0f * 255;
           //mapPos[1] = 10;
@@ -1205,7 +1226,7 @@ void run_main() {
         }
         catch (Exception & e) {
           vm_tick_ok = false;
-          ERROR << "Disabling script game_tick because of error: " << e.what() << std::endl;
+          ERROR("Disabling script game_tick because of error: {}", e.what());
         }
       }
 #endif

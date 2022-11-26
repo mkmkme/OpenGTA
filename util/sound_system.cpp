@@ -15,13 +15,13 @@ namespace Audio {
       device.open();
     }
     catch (const Exception & e) {
-      ERROR << e.what() << std::endl;
+      ERROR("{}", e.what());
     }
     enabled = true;
     if (device.getStatus() == SoundDevice::OPEN)
       Sound_Init();
     else {
-      WARN << "Could not open audio-device - disabling sound!" << std::endl;
+      WARN("Could not open audio-device - disabling sound!");
       enabled = false;
     }
   }

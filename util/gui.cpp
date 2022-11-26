@@ -170,7 +170,7 @@ namespace GUI {
       color.unused = 0;
       manager.remove(this);
     }
-    INFO << slen <<" " << offset << std::endl;
+    INFO("{} {}", slen, offset);
     glPopMatrix();
 
     glDisable(GL_SCISSOR_TEST);
@@ -209,7 +209,7 @@ namespace GUI {
   }
 
   void Manager::clearObjects() {
-    INFO << "clearing gui objects" << std::endl;
+    INFO("clearing gui objects");
     GuiObjectListMap::iterator layer_it = guiLayers.begin();
     while (layer_it != guiLayers.end()) {
       GuiObjectList & list = layer_it->second;
@@ -223,7 +223,7 @@ namespace GUI {
   }
 
   void Manager::clearCache() {
-    INFO << "clearing gui texture cache" << std::endl;
+    INFO("clearing gui texture cache");
     for (GuiTextureCache::iterator i = texCache.begin(); i != texCache.end(); ++i) {
       OpenGL::PagedTexture & p = i->second;
       glDeleteTextures(1, &p.inPage);
@@ -412,7 +412,7 @@ namespace GUI {
       manager.getCachedImage(img.texId);
     }
     catch (const Util::UnknownKey & ek) {
-      WARN << "GUI image for weapon " << wt << " not loaded - retrying" << std::endl;
+      WARN("GUI image for weapon {} not loaded - retrying", wt);
       manager.cacheStyleArrowSprite(img.texId, -1);
     }
   }
@@ -430,12 +430,11 @@ namespace GUI {
 
   void ScrollBar::receive(SDL_MouseButtonEvent & mb_event) {
     value = (mb_event.x - rect.x) / float(rect.w - 4);
-    INFO << value << std::endl;
+    INFO("{}", value);
     if (changeCB)
       changeCB(value * 2);
     else
-      WARN << "No callback function set - I ain't seen nothing" <<
-        std::endl;
+      WARN("No callback function set - I ain't seen nothing");
     /*
     SDL_SetGamma(value * 2, value * 2, value * 2);
     Object * o = Manager::Instance().findObject(101);

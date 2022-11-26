@@ -187,7 +187,7 @@ namespace GUI {
   }
 
   void Manager::clearObjects() {
-    INFO << "clearing gui objects" << std::endl;
+    INFO("clearing gui objects");
     GuiObjectListMap::iterator layer_it = guiLayers.begin();
     while (layer_it != guiLayers.end()) {
       GuiObjectList & list = layer_it->second;
@@ -201,7 +201,7 @@ namespace GUI {
   }
 
   void Manager::clearCache() {
-    INFO << "clearing gui texture cache" << std::endl;
+    INFO("clearing gui texture cache");
     for (GuiTextureCache::iterator i = texCache.begin(); i != texCache.end(); ++i) {
       OpenGL::PagedTexture & p = i->second;
       glDeleteTextures(1, &p.inPage);

@@ -25,7 +25,7 @@ int main(int argc, char* argv[]) {
     x = 0;
   if (y < 0)
     y = 0;
-  INFO << "Querying position: " << x << ", " << y << std::endl;
+  INFO("Querying position: {}, {}", x, y);
 
   OpenGTA::NavData::Sector* sec = map.nav->getSectorAt(x, y);
 
@@ -33,7 +33,7 @@ int main(int argc, char* argv[]) {
 
   PHYSFS_uint16 num_blocks = map.getNumBlocksAt(x, y);
   OpenGTA::Map::BlockInfo* bi = NULL;
-  INFO << num_blocks << " empty blocks" << std::endl;
+  INFO("{} empty blocks", num_blocks);
   for (int c=6-num_blocks; c >= 1; c--) {
     std::cout << "block " << c << std::endl;
     bi = map.getBlockAt(x, y, c);

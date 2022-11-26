@@ -62,8 +62,8 @@ namespace OpenGTA {
       throw E_OUTOFRANGE("invalid x/z pos");
     }
     if (y > 20) {
-      INFO << y << " seems a bit high; going to 20" << std::endl;
-      INFO << x << " " << z << std::endl;
+      WARN("{} seems a bit high; going to 20", y);
+      INFO("{} {}", x, z);
       y = 20;
     }
     OpenGTA::Map & map = OpenGTA::ActiveMap::Instance().get();
@@ -96,7 +96,7 @@ namespace OpenGTA {
       }
       y += 1.0f;
     }
-    INFO << "should this be reached?" << std::endl;
+    WARN("should this be reached?");
     return 1.0f;
   }
 
@@ -139,7 +139,7 @@ namespace OpenGTA {
     }
 
   void Sprite::switchToAnim(const Uint32 & newId) {
-    INFO << "switching to anim " << newId << std::endl;
+    DEBUG("switching to anim {}", newId);
     anim = Animation(SpriteManager::Instance().getAnimationById(newId));
     anim.set(Util::Animation::PLAY_FORWARD, Util::Animation::LOOP);
     animId = newId;
@@ -276,13 +276,13 @@ activeWeapon = chooseWeapon;
       speedForces.y += 0.0005f *delta;
       pos.y -= speedForces.y;
       if (speedForces.y < 0.2f)
-        INFO << "bridge step? height: " << pos.y << " speed: " << speedForces.y << std::endl;
+        DEBUG("bridge step? height: {} speed: {}", pos.y, speedForces.y);
       else
-        INFO << "FALLING " << pos.y << " speed " << speedForces.y << std::endl;
+        DEBUG("FALLING {} speed {}", pos.y, speedForces.y);
     }
     else {
       if (speedForces.y > 0.1)
-        INFO << "impacting with speed: " << speedForces.y << std::endl;
+        DEBUG("impacting with speed: {}", speedForces.y);
       speedForces.y = 0.0f;
     }
     m_M = TranslateMatrix3D(pos);
@@ -317,7 +317,7 @@ activeWeapon = chooseWeapon;
     if (hot > 0.3f)
       inGroundContact = 0;
     else if (hot < 0.0) {
-      WARN << "gone below: " << hot << " at " << nPos.x << ", " << nPos.y << ", " << nPos.z << std::endl;
+      WARN("gone below: {} at {}, {}, {}", hot, nPos.x, nPos.y, nPos.z);
       nPos.y -= (hot - 0.3f);
       //nPos.y += 1;
       //INFO << nPos.y << std::endl;
@@ -343,7 +343,7 @@ activeWeapon = chooseWeapon;
         }
         else {
 #ifdef DEBUG_OLD_PED_BLOCK
-          INFO << "xblock left: " << x - pos.x << " tex: " << int(block->left) << std::endl;
+          DEBUG("xblock left: {} tex: {}", x - pos.x, int(block->left));
 #endif
           if (x - pos.x > 0 && x - pos.x < 0.2f)
             nPos.x = pos.x;
@@ -353,7 +353,7 @@ activeWeapon = chooseWeapon;
       }
       if (block->right && block->isFlat() == false) {
 #ifdef DEBUG_OLD_PED_BLOCK
-        INFO << "xblock right: " << pos.x - x - 1 << " tex: " << int(block->right) << std::endl;
+        DEBUG("xblock right: {} tex: {}", pos.x - x - 1, int(block->right));
 #endif
         if (pos.x - x - 1 > 0 && pos.x - x - 1 < 0.2f) {
           nPos.x = pos.x;
@@ -364,7 +364,7 @@ activeWeapon = chooseWeapon;
       if (block->top && graphics.isBlockingSide(block->top)) {
         if (block->isFlat()) {
 #ifdef DEBUG_OLD_PED_BLOCK
-          INFO << "zblock top: " << z - pos.z << " tex: " << int(block->top) << std::endl;
+          DEBUG("zblock top: {} tex: {}", z - pos.z, int(block->top));
 #endif
           if (z - pos.z > 0 && z - pos.z < 0.2f)
             nPos.z = pos.z;
@@ -373,7 +373,7 @@ activeWeapon = chooseWeapon;
         }
         else {
 #ifdef DEBUG_OLD_PED_BLOCK
-          INFO << "zblock top: " << z - pos.z << " tex: " << int(block->top)<<  std::endl;
+          DEBUG("zblock top: {} tex: {}", z - pos.z, int(block->top));
 #endif
           if (z - pos.z > 0 && z - pos.z < 0.2f)
             nPos.z = pos.z;
@@ -383,7 +383,7 @@ activeWeapon = chooseWeapon;
       }
       if (block->bottom && block->isFlat() == false) {
 #ifdef DEBUG_OLD_PED_BLOCK
-        INFO << "zblock bottom: " << pos.z - z - 1<< " tex: " << int(block->bottom)<< std::endl;
+        DEBUG("zblock bottom: {} tex: {}", pos.z - z - 1, int(block->bottom));
 #endif
         if (pos.z - z - 1 > 0 && pos.z - z - 1 < 0.2f) {
           nPos.z = pos.z;
@@ -395,7 +395,7 @@ activeWeapon = chooseWeapon;
         block = map.getBlockAtNew(PHYSFS_uint8(x-1), PHYSFS_uint8(z), PHYSFS_uint8(y));
         if (block->right && block->isFlat() == false) {
 #ifdef DEBUG_OLD_PED_BLOCK
-          INFO << "xblock right: " << pos.x - x << " tex: " << int(block->right)<< std::endl;
+          DEBUG("xblock right: {} tex: {}", pos.x - x, int(block->right));
 #endif
           if (pos.x - x < 0.2f) {
             nPos.x = (nPos.x < pos.x ? pos.x : nPos.x);
@@ -406,7 +406,7 @@ activeWeapon = chooseWeapon;
         block = map.getBlockAtNew(PHYSFS_uint8(x+1), PHYSFS_uint8(z), PHYSFS_uint8(y));
         if (block->left && graphics.isBlockingSide(block->left)) {
 #ifdef DEBUG_OLD_PED_BLOCK
-          INFO << "xblock left: " << x + 1 - pos.x << " tex: " << int(block->left)<< std::endl;
+          DEBUG("xblock left: {} tex: {}", x + 1 - pos.x, int(block->left));
 #endif
           if (block->isFlat()) {
             if (x + 1 - pos.x > 0 && x + 1 - pos.x < 0.2f)
@@ -422,7 +422,7 @@ activeWeapon = chooseWeapon;
         block = map.getBlockAtNew(PHYSFS_uint8(x), PHYSFS_uint8(z-1), PHYSFS_uint8(y));
         if (block->bottom && block->isFlat() == false) {
 #ifdef DEBUG_OLD_PED_BLOCK
-          INFO << "zblock bottom: " << pos.z - z<< " tex: " << int(block->bottom)<< std::endl;
+          DEBUG("zblock bottom: {} tex: {}", pos.z - z, int(block->bottom));
 #endif
           if (pos.z - z < 0.2f) {
             nPos.z = (nPos.z < pos.z ? pos.z : nPos.z);
@@ -433,7 +433,7 @@ activeWeapon = chooseWeapon;
         block = map.getBlockAtNew(PHYSFS_uint8(x), PHYSFS_uint8(z+1), PHYSFS_uint8(y));
         if (block->top && graphics.isBlockingSide(block->top)) {
 #ifdef DEBUG_OLD_PED_BLOCK
-          INFO << "zblock top: " << z + 1 - pos.z<< " tex: " << int(block->top) << std::endl;
+          DEBUG("zblock top: {} tex: {}", z + 1 - pos.z, int(block->top));
 #endif
           if (block->isFlat()) {
             if (z + 1 - pos.z > 0 && z + 1 - pos.z < 0.2f)
@@ -464,7 +464,7 @@ activeWeapon = chooseWeapon;
   }
 
   void Pedestrian::die() {
-    INFO << "DIE!!!" << std::endl; 
+    DEBUG("DIE!!!");
     switchToAnim(42);
     if (isDead == 3) {
       anim.set(Util::Animation::STOPPED, Util::Animation::STOP);
@@ -522,7 +522,7 @@ activeWeapon = chooseWeapon;
 
   void CarSprite::setSirenAnim(bool on) {
     if (!(assertDeltaById(15) && assertDeltaById(16))) {
-      ERROR << "Trying to set siren anim on car-sprite that has no such delta!" << std::endl;
+      ERROR("Trying to set siren anim on car-sprite that has no such delta!");
       return;
     }
     animState.set_item(10, on);
@@ -665,8 +665,8 @@ activeWeapon = chooseWeapon;
         if (ActiveStyle::Instance().get().getFormat() == 0)
           remap = carInfo.remap8[op.remap-129];
         else
-          WARN << "remap " << int(op.remap-129) << 
-          " requested but not implemented for G24" << std::endl;
+          WARN("remap {} requested but not implemented for G24",
+               int(op.remap - 129));
       }
       sprNum = carInfo.sprNum;
       fixSpriteType();
@@ -699,7 +699,7 @@ activeWeapon = chooseWeapon;
 
   void Car::damageAt(const Vector3D & hit, uint32_t dmg) {
     float angle = Util::xz_angle(Vector3D(0, 0, 0), hit);
-    INFO << "hit angle: " << angle << std::endl;
+    INFO("hit angle: {}", angle);
 
     /*
      * front   rear 
@@ -811,7 +811,7 @@ activeWeapon = chooseWeapon;
       Math::Plane plane(Vector3D(ci.x, ci.z, ci.y), Vector3D(0, 0, -1));
       Vector3D hit_pos;
       if (plane.segmentIntersect(pos, newp, hit_pos)) {
-        INFO << "intersect flat-t: " << hit_pos.x << " " << hit_pos.y << " " <<hit_pos.z << std::endl; 
+        INFO("intersect flat-t: {} {} {}", hit_pos.x, hit_pos.y, hit_pos.z);
         if (hit_pos.x >= ci.x && hit_pos.x <= ci.x + 1) {
           newp = hit_pos;
           return true;
@@ -822,7 +822,7 @@ activeWeapon = chooseWeapon;
       Math::Plane plane(Vector3D(ci.x, ci.z, ci.y), Vector3D(-1, 0, 0));
       Vector3D hit_pos;
       if (plane.segmentIntersect(pos, newp, hit_pos)) {
-        INFO << "intersect flat-l: " << hit_pos.x << " " << hit_pos.y << " " <<hit_pos.z << std::endl; 
+        INFO("intersect flat-l: {} {} {}", hit_pos.x, hit_pos.y, hit_pos.z);
         if (hit_pos.z >= ci.y && hit_pos.z <= ci.y + 1) {
           newp = hit_pos;
           return true;
@@ -841,7 +841,7 @@ activeWeapon = chooseWeapon;
       Math::Plane plane(Vector3D(ci.x, ci.z, ci.y), Vector3D(-1, 0, 0));
       Vector3D hit_pos;
       if (plane.segmentIntersect(pos, newp, hit_pos)) {
-        INFO << "intersect left: " << hit_pos.x << " " << hit_pos.y << " " <<hit_pos.z << std::endl; 
+        INFO("intersect left: {} {} {}", hit_pos.x, hit_pos.y, hit_pos.z);
         if (hit_pos.z >= ci.y && hit_pos.z <= ci.y + 1) {
           newp = hit_pos;
           return true;
@@ -852,7 +852,7 @@ activeWeapon = chooseWeapon;
       Math::Plane plane(Vector3D(ci.x+1, ci.z, ci.y), Vector3D(1, 0, 0));
       Vector3D hit_pos;
       if (plane.segmentIntersect(pos, newp, hit_pos)) {
-        INFO << "intersect right: " << hit_pos.x << " " << hit_pos.y << " " <<hit_pos.z << std::endl; 
+        INFO("intersect right: {} {} {}", hit_pos.x, hit_pos.y, hit_pos.z);
         if (hit_pos.z >= ci.y && hit_pos.z <= ci.y + 1) {
           newp = hit_pos;
           return true;
@@ -863,7 +863,7 @@ activeWeapon = chooseWeapon;
       Math::Plane plane(Vector3D(ci.x, ci.z, ci.y), Vector3D(0, 0, -1));
       Vector3D hit_pos;
       if (plane.segmentIntersect(pos, newp, hit_pos)) {
-        INFO << "intersect top: " << hit_pos.x << " " << hit_pos.y << " " <<hit_pos.z << std::endl; 
+        INFO("intersect top: {} {} {}", hit_pos.x, hit_pos.y, hit_pos.z);
         if (hit_pos.x >= ci.x && hit_pos.x <= ci.x + 1) {
           newp = hit_pos;
           return true;
@@ -874,7 +874,7 @@ activeWeapon = chooseWeapon;
       Math::Plane plane(Vector3D(ci.x, ci.z, ci.y+1), Vector3D(0, 0, 1));
       Vector3D hit_pos;
       if (plane.segmentIntersect(pos, newp, hit_pos)) {
-        INFO << "intersect bottom: " << hit_pos.x << " " << hit_pos.y << " " <<hit_pos.z << std::endl; 
+        INFO("intersect bottom: {} {} {}", hit_pos.x, hit_pos.y, hit_pos.z);
         if (hit_pos.x >= ci.x && hit_pos.x <= ci.x + 1) {
           newp = hit_pos;
           return true;
@@ -903,11 +903,11 @@ activeWeapon = chooseWeapon;
         Vector3D p;
         ped.lineCrossBox(pos, new_pos, p);
         float angle = Util::xz_angle(Vector3D(0,0,0), p);
-        INFO << angle << std::endl;
+        INFO("{}", angle);
         if (angle <= 90.0f || angle > 270.0f)
-          INFO << "FRONT" << std::endl;
+          INFO("FRONT");
         else
-          INFO << "BACK" << std::endl;
+          INFO("BACK");
         ped.getShot(owner, Projectile::damageByType(typeId), true);
         LocalPlayer & pc = LocalPlayer::Instance();
         if (owner == pc.getId()) {
@@ -922,7 +922,7 @@ activeWeapon = chooseWeapon;
       Car & car = *i;
 
       if (car.isLineInBox(pos, new_pos)) {
-        INFO << "CAR HIT" << std::endl;
+        INFO("CAR HIT");
         Vector3D p;
         car.lineCrossBox(pos, new_pos, p);
         car.damageAt(p, 5);

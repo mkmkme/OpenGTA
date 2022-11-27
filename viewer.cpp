@@ -343,7 +343,7 @@ void run_init(const char* prg_name) {
       //vm.runString(config_as_string);
       lua_State *L = vm.getInternalState();
       Util::LGUARD(L);
-      if (luaL_loadbuffer(L, config_as_string.get(), strlen(config_as_string.get()), "config"))
+      if (luaL_loadbuffer(L, config_as_string.c_str(), config_as_string.size(), "config"))
         throw E_SCRIPTERROR("Error running string: " + std::string(lua_tostring(L, -1)));
       lua_newtable(L);
       lua_pushvalue(L, -1);

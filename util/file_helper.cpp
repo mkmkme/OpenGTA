@@ -95,14 +95,14 @@ PHYSFS_file *OpenReadVFS(const std::string &file)
     return fd;
 }
 
-std::unique_ptr<char[]> BufferFromVFS(PHYSFS_file *file)
+std::string BufferFromVFS(PHYSFS_file *file)
 {
     assert(file != nullptr);
     unsigned int size = PHYSFS_fileLength(file);
-    auto buffer = std::make_unique<char[]>(size + 1);
-    size = PHYSFS_readBytes(file, buffer.get(), size);
+    std::string ret(size + 1, '\0');
+    size = PHYSFS_readBytes(file, ret.data(), size);
     PHYSFS_close(file);
-    return std::move(buffer);
+    return ret;
 }
 
 } // namespace FileHelper

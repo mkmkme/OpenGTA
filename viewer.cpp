@@ -83,12 +83,12 @@ Uint32 arg_screen_w = 0;
 Uint32 arg_screen_h = 0;
 bool rotate = false;
 bool cam_grav = false;
-int tex_flip = 0;
-int draw_arrows = 0;
+bool tex_flip = false;
+bool draw_arrows = false;
 int ped_anim = 0;
-int bbox_toggle = 0;
-int texsprite_toggle = 0;
-int follow_toggle = 0;
+bool bbox_toggle = false;
+bool texsprite_toggle = false;
+bool follow_toggle = false;
 float anisotropic_filter_degree = 2.0f;
 int mipmap_textures = -1;
 int vsync_config = -1;
@@ -776,15 +776,15 @@ void handleKeyPress( SDL_keysym *keysym ) {
       }
       break;
     case SDLK_F2:
-      bbox_toggle = (bbox_toggle ? 0 : 1);
+      bbox_toggle = !bbox_toggle;
       OpenGTA::SpriteManager::Instance().setDrawBBox(bbox_toggle);
       break;
     case SDLK_F3:
-      texsprite_toggle = (texsprite_toggle ? 0 : 1);
+      texsprite_toggle = !texsprite_toggle;
       OpenGTA::SpriteManager::Instance().setDrawTexBorder(texsprite_toggle);
       break;
     case SDLK_F4:
-      follow_toggle = (follow_toggle ? 0 : 1);
+      follow_toggle = !follow_toggle;
       if (follow_toggle) {
         SDL_EnableKeyRepeat( 0, SDL_DEFAULT_REPEAT_INTERVAL );
         city->setViewMode(false);
@@ -809,7 +809,7 @@ void handleKeyPress( SDL_keysym *keysym ) {
       car_toggle();
       break;
     case SDLK_F5:
-      draw_arrows = (draw_arrows ? 0 : 1);
+      draw_arrows = !draw_arrows;
       city->setDrawHeadingArrows(draw_arrows);
       break;
     case SDLK_F6:
@@ -822,13 +822,13 @@ void handleKeyPress( SDL_keysym *keysym ) {
       add_auto_ped();
       break;
     case SDLK_F9:
-      city->setDrawTextured(city->getDrawTextured() ? 0 : 1);
+      city->setDrawTextured(!city->getDrawTextured());
       break;
     case SDLK_F10:
-      city->setDrawLines(city->getDrawLines() ? 0 : 1);
+      city->setDrawLines(!city->getDrawLines());
       break;
     case SDLK_F12:
-      gamma_slide = (gamma_slide ? 0 : 1);
+      gamma_slide = !gamma_slide;
       show_gamma_config();
       break;
     case SDLK_LSHIFT:
@@ -836,7 +836,7 @@ void handleKeyPress( SDL_keysym *keysym ) {
       break;
     /*
     case SDLK_F6:
-      tex_flip = (tex_flip ? 0 : 1);
+      tex_flip = !tex_flip;
       INFO << "flipping: " << tex_flip << std::endl;
       city->setTexFlipTest(tex_flip);
       break;
@@ -923,11 +923,11 @@ void handleKeyPress( SDL_keysym *keysym ) {
 #endif
       break;
     case 'r':
-      rotate = (rotate) ? false : true;
+      rotate = !rotate;
       cam.setRotating(rotate);
       break;
     case 'g':
-      cam_grav = (cam_grav) ? false : true;
+      cam_grav = !cam_grav;
       cam.setCamGravity(cam_grav);
       break;
     case 't':

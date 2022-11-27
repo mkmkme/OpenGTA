@@ -32,7 +32,6 @@
 #include "dataholder.h"
 #include "gl_font.h"
 
-extern int global_EC;
 extern int global_Done;
 std::string style_file("STYLE001.GRY");
 float screen_gamma = 1.0f;
@@ -446,7 +445,7 @@ void run_main() {
   OpenGL::Camera & cam = OpenGL::Camera::Instance();
   cam.setVectors( Vector3D(4, 5, 4), Vector3D(4, 0.0f, 4.0f), Vector3D(0, 0, -1) );
   cam.setFollowMode(ped.pos);
-  while(!global_Done && !global_EC) {
+  while(!global_Done) {
     while (SDL_PollEvent(&event)) {
       switch(event.type) {
         case SDL_KEYDOWN:

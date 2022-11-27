@@ -58,7 +58,6 @@
 #define addPed add
 
 extern SDL_Surface* screen;
-extern int global_EC;
 extern int global_Done;
 extern int global_Restart;
 GLfloat mapPos[3] = {12.0f, 12.0f, 20.0f};
@@ -111,25 +110,12 @@ float screen_gamma = 1.0f;
 
 Vector3D test_dot(-1, -1, -1);
 
-/*
-void ERROR(const char* s) {
-  std::cerr << "Error" << s << std::endl;
-  std::cerr << "* last SDL error was: " << SDL_GetError() << std::endl;
-  global_EC = 1;
-  exit(1);
-}*/
-
 void on_exit() {
   SDL_Quit();
   if (city)
     delete city;
-  //if (m_font)
-  //  delete m_font;
   PHYSFS_deinit();
-  if (global_EC)
-    std::cerr << "Exiting after fatal problem - please see output above" << std::endl;
-  else
-    std::cout << "Goodbye" << std::endl;
+  std::cout << "Goodbye" << std::endl;
 }
 
 void print_usage(const char* argv0) {
@@ -354,7 +340,6 @@ void run_init(const char* prg_name) {
     }
     catch (const Util::ScriptError & e) {
       std::cerr << "Error in config-file: " << e.what() << std::endl;
-      global_EC = 1;
       exit(1);
     }
 
@@ -1173,7 +1158,7 @@ void run_main() {
   
   GUI::Manager & guiManager = GUI::Manager::Instance();
 
-  while(!global_Done && !global_EC) {
+  while(!global_Done) {
     while (SDL_PollEvent(&event)) {
       switch(event.type) {
         case SDL_ACTIVEEVENT:

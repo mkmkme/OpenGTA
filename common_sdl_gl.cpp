@@ -4,7 +4,6 @@
 
 #include "log.h"
 
-extern int global_EC;
 
 #ifndef VIEWGL_FOVY
 #define VIEWGL_FOVY 60.0f
@@ -18,14 +17,6 @@ extern int global_EC;
 
 extern SDL_Surface* screen;
 int videoFlags = 0;
-
-/*
-void ERROR(const char* s) {
-  std::cerr << "Error" << s << std::endl;
-  std::cerr << "* last SDL error was: " << SDL_GetError() << std::endl;
-  global_EC = 1;
-  exit(1);
-}*/
 
 int resize(int w, int h) {
   GLfloat ratio;

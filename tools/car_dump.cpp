@@ -4,7 +4,6 @@
 #include "car-info.h"
 #include "dataholder.h"
 
-extern int global_EC;
 extern int global_Done;
 std::string map_file("undefined_map_file");
 std::string style_file("undefined_style_file");
@@ -12,8 +11,6 @@ std::string msg_file("ENGLISH.FXT");
 
 void on_exit() {
   PHYSFS_deinit();
-  if (global_EC)
-    std::cerr << "Exiting after fatal problem - please see output above" << std::endl;
 }
 
 void parse_args(int argc, char* argv[]) {

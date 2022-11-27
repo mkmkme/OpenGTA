@@ -12,6 +12,5 @@ void initGL();
 
 extern int videoFlags;
 extern int global_Done;
-extern int global_EC;
 
 #endif

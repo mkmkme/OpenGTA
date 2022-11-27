@@ -15,7 +15,6 @@
 #include "gl_spritecache.h"
 #include "m_exceptions.h"
 
-extern int global_EC;
 extern int global_Done;
 
 Uint32 arg_screen_w = 800;
@@ -381,10 +380,7 @@ GUI::Manager guiManager;
 void on_exit() {
   SDL_Quit();
   PHYSFS_deinit();
-  if (global_EC)
-    std::cerr << "Exiting after fatal problem - please see output above" << std::endl;
-  else
-    std::cout << "Goodbye" << std::endl;
+  std::cout << "Goodbye" << std::endl;
 }
 
 void parse_args(int argc, char* argv[]) {
@@ -496,7 +492,7 @@ void run_main() {
   t.update();
   //Uint32 now_ticks = SDL_GetTicks();
   Uint32 now_ticks = t.getRealTime();
-  while(!global_Done && !global_EC) {
+  while(!global_Done) {
     while (SDL_PollEvent(&event)) {
       switch(event.type) {
         case SDL_KEYDOWN:

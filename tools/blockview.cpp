@@ -16,7 +16,6 @@ float r = 0;
 bool wireframe = true;
 
 
-extern int global_EC;
 extern int global_Done;
 
 
@@ -33,10 +32,7 @@ float slope_raw_data[numBlockTypes][numFaces][4][3] = {
 void on_exit() {
   SDL_Quit();
   PHYSFS_deinit();
-  if (global_EC)
-    std::cerr << "Exiting after fatal problem - please see output above" << std::endl;
-  else
-    std::cout << "Goodbye" << std::endl;
+  std::cout << "Goodbye" << std::endl;
 }
 
 void print_usage(const char*) {
@@ -204,7 +200,7 @@ void run_main() {
   glPolygonMode(GL_FRONT, GL_FILL);
   glEnable(GL_CULL_FACE);
 
-  while(!global_Done && !global_EC) {
+  while(!global_Done) {
     while (SDL_PollEvent(&event)) {
       switch(event.type) {
         case SDL_ACTIVEEVENT:

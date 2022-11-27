@@ -6,7 +6,6 @@ void run_main();
 void initGL();
 void initVideo(int w, int h, int bpp);
 
-int global_EC = 0;
 int global_Done = 0;
 SDL_Surface* screen = NULL;
 SDL_Surface* surface = NULL;
@@ -16,8 +15,7 @@ int city_num = 0;
 int main(int argc, char* argv[]) {
   if (SDL_Init(SDL_INIT_VIDEO) < 0) {
     std::cerr << "Fatal error initialising SDL!" << std::endl;
-    global_EC = 1;
-    exit(1);
+    return 1;
   }
   atexit(on_exit);
   if (argc == 2) {

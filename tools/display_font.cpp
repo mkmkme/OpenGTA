@@ -16,10 +16,7 @@ void on_exit() {
     delete font;
   SDL_Quit();
   PHYSFS_deinit();
-  if (global_EC)
-    std::cerr << "Exiting after fatal problem - please see output above" << std::endl;
-  else
-    std::cout << "Goodbye" << std::endl;
+  std::cout << "Goodbye" << std::endl;
 }
 
 void handleKeyPress( SDL_keysym *keysym ) {
@@ -80,7 +77,7 @@ void run_main() {
 
   glCullFace(GL_BACK);
   
-  while(!global_Done && !global_EC) {
+  while(!global_Done) {
     while (SDL_PollEvent(&event)) {
       switch(event.type) {
         case SDL_ACTIVEEVENT:

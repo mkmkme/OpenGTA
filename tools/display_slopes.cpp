@@ -28,10 +28,7 @@ void on_exit() {
   if (map)
     delete map;
   PHYSFS_deinit();
-  if (global_EC)
-    std::cerr << "Exiting after fatal problem - please see output above" << std::endl;
-  else
-    std::cout << "Goodbye" << std::endl;
+  std::cout << "Goodbye" << std::endl;
 }
 
 void handleKeyPress( SDL_keysym *keysym ) {
@@ -409,7 +406,7 @@ void run_main() {
   //glEnable(GL_CULL_FACE);
   //map = new OpenGTA::Map("NYC.CMP");
   
-  while(!global_Done && !global_EC) {
+  while(!global_Done) {
     while (SDL_PollEvent(&event)) {
       switch(event.type) {
         case SDL_ACTIVEEVENT:

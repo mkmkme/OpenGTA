@@ -220,7 +220,6 @@ void print_version_info() {
 }
 
 void parse_args(int argc, char* argv[]) {
-  int index;
   int c;
 
   opterr = 0;
@@ -304,7 +303,7 @@ void parse_args(int argc, char* argv[]) {
         exit(1);
     }
 
-  for (index = optind; index < argc; index++)
+  for (int index = optind; index < argc; index++)
     city_num = atoi(argv[index]);
 
   if (city_num > 2) {

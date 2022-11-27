@@ -53,10 +53,6 @@
 #include "font_cache.h"
 #include "ai.h"
 
-#define getPedById getPed
-#define removePedById removePed
-#define addPed add
-
 extern SDL_Surface* screen;
 extern int global_Done;
 extern int global_Restart;
@@ -548,17 +544,17 @@ void create_ped_at(const Vector3D v) {
   OpenGTA::Pedestrian p(Vector3D(0.2f, 0.5f, 0.2f), v, 0xffffffff);
   p.remap = OpenGTA::ActiveStyle::Instance().get().getRandomPedRemapNumber();
   INFO("using remap: {}", p.remap);
-  OpenGTA::Pedestrian & pr = OpenGTA::SpriteManager::Instance().addPed(p);
+  OpenGTA::Pedestrian & pr = OpenGTA::SpriteManager::Instance().add(p);
   pr.switchToAnim(1);
   OpenGTA::LocalPlayer::Instance().setCtrl(pr.m_control);
   GUI::create_ingame_gui(1);
   //pr.m_control = &OpenGTA::LocalPlayer::Instance();
-  //OpenGTA::SpriteManager::Instance().getPedById(0xffffffff).giveItem(1, 255);
+  //OpenGTA::SpriteManager::Instance().getPed(0xffffffff).giveItem(1, 255);
 }
 
 void explode_ped() {
   try {
-  OpenGTA::Pedestrian & ped = OpenGTA::SpriteManager::Instance().getPedById(0xffffffff);
+  OpenGTA::Pedestrian & ped = OpenGTA::SpriteManager::Instance().getPed(0xffffffff);
   Vector3D p(ped.pos);
   p.y += 0.2f;
   OpenGTA::SpriteManager::Instance().createExplosion(p);
@@ -583,7 +579,7 @@ void zoomToTrain(int k) {
 namespace OpenGTA {
   void ai_step_fake(OpenGTA::Pedestrian *p) {
     try {
-    OpenGTA::Pedestrian & pr = OpenGTA::SpriteManager::Instance().getPedById(0xffffffff);
+    OpenGTA::Pedestrian & pr = OpenGTA::SpriteManager::Instance().getPed(0xffffffff);
     float t_angle = Util::xz_angle(p->pos, pr.pos);
     //INFO << "dist " << Util::distance(p->pos, pr.pos) << std::endl;
     //INFO << "angle " << t_angle << std::endl;
@@ -622,15 +618,15 @@ namespace OpenGTA {
 #include "id_sys.h"
 void add_auto_ped() {
   try {
-  OpenGTA::Pedestrian & pr = OpenGTA::SpriteManager::Instance().getPedById(0xffffffff);
+  OpenGTA::Pedestrian & pr = OpenGTA::SpriteManager::Instance().getPed(0xffffffff);
   int id = OpenGTA::TypeIdBlackBox::requestId();
   Vector3D v(pr.pos);
   v.y += 0.9f;
   //INFO << v.x << " " << v.y << " " << v.z << std::endl;
   Sint16 remap = OpenGTA::ActiveStyle::Instance().get().getRandomPedRemapNumber();
   OpenGTA::Pedestrian p(Vector3D(0.2f, 0.5f, 0.2f), v, id, remap);
-  OpenGTA::SpriteManager::Instance().addPed(p);
-  OpenGTA::Pedestrian & pr2 = OpenGTA::SpriteManager::Instance().getPedById(id);
+  OpenGTA::SpriteManager::Instance().add(p);
+  OpenGTA::Pedestrian & pr2 = OpenGTA::SpriteManager::Instance().getPed(id);
   pr2.switchToAnim(1);
   INFO("now {} peds",
        OpenGTA::SpriteManager::Instance().getNum<OpenGTA::Pedestrian>());
@@ -776,7 +772,7 @@ void handleKeyPress( SDL_keysym *keysym ) {
         Vector3D p(cam.getEye());
         create_ped_at(p);
         cam.setVectors( Vector3D(p.x, 10, p.z), Vector3D(p.x, 9.0f, p.z), Vector3D(0, 0, -1) );
-        cam.setFollowMode(OpenGTA::SpriteManager::Instance().getPedById(0xffffffff).pos);
+        cam.setFollowMode(OpenGTA::SpriteManager::Instance().getPed(0xffffffff).pos);
         cam.setCamGravity(true);
       }
       else {
@@ -785,7 +781,7 @@ void handleKeyPress( SDL_keysym *keysym ) {
           Vector3D(cam.getEye() + Vector3D(1, -1, 1)), Vector3D(0, 1, 0));
         cam.setCamGravity(false);
         cam.releaseFollowMode();
-        OpenGTA::SpriteManager::Instance().removePedById(0xffffffff);
+        OpenGTA::SpriteManager::Instance().removePed(0xffffffff);
         OpenGTA::SpriteManager::Instance().removeDeadStuff();
         GUI::remove_ingame_gui();
       }
@@ -830,40 +826,40 @@ void handleKeyPress( SDL_keysym *keysym ) {
       OpenGTA::LocalPlayer::Instance().getCtrl().setFireWeapon();
       break;
     case '1':
-      //OpenGTA::SpriteManager::Instance().getPedById(0xffffffff).equip(1);
+      //OpenGTA::SpriteManager::Instance().getPed(0xffffffff).equip(1);
       OpenGTA::LocalPlayer::Instance().getCtrl().setActiveWeapon(1);
       break;
     case '2':
-      //OpenGTA::SpriteManager::Instance().getPedById(0xffffffff).equip(2);
+      //OpenGTA::SpriteManager::Instance().getPed(0xffffffff).equip(2);
       OpenGTA::LocalPlayer::Instance().getCtrl().setActiveWeapon(2);
       break;
     case '3':
-      //OpenGTA::SpriteManager::Instance().getPedById(0xffffffff).equip(3);
+      //OpenGTA::SpriteManager::Instance().getPed(0xffffffff).equip(3);
       OpenGTA::LocalPlayer::Instance().getCtrl().setActiveWeapon(3);
       break;
     case '4':
-      //OpenGTA::SpriteManager::Instance().getPedById(0xffffffff).equip(4);
+      //OpenGTA::SpriteManager::Instance().getPed(0xffffffff).equip(4);
       OpenGTA::LocalPlayer::Instance().getCtrl().setActiveWeapon(4);
       break;
     case '5':
-      //OpenGTA::SpriteManager::Instance().getPedById(0xffffffff).equip(5);
+      //OpenGTA::SpriteManager::Instance().getPed(0xffffffff).equip(5);
       break;
     case '6':
-      //OpenGTA::SpriteManager::Instance().getPedById(0xffffffff).equip(6);
+      //OpenGTA::SpriteManager::Instance().getPed(0xffffffff).equip(6);
       break;
     case '7':
-      //OpenGTA::SpriteManager::Instance().getPedById(0xffffffff).equip(7);
+      //OpenGTA::SpriteManager::Instance().getPed(0xffffffff).equip(7);
       break;
     case '8':
-      //OpenGTA::SpriteManager::Instance().getPedById(0xffffffff).equip(8);
+      //OpenGTA::SpriteManager::Instance().getPed(0xffffffff).equip(8);
       break;
     case '9':
-      //OpenGTA::SpriteManager::Instance().getPedById(0xffffffff).equip(9);
+      //OpenGTA::SpriteManager::Instance().getPed(0xffffffff).equip(9);
       /*
       ped_anim -= 1; if (ped_anim < 0) ped_anim = 0;
       pedAnim.firstFrameOffset = ped_anim;
       INFO << "switching to sprite: " << ped_anim << std::endl;
-      OpenGTA::SpriteManager::Instance().getPedById(0xffffffff).setAnimation(pedAnim);
+      OpenGTA::SpriteManager::Instance().getPed(0xffffffff).setAnimation(pedAnim);
       */
       break;
     case '0':
@@ -872,9 +868,9 @@ void handleKeyPress( SDL_keysym *keysym ) {
       ped_anim += 1; if (ped_anim > 200) ped_anim = 200;
       pedAnim.firstFrameOffset = ped_anim;
       INFO << "switching to sprite: " << ped_anim << std::endl;
-      OpenGTA::SpriteManager::Instance().getPedById(0xffffffff).setAnimation(pedAnim);
+      OpenGTA::SpriteManager::Instance().getPed(0xffffffff).setAnimation(pedAnim);
       */
-      //OpenGTA::SpriteManager::Instance().getPedById(0xffffffff).equip(0);
+      //OpenGTA::SpriteManager::Instance().getPed(0xffffffff).equip(0);
       break;
     case 'w':
       cam.setSpeed(0.2f);

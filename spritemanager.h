@@ -181,10 +181,8 @@ namespace OpenGTA {
         //TrainSystem   trainSystem;
         Util::SpriteCreationArea creationArea;
       protected:
-        typedef std::map<Uint32, SpriteObject::Animation> AnimLookupType;
-        AnimLookupType animations;
-        typedef std::list<Projectile> ProjectileListType;
-        ProjectileListType activeProjectiles;
+        std::map<Uint32, SpriteObject::Animation> animations;
+        std::list<Projectile> activeProjectiles;
 
       private:
         Uint32 drawMode;

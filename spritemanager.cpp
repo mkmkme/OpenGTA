@@ -142,16 +142,14 @@ namespace OpenGTA {
       if (obj.isActive == false)
         AbstractContainer<SpriteObject>::toBeRemoved.push_back(i);
     }
-    for (ProjectileListType::iterator i = activeProjectiles.begin(); i != activeProjectiles.end();) {
-      Projectile & pr = (*i);
+    for (auto it = activeProjectiles.begin(); it != activeProjectiles.end();) {
+      Projectile & pr = (*it);
       pr.update(ticks);
       if (pr.lastUpdateAt >= pr.endsAtTick) {
-        ProjectileListType::iterator j = i++;
-        activeProjectiles.erase(j);
-        //INFO << "deleting old projectile; now " << activeProjectiles.size() << std::endl;
+        activeProjectiles.erase(it++);
+      } else {
+        ++it;
       }
-      else
-        ++i;
 
     }
     removeDeadStuff();
@@ -218,9 +216,7 @@ namespace OpenGTA {
     }
 
     glColor3f(0.2f, 0.2f, 0.2f);
-    typedef ProjectileListType::iterator ProjectileIterator;
-    for (ProjectileIterator i = activeProjectiles.begin(); i != activeProjectiles.end(); ++i) {
-      Projectile & prj = (*i);
+    for (auto &prj : activeProjectiles) {
       if (POS_INSIDE_RECT(prj.pos, r))
         draw(prj);
     }
@@ -620,12 +616,11 @@ void SpriteManager::removeDeadStuff() {
 }
 
 SpriteObject::Animation & SpriteManager::getAnimationById(const Uint32 & id) {
-  AnimLookupType::iterator i = animations.find(id);
-  if (i == animations.end()) {
-    ERROR("Failed to find anim id: {}", id);
-    return animations.begin()->second;
+  if (auto it = animations.find(id); it != animations.end()) {
+    return it->second;
   }
-  return i->second;
+  ERROR("Failed to find anim id: {}", id);
+  return animations.begin()->second;
 }
 
 void SpriteManager::registerAnimation(const Uint32 & id, 

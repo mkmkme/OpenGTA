@@ -625,11 +625,9 @@ void add_auto_ped() {
   //INFO << v.x << " " << v.y << " " << v.z << std::endl;
   Sint16 remap = OpenGTA::ActiveStyle::Instance().get().getRandomPedRemapNumber();
   OpenGTA::Pedestrian p(Vector3D(0.2f, 0.5f, 0.2f), v, id, remap);
-  OpenGTA::SpriteManager::Instance().add(p);
-  OpenGTA::Pedestrian & pr2 = OpenGTA::SpriteManager::Instance().getPed(id);
+  OpenGTA::Pedestrian & pr2 = OpenGTA::SpriteManager::Instance().add(p);
   pr2.switchToAnim(1);
-  INFO("now {} peds",
-       OpenGTA::SpriteManager::Instance().getNum<OpenGTA::Pedestrian>());
+  INFO("now {} peds", OpenGTA::SpriteManager::Instance().getPeds().size());
 
   //pr2.m_control = &OpenGTA::nullAI;
   }
@@ -690,22 +688,21 @@ void show_gamma_config() {
 void car_toggle() {
   OpenGTA::Pedestrian & pped = OpenGTA::LocalPlayer::Instance().getPed();
   Vector3D pos = pped.pos;
-  std::list<OpenGTA::Car> & list = OpenGTA::SpriteManager::Instance().getList<OpenGTA::Car>();
+  auto &cars = OpenGTA::SpriteManager::Instance().getCars();
   float min_dist = 360;
-  float _d;
-  std::list<OpenGTA::Car>::iterator j = list.end();
-  for (std::list<OpenGTA::Car>::iterator i = list.begin(); i != list.end(); i++) {
-    if ((_d = Util::distance(pos, i->pos)) < min_dist) {
-      j = i;
-      min_dist = _d; 
+  auto j = cars.end();
+  for (auto it = cars.begin(); it != cars.end(); ++it) {
+    if (float tmp_dist = Util::distance(pos, it->second.pos); tmp_dist < min_dist) {
+      j = it;
+      min_dist = tmp_dist;
     }
   }
-  assert(j != list.end());
-  std::cout << j->id() << " " << j->pos.x << ", " << j->pos.y << ", " << j->pos.z << std::endl;
-  Vector3D p_door(j->carInfo.door[0].rpx / 64.0f, 0, 
-    j->carInfo.door[0].rpy / 64.0f);
+  assert(j != cars.end());
+  auto &car = j->second;
+  std::cout << car.id() << " " << car.pos.x << ", " << car.pos.y << ", " << car.pos.z << std::endl;
+  Vector3D p_door(car.carInfo.door[0].rpx / 64.0f, 0, car.carInfo.door[0].rpy / 64.0f);
 
-  Vector3D p_door_global = Transform(p_door, j->m_M);
+  Vector3D p_door_global = Transform(p_door, car.m_M);
   p_door_global.y += 0.2f;
   std::cout << p_door_global.x << ", " << p_door_global.y << ", " << p_door_global.z << std::endl;
   test_dot = p_door_global;
@@ -782,7 +779,7 @@ void handleKeyPress( SDL_keysym *keysym ) {
         cam.setCamGravity(false);
         cam.releaseFollowMode();
         OpenGTA::SpriteManager::Instance().removePed(0xffffffff);
-        OpenGTA::SpriteManager::Instance().removeDeadStuff();
+        OpenGTA::SpriteManager::Instance().removeDeadPeds();
         GUI::remove_ingame_gui();
       }
       break;

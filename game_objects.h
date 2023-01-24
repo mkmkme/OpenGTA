@@ -38,6 +38,7 @@ namespace OpenGTA {
   
   struct CarInfo;
   struct GameObject_common;
+  // FIXME: OpenSteer doesn't seem to be used at all. Consider replacing it.
   typedef OpenSteer::AbstractTokenForProximityDatabase<GameObject_common*> ProximityToken;
   typedef OpenSteer::AbstractProximityDatabase<GameObject_common*> ProximityDatabase;
   struct GameObject_common {

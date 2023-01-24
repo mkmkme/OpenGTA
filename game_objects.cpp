@@ -449,11 +449,10 @@ activeWeapon = chooseWeapon;
       //  pos = nPos;
     }
     bool obj_blocked = false;
-    std::list<Car> & list = SpriteManager::Instance().getList<Car>();
-    for (std::list<Car>::iterator i = list.begin(); i != list.end(); i++) {
-      if (isBoxInBox(*i)) {
-        if (Util::distance(pos, i->pos) > Util::distance(nPos, i->pos))
-          obj_blocked = true;
+    for (auto &[id, car] : SpriteManager::Instance().getCars()) {
+      if (isBoxInBox(car) && Util::distance(pos, car.pos) > Util::distance(nPos, car.pos)) {
+        obj_blocked = true;
+        break;
       }
     }
     if ((inGroundContact) && (obj_blocked == false))
@@ -891,12 +890,8 @@ activeWeapon = chooseWeapon;
     /*INFO << "p-m " << pos.x << " " << pos.y << " " << pos.z << 
       " to " << new_pos.x << " " << new_pos.y << " " << new_pos.z << std::endl;
       */
-    std::list<Pedestrian> & list = SpriteManager::Instance().getList<Pedestrian>();
-    for (std::list<Pedestrian>::iterator i = list.begin(); i != list.end(); ++i) {
-      Pedestrian & ped = *i;
-      if (ped.id() == owner)
-        continue;
-      if (ped.isDead)
+    for (auto &[id, ped] : SpriteManager::Instance().getPeds()) {
+      if (ped.id() == owner || ped.isDead)
         continue;
 
       if (ped.isLineInBox( pos, new_pos ) ) {
@@ -917,10 +912,7 @@ activeWeapon = chooseWeapon;
         endsAtTick = 0;
       }
     }
-    std::list<Car> & clist = SpriteManager::Instance().getList<Car>();
-    for (std::list<Car>::iterator i = clist.begin(); i != clist.end(); i++) {
-      Car & car = *i;
-
+    for (auto &[id, car] : SpriteManager::Instance().getCars()) {
       if (car.isLineInBox(pos, new_pos)) {
         INFO("CAR HIT");
         Vector3D p;

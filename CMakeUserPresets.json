@@ -1,0 +1,21 @@
+{
+    "version": 4,
+    "configurePresets": [
+        {
+            "name": "default",
+            "description": "Default build using Ninja generator",
+            "generator": "Ninja",
+            "binaryDir": "${sourceDir}/build/default",
+            "environment": {
+                "CXXFLAGS": "-DNO_SDL_GLEXT"
+            }
+        }
+    ],
+    "buildPresets": [
+        {
+            "name": "default",
+            "configurePreset": "default",
+            "jobs": 24
+        }
+    ]
+}

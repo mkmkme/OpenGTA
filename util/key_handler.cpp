@@ -20,7 +20,6 @@
 * 3. This notice may not be removed or altered from any source          *
 * distribution.                                                         *
 ************************************************************************/
-#include <SDL_keysym.h>
 #include "key_handler.h"
 #include "log.h"
 

@@ -3,12 +3,12 @@
 namespace OpenGTA {
   namespace Script {
     int Screen::getFullscreen(lua_State *L) {
-      bool b = OpenGL::Screen::Instance().getFullscreen();
+      bool b = OpenGL::Screen::Instance().fullscreen();
       lua_pushboolean(L, b);
       return 1;
     }
     int Screen::setFullscreen(lua_State *L) {
-      bool b = OpenGL::Screen::Instance().getFullscreen();
+      bool b = OpenGL::Screen::Instance().fullscreen();
       bool v = lua_toboolean(L, 1);
       if (b != v)
         OpenGL::Screen::Instance().toggleFullscreen();

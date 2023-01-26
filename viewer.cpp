@@ -23,7 +23,7 @@
 #include <filesystem>
 #include <iostream>
 #include <iomanip>
-#include <SDL_opengl.h>
+#include <SDL2/SDL_opengl.h>
 #include <unistd.h>
 #include "blockanim.h"
 #include "car-info.h"
@@ -74,8 +74,8 @@ Uint32 fps = 0;
 Uint32 last_tick;
 Uint32 fps_last_tick;
 Uint32 script_last_tick;
-Uint32 arg_screen_w = 0;
-Uint32 arg_screen_h = 0;
+Uint32 arg_screen_w = 640;
+Uint32 arg_screen_h = 480;
 bool rotate = false;
 bool cam_grav = false;
 bool tex_flip = false;
@@ -361,7 +361,7 @@ void run_init(const char* prg_name) {
       catch (const Util::ScriptError & e) {}
       try {
         int sh = vm.getInt("screen_vsync");
-        screen.setupVsync(sh);
+        screen.setVSyncMode(sh);
       }
       catch (const Util::ScriptError & e) {}
       try {
@@ -371,9 +371,9 @@ void run_init(const char* prg_name) {
       }
       catch (const Util::ScriptError & e) {}
 
-      float fov = screen.getFieldOfView();
-      float np = screen.getNearPlane();
-      float fp = screen.getFarPlane();
+      float fov = screen.field_of_view_iew();
+      float np = screen.nearPlane();
+      float fp = screen.farPlane();
       try {
         fov = vm.getFloat("gl_field_of_view");
       }
@@ -424,13 +424,10 @@ void run_init(const char* prg_name) {
   // fullscreen before first video init; only chance to set it on win32
   screen.setFullScreenFlag(full_screen);
   if (vsync_config != -1)
-    screen.setupVsync(vsync_config);
+    screen.setVSyncMode(OpenGL::VSyncMode{ static_cast<uint8_t>(vsync_config) });
 
   // create screen
   screen.activate(arg_screen_w, arg_screen_h);
-
-  SDL_EnableKeyRepeat( 0, 0 ); 
-  //SDL_EnableKeyRepeat( 100, SDL_DEFAULT_REPEAT_INTERVAL );
 
   // more setup; that requires an active screen
 #ifdef WITH_LUA
@@ -508,8 +505,8 @@ void print_position() {
 
 }
 
-void handleKeyUp( SDL_keysym *keysym) {
-  switch ( keysym->sym ) {
+void handleKeyUp( SDL_Keysym *keysym) {
+  switch (keysym->sym) {
     case 'j':
       OpenGTA::LocalPlayer::Instance().getCtrl().releaseTurnLeft();
       //OpenGTA::LocalPlayer::Instance().turn = 0;
@@ -654,14 +651,14 @@ void show_gamma_config() {
   if (gamma_slide) {
   SDL_Rect r;
 
-  r.x = screen.getWidth() / 2;
-  r.y = screen.getHeight() / 2;
+  r.x = screen.width() / 2;
+  r.y = screen.height() / 2;
   r.w = 200;
   r.h = 30;
 
   GUI::ScrollBar * sb = new GUI::ScrollBar(GUI::GAMMA_SCROLLBAR_ID, r);
   sb->color.r = sb->color.g = sb->color.b = 180;
-  sb->color.unused = 255;
+  sb->color.a = 255;
   sb->innerColor.r = 250;
   sb->value = screen_gamma/2;
   sb->changeCB = GUI::ScrollBar::SC_Functor(GUI::screen_gamma_callback);
@@ -712,7 +709,7 @@ void car_toggle() {
 
 }
 
-void handleKeyPress( SDL_keysym *keysym ) {
+void handleKeyPress(SDL_Keysym *keysym) {
   GLfloat* cp = city->getCamPos();
   mapPos[0] = cp[0]; mapPos[1] = cp[1]; mapPos[2] = cp[2];
   OpenGL::Camera & cam = OpenGL::Camera::Instance();
@@ -764,7 +761,7 @@ void handleKeyPress( SDL_keysym *keysym ) {
     case SDLK_F4:
       follow_toggle = !follow_toggle;
       if (follow_toggle) {
-        SDL_EnableKeyRepeat( 0, SDL_DEFAULT_REPEAT_INTERVAL );
+        // SDL_EnableKeyRepeat( 0, SDL_DEFAULT_REPEAT_INTERVAL );
         city->setViewMode(false);
         Vector3D p(cam.getEye());
         create_ped_at(p);
@@ -773,7 +770,7 @@ void handleKeyPress( SDL_keysym *keysym ) {
         cam.setCamGravity(true);
       }
       else {
-        SDL_EnableKeyRepeat( 100, SDL_DEFAULT_REPEAT_INTERVAL );
+        // SDL_EnableKeyRepeat( 100, SDL_DEFAULT_REPEAT_INTERVAL );
         cam.setVectors(cam.getEye(), 
           Vector3D(cam.getEye() + Vector3D(1, -1, 1)), Vector3D(0, 1, 0));
         cam.setCamGravity(false);
@@ -942,7 +939,7 @@ void handleKeyPress( SDL_keysym *keysym ) {
       city->setVisibleRange(city->getVisibleRange()+1);
       INFO(" new visible range {}", city->getVisibleRange());
       break;
-    case SDLK_PRINT:
+    case SDLK_PRINTSCREEN:
       OpenGL::Screen::Instance().makeScreenshot("screenshot.bmp"); 
       break;
     default:
@@ -988,7 +985,7 @@ void drawScene(Uint32 ticks) {
   num_frames_drawn += 1;
   glEnable(GL_DEPTH_TEST);
 
-  SDL_GL_SwapBuffers();
+  SDL_GL_SwapWindow(OpenGL::Screen::Instance().get());
 }
 
 void draw_mapmode() {
@@ -1033,7 +1030,7 @@ void draw_mapmode() {
       }
     }
 
-    glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     screen.setFlatProjection();
     glBindTexture(GL_TEXTURE_2D, map_tex.inPage);
@@ -1042,7 +1039,7 @@ void draw_mapmode() {
     //  glScalef(_scale, _scale, 1);
 
 
-    uint32_t h = screen.getHeight();
+    uint32_t h = screen.height();
     glBegin(GL_QUADS);
     glTexCoord2f(0, 0);
     glVertex2i(0, 0);
@@ -1076,9 +1073,9 @@ void draw_mapmode() {
       glEnd();
       ++i;
     }
-    
+
     glEnable(GL_TEXTURE_2D);
-    SDL_GL_SwapBuffers();
+    SDL_GL_SwapWindow(screen.get());
     SDL_Delay(20);
 
   }
@@ -1154,20 +1151,22 @@ void run_main() {
   while(!global_Done) {
     while (SDL_PollEvent(&event)) {
       switch(event.type) {
-        case SDL_ACTIVEEVENT:
-          if (event.active.gain == 0)
-            paused = 1;
-          else
-            paused = 0;
+        case SDL_WINDOWEVENT_FOCUS_GAINED:
+          paused = 0;
+          break;
+        case SDL_WINDOWEVENT_FOCUS_LOST:
+          paused = 1;
           break;
         case SDL_KEYDOWN:
-          handleKeyPress(&event.key.keysym);
+          if (event.key.repeat == 0) {
+            handleKeyPress(&event.key.keysym);
+          }
           break;
         case SDL_KEYUP:
           handleKeyUp(&event.key.keysym);
           break;
-        case SDL_VIDEORESIZE:
-          OpenGL::Screen::Instance().resize(event.resize.w, event.resize.h);
+        case SDL_WINDOWEVENT_SIZE_CHANGED:
+          OpenGL::Screen::Instance().resize(event.window.data1, event.window.data2);
           break;
         case SDL_QUIT:
           global_Done = 1;

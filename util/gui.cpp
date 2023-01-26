@@ -15,13 +15,13 @@ namespace GUI {
     id(0), rect(), color(), borderColor(), drawBorder(false),
     manager(Manager::Instance()) {
       copyRect(r);
-      color.r = 255; color.g = 255; color.b = 255; color.unused = 255;
+      color.r = 255; color.g = 255; color.b = 255; color.a = 255;
     }
   Object::Object(const size_t Id, const SDL_Rect & r) :
     id(Id), rect(), color(), borderColor(), drawBorder(false),
     manager(Manager::Instance()) {
       copyRect(r);
-      color.r = 255; color.g = 255; color.b = 255; color.unused = 255;
+      color.r = 255; color.g = 255; color.b = 255; color.a = 255;
     }
   Object::Object(const size_t Id, const SDL_Rect & r, const SDL_Color & c) :
     id(Id), rect(), color(),  borderColor(), drawBorder(false),
@@ -33,7 +33,7 @@ namespace GUI {
     glEnable (GL_BLEND);
     glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-    glColor4ub(color.r, color.g, color.b, color.unused);
+    glColor4ub(color.r, color.g, color.b, color.a);
     glDisable(GL_TEXTURE_2D);
     glBegin(GL_QUADS);
     glVertex2i(rect.x, rect.y);
@@ -46,8 +46,7 @@ namespace GUI {
     glDisable(GL_BLEND);
   }
   void Object::draw_border() {
-    glColor4ub(borderColor.r, borderColor.g, borderColor.b,
-      borderColor.unused);
+    glColor4ub(borderColor.r, borderColor.g, borderColor.b, borderColor.a);
     glBegin(GL_LINE_LOOP);
     glVertex2i(rect.x, rect.y);
     glVertex2i(rect.x + rect.w, rect.y);
@@ -65,13 +64,13 @@ namespace GUI {
     color.r = src.r;
     color.g = src.g;
     color.b = src.b;
-    color.unused = src.unused;
+    color.a = src.a;
   }
   void TexturedObject::draw() {
     if (texId == 0)
       return;
     const OpenGL::PagedTexture & tex = manager.getCachedImage(texId);
-    glColor4ub(color.r, color.g, color.b, color.unused);
+    glColor4ub(color.r, color.g, color.b, color.a);
     glEnable(GL_TEXTURE_2D);
     glBindTexture(GL_TEXTURE_2D, tex.inPage);
     glBegin(GL_QUADS);
@@ -96,7 +95,7 @@ namespace GUI {
     assert(animation);
     size_t texId = animation->getCurrentFrame();
     const OpenGL::PagedTexture & tex = manager.getCachedImage(texId);
-    glColor4ub(color.r, color.g, color.b, color.unused);
+    glColor4ub(color.r, color.g, color.b, color.a);
     glEnable(GL_TEXTURE_2D);
     glBindTexture(GL_TEXTURE_2D, tex.inPage);
     glBegin(GL_QUADS);
@@ -116,7 +115,7 @@ namespace GUI {
 
   void Label::draw() {
     glPushMatrix();
-    glColor4ub(color.r, color.g, color.b, color.unused);
+    glColor4ub(color.r, color.g, color.b, color.a);
     glEnable(GL_TEXTURE_2D);
     if (align == 0) {
       glTranslatef(rect.x, rect.y, 0);
@@ -146,7 +145,7 @@ namespace GUI {
   void Pager::draw() {
 
     const OpenGL::PagedTexture & tex = manager.getCachedImage(texId);
-    glColor4ub(color.r, color.g, color.b, color.unused);
+    glColor4ub(color.r, color.g, color.b, color.a);
     glEnable(GL_TEXTURE_2D);
     glBindTexture(GL_TEXTURE_2D, tex.inPage);
     glBegin(GL_QUADS);
@@ -163,11 +162,11 @@ namespace GUI {
     glEnable(GL_SCISSOR_TEST);
 
     glPushMatrix();
-    glColor4ub(color.r, color.g, color.b, color.unused);
+    glColor4ub(color.r, color.g, color.b, color.a);
     glTranslatef(rect.x+offset, rect.y+4, 0);
     int slen = (int)font->drawString("test - hello world, this is a really long message. it will not end. never... or maybe sometime, but not yet. The end.");
     if (slen + offset < -10) {
-      color.unused = 0;
+      color.a = 0;
       manager.remove(this);
     }
     INFO("{} {}", slen, offset);
@@ -330,7 +329,7 @@ namespace GUI {
     return false;
   }
   void Manager::receive(SDL_MouseButtonEvent & mb_event) {
-    Uint32 sh = OpenGL::Screen::Instance().getHeight();
+    Uint32 sh = OpenGL::Screen::Instance().height();
     GuiObjectListMap::reverse_iterator l = guiLayers.rbegin();
     while (l != guiLayers.rend()) {
       GuiObjectList & list = l->second;
@@ -448,7 +447,9 @@ namespace GUI {
 
   void screen_gamma_callback(float v) {
     screen_gamma = v;
-    SDL_SetGamma(v, v, v);
+    WARN("UH-OH! SetGamma is called!");
+    // SDL_SetWindowGammaRamp(OpenGL::Screen::Instance().get(), v, v, v);
+    // SDL_SetGamma(v, v, v);
 #ifdef WITH_LUA
     OpenGTA::Script::LuaVM & vm = OpenGTA::Script::LuaVM::Instance();
     lua_State *L = vm.getInternalState();
@@ -488,8 +489,8 @@ namespace GUI {
     {
       SDL_Rect r;
       r.h = 32;
-      r.x = screen.getWidth() / 2 - 50;
-      r.y = screen.getHeight() - r.h;
+      r.x = screen.width() / 2 - 50;
+      r.y = screen.height() - r.h;
       r.w = 100;
       SDL_Rect rs;
       rs.x = rs.y = 0;
@@ -510,8 +511,8 @@ namespace GUI {
     assert(!cashLabel);
     {
       SDL_Rect r;
-      r.x = screen.getWidth() - 5;
-      r.y = screen.getHeight() - 30;
+      r.x = screen.width() - 5;
+      r.y = screen.height() - 30;
       cashLabel = new Label(GUI::CASH_ID, r, "0", "F_MTEXT.FON", 1);
       cashLabel->align = 1;
       gm.add(cashLabel, 50);

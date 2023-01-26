@@ -343,8 +343,7 @@ namespace OpenGTA {
 #define bmask 0x00ff0000 
 #define amask 0xff000000 
 #endif 
-    SDL_Surface* s = SDL_CreateRGBSurface(SDL_SWSURFACE|SDL_SRCALPHA, 
-        num_pal, 256, 32, rmask, gmask, bmask, amask);
+    SDL_Surface* s = SDL_CreateRGBSurface(0, num_pal, 256, 32, rmask, gmask, bmask, amask);
     SDL_LockSurface(s);
     unsigned char* dst = static_cast<unsigned char*>(s->pixels);
 
@@ -415,15 +414,6 @@ namespace OpenGTA {
 
 #ifdef G24_DUMPER
 
-SDL_Surface* image = NULL;
-
-void on_exit() {
-  if (image)
-    SDL_FreeSurface(image);
-  PHYSFS_deinit();
-  SDL_Quit();
-}
-
 SDL_Surface* get_image(unsigned char* rp, unsigned int w, unsigned int h) {
   assert(rp);
 #if SDL_BYTEORDER == SDL_BIG_ENDIAN 
@@ -437,8 +427,7 @@ SDL_Surface* get_image(unsigned char* rp, unsigned int w, unsigned int h) {
 #define bmask 0x00ff0000 
 #define amask 0xff000000 
 #endif 
-  SDL_Surface* s = SDL_CreateRGBSurface(SDL_SWSURFACE|SDL_SRCALPHA, 
-      w, h, 32, rmask, gmask, bmask, amask);
+  SDL_Surface* s = SDL_CreateRGBSurface(0, w, h, 32, rmask, gmask, bmask, amask);
   SDL_LockSurface(s);
   unsigned char* dst = static_cast<unsigned char*>(s->pixels);
   for (unsigned int i=0; i<w*h; i++) {
@@ -452,11 +441,9 @@ SDL_Surface* get_image(unsigned char* rp, unsigned int w, unsigned int h) {
   return s;
 }
 
-void display_image(SDL_Surface* s) {
-  SDL_Surface *screen = SDL_SetVideoMode(640, 480, 32, SDL_DOUBLEBUF);
+void main_loop()
+{
   SDL_Event event;
-  SDL_BlitSurface(s, NULL, screen, NULL);
-  SDL_Flip(screen);
   while (1) {
     while (SDL_PollEvent(&event)) {
       switch(event.type) {
@@ -473,11 +460,28 @@ void display_image(SDL_Surface* s) {
   }
 }
 
+void display_image(SDL_Surface *s)
+{
+  SDL_Window *screen = SDL_CreateWindow("OpenGTA", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 640, 480, 0);
+  SDL_Renderer *renderer = SDL_CreateRenderer(screen, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_TARGETTEXTURE);
+  SDL_RenderPresent(renderer);
+
+  SDL_Texture *surTex = SDL_CreateTextureFromSurface(renderer, s);
+
+  SDL_RenderClear(renderer);
+  SDL_Rect dstrect = { 0, 0, s->w, s->h };
+  SDL_RenderCopy(renderer, surTex, nullptr, &dstrect);
+  SDL_RenderPresent(renderer);
+
+  main_loop();
+
+  SDL_DestroyTexture(surTex);
+  SDL_DestroyRenderer(renderer);
+}
 
 int main(int argc, char* argv[]) {
   PHYSFS_init(argv[0]);
   SDL_Init(SDL_INIT_VIDEO);
-  atexit(on_exit);
   int idx = 0;
 
   PHYSFS_mount(PHYSFS_getBaseDir(), nullptr, 1);
@@ -487,14 +491,16 @@ int main(int argc, char* argv[]) {
   graphics.dumpClut("foo.bmp");
   if (argc > 2)
     idx = atoi(argv[2]);
-  //image = get_image(graphics.getAux(idx, 0, true), 64,64);
-  OpenGTA::GraphicsBase::SpriteInfo * sinfo = graphics.getSprite(idx);
+  OpenGTA::SpriteInfo * sinfo = graphics.getSprite(idx);
   auto sbm = graphics.getSpriteBitmap(idx, -1, 0);
-  image = get_image(sbm.get(), sinfo->w, sinfo->h);
+  SDL_Surface *image = get_image(sbm.get(), sinfo->w, sinfo->h);
   if (argc == 4)
     SDL_SaveBMP(image, argv[3]);
   else
     display_image(image);
+
+  SDL_FreeSurface(image);
+  SDL_Quit();
 
   return 0;
 }

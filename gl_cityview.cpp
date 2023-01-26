@@ -42,6 +42,8 @@
 #include "id_sys.h"
 #include "map_helper.h"
 
+#include <GL/glu.h>
+
 float slope_height_offset(unsigned char slope_type, float dx, float dz);
 namespace OpenGTA {
 
@@ -299,8 +301,8 @@ namespace OpenGTA {
 
   OpenGL::PagedTexture CityView::renderMap2Texture() {
     OpenGL::Screen & screen = OpenGL::Screen::Instance();
-    // uint32_t width = screen.getWidth();
-    uint32_t height = screen.getHeight();
+    // uint32_t width = screen.width();
+    uint32_t height = screen.height();
 
     uint32_t gl_h = 1;
     while (gl_h < height)

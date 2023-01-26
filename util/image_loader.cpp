@@ -27,9 +27,12 @@
 #include "graphics-8bit.h"
 #include "log.h"
 #include "physfsrwops.h"
-#include "SDL_image.h"
+#include <SDL2/SDL_surface.h> // WITH_SDL_IMAGE
 #include "m_exceptions.h"
 #include "string_helpers.h"
+#include <GL/glu.h>
+#include <GL/glext.h>
+#include <SDL2/SDL_opengl.h>
 
 namespace ImageUtil {
 using OpenGL::PagedTexture;

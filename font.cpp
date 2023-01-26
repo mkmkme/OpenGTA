@@ -111,8 +111,7 @@ namespace OpenGTA {
 #define bmask 0x00ff0000 
 #define amask 0xff000000 
 #endif 
-  SDL_Surface* s = SDL_CreateRGBSurface(SDL_SWSURFACE|SDL_SRCALPHA, 
-      chars[id]->width, charHeight, 32, rmask, gmask, bmask, amask);
+  SDL_Surface* s = SDL_CreateRGBSurface(0, chars[id]->width, charHeight, 32, rmask, gmask, bmask, amask);
   SDL_LockSurface(s);
   unsigned char* dst = static_cast<unsigned char*>(s->pixels);
   unsigned char * rp = workBuffer;

@@ -23,7 +23,7 @@
 #ifndef PAGED_TEXTURE_H
 #define PAGED_TEXTURE_H
 
-#include <SDL_opengl.h>
+#include <SDL2/SDL_opengl.h>
 
 namespace OpenGL {
 

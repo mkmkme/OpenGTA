@@ -23,7 +23,6 @@
 #ifndef UTIL_IMAGE_LOADER_H
 #define UTIL_IMAGE_LOADER_H
 
-#include <SDL_opengl.h>
 #include <memory>
 #include <string>
 #include "gl_pagedtexture.h"

@@ -14,7 +14,7 @@
 #include "car-info.h"
 #include "set.h"
 
-#include <SDL.h>
+#include <SDL2/SDL.h>
 #include <map>
 #include <memory>
 #include <physfs.h>

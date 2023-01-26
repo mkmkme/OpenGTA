@@ -5,6 +5,8 @@
 #include "log.h"
 #include "blockdata.h"
 
+#include <GL/glu.h>
+
 using namespace OpenGTA;
 float slope_height_offset(unsigned char slope_type, float dx, float dz);
 namespace OpenGL {
@@ -228,15 +230,15 @@ namespace OpenGL {
   void Camera::moveByMouse() {
     Screen & screen = Screen::Instance();
     int w, h;
-    w = screen.getWidth() / 2;
-    h = screen.getHeight() / 2;
+    w = screen.width() / 2;
+    h = screen.height() / 2;
     int mx, my;
     SDL_GetMouseState(&mx, &my);
-    SDL_WarpMouse(w, h);
+    SDL_WarpMouseInWindow(screen.get(), w, h);
     if ((mx == w) && (my == h))
       return;
-    float rot_x = (float(w) - mx) / 100;
-    float rot_y = (float(h) - my) / 100;
+    float rot_x = (float(w) - mx) / 100.f;
+    float rot_y = (float(h) - my) / 100.f;
     center.y += rot_y * 8;
     if (center.y - eye.y > 15)
       center.y = eye.y + 15;

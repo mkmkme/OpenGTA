@@ -7,7 +7,7 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 find_package(PkgConfig REQUIRED)
 find_package(fmt REQUIRED)
 
-pkg_check_modules(SDL REQUIRED sdl)
+pkg_check_modules(SDL2 REQUIRED sdl2)
 pkg_check_modules(SDL_MIXER SDL_mixer)
 pkg_check_modules(GLU REQUIRED glu)
 pkg_check_modules(PHYSFS REQUIRED physfs)
@@ -25,11 +25,9 @@ include_directories(
     util
     ${CMAKE_CURRENT_BINARY_DIR}
     ${CMAKE_CURRENT_SOURCE_DIR}
-    ${SDL_INCLUDE_DIRS}
+    ${SDL2_INCLUDE_DIRS}
     ${GLU_INCLUDE_DIRS}
     ${PHYSFS_INCLUDE_DIRS})
-
-add_definitions(${SDL_CFLAGS} ${SDL_CFLAGS_OTHER})
 
 add_library(opensteer-clock STATIC opensteer/src/Clock.cpp)
 
@@ -88,7 +86,7 @@ target_link_libraries(viewer
     ogta-gl
     ogta-util
     opensteer-clock
-    ${SDL_LIBRARIES}
+    ${SDL2_LIBRARIES}
     ${GLU_LIBRARIES}
     ${PHYSFS_LIBRARIES})
 
@@ -107,7 +105,7 @@ target_link_options(gfxextract PRIVATE
 
 target_link_libraries(gfxextract
     ogta-util
-    ${SDL_LIBRARIES}
+    ${SDL2_LIBRARIES}
     ${GLU_LIBRARIES}
     ${PHYSFS_LIBRARIES})
 
@@ -129,7 +127,7 @@ if(LUA_FOUND)
         ogta-util
         ogta-lua
         ${PHYSFS_LIBRARIES}
-        ${SDL_LIBRARIES})
+        ${SDL2_LIBRARIES})
 else()
     message(WARNING "Lua not found! Will build without lua support")
 endif()
@@ -143,7 +141,7 @@ target_link_libraries(spriteplayer
     ogta-gl
     ogta-util
     opensteer-clock
-    ${SDL_LIBRARIES}
+    ${SDL2_LIBRARIES}
     ${GLU_LIBRARIES}
     ${PHYSFS_LIBRARIES})
 
@@ -157,7 +155,7 @@ add_executable(slopeview EXCLUDE_FROM_ALL
 target_link_libraries(slopeview
     ogta
     ogta-util
-    ${SDL_LIBRARIES}
+    ${SDL2_LIBRARIES}
     ${PHYSFS_LIBRARIES}
     ${GLU_LIBRARIES})
 
@@ -167,7 +165,7 @@ add_executable(blockview EXCLUDE_FROM_ALL
     tools/blockview.cpp)
 
 target_link_libraries(blockview
-    ${SDL_LIBRARIES}
+    ${SDL2_LIBRARIES}
     ${PHYSFS_LIBRARIES}
     ${GLU_LIBRARIES})
 
@@ -178,8 +176,9 @@ add_executable(g24 EXCLUDE_FROM_ALL
 target_compile_definitions(g24 PRIVATE G24_DUMPER)
 
 target_link_libraries(g24
+    ogta
     ogta-util
-    ${SDL_LIBRARIES}
+    ${SDL2_LIBRARIES}
     ${PHYSFS_LIBRARIES})
 
 add_executable(objdump EXCLUDE_FROM_ALL
@@ -190,7 +189,7 @@ add_executable(objdump EXCLUDE_FROM_ALL
 target_link_libraries(objdump EXCLUDE_FROM_ALL
     ogta-util
     ${PHYSFS_LIBRARIES}
-    ${SDL_LIBRARIES})
+    ${SDL2_LIBRARIES})
 
 add_executable(objdump_map EXCLUDE_FROM_ALL
     main2.cpp
@@ -205,7 +204,7 @@ target_link_libraries(objdump_map
     ogta
     ogta-util
     ${PHYSFS_LIBRARIES}
-    ${SDL_LIBRARIES})
+    ${SDL2_LIBRARIES})
 
 add_executable(car_dump EXCLUDE_FROM_ALL
     main2.cpp
@@ -215,7 +214,7 @@ target_link_libraries(car_dump
     ogta
     ogta-util
     ${PHYSFS_LIBRARIES}
-    ${SDL_LIBRARIES})
+    ${SDL2_LIBRARIES})
 
 # broken due to missing tests/test_plane.cpp
 # add_executable(plane_test
@@ -235,7 +234,7 @@ if(SDL_MIXER_FOUND)
 
     target_link_libraries(sound_test
         ogta-util
-        ${SDL_LIBRARIES}
+        ${SDL2_LIBRARIES}
         ${SDL_MIXER_LIBRARIES}
         # SDL_sound-devel is missing pkg-config file on Fedora 34
         # I would bother adding this myself, but I'm switching to SDL2 anyways

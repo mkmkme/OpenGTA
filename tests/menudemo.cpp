@@ -324,7 +324,7 @@ namespace GUI {
   }
 
   void Manager::receive(SDL_MouseButtonEvent & mb_event) {
-    Uint32 sh = OpenGL::Screen::Instance().getHeight();
+    Uint32 sh = OpenGL::Screen::Instance().height();
     GuiObjectListMap::reverse_iterator l = guiLayers.rbegin();
     while (l != guiLayers.rend()) {
       std::cout << int(l->first) << std::endl;
@@ -422,13 +422,13 @@ void run_init() {
   guiManager.createAnimation(frame_nums, 5, 1);
 
   SDL_Rect r;
-  r.x = 0; r.y = 0; r.h = 312 * screen.getHeight() / 480; r.w = screen.getWidth();
+  r.x = 0; r.y = 0; r.h = 312 * screen.height() / 480; r.w = screen.width();
   std::string rawfile("F_LOWER1.RAW");
   guiManager.cacheImageRAW(rawfile, 99);
   GUI::TexturedObject * b2 = new GUI::TexturedObject(1, r, 99);
   guiManager.add(b2, 2);
-  r.y = 312 * screen.getHeight() / 480;
-  r.h = 168 * screen.getHeight() / 480;
+  r.y = 312 * screen.height() / 480;
+  r.h = 168 * screen.height() / 480;
   GUI::AnimatedTextureObject * b3 = new GUI::AnimatedTextureObject(2, r, 1);
   guiManager.add(b3, 2);
 

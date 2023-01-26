@@ -23,7 +23,7 @@
 #include <map>
 #include <memory>
 #include <cassert>
-#include <SDL_image.h>
+#include <SDL2/SDL_surface.h>
 #include "config.h"
 #include "gl_spritecache.h"
 #include "image_loader.h"

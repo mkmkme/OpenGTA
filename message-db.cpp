@@ -77,7 +77,7 @@ namespace OpenGTA {
           i = 0;
         }
         else if (v == 0x00) {
-          INFO("v == 0, tmp = {}", tmp);
+          DEBUG("v == 0, tmp = {}", tmp);
           buff[i] = 0x00;
           if (tmp.length() > 0)
             messages[tmp] = std::string(buff);

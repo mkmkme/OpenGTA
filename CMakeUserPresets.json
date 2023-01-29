@@ -2,20 +2,74 @@
     "version": 4,
     "configurePresets": [
         {
-            "name": "default",
-            "description": "Default build using Ninja generator",
+            "name": "VSCompiler",
+            "displayName": "VS Compiler",
+            "description": "Configure using VS 17 2022 Compiler and Release conan dependencies. Uses Conan toolchain from conan-install/vscompiler/",
+            "generator": "Visual Studio 17 2022",
+            "cacheVariables": {
+                "CMAKE_MAP_IMPORTED_CONFIG_DEBUG": "Release",
+                "CMAKE_MAP_IMPORTED_CONFIG_MINSIZEREL": "Release",
+                "CMAKE_MAP_IMPORTED_CONFIG_RELWITHDEBINFO": "Release",
+                "CMAKE_CXX_FLAGS": "/W4 /WX /EHsc"
+            },
+            "toolchainFile": "${sourceDir}\\conan-install\\vscompiler\\build\\Release\\generators\\conan_toolchain.cmake",
+            "binaryDir": "${sourceDir}\\build\\vscompiler",
+            "warnings": {
+                "dev": true,
+                "deprecated": true,
+                "uninitialized": true,
+                "unusedCli": true
+            },
+            "errors": {
+                "deprecated": true,
+                "dev": true
+            }
+        },
+        {
+            "name": "GCC",
+            "displayName": "GCC",
+            "description": "Configure using gcc compiler and Release conan dependencies. Use Conan toolchain from conan-install/gcc/",
             "generator": "Ninja",
-            "binaryDir": "${sourceDir}/build/default",
-            "environment": {
-                "CXXFLAGS": "-DNO_SDL_GLEXT"
+            "cacheVariables": {
+                "CMAKE_MAP_IMPORTED_CONFIG_DEBUG": "Release",
+                "CMAKE_MAP_IMPORTED_CONFIG_MINSIZEREL": "Release",
+                "CMAKE_MAP_IMPORTED_CONFIG_RELWITHDEBINFO": "Release"
+            },
+            "toolchainFile": "${sourceDir}/conan-install/gcc/build/Release/generators/conan_toolchain.cmake",
+            "binaryDir": "${sourceDir}/build/gcc",
+            "warnings": {
+                "dev": true,
+                "deprecated": true,
+                "uninitialized": true,
+                "unusedCli": true
+            },
+            "errors": {
+                "deprecated": true,
+                "dev": true
             }
         }
     ],
     "buildPresets": [
         {
-            "name": "default",
-            "configurePreset": "default",
-            "jobs": 24
+            "name": "VSCompiler Debug",
+            "configurePreset": "VSCompiler",
+            "configuration": "Debug"
+        },
+        {
+            "name": "VSCompiler Release",
+            "configurePreset": "VSCompiler",
+            "configuration": "Release"
+        },
+        {
+            "name": "GCC Debug",
+            "configurePreset": "GCC",
+            "configuration": "Debug"
+        },
+        {
+            "name": "GCC Release",
+            "configurePreset": "GCC",
+            "configuration": "Release"
         }
-    ]
+    ],
+    "testPresets": []
 }

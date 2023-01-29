@@ -24,7 +24,7 @@
 #define TEXTURECACHE_H
 #include <map>
 #include <string>
-#include <SDL_opengl.h>
+#include <SDL2/SDL_opengl.h>
 
 namespace OpenGL {
 

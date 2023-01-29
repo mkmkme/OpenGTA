@@ -25,7 +25,7 @@
 #include <string>
 #include <list>
 #include <map>
-#include <SDL.h>
+#include <SDL2/SDL.h>
 #include "animation.h"
 #include "gl_pagedtexture.h"
 #include "image_loader.h"

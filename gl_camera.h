@@ -1,8 +1,8 @@
-#ifndef GL_CAMERA_H
-#define GL_CAMERA_H
-#include <SDL.h>
-#include <SDL_opengl.h>
+#pragma once
+
 #include "math3d.h"
+
+#include <SDL2/SDL.h>
 
 namespace OpenGL {
 
@@ -54,4 +54,3 @@ namespace OpenGL {
       Uint32 interpolateEnd;
   };
 }
-#endif

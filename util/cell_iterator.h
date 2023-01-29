@@ -25,7 +25,6 @@
 #include <cassert>
 #include "dataholder.h"
 #include "math3d.h"
-#include "SDL_video.h"
 
 namespace Util {
   float distance(const Vector3D & p1, const Vector3D & p2);

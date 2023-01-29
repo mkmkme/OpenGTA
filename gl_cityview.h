@@ -29,7 +29,7 @@
 #include "gl_frustum.h"
 #include "gl_pagedtexture.h"
 
-#include <SDL.h>
+#include <SDL2/SDL.h>
 
 namespace OpenGTA {
 

@@ -22,7 +22,7 @@
 ************************************************************************/
 #ifndef GL_BASE_H
 #define GL_BASE_H
-#include <SDL_opengl.h>
+#include <SDL2/SDL_opengl.h>
 
 namespace OpenGL {
   /*

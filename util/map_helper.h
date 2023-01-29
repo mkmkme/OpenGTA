@@ -4,7 +4,7 @@
 #include <list>
 #include <map>
 #include <random>
-#include <SDL_video.h>
+#include <SDL2/SDL_video.h>
 #include "math3d.h"
 
 namespace Util {

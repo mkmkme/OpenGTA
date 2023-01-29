@@ -1,6 +1,6 @@
 #ifndef SDL_GL_COMMON_FUNCS_H
 #define SDL_GL_COMMON_FUNCS_H
-#include <SDL.h>
+#include <SDL2/SDL.h>
 
 int resize(int w, int h);
 void initVideo(int w, int h, int bpp);

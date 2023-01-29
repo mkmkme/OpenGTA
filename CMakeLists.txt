@@ -4,14 +4,13 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
-find_package(PkgConfig REQUIRED)
 find_package(fmt REQUIRED)
+find_package(SDL2 REQUIRED)
+# find_package(sdl_mixer REQUIRED)
+find_package(glu REQUIRED)
+find_package(PhysFS REQUIRED)
+# find_package(lua REQUIRED)
 
-pkg_check_modules(SDL2 REQUIRED sdl2)
-pkg_check_modules(SDL_MIXER SDL_mixer)
-pkg_check_modules(GLU REQUIRED glu)
-pkg_check_modules(PHYSFS REQUIRED physfs)
-pkg_check_modules(LUA lua52)
 
 include(compile-options.cmake)
 include(cmake/force-compiler-colors.cmake)
@@ -24,10 +23,7 @@ include_directories(
     opensteer/include
     util
     ${CMAKE_CURRENT_BINARY_DIR}
-    ${CMAKE_CURRENT_SOURCE_DIR}
-    ${SDL2_INCLUDE_DIRS}
-    ${GLU_INCLUDE_DIRS}
-    ${PHYSFS_INCLUDE_DIRS})
+    ${CMAKE_CURRENT_SOURCE_DIR})
 
 add_library(opensteer-clock STATIC opensteer/src/Clock.cpp)
 
@@ -62,7 +58,7 @@ add_library(ogta STATIC
     slope_height_func.cpp
     spritemanager.cpp
     train_system.cpp)
-target_link_libraries(ogta ogta-math coldet-math3d)
+target_link_libraries(ogta PUBLIC ogta-math coldet-math3d fmt::fmt)
 
 
 add_library(ogta-gl STATIC
@@ -86,9 +82,9 @@ target_link_libraries(viewer
     ogta-gl
     ogta-util
     opensteer-clock
-    ${SDL2_LIBRARIES}
-    ${GLU_LIBRARIES}
-    ${PHYSFS_LIBRARIES})
+    SDL2::SDL2
+    glu::glu
+    physfs-static)
 
 add_executable(gfxextract EXCLUDE_FROM_ALL
     gfx_extract.cpp
@@ -105,9 +101,9 @@ target_link_options(gfxextract PRIVATE
 
 target_link_libraries(gfxextract
     ogta-util
-    ${SDL2_LIBRARIES}
-    ${GLU_LIBRARIES}
-    ${PHYSFS_LIBRARIES})
+    SDL2::SDL2
+    glu::glu
+    physfs-static)
 
 if(LUA_FOUND)
     add_subdirectory(lua_addon)
@@ -126,8 +122,8 @@ if(LUA_FOUND)
         ogta-gl
         ogta-util
         ogta-lua
-        ${PHYSFS_LIBRARIES}
-        ${SDL2_LIBRARIES})
+        physfs-static
+        SDL2::SDL2)
 else()
     message(WARNING "Lua not found! Will build without lua support")
 endif()
@@ -141,9 +137,9 @@ target_link_libraries(spriteplayer
     ogta-gl
     ogta-util
     opensteer-clock
-    ${SDL2_LIBRARIES}
-    ${GLU_LIBRARIES}
-    ${PHYSFS_LIBRARIES})
+    SDL2::SDL2
+    glu::glu
+    physfs-static)
 
 add_executable(slopeview EXCLUDE_FROM_ALL
     main.cpp
@@ -155,9 +151,9 @@ add_executable(slopeview EXCLUDE_FROM_ALL
 target_link_libraries(slopeview
     ogta
     ogta-util
-    ${SDL2_LIBRARIES}
-    ${PHYSFS_LIBRARIES}
-    ${GLU_LIBRARIES})
+    SDL2::SDL2
+    glu::glu
+    physfs-static)
 
 # broken due to missing slope2_data.h
 add_executable(blockview EXCLUDE_FROM_ALL
@@ -165,9 +161,9 @@ add_executable(blockview EXCLUDE_FROM_ALL
     tools/blockview.cpp)
 
 target_link_libraries(blockview
-    ${SDL2_LIBRARIES}
-    ${PHYSFS_LIBRARIES}
-    ${GLU_LIBRARIES})
+    SDL2::SDL2
+    physfs-static
+    glu::glu)
 
 add_executable(g24 EXCLUDE_FROM_ALL
     graphics-24bit.cpp
@@ -178,8 +174,8 @@ target_compile_definitions(g24 PRIVATE G24_DUMPER)
 target_link_libraries(g24
     ogta
     ogta-util
-    ${SDL2_LIBRARIES}
-    ${PHYSFS_LIBRARIES})
+    SDL2::SDL2
+    physfs-static)
 
 add_executable(objdump EXCLUDE_FROM_ALL
     main2.cpp
@@ -188,8 +184,8 @@ add_executable(objdump EXCLUDE_FROM_ALL
 
 target_link_libraries(objdump EXCLUDE_FROM_ALL
     ogta-util
-    ${PHYSFS_LIBRARIES}
-    ${SDL2_LIBRARIES})
+    physfs-static
+    SDL2::SDL2)
 
 add_executable(objdump_map EXCLUDE_FROM_ALL
     main2.cpp
@@ -203,8 +199,8 @@ target_compile_definitions(objdump_map PRIVATE DUMP_OBJ_IN_MAP)
 target_link_libraries(objdump_map
     ogta
     ogta-util
-    ${PHYSFS_LIBRARIES}
-    ${SDL2_LIBRARIES})
+    physfs-static
+    SDL2::SDL2)
 
 add_executable(car_dump EXCLUDE_FROM_ALL
     main2.cpp
@@ -213,8 +209,8 @@ add_executable(car_dump EXCLUDE_FROM_ALL
 target_link_libraries(car_dump
     ogta
     ogta-util
-    ${PHYSFS_LIBRARIES}
-    ${SDL2_LIBRARIES})
+    physfs-static
+    SDL2::SDL2)
 
 # broken due to missing tests/test_plane.cpp
 # add_executable(plane_test

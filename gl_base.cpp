@@ -21,7 +21,7 @@
 * distribution.                                                         *
 ************************************************************************/
 #include "gl_base.h"
-#include <SDL_opengl.h>
+#include <SDL2/SDL_opengl.h>
 #include "common_sdl_gl.h"
 #include "log.h"
 

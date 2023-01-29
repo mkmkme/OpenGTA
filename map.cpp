@@ -10,7 +10,7 @@
 ************************************************************************/
 #include <iostream>
 #include <cassert>
-#include <SDL.h>
+#include <SDL2/SDL.h>
 #include "file_helper.h"
 #include "map.h"
 #include "navdata.h"

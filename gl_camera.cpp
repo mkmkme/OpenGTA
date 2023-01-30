@@ -5,6 +5,9 @@
 #include "log.h"
 #include "blockdata.h"
 
+#ifdef _WIN32
+#include <Windows.h>
+#endif
 #include <GL/glu.h>
 
 using namespace OpenGTA;

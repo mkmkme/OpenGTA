@@ -32,12 +32,6 @@
 #include "ai.h"
 #include "localplayer.h"
 
-// ugly fix for win32
-#ifdef _WIN32
-#undef ERROR
-#define ERROR Util::Log::error(__FILE__, __LINE__)
-#endif
-
 #define INT2FLOAT_WRLD(c) (float(c >> 6) + float(c % 64) / 64.0f)
 #define INT2F_DIV64(v) (float(v) / 64.0f)
 #define INT2F_DIV128(v) (float(v) / 128.0f)

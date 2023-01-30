@@ -30,8 +30,12 @@
 #include <SDL2/SDL_surface.h> // WITH_SDL_IMAGE
 #include "m_exceptions.h"
 #include "string_helpers.h"
-#include <GL/glu.h>
+#ifdef _WIN32
+#include <Windows.h>
+#else
 #include <GL/glext.h>
+#endif
+#include <GL/glu.h>
 #include <SDL2/SDL_opengl.h>
 
 namespace ImageUtil {

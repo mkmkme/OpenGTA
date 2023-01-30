@@ -24,7 +24,6 @@
 #include <iostream>
 #include <iomanip>
 #include <SDL2/SDL_opengl.h>
-#include <unistd.h>
 #include "blockanim.h"
 #include "car-info.h"
 #include "config.h"

@@ -6,7 +6,7 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 
 find_package(fmt REQUIRED)
 find_package(SDL2 REQUIRED)
-# find_package(sdl_mixer REQUIRED)
+find_package(SDL_mixer)
 find_package(glu REQUIRED)
 find_package(PhysFS REQUIRED)
 # find_package(lua REQUIRED)
@@ -58,7 +58,13 @@ add_library(ogta STATIC
     slope_height_func.cpp
     spritemanager.cpp
     train_system.cpp)
-target_link_libraries(ogta PUBLIC ogta-math coldet-math3d fmt::fmt)
+target_link_libraries(ogta PUBLIC
+    ogta-math
+    coldet-math3d
+    fmt::fmt
+    physfs-static
+    SDL2::SDL2
+    glu::glu)
 
 
 add_library(ogta-gl STATIC
@@ -81,10 +87,7 @@ target_link_libraries(viewer
     ogta
     ogta-gl
     ogta-util
-    opensteer-clock
-    SDL2::SDL2
-    glu::glu
-    physfs-static)
+    opensteer-clock)
 
 add_executable(gfxextract EXCLUDE_FROM_ALL
     gfx_extract.cpp

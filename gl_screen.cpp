@@ -27,7 +27,12 @@
 #include "log.h"
 #include "m_exceptions.h"
 
+#ifdef _WIN32
+#include <Windows.h>
+#else
 #include <GL/glext.h>
+#endif
+
 #include <GL/glu.h>
 #include <assert.h>
 #include <memory>

@@ -3,7 +3,6 @@
 #include <fmt/color.h>
 #include <fmt/core.h>
 #include <iostream>
-#include <unistd.h>
 #include <utility>
 
 #ifdef WIN32

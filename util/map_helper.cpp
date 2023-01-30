@@ -45,8 +45,8 @@ namespace Util {
   }
 
   TupleOfUint8 SpriteCreationArea::getValidCoord() {
-    std::uniform_int_distribution<unsigned> distrW { 0, validRects.first.w };
-    std::uniform_int_distribution<unsigned> distrH { 0, validRects.first.h };
+    std::uniform_int_distribution<unsigned> distrW { 0, static_cast<unsigned>(validRects.first.w) };
+    std::uniform_int_distribution<unsigned> distrH { 0, static_cast<unsigned>(validRects.first.h) };
     uint32_t x = distrW(rng_) + validRects.first.x;
     uint32_t y = distrH(rng_) + validRects.first.y;
     return std::make_pair(x, y);

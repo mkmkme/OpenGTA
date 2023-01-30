@@ -11,4 +11,4 @@ add_library(ogta-util STATIC
     set.cpp
     string_helpers.cpp
     timer.cpp)
-target_link_libraries(ogta-util opensteer-clock fmt::fmt)
+target_link_libraries(ogta-util opensteer-clock fmt::fmt physfs-static SDL2::SDL2)

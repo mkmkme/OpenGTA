@@ -10,9 +10,10 @@
                 "CMAKE_MAP_IMPORTED_CONFIG_DEBUG": "Release",
                 "CMAKE_MAP_IMPORTED_CONFIG_MINSIZEREL": "Release",
                 "CMAKE_MAP_IMPORTED_CONFIG_RELWITHDEBINFO": "Release",
-                "CMAKE_CXX_FLAGS": "/W4 /WX /EHsc"
+                "CMAKE_POLICY_DEFAULT_CMP0091": "NEW",
+                "CMAKE_CXX_FLAGS": "/W4 /EHsc"
             },
-            "toolchainFile": "${sourceDir}\\conan-install\\vscompiler\\build\\Release\\generators\\conan_toolchain.cmake",
+            "toolchainFile": "${sourceDir}\\conan-install\\vscompiler\\build\\generators\\conan_toolchain.cmake",
             "binaryDir": "${sourceDir}\\build\\vscompiler",
             "warnings": {
                 "dev": true,
@@ -21,8 +22,8 @@
                 "unusedCli": true
             },
             "errors": {
-                "deprecated": true,
-                "dev": true
+                "deprecated": false,
+                "dev": false
             }
         },
         {

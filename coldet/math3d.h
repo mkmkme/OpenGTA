@@ -24,7 +24,8 @@
 #ifndef H_MATH3D
 #define H_MATH3D
 
-#include <math.h>
+#define _USE_MATH_DEFINES
+#include <cmath>
 
 struct Vector3D;
 struct Matrix3;

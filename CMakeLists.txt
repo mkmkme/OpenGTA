@@ -4,6 +4,7 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
+find_package(cxxopts REQUIRED)
 find_package(fmt REQUIRED)
 find_package(SDL2 REQUIRED)
 find_package(SDL_mixer)
@@ -87,7 +88,8 @@ target_link_libraries(viewer
     ogta
     ogta-gl
     ogta-util
-    opensteer-clock)
+    opensteer-clock
+    cxxopts::cxxopts)
 
 add_executable(gfxextract EXCLUDE_FROM_ALL
     gfx_extract.cpp

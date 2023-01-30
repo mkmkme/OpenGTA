@@ -1,9 +1,15 @@
 #include <cstdlib>
 #include <iostream>
 #include <string>
-#include <unistd.h>
 #include "m_exceptions.h"
 #include "log.h"
+
+#ifdef _WIN32
+#include <process.h>
+#define execvp (_execvp)
+#else
+#include <unistd.h>
+#endif
 
 extern void parse_args(int argc, char* argv[]);
 extern void on_exit();

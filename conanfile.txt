@@ -1,4 +1,5 @@
 [requires]
+cxxopts/[^3.0.0]
 fmt/[^9.1.0]
 sdl/[^2.26.1]
 physfs/[^3.0.2]

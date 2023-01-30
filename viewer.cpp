@@ -24,6 +24,7 @@
 #include <iostream>
 #include <iomanip>
 #include <SDL2/SDL_opengl.h>
+#include <cxxopts.hpp>
 #include "blockanim.h"
 #include "car-info.h"
 #include "config.h"
@@ -113,37 +114,6 @@ void on_exit() {
   std::cout << "Goodbye" << std::endl;
 }
 
-void print_usage(const char* argv0) {
-  std::cout << "USAGE: " << argv0 << " [options] [city-num]\n"
-  "\n"
-  "Options:\n"
-  " -l k : log-level (default: 2; 0, 1, 2, 3)\n"
-  " -c k : 0 = 8bit GRY, 1 = 24bit G24\n"
-  " -f   : fullscreen on program-start\n"
-  " -V   : show version & compile-time switches\n"
-  " -M k : texture mipmaps: 0 = disable, 1 = enable\n"
-  " -x k : scale2x sprites: 0 = disable, 1 = enable\n"
-  " -v k : vertical sync: 0 = disable, 1 = try with SDL"
-#ifdef __linux__
-  ", 2 = try with GLX"
-#elif defined(_WIN32)
-  ", 2 = try with GLW"
-#endif
-  "\n"
-  " -a f : anisotropic texture filtering degree: 1.0 = disabled\n"
-  "\n"
-  " -m map_file -g style_file : load specified files\n"
-  " -w width -h height        : screen dimension\n\n"
-  ""
-  "City-num: 0 (default), 1, 2\n"
-  "\n"
-  "The following environment variables are used when defined:\n"
-  " OGTA_DATA : PhysicsFS source for main data file lookup\n"
-  " OGTA_HOME : unused - will be config/save dir\n"
-  " OGTA_MOD  : PhysicsFS source to override main data files\n"
-  " OGTA_LANG : defines the fxt language file to load\n";
-}
-
 void print_version_info() {
 #define PRINT_FORMATED(spaces) std::setw(spaces) << std::left <<
 #define PRINT_OFFSET PRINT_FORMATED(19)
@@ -200,97 +170,65 @@ void print_version_info() {
   std::endl;
 }
 
-void parse_args(int argc, char* argv[]) {
-  int c;
-
-  opterr = 0;
-
+void parse_args(int argc, char *argv[])
+{
+    cxxopts::Options options { "viewer", "Demo program for OpenGTA" };
+    // clang-format off
+    options.positional_help("[CITY_NUMBER]").add_options()
 #ifdef WITH_LUA
-#define VIEWER_FLAGS "a:s:w:h:c:m:M:g:l:v:x:fV"
-#else
-#define VIEWER_FLAGS "a:w:h:c:m:M:g:l:v:x:fV"
+        ("s", "Path to Lua script to execute", cxxopts::value<std::string>(script_file))
 #endif
-  while ((c = getopt (argc, argv, VIEWER_FLAGS)) != -1)
-    switch (c)
-    {
-#ifdef WITH_LUA
-      case 's':
-        script_file = optarg;
-        break;
-#endif
-      case 'a':
-        anisotropic_filter_degree = atof(optarg);
-        break;
-      case 'c':
-        highcolor_data = atoi(optarg); 
-        break;
-      case 'm':
-        specific_map = std::string(optarg);
-        break;
-      case 'M':
-        mipmap_textures = atoi(optarg);
-        break;
-      case 'g':
-        specific_style = std::string(optarg);
-        break;
-      case 'w':
-        arg_screen_w = atoi(optarg);
-        break;
-      case 'h':
-        arg_screen_h = atoi(optarg);
-        break;
-      case 'l':
-        switch (atoi(optarg)) {
-          case 0:
-            Util::Log::setOutputLevel(Util::LogLevel::error);
-            break;
-          case 1:
-            Util::Log::setOutputLevel(Util::LogLevel::warn);
-            break;
-          case 2:
-            Util::Log::setOutputLevel(Util::LogLevel::info);
-            break;
-          case 3:
-            Util::Log::setOutputLevel(Util::LogLevel::debug);
-            break;
-          default:
-            ERROR("Unknown log level (expected 0, 1 or 2)");
-            break;
-        }
-        break;
-      case 'f':
-        full_screen = true;
-        break;
-      case 'v':
-        vsync_config = atoi(optarg);
-        break;
-      case 'V':
+        ("a", "Anisotropic filter degree: 1.0 = disabled", cxxopts::value<float>(anisotropic_filter_degree))
+        ("c", "Color mode: 0 = 8bit GRY, 1 = 24bit G24", cxxopts::value<bool>(highcolor_data))
+        ("m", "Load specified map", cxxopts::value<std::string>(specific_map))
+        ("M", "Texture mipmaps: 0 = disable, 1 = enable", cxxopts::value<int>(mipmap_textures))
+        ("g", "Load specified style", cxxopts::value<std::string>(specific_style))
+        ("w", "Set screen width", cxxopts::value<uint32_t>(arg_screen_w))
+        ("h", "Set screen height", cxxopts::value<uint32_t>(arg_screen_h))
+        ("l", "Log level (default: 2; 0, 1, 2, 3)", cxxopts::value<int>()->default_value("2"))
+        ("f", "Fullscreen mode on start", cxxopts::value<bool>(full_screen))
+        ("v", "Vertical sync: 0 = disable, 1 = try with SDL", cxxopts::value<int>(vsync_config))
+        ("V,version", "Print version and exit")
+        ("x", "Scale2x sprites: 0 = disable, 1 = enable", cxxopts::value<int>(config_scale2x))
+        ("help", "Print help and exit")
+        ;
+    // clang-format on
+
+    options.parse_positional({"city"});
+
+    auto result = options.parse(argc, argv);
+    if (result.count("help")) {
+        fmt::print("{}", options.help());
+        exit(0);
+    }
+    if (result.count("version")) {
         print_version_info();
         exit(0);
-        break;
-      case 'x':
-        config_scale2x = atoi(optarg);
-        break;
-      default:
-        if (optopt == '?') {
-          print_usage(argv[0]);
-          exit(0);
-        }
-        else if (isprint (optopt))
-          ERROR("Unknown option '-{}'", char(optopt));
-        else
-          ERROR("Unknown option character '{}'", optopt);
-        print_usage(argv[0]);
-        exit(1);
     }
-
-  for (int index = optind; index < argc; index++)
-    city_num = atoi(argv[index]);
-
-  if (city_num > 2) {
-    ERROR("Invalid city number: {}", city_num);
-    exit(1);
-  }
+    if (result.count("l")) {
+        auto log_level = result["l"].as<int>();
+        switch (log_level) {
+            case 0:
+                Util::Log::setOutputLevel(Util::LogLevel::error);
+                break;
+            case 1:
+                Util::Log::setOutputLevel(Util::LogLevel::warn);
+                break;
+            case 2:
+                Util::Log::setOutputLevel(Util::LogLevel::info);
+                break;
+            case 3:
+                Util::Log::setOutputLevel(Util::LogLevel::debug);
+                break;
+            default:
+                fmt::print(stderr, "Invalid log level, falling back to info");
+                Util::Log::setOutputLevel(Util::LogLevel::info);
+                break;
+        }
+    }
+    if (result.count("city")) {
+        city_num = result["city"].as<int>();
+    }
 }
 
 void run_init(const char* prg_name) {
@@ -417,7 +355,7 @@ void run_init(const char* prg_name) {
     WARN("Invalid screen specified: {}x{} - using default",
          arg_screen_w,
          arg_screen_h);
-    arg_screen_h = 0; arg_screen_w = 0;
+    arg_screen_h = 640; arg_screen_w = 480;
   }
   
   // fullscreen before first video init; only chance to set it on win32

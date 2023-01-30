@@ -5,6 +5,14 @@
 #include <SDL2/SDL_opengl.h>
 #include <assert.h>
 
+#ifdef _WIN32
+#include <io.h>
+#define STDERR_FILENO (_fileno(stderr))
+#define isatty (_isatty)
+#else
+#include <unistd.h>
+#endif
+
 namespace Util {
 LogLevel Log::level_ = LogLevel::info;
 

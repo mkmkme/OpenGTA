@@ -1,0 +1,43 @@
+name: Clean build of OpenGTA
+run-name: 🚘 Test if OpenGTA compiles on multiple platforms
+on: [push]
+jobs:
+  Linux-Build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 🐧 Install system dependencies
+        run: |
+          sudo apt update
+          sudo apt install libgl1-mesa-dev ninja-build
+      - name: 🐸 Install Conan
+        run: pipx install conan
+      - name: Check out repository code
+        uses: actions/checkout@v3
+      - name: ⚙️ Install dependencies
+        run: |
+          conan install ${{ github.workspace }} \
+              -of ${{ github.workspace }}/conan-install/gcc \
+              -pr:h default -pr:b default \
+              -b missing \
+              -c tools.system.package_manager:mode=install \
+              -c tools.system.package_manager:sudo=True
+      - name: ⚒️ Build OpenGTA 🐧
+        run: |
+          cmake --preset 'GCC' -DCMAKE_BUILD_TYPE='Release'
+          cmake --build --preset 'GCC Release'
+  Windows-Build:
+    runs-on: windows-latest
+    steps:
+      - name: 🐸 Install Conan
+        run: pipx install conan
+      - name: Check out repository code
+        uses: actions/checkout@v3
+      - name: ⚙️ Install dependencies
+        run: |
+          conan install ${{ github.workspace }} `
+              -of ${{ github.workspace }}/conan-install/vscompiler `
+              -pr:h default -pr:b default -b missing
+      - name: ⚒️ Build OpenGTA 🪟
+        run: |
+          cmake --preset 'VSCompiler' -DCMAKE_BUILD_TYPE='Release'
+          cmake --build --preset 'VSCompiler Release'

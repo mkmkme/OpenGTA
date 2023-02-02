@@ -171,16 +171,13 @@ target_link_libraries(blockview
     physfs-static
     glu::glu)
 
-add_executable(g24 EXCLUDE_FROM_ALL
-    graphics-24bit.cpp
-    graphics-8bit.cpp)
+add_executable(g24-dumper EXCLUDE_FROM_ALL tools/g24-dumper.cpp)
 
-target_compile_definitions(g24 PRIVATE G24_DUMPER)
-
-target_link_libraries(g24
+target_link_libraries(g24-dumper
     ogta
     ogta-util
     SDL2::SDL2
+    SDL2::SDL2main
     physfs-static)
 
 add_executable(objdump EXCLUDE_FROM_ALL

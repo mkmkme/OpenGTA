@@ -107,11 +107,11 @@ namespace OpenGTA {
       set(other.get(), other.getDone());
     }
 
-  Sprite::Animation::Animation(Uint16 foff, Uint8 num) :
+  Sprite::Animation::Animation(uint16_t foff, uint8_t num) :
     Util::Animation(num, 7),
     firstFrameOffset(foff), moveSpeed(0.0f) {}
 
-  Sprite::Animation::Animation(Uint16 foff, Uint8 num, float speed) :
+  Sprite::Animation::Animation(uint16_t foff, uint8_t num, float speed) :
     Util::Animation(num, 7),
     firstFrameOffset(foff), moveSpeed(speed) {}
 
@@ -122,7 +122,7 @@ namespace OpenGTA {
     sprType(GraphicsBase::SpriteNumbers::ARROW) {
     }
 
-  Sprite::Sprite(Uint16 sprN, Sint16 rem, GraphicsBase::SpriteNumbers::SpriteTypes sprT) :
+  Sprite::Sprite(uint16_t sprN, int16_t rem, GraphicsBase::SpriteNumbers::SpriteTypes sprT) :
     sprNum(sprN), remap(rem),
     anim(), animId(),
     sprType(sprT) {}
@@ -132,7 +132,7 @@ namespace OpenGTA {
     sprType(other.sprType) {
     }
 
-  void Sprite::switchToAnim(const Uint32 & newId) {
+  void Sprite::switchToAnim(uint32_t newId) {
     DEBUG("switching to anim {}", newId);
     anim = Animation(SpriteManager::Instance().getAnimationById(newId));
     anim.set(Util::Animation::PLAY_FORWARD, Util::Animation::LOOP);
@@ -141,7 +141,7 @@ namespace OpenGTA {
 
   uint32_t Pedestrian::fistAmmo = 0;
 
-  Pedestrian::Pedestrian(Vector3D e, const Vector3D & p, uint32_t id, Sint16 remapId) :
+  Pedestrian::Pedestrian(Vector3D e, const Vector3D & p, uint32_t id, int16_t remapId) :
     GameObject_common(p), 
     Sprite(0, remapId, GraphicsBase::SpriteNumbers::PED), 
     OBox(TranslateMatrix3D(p), e * 0.5f),
@@ -177,7 +177,7 @@ namespace OpenGTA {
     }
 
   extern void ai_step_fake(Pedestrian*);
-  void Pedestrian::update(Uint32 ticks) {
+  void Pedestrian::update(uint32_t ticks) {
     if (isDead) {
       anim.update(ticks);
       lastUpdateAt = ticks;
@@ -228,7 +228,7 @@ activeWeapon = chooseWeapon;
         }
     }
     anim.update(ticks);
-    Uint32 delta = ticks - lastUpdateAt;
+    auto delta = ticks - lastUpdateAt;
     //INFO << "delta = " << delta  << " t: " << ticks << " lt: " << lastUpdateAt << std::endl;
     moveDelta = Vector3D(0, 0, 0);
     switch(m_control.getTurn()) {
@@ -485,7 +485,7 @@ activeWeapon = chooseWeapon;
     deltaSet(sizeof(delta) * 8, (unsigned char*)&delta),
     animState(o.animState) {}
 
-  CarSprite::CarSprite(Uint16 sprN, Sint16 rem, 
+  CarSprite::CarSprite(uint16_t sprN, int16_t rem, 
       GraphicsBase::SpriteNumbers::SpriteTypes sprT) : sprNum(sprN),
   remap(rem), sprType(sprT), delta(0),
   deltaSet(sizeof(delta) * 8, (unsigned char*)&delta),
@@ -521,7 +521,7 @@ activeWeapon = chooseWeapon;
     animState.set_item(10, on);
   }
 
-  void CarSprite::update(Uint32 ticks) {
+  void CarSprite::update(uint32_t ticks) {
 
 // siren anim indices
 #define DSI_1 15
@@ -684,7 +684,7 @@ activeWeapon = chooseWeapon;
       carId = other.carId;
     }
 
-  void Car::update(Uint32 ticks) {
+  void Car::update(uint32_t ticks) {
     //m_M = TranslateMatrix3D(pos);
     //m_M.RotZ(rot+90);
     CarSprite::update(ticks);
@@ -765,7 +765,7 @@ activeWeapon = chooseWeapon;
       isActive = true;
     }
 
-  SpriteObject::SpriteObject(Vector3D pos, Uint16 sprNum, OpenGTA::GraphicsBase::SpriteNumbers::SpriteTypes sprT) :
+  SpriteObject::SpriteObject(Vector3D pos, uint16_t sprNum, OpenGTA::GraphicsBase::SpriteNumbers::SpriteTypes sprT) :
     GameObject_common(pos), Sprite(sprNum, -1, sprT), OBox() {
       isActive = true;
       m_M = TranslateMatrix3D(pos);
@@ -782,7 +782,7 @@ activeWeapon = chooseWeapon;
       isActive = other.isActive;
     }
 
-  void SpriteObject::update(Uint32 ticks) {
+  void SpriteObject::update(uint32_t ticks) {
     anim.update(ticks);
   }
 
@@ -879,7 +879,7 @@ activeWeapon = chooseWeapon;
   }
 
   void Projectile::update(uint32_t ticks) {
-    Uint32 dt = ticks - lastUpdateAt;
+    auto dt = ticks - lastUpdateAt;
     Vector3D new_pos(pos + delta * dt);
     /*INFO << "p-m " << pos.x << " " << pos.y << " " << pos.z << 
       " to " << new_pos.x << " " << new_pos.y << " " << new_pos.z << std::endl;

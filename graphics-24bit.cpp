@@ -15,6 +15,8 @@
 #include "log.h"
 #include "sprite-info.h"
 
+#include <SDL2/SDL_surface.h>
+
 using namespace Util;
 namespace OpenGTA {
 
@@ -370,7 +372,7 @@ namespace OpenGTA {
   }
 
   std::unique_ptr<unsigned char[]> Graphics24Bit::getSpriteBitmap(
-    size_t id, int remap = -1, Uint32 delta = 0
+    size_t id, int remap = -1, uint32_t delta = 0
   ) {
     const SpriteInfo *info = spriteInfos[id];
     assert(info != NULL);

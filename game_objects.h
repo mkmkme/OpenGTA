@@ -35,7 +35,7 @@
 #include <list>
 
 namespace OpenGTA {
-  
+
   struct CarInfo;
   struct GameObject_common;
   // FIXME: OpenSteer doesn't seem to be used at all. Consider replacing it.
@@ -61,36 +61,35 @@ namespace OpenGTA {
       struct Animation : public Util::Animation {
         Animation();
         Animation(const Animation & other);
-        Animation(Uint16 foff, Uint8 num);
-        Animation(Uint16 foff, Uint8 num, float speed);
-        Uint16 firstFrameOffset;
-        //Uint8  numFrames;
+        Animation(uint16_t foff, uint8_t num);
+        Animation(uint16_t foff, uint8_t num, float speed);
+        uint16_t firstFrameOffset;
+        // uint8_t  numFrames;
         float  moveSpeed;
       };
       Sprite();
-      Sprite(Uint16 sprN, Sint16 rem, GraphicsBase::SpriteNumbers::SpriteTypes sprT);
+      Sprite(uint16_t sprN, int16_t rem, GraphicsBase::SpriteNumbers::SpriteTypes sprT);
       Sprite(const Sprite & o);
-      Uint16 sprNum;
-      Sint16 remap;
+      uint16_t sprNum;
+      int16_t remap;
       Animation anim;
-      Uint32 animId;
+      uint32_t animId;
       GraphicsBase::SpriteNumbers::SpriteTypes sprType;
-      Uint8 calcCurrentFrame(Uint32 ticks);
-      void switchToAnim(const Uint32 & newId);
+      void switchToAnim(uint32_t newId);
   };
 
   class Pedestrian : public GameObject_common, public Sprite, public OBox {
     public:
-      Pedestrian(Vector3D, const Vector3D &, uint32_t id, Sint16 remapId = -1);
+      Pedestrian(Vector3D, const Vector3D &, uint32_t id, int16_t remapId = -1);
       Pedestrian(const Pedestrian & o);
       uint32_t pedId;
       inline uint32_t id() const { return pedId; }
       void equip(uint8_t eq_id);
       void giveItem(uint8_t id, uint32_t amount);
       PedController m_control;
-      void update(Uint32 ticks);
-      Uint32 lastUpdateAt;
-      Uint32 lastWeaponTick;
+      void update(uint32_t ticks);
+      uint32_t lastUpdateAt;
+      uint32_t lastWeaponTick;
       Vector3D speedForces;
       bool inGroundContact;
       void tryMove(Vector3D nPos);
@@ -123,10 +122,10 @@ namespace OpenGTA {
           bool    opening;
       };
       CarSprite();
-      CarSprite(Uint16 sprN, Sint16 rem, GraphicsBase::SpriteNumbers::SpriteTypes sprT);
+      CarSprite(uint16_t sprN, int16_t rem, GraphicsBase::SpriteNumbers::SpriteTypes sprT);
       CarSprite(const CarSprite & o);
-      Uint16 sprNum;
-      Sint16 remap;
+      uint16_t sprNum;
+      int16_t remap;
       GraphicsBase::SpriteNumbers::SpriteTypes sprType;
       uint32_t delta;
       Util::Set deltaSet;
@@ -136,11 +135,11 @@ namespace OpenGTA {
       void closeDoor(uint8_t k);
       void setSirenAnim(bool on);
       bool assertDeltaById(uint8_t k);
-      void update(Uint32 ticks);
+      void update(uint32_t ticks);
     private:
       typedef std::list<DoorDeltaAnimation> DoorAnimList;
       DoorAnimList doorAnims;
-      Uint32 lt_siren;
+      uint32_t lt_siren;
   };
 
   class Car : public GameObject_common, public CarSprite, public OBox {
@@ -152,8 +151,8 @@ namespace OpenGTA {
       inline uint32_t id() const { return carId; }
       CarInfo & carInfo;
       uint8_t type;
-      void update(Uint32 ticks);
-      Uint32 lastUpdateAt;
+      void update(uint32_t ticks);
+      uint32_t lastUpdateAt;
       void damageAt(const Vector3D & hit, uint32_t dmg);
       void explode();
     private:
@@ -164,12 +163,12 @@ namespace OpenGTA {
   class SpriteObject : public GameObject_common, public Sprite, public OBox {
     public:
       SpriteObject(OpenGTA::Map::ObjectPosition&, uint32_t id);
-      SpriteObject(Vector3D pos, Uint16 spriteNum, GraphicsBase::SpriteNumbers::SpriteTypes st);
+      SpriteObject(Vector3D pos, uint16_t spriteNum, GraphicsBase::SpriteNumbers::SpriteTypes st);
       SpriteObject(const SpriteObject & o);
       uint32_t objId;    
       inline uint32_t id() const { return objId; }
-      void update(Uint32 ticks);
-      Uint32 lastUpdateAt;
+      void update(uint32_t ticks);
+      uint32_t lastUpdateAt;
 
       bool isActive;
 
@@ -192,8 +191,8 @@ namespace OpenGTA {
       Vector3D delta;
       uint32_t endsAtTick;
       uint32_t owner;
-      void update(Uint32 ticks);
-      Uint32 lastUpdateAt;
+      void update(uint32_t ticks);
+      uint32_t lastUpdateAt;
       bool testCollideBlock(Util::CellIterator &, Vector3D & newp);
       bool testCollideBlock_flat(Util::CellIterator &, Vector3D & newp);
       static uint32_t damageByType(const uint8_t & k);

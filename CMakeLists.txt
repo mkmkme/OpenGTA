@@ -45,6 +45,7 @@ add_library(ogta STATIC
     font.cpp
     font_cache.cpp
     game_objects.cpp
+    graphics-base.cpp
     graphics-24bit.cpp
     graphics-8bit.cpp
     id_sys.cpp

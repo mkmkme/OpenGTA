@@ -1,6 +1,8 @@
 #include "localplayer.h"
 #include "spritemanager.h"
 
+#include <SDL2/SDL_keycode.h>
+
 namespace OpenGTA {
   Pedestrian & LocalPlayer::getPed() {
     return SpriteManager::Instance().getPed(playerId);

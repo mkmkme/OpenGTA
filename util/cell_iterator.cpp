@@ -23,6 +23,10 @@
 #include "cell_iterator.h"
 #include "log.h"
 
+namespace {
+constexpr double pi = 3.14159265358979323846;
+}
+
 namespace Util {
   float distance(const Vector3D & p1, const Vector3D & p2) {
     float dx = p1.x - p2.x;
@@ -33,7 +37,7 @@ namespace Util {
   float xz_angle(const Vector3D & from, const Vector3D & to) {
     Vector3D rel_to(to);
     rel_to = rel_to - from;
-    double res = atan(rel_to.x / rel_to.z) * 180.0f / M_PI;
+    double res = atan(rel_to.x / rel_to.z) * 180.0f / pi;
     if (rel_to.z < 0)
       return 180.0f + res;
     if (rel_to.z >= 0 && rel_to.x < 0)
@@ -43,7 +47,7 @@ namespace Util {
   float xz_turn_angle(const Vector3D & from, const Vector3D & to) {
     Vector3D rel_to(to);
     rel_to = rel_to - from;
-    double res = atan(rel_to.x / rel_to.z) * 180.0f / M_PI;
+    double res = atan(rel_to.x / rel_to.z) * 180.0f / pi;
     return res;
   }
 

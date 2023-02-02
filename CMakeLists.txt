@@ -205,9 +205,7 @@ target_link_libraries(objdump_map
     physfs-static
     SDL2::SDL2)
 
-add_executable(car_dump EXCLUDE_FROM_ALL
-    main2.cpp
-    tools/car_dump.cpp)
+add_executable(car_dump EXCLUDE_FROM_ALL tools/car_dump.cpp)
 
 target_link_libraries(car_dump
     ogta

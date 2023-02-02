@@ -30,6 +30,10 @@ const Matrix3D Matrix3D::Identity(1.0f,0.0f,0.0f,0.0f,
                                   0.0f,0.0f,1.0f,0.0f,
                                   0.0f,0.0f,0.0f,1.0f);
 
+namespace {
+constexpr double pi = 3.14159265358979323846;
+}
+
 
 inline float
 MINOR(const Matrix3D& m, const int r0, const int r1, const int r2, const int c0, const int c1, const int c2)
@@ -93,8 +97,8 @@ void Matrix3D::Translate(const Vector3D & v)
 }
 
 void Matrix3D::RotZ(float angle) {
-  const float c = cosf(angle * M_PI / 180.0f);
-  const float s = sinf(angle * M_PI / 180.0f);
+  const float c = cosf(angle * pi / 180.0f);
+  const float s = sinf(angle * pi / 180.0f);
 /*
   m[0][0] =  cosf(angle*TO_RAD);
   m[1][0] =  sinf(angle*TO_RAD);

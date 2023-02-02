@@ -189,11 +189,3 @@ namespace OpenGL {
     return res;
   }
 }
-
-#if 0
-int main() {
-  OpenGL::DrawableFont *f = new OpenGL::DrawableFont();
-  f->drawString("hello world");
-  delete f;
-}
-#endif

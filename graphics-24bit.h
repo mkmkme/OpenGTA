@@ -15,7 +15,7 @@ public:
 
     std::unique_ptr<unsigned char[]> getSpriteBitmap(size_t id,
                                                      int remap,
-                                                     Uint32 delta) override;
+                                                     uint32_t delta) override;
 
     void dumpClut(const char *fname);
 

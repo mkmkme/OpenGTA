@@ -12,10 +12,9 @@
 #define OPENGTA_MAIN_H
 
 #include "car-info.h"
+#include "object-info.h"
 #include "set.h"
 
-#include <SDL2/SDL.h>
-#include <map>
 #include <memory>
 #include <physfs.h>
 #include <string>
@@ -25,7 +24,6 @@ namespace OpenGTA {
 
 struct DeltaInfo;
 struct LoadedAnim;
-struct ObjectInfo;
 struct SpriteInfo;
 
 /** The common class for all graphics wrappers.
@@ -116,7 +114,7 @@ public:
 
     virtual std::unique_ptr<unsigned char[]> getSpriteBitmap(size_t id,
                                                              int remap,
-                                                             Uint32 delta) = 0;
+                                                             uint32_t delta) = 0;
 
     std::vector<LoadedAnim> animations;
     std::vector<SpriteInfo *> spriteInfos;
@@ -136,14 +134,14 @@ protected:
     void loadObjectInfo_shared(PHYSFS_uint64 offset);
     void loadSpriteNumbers_shared(PHYSFS_uint64 offset);
     void loadCarInfo_shared(PHYSFS_uint64 offset);
-    void loadSpriteInfo_shared(PHYSFS_uint64 offset);
+    // void loadSpriteInfo_shared(PHYSFS_uint64 offset);
 
     void handleDeltas(const SpriteInfo &spriteinfo,
                       unsigned char *buffer,
-                      Uint32 delta);
+                      uint32_t delta);
     void applyDelta(const SpriteInfo &spriteInfo,
                     unsigned char *buffer,
-                    Uint32 offset,
+                    uint32_t offset,
                     const DeltaInfo &deltaInfo,
                     bool mirror = false);
 

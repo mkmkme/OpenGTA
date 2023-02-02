@@ -16,6 +16,8 @@
 #include "log.h"
 #include "string_helpers.h"
 
+#include <SDL2/SDL_surface.h>
+
 namespace OpenGTA {
   Font::Font(const std::string &file) {
     PHYSFS_file *fd = Util::FileHelper::OpenReadVFS(file);

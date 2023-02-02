@@ -180,6 +180,16 @@ target_link_libraries(g24-dumper
     SDL2::SDL2main
     physfs-static)
 
+add_executable(display-font EXCLUDE_FROM_ALL tools/display-font.cpp)
+
+target_link_libraries(display-font
+    ogta
+    ogta-gl
+    ogta-util
+    SDL2::SDL2
+    SDL2::SDL2main
+    physfs-static)
+
 add_executable(objdump EXCLUDE_FROM_ALL
     main2.cpp
     graphics-8bit.cpp

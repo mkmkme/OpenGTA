@@ -190,27 +190,10 @@ target_link_libraries(display-font
     SDL2::SDL2main
     physfs-static)
 
-add_executable(objdump EXCLUDE_FROM_ALL
-    main2.cpp
-    graphics-8bit.cpp
-    tools/obj_dump.cpp)
+add_executable(obj-dump EXCLUDE_FROM_ALL tools/obj-dump.cpp)
 
-target_link_libraries(objdump EXCLUDE_FROM_ALL
-    ogta-util
-    physfs-static
-    SDL2::SDL2)
-
-add_executable(objdump_map EXCLUDE_FROM_ALL
-    main2.cpp
-    tools/obj_dump.cpp
-    graphics-8bit.cpp
-    map.cpp
-    navdata.cpp)
-
-target_compile_definitions(objdump_map PRIVATE DUMP_OBJ_IN_MAP)
-
-target_link_libraries(objdump_map
-    ogta
+target_link_libraries(obj-dump
+    ogta-gl
     ogta-util
     physfs-static
     SDL2::SDL2)

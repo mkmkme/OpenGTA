@@ -340,20 +340,3 @@ namespace OpenGTA {
   }
 
 }
-    
-#if 0
-#include <stdlib.h>
-void do_exit() {
-  PHYSFS_deinit();
-}
-int main(int argc, char* argv[]) {
-  PHYSFS_init(argv[0]);
-  atexit(do_exit);
-  std::cout << "Physfs-Base: " << PHYSFS_getBaseDir() << std::endl;
-  PHYSFS_mount(PHYSFS_getBaseDir(), nullptr, 1);
-  std::cout << "Has: " << argv[1] << " : " << PHYSFS_exists(argv[1]) << std::endl;
-  OpenGTA::Map a(argv[1]);
-  a.dump();
-  return 0;
-}
-#endif

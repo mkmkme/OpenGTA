@@ -195,19 +195,3 @@ namespace OpenGTA {
   }
 
 }
-
-#if 0
-void on_exit() {
-   PHYSFS_deinit();
-}
-
-int main(int argc, char* argv[]) {
-  PHYSFS_init(argv[0]);
-  PHYSFS_mount(PHYSFS_getBaseDir(), nullptr, 1);
-  atexit(on_exit);
-  OpenGTA::ScriptParser p(argv[1]);
-  p.loadLevel(atoi(argv[2]));
-  return 0;
-}
-
-#endif

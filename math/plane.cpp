@@ -57,18 +57,3 @@ namespace Math {
     return d;
   }
 }
-
-/*
-int main() {
-  Vector3D p(0, 0, 0);
-  Vector3D n(-1, 0, 0);
-  Math::Plane plane(p, n);
-  Vector3D p1(-1, 0, 0);
-  Vector3D p2(1, 0, 0);
-  Vector3D col;
-  if (plane.segmentIntersect(p1, p2, col))
-    std::cout << "intersect at: " << col.x << " " << col.y << " " << col.z << std::endl;
-  std::cout << plane.distance(p1) << std::endl;
-  std::cout << plane.distance(p2) << std::endl;
-}
-*/

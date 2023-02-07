@@ -226,10 +226,3 @@ namespace OpenGTA {
     areas.clear();
   }
 }
-
-#if 0
-int main(int argc, char* argv[]) {
-  OpenGTA::Rect2D a(3, 4, 10, 20);
-  a.subLocation(atoi(argv[1]), atoi(argv[2]));
-}
-#endif

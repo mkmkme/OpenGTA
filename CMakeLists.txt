@@ -134,9 +134,7 @@ else()
     message(WARNING "Lua not found! Will build without lua support")
 endif()
 
-add_executable(spriteplayer EXCLUDE_FROM_ALL
-    main2.cpp
-    sprite_anim_player.cpp)
+add_executable(spriteplayer EXCLUDE_FROM_ALL tools/spriteplayer.cpp)
 
 target_link_libraries(spriteplayer
     ogta
@@ -144,6 +142,7 @@ target_link_libraries(spriteplayer
     ogta-util
     opensteer-clock
     SDL2::SDL2
+    SDL2::SDL2main
     glu::glu
     physfs-static)
 

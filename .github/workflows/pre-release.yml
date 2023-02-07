@@ -19,12 +19,8 @@ jobs:
         run: 'echo "$(git tag -l --format="%(contents:body)" $GITHUB_REF_NAME)" > RELEASE_NOTES'
       - name: Create release ...
         id: create_release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.DEPLOY_TOKEN }}
+        uses: softprops/action-gh-release@v1
         with:
-          tag_name: ${{ github.ref }}
-          release_name: OpenGTA ${{ github.ref }}
           body_path: RELEASE_NOTES
           draft: false
           prerelease: true

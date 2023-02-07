@@ -23,12 +23,8 @@ jobs:
           cat release.md
       - name: Create release ...
         id: create_release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.DEPLOY_TOKEN }}
+        uses: softprops/action-gh-release@v1
         with:
-          tag_name: ${{ github.ref }}
-          release_name: OpenGTA ${{ github.ref }}
           body_path: release.md
           draft: false
           prerelease: false

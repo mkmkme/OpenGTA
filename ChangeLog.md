@@ -5,8 +5,8 @@ All relevant changes are documented in this file. This file and the deploy
 action related to that is based on the files in troglobit's [finit].
 
 
-[0.5.0][UNRELEASED]
--------------------
+[0.5.0][] - 2023-02-08
+----------------------
 
 This release mostly addresses introduction of Github actions (including the one
 that automatically creates a release for a tag). Additionally, it contains some
@@ -97,7 +97,8 @@ breaking changes to previous version so the minor version had to be bumped.
 of 2007-06-14, so there's a good chance that this is the actual time of that
 revision.
 
-[UNRELEASED]: https://github.com/mkmkme/OpenGTA/compare/0.4.0...HEAD
+[UNRELEASED]: https://github.com/mkmkme/OpenGTA/compare/0.5.0...HEAD
+[0.5.0]: https://github.com/mkmkme/OpenGTA/compare/0.4.0...0.5.0
 [0.4.0]: https://github.com/mkmkme/OpenGTA/compare/0.3.0...0.4.0
 [0.3.0]: https://github.com/mkmkme/OpenGTA/compare/0.2.3...0.3.0
 [0.2.3]: https://github.com/mkmkme/OpenGTA/compare/0.2.2...0.2.3

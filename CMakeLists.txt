@@ -10,7 +10,7 @@ find_package(SDL2 REQUIRED)
 find_package(SDL_mixer)
 find_package(glu REQUIRED)
 find_package(PhysFS REQUIRED)
-# find_package(lua REQUIRED)
+find_package(lua REQUIRED)
 
 
 include(compile-options.cmake)
@@ -111,7 +111,7 @@ target_link_libraries(gfxextract
     glu::glu
     physfs-static)
 
-if(LUA_FOUND)
+if(lua_FOUND)
     add_subdirectory(lua_addon)
     include_directories(lua_addon)
     add_executable(luaviewer EXCLUDE_FROM_ALL

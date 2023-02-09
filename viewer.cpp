@@ -98,7 +98,7 @@ bool highcolor_data = false;
 bool full_screen = false;
 bool player_toggle_run = false;
 
-const char* script_file = NULL;
+std::string script_file;
 int paused = 0;
 int next_station_zoom = 0;
 bool gamma_slide = false;
@@ -1077,8 +1077,8 @@ void run_main() {
   OpenGTA::Script::LuaVM & vm = OpenGTA::Script::LuaVM::Instance();
   vm.setCityView(*city);
   vm.setMap(OpenGTA::ActiveMap::Instance().get());
-  if (script_file)
-    vm.runFile(script_file);
+  if (!script_file.empty())
+    vm.runFile(script_file.c_str());
   bool vm_tick_ok = true;
   script_last_tick = last_tick;
 #endif

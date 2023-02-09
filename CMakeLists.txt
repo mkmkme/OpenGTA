@@ -118,6 +118,13 @@ if(lua_FOUND)
         main2.cpp
         viewer.cpp)
     target_compile_definitions(luaviewer PRIVATE WITH_LUA)
+    target_link_libraries(luaviewer
+        ogta
+        ogta-gl
+        ogta-lua
+        ogta-util
+        opensteer-clock
+        cxxopts::cxxopts)
 
     add_executable(lua_map_test EXCLUDE_FROM_ALL
         main2.cpp

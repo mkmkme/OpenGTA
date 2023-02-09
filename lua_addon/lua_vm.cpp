@@ -19,10 +19,10 @@ namespace OpenGTA {
       L = luaL_newstate();
       if (L == NULL)
         throw E_SCRIPTERROR("Failed to create Lua state!");
-      
-      luaopen_base(L);
-      luaopen_math(L);
-      luaopen_table(L);
+
+      luaL_requiref(L, "base", luaopen_base, 1);
+      luaL_requiref(L, "math", luaopen_math, 1);
+      luaL_requiref(L, "table", luaopen_table, 1);
       _registered = false;
       lua_settop(L, 0);
       prepare();
@@ -34,7 +34,7 @@ namespace OpenGTA {
       L = NULL;
     }
 
-    int vm_quit(lua_State *L) {
+    int vm_quit([[maybe_unused]] lua_State *L) {
       global_Done = true;
       return 0;
     }
@@ -44,16 +44,11 @@ namespace OpenGTA {
       if (!_registered) {
         Lunar<Block>::Register2(L);
         Lunar<LMap>::Register2(L);
-#ifndef LUA_MAP_ONLY
         Lunar<CityView>::Register2(L);
         lua_newtable(L);
-        luaL_setfuncs(L, Camera::methods, 0);
-        luaL_setfuncs(L, Screen::methods, 0);
-        luaL_setfuncs(L, SpriteCache::methods, 0);
-        // luaL_openlib(L, "camera",      Camera::methods, 0);
-        // luaL_openlib(L, "screen",      Screen::methods, 0);
-        // luaL_openlib(L, "spritecache", SpriteCache::methods, 0);
-#endif
+        luaL_requiref(L, "camera", luaopen_camera, 1);
+        luaL_requiref(L, "screen", luaopen_screen, 1);
+        luaL_requiref(L, "spritecache", luaopen_spritecache, 1);
         lua_pushcfunction(L, vm_quit);
         lua_setglobal(L, "quit");
       }
@@ -67,11 +62,9 @@ namespace OpenGTA {
     void LuaVM::setMap(OpenGTA::Map & map) {
       LGUARD(L);
       LMap * mptr = static_cast<LMap*>(&map);
-      // lua_gettable(L, LUA_GLOBALSINDEX);
+      lua_rawgeti(L, LUA_REGISTRYINDEX, LUA_RIDX_GLOBALS);
       int scv_ref = Lunar<LMap>::push(L, mptr, false);
-      // lua_pushliteral(L, "map");
       lua_pushvalue(L, scv_ref);
-      // lua_settable(L, LUA_GLOBALSINDEX);
       lua_setglobal(L, "map");
     }
 
@@ -79,11 +72,9 @@ namespace OpenGTA {
 #ifndef LUA_MAP_ONLY
       LGUARD(L);
       CityView *scv = static_cast<CityView*>(&cv);
-      // lua_gettable(L, LUA_GLOBALSINDEX);
+      lua_rawgeti(L, LUA_REGISTRYINDEX, LUA_RIDX_GLOBALS);
       int scv_ref = Lunar<CityView>::push(L, scv, false);
-      // lua_pushliteral(L, "city_view");
       lua_pushvalue(L, scv_ref);
-      // lua_settable(L, LUA_GLOBALSINDEX);
       lua_setglobal(L, "city_view");
 #endif
     }

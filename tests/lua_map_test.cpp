@@ -36,7 +36,7 @@ void run_init(const char* prg_name) {
 }
 
 void run_main() {
-  OpenGTA::Script::LuaVM & vm = OpenGTA::Script::LuaVM::Instance();
+  auto &vm = OpenGTA::Script::LuaVM::Instance();
 
   OpenGTA::MainMsgLookup::Instance().load("ENGLISH.FXT");
   OpenGTA::ActiveMap::Instance().load(map_filename);

@@ -266,8 +266,8 @@ void run_init(const char* prg_name) {
         throw E_SCRIPTERROR("Error running string: " + std::string(lua_tostring(L, -1)));
       lua_newtable(L);
       lua_pushvalue(L, -1);
-      lua_setglobal(L, "config");
-      lua_setfenv(L, -2);
+      // lua_setglobal(L, "config");
+      lua_setfield(L, -2, "config");
       if (lua_pcall(L, 0, 0, 0))
         throw E_SCRIPTERROR("Error running string: " + std::string(lua_tostring(L, -1)));
     }
@@ -381,7 +381,9 @@ void run_init(const char* prg_name) {
       float v = (highcolor_data ? vm.getFloat("screen_gamma_g24") :
         vm.getFloat("screen_gamma_gry"));
       screen_gamma = v;
-      SDL_SetGamma(v, v, v);
+      // FIXME: Find a replacement
+      // SDL_SetGamma(v, v, v);
+      WARN("SDL_SetGamma to be called!");
     }
     catch (const Util::ScriptError & e) {}
   }

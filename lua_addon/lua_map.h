@@ -2,6 +2,7 @@
 #define LUA_MAP_H
 
 #include "lunar.h"
+#include "map.h"
 
 namespace OpenGTA {
   namespace Script {

@@ -17,13 +17,13 @@ namespace OpenGTA {
 
         int setZoom(lua_State *L);
         int getZoom(lua_State *L);
-        
+
         int setVisibleRange(lua_State *L);
         int getVisibleRange(lua_State *L);
         int setDrawHeadingArrows(lua_State *L);
 
         // --
-        
+
         static const char className[];
         static Lunar<CityView>::RegType methods[];
     };

@@ -26,7 +26,12 @@ int main(int argc, char* argv[]) {
   atexit(on_exit);
 
   run_init(argv[0]);
-  run_main();
+  try {
+    run_main();
+  } catch (const std::exception &e) {
+    ERROR("Exception occured: {}", e.what());
+    throw;
+  }
   if (global_Restart) {
     on_exit();
     execvp(argv[0], argv);

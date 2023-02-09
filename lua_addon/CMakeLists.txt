@@ -11,5 +11,5 @@ target_link_libraries(ogta-lua
     ogta
     ogta-gl
     ogta-util
-    ${LUA_LIBRARIES}
-    ${GLU_LIBRARIES})
+    lua::lua
+    glu::glu)

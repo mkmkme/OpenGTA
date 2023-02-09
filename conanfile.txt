@@ -1,12 +1,12 @@
 [requires]
 cxxopts/[^3.0.0]
 fmt/[^9.1.0]
+lua/[^5.4.4]
 sdl/[^2.26.1]
 physfs/[^3.0.2]
 glu/system
 
 # sdl_mixer/[^2.0.4]
-# lua/[^5.4.4]
 
 [generators]
 CMakeDeps

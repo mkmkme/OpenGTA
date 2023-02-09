@@ -298,7 +298,7 @@ void run_init(const char* prg_name) {
       catch (const Util::ScriptError & e) {}
       try {
         int sh = vm.getInt("screen_vsync");
-        screen.setVSyncMode(sh);
+        screen.setVSyncMode(static_cast<OpenGL::VSyncMode>(sh));
       }
       catch (const Util::ScriptError & e) {}
       try {
@@ -308,7 +308,7 @@ void run_init(const char* prg_name) {
       }
       catch (const Util::ScriptError & e) {}
 
-      float fov = screen.field_of_view_iew();
+      float fov = screen.fieldOfView();
       float np = screen.nearPlane();
       float fp = screen.farPlane();
       try {

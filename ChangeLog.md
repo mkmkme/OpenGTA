@@ -5,6 +5,14 @@ All relevant changes are documented in this file. This file and the deploy
 action related to that is based on the files in troglobit's [finit].
 
 
+[0.5.1][] - 2023-02-09
+----------------------
+
+### Fixes
+* Fixed Lua invocation in the tools. `luaviewer` and `lua_map_test` can now be
+  compiled and can use the scripts from `scripts` directory.
+
+
 [0.5.0][] - 2023-02-08
 ----------------------
 
@@ -97,7 +105,8 @@ breaking changes to previous version so the minor version had to be bumped.
 of 2007-06-14, so there's a good chance that this is the actual time of that
 revision.
 
-[UNRELEASED]: https://github.com/mkmkme/OpenGTA/compare/0.5.0...HEAD
+[UNRELEASED]: https://github.com/mkmkme/OpenGTA/compare/0.5.1...HEAD
+[0.5.1]: https://github.com/mkmkme/OpenGTA/compare/0.5.0...0.5.1
 [0.5.0]: https://github.com/mkmkme/OpenGTA/compare/0.4.0...0.5.0
 [0.4.0]: https://github.com/mkmkme/OpenGTA/compare/0.3.0...0.4.0
 [0.3.0]: https://github.com/mkmkme/OpenGTA/compare/0.2.3...0.3.0

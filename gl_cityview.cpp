@@ -224,7 +224,7 @@ namespace OpenGTA {
   }
   void CityView::createLevelObject(OpenGTA::Map::ObjectPosition *obj) {
     SpriteManager & s_man = SpriteManager::Instance();
-    uint32_t id = TypeIdBlackBox::requestId();
+    uint32_t id = TypeIdBlackBox::Instance().requestId();
     if (obj->remap >= 128) {
       Car car(*obj, id);
       s_man.add(car);

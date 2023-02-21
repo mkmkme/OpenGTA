@@ -25,7 +25,7 @@ namespace OpenGTA {
       }
 
       void reset() {
-        playerId = TypeIdBlackBox::getPlayerId();
+        playerId = TypeIdBlackBox::Instance().getPlayerId();
         cash = 0;
         wantedLevel = 0;
         modifier = 0;

@@ -555,7 +555,7 @@ namespace OpenGTA {
 void add_auto_ped() {
   try {
   OpenGTA::Pedestrian & pr = OpenGTA::SpriteManager::Instance().getPed(0xffffffff);
-  int id = OpenGTA::TypeIdBlackBox::requestId();
+  int id = OpenGTA::TypeIdBlackBox::Instance().requestId();
   Vector3D v(pr.pos);
   v.y += 0.9f;
   //INFO << v.x << " " << v.y << " " << v.z << std::endl;

@@ -201,7 +201,7 @@ void SpriteManager::update(Uint32 ticks)
             INFO("{} {} {}", tu8.first, tu8.second, k);
 
             Vector3D pos(tu8.first + 0.5f, k + 1, tu8.second + 0.5f);
-            int id = OpenGTA::TypeIdBlackBox::requestId();
+            int id = OpenGTA::TypeIdBlackBox::Instance().requestId();
             Sint16 remap = OpenGTA::ActiveStyle::Instance().get().getRandomPedRemapNumber();
             OpenGTA::Pedestrian p(Vector3D(0.3f, 0.5f, 0.3f), pos, id, remap);
             p.rot = 360 * (rand() / (RAND_MAX + 1.0));

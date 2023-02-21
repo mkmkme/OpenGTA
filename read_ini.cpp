@@ -108,18 +108,15 @@ namespace OpenGTA {
 
   PHYSFS_sint64 ScriptParser::sectionEndOffset(PHYSFS_sint64 start) {
     PHYSFS_sint64 offset = PHYSFS_fileLength(fd);
-    LevelMapType::iterator i = levels.begin();
-    while (i != levels.end()) {
-      if (i->second > start)
-        if (i->second < offset)
-          offset = i->second;
-      ++i;
+    for (const auto & level : levels) {
+      if (level.second > start && level.second < offset)
+        offset = level.second;
     }
     return offset;
   }
 
   void ScriptParser::loadLevel(PHYSFS_uint32 level) {
-    LevelMapType::iterator i = levels.find(level);
+    auto i = levels.find(level);
     if (i == levels.end()) {
       WARN("not a valid level: {}", level);
       return;

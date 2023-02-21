@@ -13,8 +13,7 @@ namespace OpenGTA {
       virtual ~ScriptParser();
       void loadLevel(PHYSFS_uint32 level);
     private:
-      typedef std::map<PHYSFS_uint32, PHYSFS_sint64> LevelMapType;
-      LevelMapType levels;
+      std::map<PHYSFS_uint32, PHYSFS_sint64> levels;
       PHYSFS_file* fd;
       PHYSFS_sint64 sectionEndOffset(PHYSFS_sint64 start);
     protected:

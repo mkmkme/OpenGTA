@@ -247,18 +247,19 @@ activeWeapon = chooseWeapon;
       rot -= 360.0f;
     if (rot < 0.0f)
       rot += 360.0f;
+    constexpr float pi = static_cast<float>(M_PI);
     switch(m_control.getMove()) {
       case -1:
-        moveDelta.x -= sin(rot * M_PI / 180.0f) * anim.moveSpeed * delta;
-        moveDelta.z -= cos(rot * M_PI / 180.0f) * anim.moveSpeed * delta;
+        moveDelta.x -= sin(rot * pi / 180.0f) * anim.moveSpeed * delta;
+        moveDelta.z -= cos(rot * pi / 180.0f) * anim.moveSpeed * delta;
         break;
       case 1:
-        moveDelta.x += sin(rot * M_PI / 180.0f) * anim.moveSpeed * delta;
-        moveDelta.z += cos(rot * M_PI / 180.0f) * anim.moveSpeed * delta;
+        moveDelta.x += sin(rot * pi / 180.0f) * anim.moveSpeed * delta;
+        moveDelta.z += cos(rot * pi / 180.0f) * anim.moveSpeed * delta;
         break;
       case 2:
-        moveDelta.x += sin(rot * M_PI / 180.0f) * anim.moveSpeed * delta;
-        moveDelta.z += cos(rot * M_PI / 180.0f) * anim.moveSpeed * delta;
+        moveDelta.x += sin(rot * pi / 180.0f) * anim.moveSpeed * delta;
+        moveDelta.z += cos(rot * pi / 180.0f) * anim.moveSpeed * delta;
         break;
       case 0:
         break;
@@ -283,8 +284,8 @@ activeWeapon = chooseWeapon;
     m_M.RotZ(rot);
     if (m_control.getFireWeapon() && ticks - lastWeaponTick > 400) {
       Vector3D d1(
-          //Vector3D(-cos(rot * M_PI/180.0f), 0, sin(rot * M_PI/180.0f)).Normalized() * 0.05f 
-          Vector3D(sin(rot * M_PI/180.0f), 0, cos(rot * M_PI/180.0f)).Normalized() * 0.01f 
+          //Vector3D(-cos(rot * pi/180.0f), 0, sin(rot * pi/180.0f)).Normalized() * 0.05f 
+          Vector3D(sin(rot * pi/180.0f), 0, cos(rot * pi/180.0f)).Normalized() * 0.01f 
           ); 
       SpriteManager::Instance().createProjectile(0, rot, pos, d1, ticks, pedId);
       lastWeaponTick = ticks;
@@ -468,7 +469,12 @@ activeWeapon = chooseWeapon;
     isDead++;
   }
 
-  void Pedestrian::getShot(uint32_t shooterId, uint32_t dmg, bool front) {
+  // TODO: should shooterId and other parameters be used?
+  void Pedestrian::getShot(
+    [[maybe_unused]] uint32_t shooterId,
+    [[maybe_unused]] uint32_t dmg,
+    [[maybe_unused]] bool front
+  ) {
     isDead = 1;
     switchToAnim(45);
     anim.set(Util::Animation::PLAY_FORWARD, Util::Animation::FCALLBACK);
@@ -668,7 +674,7 @@ activeWeapon = chooseWeapon;
           INT2F_DIV128(carInfo.height));
       m_M = TranslateMatrix3D(pos);
 
-      rot = op.rotation * 360 / 1024;
+      rot = op.rotation * 360.f / 1024.f;
       m_M.RotZ(-rot);
       hitPoints = carInfo.damagable;
     }
@@ -761,7 +767,7 @@ activeWeapon = chooseWeapon;
           INT2F_DIV128(info.height));
       m_M = TranslateMatrix3D(pos);
       m_M.RotZ(-rot);
-      rot = op.rotation * 360 / 1024;
+      rot = op.rotation * 360.f / 1024.f;
       isActive = true;
     }
 

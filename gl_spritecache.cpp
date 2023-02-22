@@ -237,42 +237,7 @@ namespace OpenGL {
 
 #ifdef DO_SCALE2X
     if (doScale2x) {
-      auto dst_scalex = ImageUtil::scale2x_32bit(std::move(dst), npot.w, npot.h);
-      dst = std::move(dst_scalex);
-#if 0
-#define MAX(a,b)    (((a) > (b)) ? (a) : (b))
-#define MIN(a,b)    (((a) < (b)) ? (a) : (b))
-
-      const int srcpitch = glwidth * 4;
-      const int dstpitch = glwidth * 8;
-      Uint8* srcpix = dst;
-      Util::BufferCache::Instance().lockBuffer(dst);
-      Uint8* dstpix = Util::BufferCache::Instance().requestBuffer(glwidth * glheight * 4 * 4);
-      Uint32 E0, E1, E2, E3, B, D, E, F, H;
-      for(int looph = 0; looph < glheight; ++looph)
-      {
-        for(int loopw = 0; loopw < glwidth; ++ loopw)
-        {
-          B = *(Uint32*)(srcpix + (MAX(0,looph-1)*srcpitch) + (4*loopw));
-          D = *(Uint32*)(srcpix + (looph*srcpitch) + (4*MAX(0,loopw-1)));
-          E = *(Uint32*)(srcpix + (looph*srcpitch) + (4*loopw));
-          F = *(Uint32*)(srcpix + (looph*srcpitch) + (4*MIN(glwidth-1,loopw+1)));
-          H = *(Uint32*)(srcpix + (MIN(glheight-1,looph+1)*srcpitch) + (4*loopw));
-
-          E0 = D == B && B != F && D != H ? D : E;
-          E1 = B == F && B != D && F != H ? F : E;
-          E2 = D == H && D != B && H != F ? D : E;
-          E3 = H == F && D != H && B != F ? F : E;
-
-          *(Uint32*)(dstpix + looph*2*dstpitch + loopw*2*4) = E0;
-          *(Uint32*)(dstpix + looph*2*dstpitch + (loopw*2+1)*4) = E1;
-          *(Uint32*)(dstpix + (looph*2+1)*dstpitch + loopw*2*4) = E2;
-          *(Uint32*)(dstpix + (looph*2+1)*dstpitch + (loopw*2+1)*4) = E3;
-        }
-      }
-      Util::BufferCache::Instance().unlockBuffer(dst);
-      dst = dstpix;
-#endif
+      dst = ImageUtil::scale2x_32bit(dst.get(), npot.w, npot.h);
     }
 #endif
 

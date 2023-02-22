@@ -16,7 +16,7 @@
 #include "navdata.h"
 #include "log.h"
 #include "m_exceptions.h"
-#include "datahelper.h"
+#include "string_helpers.h"
 
 /* see http://members.aol.com/form1/fixed.htm for fixed point floats:
  * int_var = (long) fixed_var >> 8; // for 8 bits after point
@@ -87,6 +87,24 @@ namespace OpenGTA {
     }
   }
 
+namespace {
+
+inline size_t mapFileName2Number(const std::string & file) {
+  size_t num = 0;
+  std::string file2 { Util::string_lower(file) };
+  if (file2.find("nyc.cmp") != std::string::npos)
+    num = 1;
+  else if (file2.find("sanb.cmp") != std::string::npos)
+    num = 2;
+  else if (file2.find("miami.cmp") != std::string::npos)
+    num = 3;
+  else
+    ERROR("unknown level: {}", file);
+  return num;
+}
+
+}
+
   Map::Map(const std::string& filename) {
     nav = 0;
     fd = Util::FileHelper::OpenReadVFS(filename);
@@ -94,7 +112,7 @@ namespace OpenGTA {
       //throw std::string("FileNotFound: ") + filename;
       throw E_FILENOTFOUND(filename + " with error: " + SDL_GetError());
     }
-    size_t level_as_num = Helper::mapFileName2Number(filename);
+    size_t level_as_num = mapFileName2Number(filename);
     loadHeader();
     loadBase();
     loadColumn();

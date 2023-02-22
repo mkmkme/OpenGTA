@@ -216,66 +216,77 @@ using OpenGL::PagedTexture;
     return PagedTexture(tex, 0, 0, float(w) / npot.w, float(h) / npot.h);
   }
 
-#define MAX(a,b)    (((a) > (b)) ? (a) : (b))
-#define MIN(a,b)    (((a) < (b)) ? (a) : (b))
-#define READINT24(x)      ((x)[0]<<16 | (x)[1]<<8 | (x)[2])
-#define WRITEINT24(x, i)  {(x)[0]=i>>16; (x)[1]=(i>>8)&0xff; x[2]=i&0xff; }
+namespace {
 
-  std::unique_ptr<uint8_t[]> scale2x_24bit(std::unique_ptr<uint8_t[]> src, const int src_width, const int src_height) {
+inline int readInt24(const uint8_t *x) {
+  return (x[0] << 16) | (x[1] << 8) | x[2];
+}
+
+inline void writeInt24(uint8_t *x, int i) {
+  x[0] = i >> 16;
+  x[1] = (i >> 8) & 0xff;
+  x[2] = i & 0xff;
+}
+
+}
+
+  std::unique_ptr<uint8_t[]> scale2x_24bit(uint8_t *src, const int src_width, const int src_height) {
     const int srcpitch = src_width * 3;
     const int dstpitch = src_width * 6;
 
     auto dstpix = std::make_unique<uint8_t[]>(src_width * src_height * 3 * 4);
+    auto *dst = dstpix.get();
     int E0, E1, E2, E3, B, D, E, F, H;
     for(int looph = 0; looph < src_height; ++looph)
     {
       for(int loopw = 0; loopw < src_width; ++ loopw)
       {
-        B = READINT24(src.get() + (MAX(0,looph-1)*srcpitch) + (3*loopw));
-        D = READINT24(src.get() + (looph*srcpitch) + (3*MAX(0,loopw-1)));
-        E = READINT24(src.get() + (looph*srcpitch) + (3*loopw));
-        F = READINT24(src.get() + (looph*srcpitch) + (3*MIN(src_width-1,loopw+1)));
-        H = READINT24(src.get() + (MIN(src_height-1,looph+1)*srcpitch) + (3*loopw));
+        B = readInt24(src + (std::max(0,looph-1)*srcpitch) + (3*loopw));
+        D = readInt24(src + (looph*srcpitch) + (3*std::max(0,loopw-1)));
+        E = readInt24(src + (looph*srcpitch) + (3*loopw));
+        F = readInt24(src + (looph*srcpitch) + (3*std::min(src_width-1,loopw+1)));
+        H = readInt24(src + (std::min(src_height-1,looph+1)*srcpitch) + (3*loopw));
 
         E0 = D == B && B != F && D != H ? D : E;
         E1 = B == F && B != D && F != H ? F : E;
         E2 = D == H && D != B && H != F ? D : E;
         E3 = H == F && D != H && B != F ? F : E;
 
-        WRITEINT24((dstpix.get() + looph*2*dstpitch + loopw*2*3), E0);
-        WRITEINT24((dstpix.get() + looph*2*dstpitch + (loopw*2+1)*3), E1);
-        WRITEINT24((dstpix.get() + (looph*2+1)*dstpitch + loopw*2*3), E2);
-        WRITEINT24((dstpix.get() + (looph*2+1)*dstpitch + (loopw*2+1)*3), E3);
+        writeInt24((dst + looph*2*dstpitch + loopw*2*3), E0);
+        writeInt24((dst + looph*2*dstpitch + (loopw*2+1)*3), E1);
+        writeInt24((dst + (looph*2+1)*dstpitch + loopw*2*3), E2);
+        writeInt24((dst + (looph*2+1)*dstpitch + (loopw*2+1)*3), E3);
       }
     }
     return dstpix;
   }
 
-std::unique_ptr<uint8_t[]> scale2x_32bit(std::unique_ptr<uint8_t[]> src, const int src_width, const int src_height) {
+std::unique_ptr<uint8_t[]> scale2x_32bit(uint8_t *src, const int src_width, const int src_height) {
     const int srcpitch = src_width * 4;
     const int dstpitch = src_width * 8;
 
     auto dstpix = std::make_unique<uint8_t[]>(src_width * src_height * 4 * 4);
-    Uint32 E0, E1, E2, E3, B, D, E, F, H;
+    auto *dstpixraw = dstpix.get();
+    uint32_t E0, E1, E2, E3, B, D, E, F, H;
     for(int looph = 0; looph < src_height; ++looph)
     {
       for(int loopw = 0; loopw < src_width; ++ loopw)
       {
-        B = *(Uint32*)(src.get() + (MAX(0,looph-1)*srcpitch) + (4*loopw));
-        D = *(Uint32*)(src.get() + (looph*srcpitch) + (4*MAX(0,loopw-1)));
-        E = *(Uint32*)(src.get() + (looph*srcpitch) + (4*loopw));
-        F = *(Uint32*)(src.get() + (looph*srcpitch) + (4*MIN(src_width-1,loopw+1)));
-        H = *(Uint32*)(src.get() + (MIN(src_height-1,looph+1)*srcpitch) + (4*loopw));
+        B = *(uint32_t*)(src + (std::max(0,looph-1)*srcpitch) + (4*loopw));
+        D = *(uint32_t*)(src + (looph*srcpitch) + (4*std::max(0,loopw-1)));
+        E = *(uint32_t*)(src + (looph*srcpitch) + (4*loopw));
+        F = *(uint32_t*)(src + (looph*srcpitch) + (4*std::min(src_width-1,loopw+1)));
+        H = *(uint32_t*)(src + (std::min(src_height-1,looph+1)*srcpitch) + (4*loopw));
 
         E0 = D == B && B != F && D != H ? D : E;
         E1 = B == F && B != D && F != H ? F : E;
         E2 = D == H && D != B && H != F ? D : E;
         E3 = H == F && D != H && B != F ? F : E;
 
-        *(Uint32*)(dstpix.get() + looph*2*dstpitch + loopw*2*4) = E0;
-        *(Uint32*)(dstpix.get() + looph*2*dstpitch + (loopw*2+1)*4) = E1;
-        *(Uint32*)(dstpix.get() + (looph*2+1)*dstpitch + loopw*2*4) = E2;
-        *(Uint32*)(dstpix.get() + (looph*2+1)*dstpitch + (loopw*2+1)*4) = E3;
+        *(uint32_t*)(dstpixraw + looph*2*dstpitch + loopw*2*4) = E0;
+        *(uint32_t*)(dstpixraw + looph*2*dstpitch + (loopw*2+1)*4) = E1;
+        *(uint32_t*)(dstpixraw + (looph*2+1)*dstpitch + loopw*2*4) = E2;
+        *(uint32_t*)(dstpixraw + (looph*2+1)*dstpitch + (loopw*2+1)*4) = E3;
       }
     }
     return dstpix;

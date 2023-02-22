@@ -42,13 +42,10 @@ namespace ImageUtil {
   };
 
   /** Run scale2x on 32bit input image.
-   *
-   * \note Uses Util::BufferCache for dst memory; lock 'src' before calling
-   * if it also is a BufferCache buffer.
    */
-  std::unique_ptr<uint8_t[]> scale2x_32bit(std::unique_ptr<uint8_t[]> src, const int src_width, const int src_height);
+  std::unique_ptr<uint8_t[]> scale2x_32bit(uint8_t *src, const int src_width, const int src_height);
 
-  std::unique_ptr<uint8_t[]> scale2x_24bit(std::unique_ptr<uint8_t[]> src, const int src_width, const int src_height);
+  std::unique_ptr<uint8_t[]> scale2x_24bit(uint8_t *src, const int src_width, const int src_height);
 
   typedef std::pair<uint16_t, uint16_t> WidthHeightPair;
   // hardcoded data for known images

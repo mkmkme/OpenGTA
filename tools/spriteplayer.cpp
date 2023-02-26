@@ -86,11 +86,10 @@ void safe_try_model(uint8_t model_id)
 
 const char *spr_type_name(int t)
 {
-    static std::array<const char *const, 21> types = { "arrow",   "digit",    "boat",   "box",  "bus",      "car",
-                                                       "object",  "ped",      "speedo", "tank", "tr light", "train",
-                                                       "tr door", "bike",     "tram",   "wbus", "wcar",     "ex",
-                                                       "tumcar",  "tumtruck", "ferry" };
-    return (t < 0 || t > 20) ? "???" : types[t];
+    static std::array types = { "arrow", "digit",  "boat", "box",      "bus",    "car",      "object",
+                                "ped",   "speedo", "tank", "tr light", "train",  "tr door",  "bike",
+                                "tram",  "wbus",   "wcar", "ex",       "tumcar", "tumtruck", "ferry" };
+    return (t < 0 || t >= types.size()) ? "???" : types[t];
 }
 
 const char *vtype2name(int vt)

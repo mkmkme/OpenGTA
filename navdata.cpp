@@ -39,10 +39,8 @@ namespace OpenGTA {
     return false;
   }
 
-  PHYSFS_uint16 Rect2D::getSize() {
-    PHYSFS_uint16 res = w;
-    res *= h;
-    return res;
+  PHYSFS_uint16 Rect2D::getSize() const noexcept {
+    return w * h;
   }
 
   // 0 = central, 1 = north, 2 = south, 4 = east, 8 = west

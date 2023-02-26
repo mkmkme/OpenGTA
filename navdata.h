@@ -47,7 +47,7 @@ namespace OpenGTA {
        * @return uint8 bitfield
        */
       PHYSFS_uint8 subLocation(PHYSFS_uint8, PHYSFS_uint8);
-      PHYSFS_uint16 getSize();
+      PHYSFS_uint16 getSize() const noexcept;
       PHYSFS_uint8 x, y;
       PHYSFS_uint8 w, h;
       /** Last sub-area location.

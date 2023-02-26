@@ -908,7 +908,7 @@ void drawScene(Uint32 ticks) {
   
   glPushMatrix();
   glTranslatef(10, 10, 0);
-  OpenGL::DrawableFont & m_font = OpenGTA::FontCache::Instance().getFont("F_MTEXT.FON", 1);
+  OpenGL::DrawableFont &m_font = OpenGTA::FontCache::Instance().getFont("F_MTEXT.FON", 1);
   m_font.drawString(city->getCurrentSector()->getFullName());
   glPopMatrix();
   

@@ -21,7 +21,6 @@
  * distribution.                                                         *
  ************************************************************************/
 #include "font_cache.h"
-
 #include <cassert>
 
 namespace OpenGTA {
@@ -33,8 +32,9 @@ OpenGL::DrawableFont &FontCache::getFont(const std::string &file, uint32_t scale
         auto fnt = std::make_unique<OpenGL::DrawableFont>();
         fnt->setScale(scale);
         fnt->loadFont(file);
-        loaded_fonts_.insert({ FontIdentifier { file, scale }, std::move(fnt) });
-        return *fnt;
+        auto [it, inserted] = loaded_fonts_.insert({ FontIdentifier { file, scale }, std::move(fnt) });
+        assert(inserted);
+        i = it;
     }
     return *i->second;
 }

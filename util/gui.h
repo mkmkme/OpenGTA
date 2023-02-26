@@ -81,16 +81,12 @@ namespace GUI {
       void update(uint32_t nowTicks);
     private:
       bool isInside(Object & o, Uint16 x, Uint16 y) const;
-      typedef std::map< size_t, OpenGL::PagedTexture > GuiTextureCache;
-      GuiTextureCache::iterator findByCacheId(const size_t & Id);
 
       typedef std::map<uint16_t, Animation*> AnimationMap;
       AnimationMap guiAnimations;
       typedef std::list<Object*> GuiObjectList;
-      typedef std::map< uint8_t, GuiObjectList > GuiObjectListMap;
-      GuiObjectListMap::iterator findLayer(uint8_t l);
-      GuiObjectListMap guiLayers;
-      GuiTextureCache texCache;
+      std::map<uint8_t, GuiObjectList> guiLayers;
+      std::map<size_t, OpenGL::PagedTexture> texCache;
 
   };
 
@@ -150,31 +146,35 @@ namespace GUI {
   };
 
   struct Label : public Object {
-    Label(const SDL_Rect & r, const std::string & s, 
-        const std::string & fontFile, const size_t fontScale) : Object(r), text(s) {
-      OpenGL::DrawableFont & fnt = OpenGTA::FontCache::Instance().getFont(fontFile, fontScale);
-      font = &fnt;
+    Label(const SDL_Rect & r, std::string s, const std::string & fontFile, const size_t fontScale)
+    : Object(r)
+    , font(OpenGTA::FontCache::Instance().getFont(fontFile, fontScale))
+    , text(std::move(s))
+    {
     }
-    Label(const size_t Id, const SDL_Rect & r, const std::string & s, 
-        const std::string & fontFile, const size_t fontScale) : Object(Id, r), text(s) {
-      OpenGL::DrawableFont & fnt = OpenGTA::FontCache::Instance().getFont(fontFile, fontScale);
-      font = &fnt;
+    Label(const size_t Id, const SDL_Rect & r, std::string s, const std::string & fontFile, const size_t fontScale)
+    : Object(Id, r)
+    , font(OpenGTA::FontCache::Instance().getFont(fontFile, fontScale))
+    , text(std::move(s))
+    {
     }
-    OpenGL::DrawableFont * font;
+
+    OpenGL::DrawableFont &font;
     std::string text;
     uint8_t align = 0;
     void draw();
   };
 
   struct Pager : public Object {
-    Pager(const size_t Id, const SDL_Rect & r, const size_t texid,
-      const std::string & fontFile, const size_t fontScale) : Object(Id, r) {
-      OpenGL::DrawableFont & fnt = OpenGTA::FontCache::Instance().getFont(fontFile, fontScale);
-      font = &fnt;
-      texId = texid;
-      offset = r.w-5;
+    Pager(const size_t Id, const SDL_Rect & r, const size_t texid, const std::string & fontFile, const size_t fontScale)
+    : Object(Id, r)
+    , font(OpenGTA::FontCache::Instance().getFont(fontFile, fontScale))
+    , texId(texid)
+    , offset(r.w-5) {
+      ;
     }
-    OpenGL::DrawableFont * font;
+
+    OpenGL::DrawableFont &font;
     size_t texId;
     void update(Uint32 ticks);
     void draw();

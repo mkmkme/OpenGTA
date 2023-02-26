@@ -119,13 +119,13 @@ namespace GUI {
     glEnable(GL_TEXTURE_2D);
     if (align == 0) {
       glTranslatef(rect.x, rect.y, 0);
-      rect.w = uint16_t(font->drawString(text));
+      rect.w = uint16_t(font.drawString(text));
     }
     else if (align == 1) {
       glTranslatef(rect.x, rect.y, 0);
-      rect.w = uint16_t(font->drawString_r2l(text));
+      rect.w = uint16_t(font.drawString_r2l(text));
     }
-    rect.h = font->getHeight();
+    rect.h = font.getHeight();
     glPopMatrix();
     /*
        glDisable(GL_TEXTURE_2D);
@@ -164,7 +164,7 @@ namespace GUI {
     glPushMatrix();
     glColor4ub(color.r, color.g, color.b, color.a);
     glTranslatef(rect.x+offset, rect.y+4, 0);
-    int slen = (int)font->drawString("test - hello world, this is a really long message. it will not end. never... or maybe sometime, but not yet. The end.");
+    int slen = (int)font.drawString("test - hello world, this is a really long message. it will not end. never... or maybe sometime, but not yet. The end.");
     if (slen + offset < -10) {
       color.a = 0;
       manager.remove(this);
@@ -187,16 +187,10 @@ namespace GUI {
   }
 
   void Manager::draw() {
-    GuiObjectListMap::iterator layer_it = guiLayers.begin();
-
-    while (layer_it != guiLayers.end()) {
-      GuiObjectList & inThisLayer = layer_it->second;
-      for (GuiObjectList::iterator obj_it = inThisLayer.begin();
-          obj_it != inThisLayer.end(); ++obj_it) {
-        Object * obj = *obj_it;
+    for (const auto &[key, layer] : guiLayers) {
+      for (const auto &obj : layer) {
         obj->draw();
       }
-      ++layer_it;
     }
     glColor4f(1, 1, 1, 1);
     glEnable(GL_TEXTURE_2D);
@@ -209,7 +203,7 @@ namespace GUI {
 
   void Manager::clearObjects() {
     INFO("clearing gui objects");
-    GuiObjectListMap::iterator layer_it = guiLayers.begin();
+    auto layer_it = guiLayers.begin();
     while (layer_it != guiLayers.end()) {
       GuiObjectList & list = layer_it->second;
       for (GuiObjectList::iterator i = list.begin(); i != list.end(); ++i) {
@@ -223,30 +217,20 @@ namespace GUI {
 
   void Manager::clearCache() {
     INFO("clearing gui texture cache");
-    for (GuiTextureCache::iterator i = texCache.begin(); i != texCache.end(); ++i) {
-      OpenGL::PagedTexture & p = i->second;
-      glDeleteTextures(1, &p.inPage);
-    }
+    for (const auto &[key, value] : texCache)
+      glDeleteTextures(1, &value.inPage);
     texCache.clear();
-    for (AnimationMap::iterator i = guiAnimations.begin(); i != guiAnimations.end(); ++i) {
+    for (auto i = guiAnimations.begin(); i != guiAnimations.end(); ++i) {
       delete i->second;
     }
     guiAnimations.clear();
   }
 
   const OpenGL::PagedTexture & Manager::getCachedImage(size_t Id) {
-    GuiTextureCache::iterator i = findByCacheId(Id);
+    auto i = texCache.find(Id);
     if (i == texCache.end())
       throw E_UNKNOWNKEY("cached texture id " + std::to_string(int(Id)));
     return i->second;
-  }
-
-  Manager::GuiTextureCache::iterator Manager::findByCacheId(const size_t & Id) {
-    return texCache.find(Id);
-  }
-
-  Manager::GuiObjectListMap::iterator Manager::findLayer(uint8_t l) {
-    return guiLayers.find(l);
   }
 
   void Manager::cacheImageRAW(const std::string & file, size_t k) {
@@ -276,7 +260,7 @@ namespace GUI {
 #endif
 
   void Manager::add(Object * obj, uint8_t onLevel) {
-    GuiObjectListMap::iterator l = findLayer(onLevel);
+    auto l = guiLayers.find(onLevel);
     if (l == guiLayers.end()) {
       GuiObjectList list;
       list.push_back(obj);
@@ -288,7 +272,7 @@ namespace GUI {
   }
 
   void Manager::remove(Object * obj) {
-    for (GuiObjectListMap::iterator l = guiLayers.begin(); l != guiLayers.end(); ++l) {
+    for (auto l = guiLayers.begin(); l != guiLayers.end(); ++l) {
       GuiObjectList & list = l->second;
       for (GuiObjectList::iterator m = list.begin(); m != list.end(); ++m) {
         Object * o = *m;
@@ -303,12 +287,10 @@ namespace GUI {
   }
 
   Object* Manager::findObject(const size_t id) {
-    for (GuiObjectListMap::iterator l = guiLayers.begin(); l != guiLayers.end(); ++l) {
-      GuiObjectList & list = l->second;
-      for (GuiObjectList::iterator m = list.begin(); m != list.end(); ++m) {
-        Object * o = *m;
-        if (o->id == id)
-          return o;
+    for (const auto &[key, layer] : guiLayers) {
+      for (const auto &obj : layer) {
+        if (obj->id == id)
+          return obj;
       }
     }
     throw E_UNKNOWNKEY("object by id " + std::to_string(int(id)));
@@ -330,7 +312,7 @@ namespace GUI {
   }
   void Manager::receive(SDL_MouseButtonEvent & mb_event) {
     Uint32 sh = OpenGL::Screen::Instance().height();
-    GuiObjectListMap::reverse_iterator l = guiLayers.rbegin();
+    auto l = guiLayers.rbegin();
     while (l != guiLayers.rend()) {
       GuiObjectList & list = l->second;
       for (GuiObjectList::iterator i = list.begin(); i != list.end(); ++i) {
@@ -349,20 +331,15 @@ namespace GUI {
     for (AnimationMap::iterator i = guiAnimations.begin(); i != guiAnimations.end(); ++i) {
       i->second->update(nowticks);
     }
-    GuiObjectListMap::iterator layer_it = guiLayers.begin();
-    while (layer_it != guiLayers.end()) {
-      GuiObjectList & inThisLayer = layer_it->second;
-      for (GuiObjectList::iterator obj_it = inThisLayer.begin();
-          obj_it != inThisLayer.end(); ++obj_it) {
-        Object * obj = *obj_it;
+    for (const auto &[key, layer] : guiLayers) {
+      for (const auto &obj : layer) {
         obj->update(nowticks);
       }
-      ++layer_it;
     }
   }
 
   Animation* Manager::findAnimation(uint16_t id) {
-    AnimationMap::iterator i = guiAnimations.find(id);
+    auto i = guiAnimations.find(id);
     return i->second;
   }
   void Manager::createAnimation(const std::vector<uint16_t> & indices, uint16_t fps, size_t k) {

@@ -1,0 +1,81 @@
+{
+    "configurations": [
+        {
+            "name": "Objdump",
+            "request": "launch",
+            "program": "${workspaceRoot}/build/clang/Debug/obj-dump",
+            "type": "cppdbg",
+            "windows": {
+                "type": "cppvsdbg",
+                "program": "${workspaceRoot}/build/msvc/Debug/obj-dump.exe",
+            },
+            "args": [
+                "STYLE001.GRY",
+                "NYC.CMP"
+            ],
+            "cwd": "${workspaceRoot}",
+            "console": "integratedTerminal"
+        },
+        {
+            "name": "Spriteplayer",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/build/clang/Debug/spriteplayer",
+            "windows": {
+                "type": "cppvsdbg",
+                "program": "${workspaceFolder}/build/msvc/Debug/spriteplayer.exe",
+            },
+            "cwd": "${workspaceRoot}",
+            "console": "integratedTerminal"
+        },
+        {
+            "name": "LuaMapTest",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceRoot}/build/clang/Debug/lua_map_test",
+            "windows": {
+                "type": "cppvsdbg",
+                "program": "${workspaceRoot}/build/msvc/Debug/lua_map_test.exe",
+            },
+            "args": [
+                "NYC.CMP",
+                "${workspaceRoot}/scripts/map_test_blocktype.lua"
+            ],
+            "cwd": "${workspaceRoot}",
+            "console": "integratedTerminal",
+        },
+        {
+            "name": "Viewer",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceRoot}/build/clang/Debug/viewer",
+            "windows": {
+                "type": "cppvsdbg",
+                "program": "${workspaceRoot}/build/msvc/Debug/viewer.exe",
+            },
+            "args": [
+                "-c"
+            ],
+            "cwd": "${workspaceRoot}",
+            "console": "integratedTerminal"
+        },
+        {
+            "name": "LuaViewer",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceRoot}/build/clang/Debug/luaviewer",
+            "windows": {
+                "type": "cppvsdbg",
+                "program": "${workspaceRoot}/build/msvc/Debug/luaviewer.exe",
+            },
+            "args": [
+                "-c",
+                "-s",
+                "${workspaceRoot}/scripts/parser.lua"
+            ],
+            "cwd": "${workspaceRoot}",
+            "console": "integratedTerminal"
+        }
+    ],
+    "version": "2.0.0"
+}

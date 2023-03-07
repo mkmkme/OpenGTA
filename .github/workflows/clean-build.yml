@@ -36,10 +36,8 @@ jobs:
       - name: ⚙️ Install dependencies
         run: |
           conan profile detect --force
-          conan install ${{ github.workspace }} `
-              -of ${{ github.workspace }}/conan-install/vscompiler `
-              -pr:h default -pr:b default -b missing
+          conan install ${{ github.workspace }} -u -b missing
       - name: ⚒️ Build OpenGTA 🪟
         run: |
-          cmake --preset 'VSCompiler' -DCMAKE_BUILD_TYPE='Release'
-          cmake --build --preset 'VSCompiler Release'
+          cmake --preset 'MSVC'
+          cmake --build --preset 'MSVC Release'

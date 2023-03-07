@@ -1,74 +1,30 @@
 {
     "version": 4,
+    "include": [
+        "./ConanPresets.json"
+    ],
     "configurePresets": [
         {
-            "name": "VSCompiler",
+            "name": "MSVC",
             "displayName": "VS Compiler",
-            "description": "Configure using VS 17 2022 Compiler and Release conan dependencies. Uses Conan toolchain from conan-install/vscompiler/",
-            "generator": "Visual Studio 17 2022",
+            "description": "Configure using VS 17 2022 Compiler and Release conan dependencies.",
+            "inherits": [
+                "conan-msvc"
+            ],
             "cacheVariables": {
-                "CMAKE_MAP_IMPORTED_CONFIG_DEBUG": "Release",
-                "CMAKE_MAP_IMPORTED_CONFIG_MINSIZEREL": "Release",
-                "CMAKE_MAP_IMPORTED_CONFIG_RELWITHDEBINFO": "Release",
-                "CMAKE_POLICY_DEFAULT_CMP0091": "NEW",
-                "CMAKE_CXX_FLAGS": "/W4 /EHsc"
-            },
-            "toolchainFile": "${sourceDir}\\conan-install\\vscompiler\\build\\generators\\conan_toolchain.cmake",
-            "binaryDir": "${sourceDir}\\build\\vscompiler",
-            "warnings": {
-                "dev": true,
-                "deprecated": true,
-                "uninitialized": true,
-                "unusedCli": true
-            },
-            "errors": {
-                "deprecated": false,
-                "dev": false
-            }
-        },
-        {
-            "name": "GCC",
-            "displayName": "GCC",
-            "description": "Configure using gcc compiler and Release conan dependencies. Use Conan toolchain from conan-install/gcc/",
-            "generator": "Ninja",
-            "cacheVariables": {
-                "CMAKE_MAP_IMPORTED_CONFIG_DEBUG": "Release",
-                "CMAKE_MAP_IMPORTED_CONFIG_MINSIZEREL": "Release",
-                "CMAKE_MAP_IMPORTED_CONFIG_RELWITHDEBINFO": "Release"
-            },
-            "toolchainFile": "${sourceDir}/conan-install/gcc/build/Release/generators/conan_toolchain.cmake",
-            "binaryDir": "${sourceDir}/build/gcc",
-            "warnings": {
-                "dev": true,
-                "deprecated": true,
-                "uninitialized": true,
-                "unusedCli": true
-            },
-            "errors": {
-                "deprecated": true,
-                "dev": true
+                "CMAKE_CXX_FLAGS_INIT": "/W4 /EHsc"
             }
         }
     ],
     "buildPresets": [
         {
-            "name": "VSCompiler Debug",
-            "configurePreset": "VSCompiler",
+            "name": "MSVC Debug",
+            "configurePreset": "MSVC",
             "configuration": "Debug"
         },
         {
-            "name": "VSCompiler Release",
-            "configurePreset": "VSCompiler",
-            "configuration": "Release"
-        },
-        {
-            "name": "GCC Debug",
-            "configurePreset": "GCC",
-            "configuration": "Debug"
-        },
-        {
-            "name": "GCC Release",
-            "configurePreset": "GCC",
+            "name": "MSVC Release",
+            "configurePreset": "MSVC",
             "configuration": "Release"
         }
     ],

@@ -1,5 +1,4 @@
-*.o
-build
-/.vscode
+/build
 /gtadata.zip
 /.vs
+/ConanPresets.json

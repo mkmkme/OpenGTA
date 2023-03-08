@@ -38,7 +38,9 @@ jobs:
       - name: ⚙️ Install dependencies
         run: |
           conan profile detect --force
-          conan install ${{ github.workspace }} -u -b missing
+          conan install ${{ github.workspace }} `
+              -u -b missing `
+              -c:h tools.cmake.cmake_layout:build_folder_vars="['settings.compiler']"
       - name: ⚒️ Build OpenGTA 🪟
         run: |
           cmake --preset 'MSVC'

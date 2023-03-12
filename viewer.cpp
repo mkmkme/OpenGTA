@@ -196,38 +196,43 @@ void parse_args(int argc, char *argv[])
 
     options.parse_positional({"city"});
 
-    auto result = options.parse(argc, argv);
-    if (result.count("help")) {
-        fmt::print("{}", options.help());
-        exit(0);
-    }
-    if (result.count("version")) {
-        print_version_info();
-        exit(0);
-    }
-    if (result.count("l")) {
-        auto log_level = result["l"].as<int>();
-        switch (log_level) {
-            case 0:
-                Util::Log::setOutputLevel(Util::LogLevel::error);
-                break;
-            case 1:
-                Util::Log::setOutputLevel(Util::LogLevel::warn);
-                break;
-            case 2:
-                Util::Log::setOutputLevel(Util::LogLevel::info);
-                break;
-            case 3:
-                Util::Log::setOutputLevel(Util::LogLevel::debug);
-                break;
-            default:
-                fmt::print(stderr, "Invalid log level, falling back to info");
-                Util::Log::setOutputLevel(Util::LogLevel::info);
-                break;
-        }
-    }
-    if (result.count("city")) {
-        city_num = result["city"].as<int>();
+    try {
+      auto result = options.parse(argc, argv);
+      if (result.count("help")) {
+          fmt::print("{}", options.help());
+          exit(0);
+      }
+      if (result.count("version")) {
+          print_version_info();
+          exit(0);
+      }
+      if (result.count("l")) {
+          auto log_level = result["l"].as<int>();
+          switch (log_level) {
+              case 0:
+                  Util::Log::setOutputLevel(Util::LogLevel::error);
+                  break;
+              case 1:
+                  Util::Log::setOutputLevel(Util::LogLevel::warn);
+                  break;
+              case 2:
+                  Util::Log::setOutputLevel(Util::LogLevel::info);
+                  break;
+              case 3:
+                  Util::Log::setOutputLevel(Util::LogLevel::debug);
+                  break;
+              default:
+                  fmt::print(stderr, "Invalid log level, falling back to info");
+                  Util::Log::setOutputLevel(Util::LogLevel::info);
+                  break;
+          }
+      }
+      if (result.count("city")) {
+          city_num = result["city"].as<int>();
+      }
+    } catch (const cxxopts::OptionException& e) {
+        fmt::print(stderr, "Error parsing options: {}\n", e.what());
+        exit(1);
     }
 }
 

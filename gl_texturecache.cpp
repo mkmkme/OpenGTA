@@ -98,43 +98,40 @@ namespace OpenGL {
         return;
       if (cached.size() < minClearElements)
         return;
-      typename std::map<key_type, texTuple*>::iterator i = cached.begin();
+
       uint32_t numCleared = 0;
-      while (i != cached.end()) {
+      for (auto i = cached.begin(); i != cached.end(); ) {
         if (i->second->refCount < clearMagic) {
-          //INFO <<"## " << m_name << " clearing: " << int(i->first) << " count: " << i->second->refCount << std::endl;
+          DEBUG("{} clearing: {} count: {}", m_name, int(i->first), i->second->refCount);
           GLuint tid = (i->second->texId);
           glDeleteTextures(1, &tid);
           delete i->second;
-          cached.erase(i);
+          i = cached.erase(i);
           numCleared++;
+        } else {
+          i++;
         }
-        i++;
       }
       INFO("{} {} textures recycled", m_name, numCleared);
     }
 
   template <typename key_type>
     void TextureCache<key_type>::clearStats() {
-      typename std::map<key_type, texTuple*>::iterator i = cached.begin();
-      while (i != cached.end()) {
-        i->second->refCount = 0;
-        i++;
+      for (const auto& [key, value] : cached) {
+        value->refCount = 0;
       }
     }
 
   template <typename key_type>
     void TextureCache<key_type>::printStats() {
-      typename std::map<key_type, texTuple*>::iterator i = cached.begin();
       size_t c = 1;
       size_t c_active = 0;
-      while (i != cached.end()) {
-        if (i->second->refCount > 0) {
-          std::cout << c << " = " << uint32_t(i->first) << " : " << i->second->refCount << std::endl; 
-          c_active++;
+      for (const auto& [key, value] : cached) {
+        if (value->refCount > 0) {
+          INFO("{} = {} : {}", c, uint32_t(key), value->refCount);
+          ++c_active;
         }
-        i++;
-        c++;
+        ++c;
       }
       INFO("{} different textures used", c_active);
     }

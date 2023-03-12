@@ -421,12 +421,21 @@ namespace GUI {
     }*/
   }
 
+  namespace {
+    void setGamma(SDL_Window * w, float v) {
+      Uint16 ramp[256];
+      for (int i = 0; i < 256; i++) {
+        float f = i / 255.0f;
+        f = pow(f, 1.0f / v);
+        ramp[i] = Uint16(f) * 65535;
+      }
+      SDL_SetWindowGammaRamp(w, ramp, ramp, ramp);
+    }
+  }
 
   void screen_gamma_callback(float v) {
     screen_gamma = v;
-    WARN("UH-OH! SetGamma is called!");
-    // SDL_SetWindowGammaRamp(OpenGL::Screen::Instance().get(), v, v, v);
-    // SDL_SetGamma(v, v, v);
+    setGamma(OpenGL::Screen::Instance().get(), v);
 #ifdef WITH_LUA
     OpenGTA::Script::LuaVM & vm = OpenGTA::Script::LuaVM::Instance();
     lua_State *L = vm.getInternalState();

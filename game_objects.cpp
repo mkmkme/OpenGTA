@@ -158,6 +158,12 @@ namespace OpenGTA {
       inGroundContact = 0;
     }
 
+  uint32_t *getActiveAmmo(Pedestrian::InventoryMap &inv, uint32_t activeWeapon) noexcept {
+    if (const auto it = inv.find(activeWeapon); it != inv.end())
+      return &it->second;
+    return &Pedestrian::fistAmmo;
+  }
+
   Pedestrian::Pedestrian(const Pedestrian & other) :
     GameObject_common(other), Sprite(other), OBox(other),
 
@@ -165,10 +171,10 @@ namespace OpenGTA {
     m_control(),
     speedForces(other.speedForces),
     inventory(other.inventory),
-    activeWeapon(other.activeWeapon), 
-    activeAmmo(&inventory.find(activeWeapon)->second),
+    activeWeapon(other.activeWeapon),
+    activeAmmo(getActiveAmmo(inventory, activeWeapon)),
     aiData(other.aiData) {
-      lastUpdateAt = other.lastUpdateAt; 
+      lastUpdateAt = other.lastUpdateAt;
       inGroundContact = other.inGroundContact;
       animId = other.animId;
       isDead = other.isDead;

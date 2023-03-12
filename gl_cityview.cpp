@@ -714,7 +714,7 @@ namespace OpenGTA {
           lid_tex = lidCache->getTextureWithId(bi->lid);
       } else {
         const auto frame_num = banim->getCurrentFrameNumber();
-        uint8_t aux_id = banim->getFrame(frame_num - 1);
+        uint8_t aux_id = banim->getFrame(frame_num > 0 ? frame_num - 1 : 0);
         if (!auxCache->hasTexture(aux_id)) {
           lid_tex = ImageUtil::createGLTexture(64, 64, is_flat, 
               style->getAux(static_cast<unsigned int>(aux_id), 0, is_flat));
@@ -736,7 +736,7 @@ namespace OpenGTA {
           left_tex = sideCache->getTextureWithId(bi->left);
       } else {
         const auto frame_num = banim->getCurrentFrameNumber();
-        uint8_t aux_id = banim->getFrame(frame_num - 1);
+        uint8_t aux_id = banim->getFrame(frame_num > 0 ? frame_num - 1 : 0);
         if (!auxCache->hasTexture(aux_id)) {
           left_tex = ImageUtil::createGLTexture(64, 64, is_flat, 
               style->getAux(static_cast<unsigned int>(aux_id), 0, is_flat));
@@ -759,7 +759,7 @@ namespace OpenGTA {
           right_tex = sideCache->getTextureWithId(bi->right);
       } else {
         const auto frame_num = banim->getCurrentFrameNumber();
-        uint8_t aux_id = banim->getFrame(frame_num - 1);
+        uint8_t aux_id = banim->getFrame(frame_num > 0 ? frame_num - 1 : 0);
         if (!auxCache->hasTexture(aux_id)) {
           right_tex = ImageUtil::createGLTexture(64, 64, is_flat, 
               style->getAux(static_cast<unsigned int>(aux_id), 0, is_flat));
@@ -782,7 +782,7 @@ namespace OpenGTA {
           top_tex = sideCache->getTextureWithId(bi->top);
       } else {
         const auto frame_num = banim->getCurrentFrameNumber();
-        uint8_t aux_id = banim->getFrame(frame_num - 1);
+        uint8_t aux_id = banim->getFrame(frame_num > 0 ? frame_num - 1 : 0);
         if (!auxCache->hasTexture(aux_id)) {
           top_tex = ImageUtil::createGLTexture(64, 64, is_flat, 
               style->getAux(static_cast<unsigned int>(aux_id), 0, is_flat));
@@ -805,7 +805,7 @@ namespace OpenGTA {
           bottom_tex = sideCache->getTextureWithId(bi->bottom);
       } else {
         const auto frame_num = banim->getCurrentFrameNumber();
-        uint8_t aux_id = banim->getFrame(frame_num - 1);
+        uint8_t aux_id = banim->getFrame(frame_num > 0 ? frame_num - 1 : 0);
         if (!auxCache->hasTexture(aux_id)) {
           bottom_tex = ImageUtil::createGLTexture(64, 64, is_flat, 
               style->getAux(static_cast<unsigned int>(aux_id), 0, is_flat));

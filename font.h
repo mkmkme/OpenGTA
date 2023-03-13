@@ -30,7 +30,7 @@ public:
 
     void addMapping(char c, size_t num);
 
-    void dumpAs(const char *filename, size_t id);
+    friend void dumpAs(Font &font, const char *filename, size_t id);
     unsigned char *getCharacterBitmap(size_t num,
                                       unsigned int *width,
                                       unsigned int *height);

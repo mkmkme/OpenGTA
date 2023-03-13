@@ -184,6 +184,15 @@ target_link_libraries(g24-dumper
     SDL2::SDL2main
     physfs-static)
 
+add_executable(font-dump EXCLUDE_FROM_ALL tools/font-dump.cpp)
+
+target_link_libraries(font-dump
+    ogta
+    ogta-util
+    SDL2::SDL2
+    SDL2::SDL2main
+    physfs-static)
+
 add_executable(display-font EXCLUDE_FROM_ALL tools/display-font.cpp)
 
 target_link_libraries(display-font

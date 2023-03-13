@@ -15,8 +15,6 @@
 #include "log.h"
 #include "sprite-info.h"
 
-#include <SDL2/SDL_surface.h>
-
 using namespace Util;
 namespace OpenGTA {
 
@@ -328,47 +326,6 @@ namespace OpenGTA {
     applyClut(src, dst, 4096, clutIdx, rgba);
 
     return (rgba) ? tileTmpRGBA : tileTmpRGB;
-  }
-
-  void Graphics24Bit::dumpClut(const char* fname) {
-    assert(pagedClutSize % 1024 == 0);
-    //PHYSFS_uint32 num_clut = pagedClutSize / 1024;
-    PHYSFS_uint32 num_pal = paletteIndexSize / 2;
-#if SDL_BYTEORDER == SDL_BIG_ENDIAN 
-#define rmask 0xff000000 
-#define gmask 0x00ff0000 
-#define bmask 0x0000ff00 
-#define amask 0x000000ff
-#else 
-#define rmask 0x000000ff 
-#define gmask 0x0000ff00
-#define bmask 0x00ff0000 
-#define amask 0xff000000 
-#endif 
-    SDL_Surface* s = SDL_CreateRGBSurface(0, num_pal, 256, 32, rmask, gmask, bmask, amask);
-    SDL_LockSurface(s);
-    unsigned char* dst = static_cast<unsigned char*>(s->pixels);
-
-    for (PHYSFS_uint32 color = 0; color < 256; color++) {
-
-      for (PHYSFS_uint32 pal_id = 0; pal_id < num_pal; pal_id++) {
-        PHYSFS_uint32 clut_id = palIndex[pal_id];
-        PHYSFS_uint32 off = 65536 * (clut_id / 64) + 4 * (clut_id % 64);
-
-        *dst = rawClut[off+color*256];
-        ++dst;
-        *dst = rawClut[off+color*256+1];
-        ++dst;
-        *dst = rawClut[off+color*256+2];
-        ++dst;
-        *dst = 0xff;
-        ++dst;
-      }
-
-    }
-    SDL_UnlockSurface(s);
-    SDL_SaveBMP(s, fname);
-    SDL_FreeSurface(s);
   }
 
   std::unique_ptr<unsigned char[]> Graphics24Bit::getSpriteBitmap(

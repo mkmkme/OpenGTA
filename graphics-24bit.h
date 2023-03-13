@@ -17,7 +17,7 @@ public:
                                                      int remap,
                                                      uint32_t delta) override;
 
-    void dumpClut(const char *fname);
+    friend void dumpClut(Graphics24Bit &g24, const char *fname);
 
 protected:
     void loadHeader();

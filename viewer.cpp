@@ -230,7 +230,7 @@ void parse_args(int argc, char *argv[])
       if (result.count("city")) {
           city_num = result["city"].as<int>();
       }
-    } catch (const cxxopts::OptionException& e) {
+    } catch (const cxxopts::exceptions::exception& e) {
         fmt::print(stderr, "Error parsing options: {}\n", e.what());
         exit(1);
     }

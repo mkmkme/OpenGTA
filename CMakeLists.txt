@@ -14,6 +14,7 @@ find_package(SDL_mixer)
 find_package(glu REQUIRED)
 find_package(PhysFS REQUIRED)
 find_package(lua REQUIRED)
+find_package(gtest REQUIRED)
 
 configure_file(config.h.in config.h)
 
@@ -29,6 +30,7 @@ add_library(opensteer-clock STATIC opensteer/src/Clock.cpp)
 
 add_subdirectory(math)
 add_subdirectory(util)
+add_subdirectory(tests)
 
 add_library(coldet-math3d STATIC coldet/math3d.cpp)
 target_compile_definitions(coldet-math3d PRIVATE GCC)

@@ -1,0 +1,5 @@
+enable_testing()
+include(GoogleTest)
+add_executable(tests EXCLUDE_FROM_ALL bitwise-test.cpp)
+target_link_libraries(tests ogta-util GTest::gtest_main)
+gtest_discover_tests(tests)

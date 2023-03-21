@@ -53,6 +53,7 @@ class OpenGTAConan(ConanFile):
         self.requires("sdl/[^2.26.1]")
         self.requires("physfs/[^3.0.2]")
         self.requires("glu/system")
+        self.requires("gtest/[^1.12.1]", test=True)
 
     def layout(self):
         cmake_layout(self)

@@ -75,7 +75,18 @@
             ],
             "cwd": "${workspaceRoot}",
             "console": "integratedTerminal"
-        }
+        },
+     {
+         "name": "Tests",
+         "type": "cppdbg",
+         "request": "launch",
+         "program": "${workspaceRoot}/build/msvc/tests/Debug/tests",
+         "windows": {
+             "type": "cppvsdbg",
+             "program": "${workspaceRoot}/build/msvc/tests/Debug/tests.exe",
+         },
+         "console": "integratedTerminal"
+     },
     ],
     "version": "2.0.0"
 }

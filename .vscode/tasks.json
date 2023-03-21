@@ -1,0 +1,16 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"type": "shell",
+			"label": "Conan install",
+			"command": "${workspaceFolder}/ConanInstall.bat",
+			"args": [
+				"${workspaceFolder}"
+			],
+			"group": "build",
+			"problemMatcher": [],
+			"detail": "Install Conan dependencies (Debug and Release configurations)"
+		}
+	]
+}

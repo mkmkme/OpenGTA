@@ -10,7 +10,6 @@
 ************************************************************************/
 #include <iostream>
 #include <cassert>
-#include <SDL2/SDL.h>
 #include "file_helper.h"
 #include "map.h"
 #include "navdata.h"
@@ -18,74 +17,17 @@
 #include "m_exceptions.h"
 #include "string_helpers.h"
 
+namespace {
+
+static constexpr PHYSFS_uint8 topHeaderSize = 28;
+static constexpr PHYSFS_uint64 baseSize = 262144;
+
+}
+
 /* see http://members.aol.com/form1/fixed.htm for fixed point floats:
  * int_var = (long) fixed_var >> 8; // for 8 bits after point
  */
 namespace OpenGTA {
-
-  void Map::BlockInfo::setBlockType(uint8_t v) {
-    switch(v) {
-      case 0:
-        typeMap &= ~(16 | 32 | 64);
-        break;
-      case 1:
-        typeMap |= 16;
-        typeMap &= ~(32 | 64);
-        break;
-      case 2:
-        typeMap |= 32;
-        typeMap &= ~(16 | 64);
-        break;
-      case 3:
-        typeMap |= (16 | 32);
-        typeMap &= ~64;
-        break;
-      case 4:
-        typeMap |= 64;
-        typeMap &= ~(16 | 32);
-        break;
-      case 5:
-        typeMap |= (16 | 64);
-        typeMap &= ~32;
-        break;
-      case 6:
-        typeMap |= (32 | 64);
-        typeMap &= ~16;
-        break;
-      case 7:
-        typeMap |= (16 | 32 | 64);
-        break;
-      default:
-        ERROR("Invalid block-type: {}", int(v));
-        break;
-    }
-  }
-
-  void Map::BlockInfo::setSlopeType(uint8_t v) {
-    WARN("NOT IMPLEMENTED");
-  }
-
-  void Map::BlockInfo::setRotation(uint8_t v) {
-    switch(v) {
-      case 0:
-        typeMap &= ~(16384 | 32768);
-        break;
-      case 1:
-        typeMap |= 16384;
-        typeMap &= ~32768;
-        break;
-      case 2:
-        typeMap |= 32768;
-        typeMap &= ~16384;
-        break;
-      case 3:
-        typeMap |= (16384 | 32768);
-        break;
-      default:
-        ERROR("Invalid rotation: {}", int(v));
-        break;
-    }
-  }
 
 namespace {
 
@@ -109,8 +51,7 @@ inline size_t mapFileName2Number(const std::string & file) {
     nav = 0;
     fd = Util::FileHelper::OpenReadVFS(filename);
     if (!fd) {
-      //throw std::string("FileNotFound: ") + filename;
-      throw E_FILENOTFOUND(filename + " with error: " + SDL_GetError());
+      throw E_FILENOTFOUND(filename);
     }
     size_t level_as_num = mapFileName2Number(filename);
     loadHeader();
@@ -166,7 +107,7 @@ inline size_t mapFileName2Number(const std::string & file) {
     return 0;
   }
   int Map::loadBase() {
-    PHYSFS_seek(fd, static_cast<PHYSFS_uint64>(_topHeaderSize));
+    PHYSFS_seek(fd, static_cast<PHYSFS_uint64>(topHeaderSize));
     for (int y = 0; y < GTA_MAP_MAXDIMENSION; y++) {
       for(int x = 0; x < GTA_MAP_MAXDIMENSION; x++) {
         PHYSFS_readULE32(fd, &base[x][y]);  
@@ -176,7 +117,7 @@ inline size_t mapFileName2Number(const std::string & file) {
     return 0;
   }
   int Map::loadColumn() {
-    if (!PHYSFS_seek(fd, _baseSize + _topHeaderSize)) {
+    if (!PHYSFS_seek(fd, baseSize + topHeaderSize)) {
       //throw std::string("IO Error while seeking in mapfile");
       throw E_IOERROR(PHYSFS_getErrorByCode(PHYSFS_getLastErrorCode()));
     }
@@ -188,7 +129,7 @@ inline size_t mapFileName2Number(const std::string & file) {
     return 0;
   }
   int Map::loadBlock() {
-    PHYSFS_seek(fd, _baseSize + columnSize + _topHeaderSize);
+    PHYSFS_seek(fd, baseSize + columnSize + topHeaderSize);
     int i, max;
     max = blockSize / sizeof(BlockInfo);
     //uint8_t tmp;
@@ -205,7 +146,7 @@ inline size_t mapFileName2Number(const std::string & file) {
     return 0;
   }
   void Map::loadObjects() {
-    PHYSFS_seek(fd, _baseSize + columnSize + _topHeaderSize + blockSize);
+    PHYSFS_seek(fd, baseSize + columnSize + topHeaderSize + blockSize);
     int c = objectPosSize / sizeof(ObjectPosition);
     numObjects = c;
     assert(objectPosSize % sizeof(ObjectPosition) == 0);
@@ -233,7 +174,7 @@ inline size_t mapFileName2Number(const std::string & file) {
   }
   void Map::loadRoutes() {
     //FIXME: missing
-    PHYSFS_uint32 _si = _baseSize + columnSize + _topHeaderSize +
+    PHYSFS_uint32 _si = baseSize + columnSize + topHeaderSize +
       objectPosSize + blockSize;
     PHYSFS_seek(fd, _si);
     PHYSFS_uint32 _counted = 0;
@@ -257,7 +198,7 @@ inline size_t mapFileName2Number(const std::string & file) {
   }
   void Map::loadLocations() {
     //FIXME: missing
-    PHYSFS_uint32 _si = _baseSize + columnSize + _topHeaderSize +
+    PHYSFS_uint32 _si = baseSize + columnSize + topHeaderSize +
       objectPosSize + routeSize + blockSize;
     PHYSFS_seek(fd, _si); 
     // police
@@ -289,7 +230,7 @@ inline size_t mapFileName2Number(const std::string & file) {
 
   }
   void Map::loadNavData(const size_t levelNum) {
-    PHYSFS_uint32 _si = _baseSize + columnSize + _topHeaderSize +
+    PHYSFS_uint32 _si = baseSize + columnSize + topHeaderSize +
       objectPosSize + routeSize + 3 * 6 * 6 + blockSize;
     PHYSFS_seek(fd, _si); 
     nav = new NavData(navDataSize, fd, levelNum);

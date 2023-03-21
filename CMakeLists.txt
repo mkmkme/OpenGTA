@@ -5,6 +5,8 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
 include(CMakeOptions.txt)
+include(CompilerOptions.cmake)
+
 find_package(cxxopts REQUIRED)
 find_package(fmt REQUIRED)
 find_package(SDL2 REQUIRED)
@@ -12,8 +14,6 @@ find_package(SDL_mixer)
 find_package(glu REQUIRED)
 find_package(PhysFS REQUIRED)
 find_package(lua REQUIRED)
-
-include(cmake/force-compiler-colors.cmake)
 
 configure_file(config.h.in config.h)
 

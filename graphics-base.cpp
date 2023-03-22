@@ -58,7 +58,7 @@ PHYSFS_uint16 GraphicsBase::SpriteNumbers::countByType(const SpriteTypes &t) con
         default:
             break;
     }
-    ERROR("UPS: {}", t);
+    ERROR("UPS: {}", static_cast<int>(t));
     assert(0);
 }
 

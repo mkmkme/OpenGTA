@@ -70,13 +70,13 @@ constexpr std::array<std::string_view, 3> cities = { "NYC.CMP", "SANB.CMP", "MIA
 std::string specific_map;
 std::string specific_style;
 
-Uint32 num_frames_drawn = 0;
-Uint32 fps = 0;
-Uint32 last_tick;
-Uint32 fps_last_tick;
-Uint32 script_last_tick;
-Uint32 arg_screen_w = 640;
-Uint32 arg_screen_h = 480;
+uint32_t num_frames_drawn = 0;
+uint32_t fps = 0;
+uint32_t last_tick;
+uint32_t fps_last_tick;
+uint32_t script_last_tick;
+uint32_t arg_screen_w = 640;
+uint32_t arg_screen_h = 480;
 bool rotate = false;
 bool cam_grav = false;
 bool tex_flip = false;
@@ -291,13 +291,13 @@ void run_init(const char* prg_name) {
       }
       catch (const Util::ScriptError & e) {}
       try {
-        Uint32 sw = vm.getInt("screen_width");
+        uint32_t sw = vm.getInt("screen_width");
         if (!arg_screen_w)
           arg_screen_w = sw;
       }
       catch (const Util::ScriptError & e) {}
       try {
-        Uint32 sh = vm.getInt("screen_height");
+        uint32_t sh = vm.getInt("screen_height");
         if (!arg_screen_h)
           arg_screen_h = sh;
       }
@@ -1162,7 +1162,7 @@ void run_main() {
       fps = num_frames_drawn / 2;
       num_frames_drawn = 0;
       fps_last_tick = now_ticks;
-      fps_label->text = std::to_string(uint32_t(fps)) + " fps";
+      fps_label->text = std::to_string(fps) + " fps";
 #ifdef WITH_LUA
       vm.setGlobalInt("current_fps", fps);
 #endif

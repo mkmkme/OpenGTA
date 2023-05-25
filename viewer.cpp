@@ -55,7 +55,6 @@
 #include "font_cache.h"
 #include "ai.h"
 
-extern SDL_Surface* screen;
 extern int global_Done;
 extern int global_Restart;
 GLfloat mapPos[3] = {12.0f, 12.0f, 20.0f};

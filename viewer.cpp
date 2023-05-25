@@ -20,9 +20,11 @@
 * 3. This notice may not be removed or altered from any source          *
 * distribution.                                                         *
 ************************************************************************/
+#include <array>
 #include <filesystem>
 #include <iostream>
 #include <iomanip>
+#include <string_view>
 #include <SDL2/SDL_opengl.h>
 #include <cxxopts.hpp>
 #include "blockanim.h"
@@ -63,9 +65,9 @@ OpenGTA::CityView *city = NULL;
 GUI::Label * fps_label = NULL;
 
 int city_num = 0;
-const char*  styles_8[3] = { "STYLE001.GRY", "STYLE002.GRY", "STYLE003.GRY" };
-const char* styles_24[3] = { "STYLE001.G24", "STYLE002.G24", "STYLE003.G24" };
-const char* cities[3] = { "NYC.CMP", "SANB.CMP", "MIAMI.CMP" };
+constexpr std::array<std::string_view, 3>  styles_8 = { "STYLE001.GRY", "STYLE002.GRY", "STYLE003.GRY" };
+constexpr std::array<std::string_view, 3> styles_24 = { "STYLE001.G24", "STYLE002.G24", "STYLE003.G24" };
+constexpr std::array<std::string_view, 3> cities = { "NYC.CMP", "SANB.CMP", "MIAMI.CMP" };
 std::string specific_map;
 std::string specific_style;
 
@@ -1059,9 +1061,9 @@ void run_main() {
   }
   else {
     if (highcolor_data)
-      city->loadMap(cities[city_num], styles_24[city_num]);
+      city->loadMap(cities[city_num].data(), styles_24[city_num].data());
     else
-      city->loadMap(cities[city_num], styles_8[city_num]);
+      city->loadMap(cities[city_num].data(), styles_8[city_num].data());
   }
   if (city_blocks_area > -1)
     city->setVisibleRange(city_blocks_area);

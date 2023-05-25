@@ -110,35 +110,31 @@ target_link_libraries(gfxextract
     glu::glu
     physfs-static)
 
-if(lua_FOUND)
-    add_subdirectory(lua_addon)
-    include_directories(lua_addon)
-    add_executable(luaviewer EXCLUDE_FROM_ALL
-        main2.cpp
-        viewer.cpp)
-    target_compile_definitions(luaviewer PRIVATE WITH_LUA)
-    target_link_libraries(luaviewer
-        ogta
-        ogta-gl
-        ogta-lua
-        ogta-util
-        opensteer-clock
-        cxxopts::cxxopts)
+add_subdirectory(lua_addon)
+include_directories(lua_addon)
+add_executable(luaviewer EXCLUDE_FROM_ALL
+    main2.cpp
+    viewer.cpp)
+target_compile_definitions(luaviewer PRIVATE WITH_LUA)
+target_link_libraries(luaviewer
+    ogta
+    ogta-gl
+    ogta-lua
+    ogta-util
+    opensteer-clock
+    cxxopts::cxxopts)
 
-    add_executable(lua_map_test EXCLUDE_FROM_ALL
-        main2.cpp
-        tests/lua_map_test.cpp)
+add_executable(lua_map_test EXCLUDE_FROM_ALL
+    main2.cpp
+    tests/lua_map_test.cpp)
 
-    target_link_libraries(lua_map_test
-        ogta
-        ogta-gl
-        ogta-util
-        ogta-lua
-        physfs-static
-        SDL2::SDL2)
-else()
-    message(WARNING "Lua not found! Will build without lua support")
-endif()
+target_link_libraries(lua_map_test
+    ogta
+    ogta-gl
+    ogta-util
+    ogta-lua
+    physfs-static
+    SDL2::SDL2)
 
 add_executable(spriteplayer EXCLUDE_FROM_ALL tools/spriteplayer.cpp)
 

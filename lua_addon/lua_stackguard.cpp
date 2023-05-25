@@ -14,7 +14,7 @@ namespace Util {
   LuaStackguard::~LuaStackguard() {
     int now_top = lua_gettop(m_state);
     if (now_top > m_top) {
-      Util::Log::_warn(i_file, i_line, "Stack-balance: {} > {}", now_top, m_top);
+      Util::Log::_log(Util::LogLevel::warn, i_file, i_line, "Stack-balance: {} > {}", now_top, m_top);
       lua_settop(m_state, m_top);
     }
   }

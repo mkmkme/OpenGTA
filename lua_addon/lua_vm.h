@@ -36,12 +36,15 @@ namespace OpenGTA {
 
         void  setInt(const char*, int);
         int   getInt(const char*);
+        bool  tryGetInt(const char*, int&) noexcept;
         void  setFloat(const char*, float);
         float getFloat(const char*);
+        bool  tryGetFloat(const char*, float&) noexcept;
         void  setString(const char*, const char*);
         const char*  getString(const char*);
         void  setBool(const char*, bool);
         bool  getBool(const char*);
+        bool  tryGetBool(const char*, bool&) noexcept;
 
         lua_State *getInternalState();
       protected:

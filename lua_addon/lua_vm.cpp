@@ -146,11 +146,20 @@ namespace OpenGTA {
     }
 
     int LuaVM::getInt(const char* key) {
+      int ret;
+      if (tryGetInt(key, ret))
+        return ret;
+      throw E_SCRIPTERROR("Expected int value for key: " + std::string(key));
+    }
+
+    bool LuaVM::tryGetInt(const char *key, int &buf) noexcept
+    {
       LGUARD(L);
       lua_getfield(L, -1, key);
       if (!lua_isnumber(L, -1))
-        throw E_SCRIPTERROR("Expected int value for key: " + std::string(key));
-      return luaL_checkinteger(L, -1);
+        return false;
+      buf = luaL_checkinteger(L, -1);
+      return true;
     }
 
     void LuaVM::setFloat(const char* key, float v) {
@@ -159,11 +168,20 @@ namespace OpenGTA {
     }
 
     float LuaVM::getFloat(const char* key) {
+      float ret;
+      if (tryGetFloat(key, ret))
+        return ret;
+      throw E_SCRIPTERROR("Expected float value for key: " + std::string(key));
+    }
+
+    bool LuaVM::tryGetFloat(const char *key, float &buf) noexcept
+    {
       LGUARD(L);
       lua_getfield(L, -1, key);
       if (!lua_isnumber(L, -1))
-        throw E_SCRIPTERROR("Expected float value for key: " + std::string(key));
-      return luaL_checknumber(L, -1);
+        return false;
+      buf = luaL_checknumber(L, -1);
+      return true;
     }
 
     void LuaVM::setString(const char* key, const char* v) {
@@ -185,11 +203,20 @@ namespace OpenGTA {
     }
 
     bool LuaVM::getBool(const char* key) {
+      bool ret;
+      if (tryGetBool(key, ret))
+        return ret;
+      throw E_SCRIPTERROR("Expected boolean value for key: " + std::string(key));
+    }
+
+    bool LuaVM::tryGetBool(const char *key, bool &buf) noexcept
+    {
       LGUARD(L);
       lua_getfield(L, -1, key);
       if (!lua_isboolean(L, -1))
-        throw E_SCRIPTERROR("Expected boolean value for key: " + std::string(key));
-      return lua_toboolean(L, -1);
+        return false;
+      buf = lua_toboolean(L, -1);
+      return true;
     }
 
     void LuaVM::setGlobalInt(const char* key, int v) {

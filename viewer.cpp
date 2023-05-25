@@ -285,69 +285,33 @@ void run_init(const char* prg_name) {
     lua_State *L = vm.getInternalState();
     lua_getglobal(L, "config");
     if (lua_type(L, 1) == LUA_TTABLE) {
-      try {
-        bool sh = vm.getBool("use_g24_graphics");
-        highcolor_data = sh;
-      }
-      catch (const Util::ScriptError & e) {}
-      try {
-        uint32_t sw = vm.getInt("screen_width");
-        if (!arg_screen_w)
-          arg_screen_w = sw;
-      }
-      catch (const Util::ScriptError & e) {}
-      try {
-        uint32_t sh = vm.getInt("screen_height");
-        if (!arg_screen_h)
-          arg_screen_h = sh;
-      }
-      catch (const Util::ScriptError & e) {}
-      try {
-        int sh = vm.getInt("screen_vsync");
-        screen.setVSyncMode(static_cast<OpenGL::VSyncMode>(sh));
-      }
-      catch (const Util::ScriptError & e) {}
-      try {
-        bool sh = vm.getBool("full_screen");
-        if (!full_screen)
-          full_screen = sh;
-      }
-      catch (const Util::ScriptError & e) {}
+      vm.tryGetBool("use_g24_graphics", highcolor_data);
+
+      int tmpInt;
+      if (vm.tryGetInt("screen_width", tmpInt))
+        arg_screen_w = tmpInt;
+      if (vm.tryGetInt("screen_height", tmpInt))
+        arg_screen_h = tmpInt;
+      if (vm.tryGetInt("screen_vsync", tmpInt))
+        screen.setVSyncMode(static_cast<OpenGL::VSyncMode>(tmpInt));
+
+      vm.tryGetBool("full_screen", full_screen);
 
       float fov = screen.fieldOfView();
       float np = screen.nearPlane();
       float fp = screen.farPlane();
-      try {
-        fov = vm.getFloat("gl_field_of_view");
-      }
-      catch (const Util::ScriptError & e) {}
-      try {
-        np = vm.getFloat("gl_near_plane");
-      }
-      catch (const Util::ScriptError & e) {}
-      try {
-        fp = vm.getFloat("gl_far_plane");
-      }
-      catch (const Util::ScriptError & e) {}
+      vm.tryGetFloat("gl_field_of_view", fov);
+      vm.tryGetFloat("gl_near_plane", np);
+      vm.tryGetFloat("gl_far_plane", fp);
       screen.setupGlVars(fov, np, fp);
 
-      try {
-        bool sh = vm.getBool("gl_mipmap_textures");
-        ImageUtil::mipmapTextures = sh;
-      }
-      catch (const Util::ScriptError & e) {}
+      vm.tryGetBool("gl_mipmap_textures", ImageUtil::mipmapTextures);
 
-      try {
-        bool sh = vm.getBool("scale2x_sprites");
-        OpenGL::SpriteCache::Instance().setScale2x(sh);
-      }
-      catch (const Util::ScriptError & e) {}
+      bool tmpBool;
+      if (vm.tryGetBool("scale2x_sprites", tmpBool))
+        OpenGL::SpriteCache::Instance().setScale2x(tmpBool);
 
-      try {
-        int sh = vm.getInt("active_area_size");
-        city_blocks_area = sh;
-      }
-      catch (const Util::ScriptError & e) {}
+      vm.tryGetInt("active_area_size", city_blocks_area);
     }
     // can't check for gl-extensions now
 
@@ -377,21 +341,18 @@ void run_init(const char* prg_name) {
   OpenGTA::Script::LuaVM & vm = OpenGTA::Script::LuaVM::Instance();
   lua_State *L = vm.getInternalState();
   if (lua_type(L, 1) == LUA_TTABLE) {
-    try {
-      float v = vm.getFloat("gl_anisotropic_textures");
-      if (ImageUtil::supportedMaxAnisoDegree >= v)
-        ImageUtil::supportedMaxAnisoDegree = v;
-    }
-    catch (const Util::ScriptError & e) {}
-    try {
-      float v = (highcolor_data ? vm.getFloat("screen_gamma_g24") :
-        vm.getFloat("screen_gamma_gry"));
-      screen_gamma = v;
-      // FIXME: Find a replacement
-      // SDL_SetGamma(v, v, v);
-      WARN("SDL_SetGamma to be called!");
-    }
-    catch (const Util::ScriptError & e) {}
+    float tmpFloat;
+    if (vm.tryGetFloat("gl_anisotropic_textures", tmpFloat) &&
+        ImageUtil::supportedMaxAnisoDegree >= tmpFloat)
+      ImageUtil::supportedMaxAnisoDegree = tmpFloat;
+    
+    if (highcolor_data)
+      vm.tryGetFloat("screen_gamma_g24", screen_gamma);
+    else
+      vm.tryGetFloat("screen_gamma_gry", screen_gamma);
+    // FIXME: Find a replacement
+    // SDL_SetGamma(v, v, v);
+    WARN("SDL_SetGamma to be called!");
   }
   lua_settop(L, 0);
 #endif

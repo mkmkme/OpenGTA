@@ -10,24 +10,21 @@
 extern float screen_gamma;
 namespace GUI {
   Object::Object(const SDL_Rect & r) :
-    id(0), rect(), color(), borderColor(), drawBorder(false),
-    manager(Manager::Instance()) {
+    id(0), rect(), color(), borderColor(), drawBorder(false) {
       copyRect(r);
       color.r = 255; color.g = 255; color.b = 255; color.a = 255;
     }
   Object::Object(const size_t Id, const SDL_Rect & r) :
-    id(Id), rect(), color(), borderColor(), drawBorder(false),
-    manager(Manager::Instance()) {
+    id(Id), rect(), color(), borderColor(), drawBorder(false) {
       copyRect(r);
       color.r = 255; color.g = 255; color.b = 255; color.a = 255;
     }
   Object::Object(const size_t Id, const SDL_Rect & r, const SDL_Color & c) :
-    id(Id), rect(), color(),  borderColor(), drawBorder(false),
-    manager(Manager::Instance()) {
+    id(Id), rect(), color(),  borderColor(), drawBorder(false) {
       copyRect(r);
       copyColor(c);
     }
-  void Object::draw() {
+  void Object::draw([[maybe_unused]] Manager & manager) {
     glEnable (GL_BLEND);
     glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
@@ -64,7 +61,7 @@ namespace GUI {
     color.b = src.b;
     color.a = src.a;
   }
-  void TexturedObject::draw() {
+  void TexturedObject::draw(Manager & manager) {
     if (texId == 0)
       return;
     const OpenGL::PagedTexture & tex = manager.getCachedImage(texId);
@@ -86,7 +83,7 @@ namespace GUI {
       draw_border();
   }
 
-  void AnimatedTextureObject::draw() {
+  void AnimatedTextureObject::draw(Manager & manager) {
     if (!animation)
       animation = manager.findAnimation(animId);
 
@@ -111,7 +108,7 @@ namespace GUI {
       draw_border();
   }
 
-  void Label::draw() {
+  void Label::draw([[maybe_unused]] Manager & manager) {
     glPushMatrix();
     glColor4ub(color.r, color.g, color.b, color.a);
     glEnable(GL_TEXTURE_2D);
@@ -140,7 +137,7 @@ namespace GUI {
       draw_border();
   }
 
-  void Pager::draw() {
+  void Pager::draw(Manager & manager) {
 
     const OpenGL::PagedTexture & tex = manager.getCachedImage(texId);
     glColor4ub(color.r, color.g, color.b, color.a);
@@ -187,7 +184,7 @@ namespace GUI {
   void Manager::draw() {
     for (const auto &[key, layer] : guiLayers) {
       for (const auto &obj : layer) {
-        obj->draw();
+        obj->draw(*this);
       }
     }
     glColor4f(1, 1, 1, 1);
@@ -366,9 +363,9 @@ namespace GUI {
     label(sdl_rect(r.x+2, r.y+r.h, r.w - 4, r.h - 4), "", "F_MTEXT.FON", 1) {
   }
 
-  void WeaponDisplay::draw() {
-    img.draw();
-    label.draw();
+  void WeaponDisplay::draw(Manager & manager) {
+    img.draw(manager);
+    label.draw(manager);
   }
 
   size_t WeaponDisplay::getWeaponIdx(const size_t wt) {
@@ -380,7 +377,7 @@ namespace GUI {
     return 0;
   }
 
-  void WeaponDisplay::setWeapon(const size_t wt) {
+  void WeaponDisplay::setWeapon(const size_t wt, Manager & manager) {
     img.texId = getWeaponIdx(wt);
     try {
       manager.getCachedImage(img.texId);
@@ -391,8 +388,8 @@ namespace GUI {
     }
   }
 
-  void ScrollBar::draw() {
-    Object::draw();
+  void ScrollBar::draw(Manager & manager) {
+    Object::draw(manager);
     glColor3ub(innerColor.r, innerColor.g, innerColor.b);
     glBegin(GL_QUADS);
     glVertex2i(rect.x+2, rect.y+2);
@@ -419,109 +416,5 @@ namespace GUI {
     }*/
   }
 
-  namespace {
-    void setGamma(SDL_Window * w, float v) {
-      Uint16 ramp[256];
-      for (int i = 0; i < 256; i++) {
-        float f = i / 255.0f;
-        f = pow(f, 1.0f / v);
-        ramp[i] = Uint16(f) * 65535;
-      }
-      SDL_SetWindowGammaRamp(w, ramp, ramp, ramp);
-    }
-  }
-
-  void screen_gamma_callback(float v) {
-    screen_gamma = v;
-    setGamma(OpenGL::Screen::Instance().get(), v);
-    OpenGTA::Script::LuaVM & vm = OpenGTA::Script::LuaVM::Instance();
-    lua_State *L = vm.getInternalState();
-    int top = lua_gettop(L);
-    lua_getglobal(L, "config");
-    if (lua_type(L, -1) != LUA_TTABLE) {
-      lua_pop(L, 1);
-      lua_newtable(L);
-      lua_pushvalue(L, -1);
-      lua_setglobal(L, "config");
-    }
-    uint8_t sf = OpenGTA::ActiveStyle::Instance().get().getFormat();
-    if (sf)
-      vm.setFloat("screen_gamma_g24", v);
-    else
-      vm.setFloat("screen_gamma_gry", v);
-    lua_settop(L, top);
-    Object * o = Manager::Instance().findObject(GAMMA_LABEL_ID);
-    if (o)
-      static_cast<Label*>(o)->text = "Gamma: " + std::to_string(v);
-    /*
-    Object * o2 = Manager::Instance().findObject(1001);
-    if (o2) {
-      static_cast<ImageStatusDisplay*>(o2)->number = screen_gamma * 3;
-    }*/
-
-  }
-
-  AnimStatusDisplay* wantedLevel = NULL;
-  Label*             cashLabel   = NULL;
-
-  void create_ingame_gui(bool is32bit) {
-    OpenGL::Screen & screen = OpenGL::Screen::Instance();
-    GUI::Manager & gm = Manager::Instance();
-    assert(!wantedLevel);
-    {
-      SDL_Rect r;
-      r.h = 32;
-      r.x = screen.width() / 2 - 50;
-      r.y = screen.height() - r.h;
-      r.w = 100;
-      SDL_Rect rs;
-      rs.x = rs.y = 0;
-      rs.w = rs.h = 16;
-      gm.cacheStyleArrowSprite(16, -1);
-      gm.cacheStyleArrowSprite(17, -1);
-      std::vector<uint16_t> anim2frames(2);
-      anim2frames[0] = 16;
-      anim2frames[1] = 17;
-      gm.createAnimation(anim2frames, 10, 2);
-      wantedLevel = new AnimStatusDisplay(WANTED_LEVEL_ID, r, rs, 2);
-      /*
-      wantedLevel->borderColor.r = wantedLevel->borderColor.g = wantedLevel->borderColor.b = wantedLevel->borderColor.unused = 255;
-      wantedLevel->drawBorder = 1;
-      */
-      gm.add(wantedLevel, 50);
-    }
-    assert(!cashLabel);
-    {
-      SDL_Rect r;
-      r.x = screen.width() - 5;
-      r.y = screen.height() - 30;
-      cashLabel = new Label(GUI::CASH_ID, r, "0", "F_MTEXT.FON", 1);
-      cashLabel->align = 1;
-      gm.add(cashLabel, 50);
-    }
-
-  }
-
-  void update_ingame_gui_values() {
-    OpenGTA::LocalPlayer & pc = OpenGTA::LocalPlayer::Instance();
-
-    if (wantedLevel)
-      wantedLevel->number = pc.getWantedLevel();
-
-    if (cashLabel)
-      cashLabel->text = std::to_string(pc.getCash());
-  }
-
-  void remove_ingame_gui() {
-    GUI::Manager & gm = Manager::Instance();
-
-    if (wantedLevel)
-      gm.remove(wantedLevel);
-    wantedLevel = NULL;
-
-    if (cashLabel)
-      gm.remove(cashLabel);
-    cashLabel = NULL;
-  }
 
 }

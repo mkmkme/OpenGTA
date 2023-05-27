@@ -34,7 +34,7 @@ bool handleKeyPress(SDL_Keysym *keysym)
 }
 
 // returns true when need to quit
-void drawScene(GUI::Label *label)
+void drawScene(GUI::Label *label, GUI::Manager &manager)
 {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glLoadIdentity();
@@ -58,14 +58,14 @@ void drawScene(GUI::Label *label)
     glMatrixMode(GL_MODELVIEW);
     glPopMatrix();
 
-    GUI::Manager::Instance().draw();
+    manager.draw();
 
     glEnable(GL_DEPTH_TEST);
 
     SDL_GL_SwapWindow(OpenGL::Screen::Instance().get());
 }
 
-void main_loop(GUI::Label *label)
+void main_loop(GUI::Label *label, GUI::Manager &manager)
 {
     SDL_Event event;
     int paused = 0;
@@ -97,7 +97,7 @@ void main_loop(GUI::Label *label)
             }
         }
         if (!paused) {
-            drawScene(label);
+            drawScene(label, manager);
         }
     }
 }
@@ -111,7 +111,7 @@ int main(int argc, char *argv[])
     OpenGL::Screen &screen = OpenGL::Screen::Instance();
     screen.activate(640, 480);
 
-    GUI::Manager &gm = GUI::Manager::Instance();
+    GUI::Manager gm {};
     SDL_Rect rect;
     rect.x = 5;
     rect.y = 50;
@@ -120,7 +120,7 @@ int main(int argc, char *argv[])
     auto *fps_label = new GUI::Label(rect, "", "F_MTEXT.FON", 1);
     gm.add(fps_label, 5);
 
-    main_loop(fps_label);
+    main_loop(fps_label, gm);
 
     SDL_Quit();
     PHYSFS_deinit();

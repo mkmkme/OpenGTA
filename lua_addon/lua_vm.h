@@ -7,18 +7,14 @@
 namespace OpenGTA {
   namespace Script {
     class LuaVM {
-      private:
+      public:
         LuaVM();
         ~LuaVM();
-      public:
+
         LuaVM(const LuaVM& copy) = delete;
         LuaVM& operator=(const LuaVM& copy) = delete;
-
-        static LuaVM& Instance()
-        {
-          static LuaVM instance;
-          return instance;
-        }
+        LuaVM(const LuaVM&& move) = delete;
+        LuaVM& operator=(const LuaVM&& move) = delete;
 
         void  runString(const char*);
         void  runFile(const char*);

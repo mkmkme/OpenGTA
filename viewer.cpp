@@ -65,6 +65,9 @@ OpenGTA::CityView *city = NULL;
 //OpenGL::DrawableFont* m_font = NULL;
 GUI::Label * fps_label = NULL;
 
+GUI::AnimStatusDisplay* wantedLevel = NULL;
+GUI::Label*             cashLabel   = NULL;
+
 int city_num = 0;
 constexpr std::array<std::string_view, 3>  styles_8 = { "STYLE001.GRY", "STYLE002.GRY", "STYLE003.GRY" };
 constexpr std::array<std::string_view, 3> styles_24 = { "STYLE001.G24", "STYLE002.G24", "STYLE003.G24" };
@@ -109,7 +112,34 @@ float screen_gamma = 1.0f;
 
 Vector3D test_dot(-1, -1, -1);
 
-void on_exit() {
+class OpenGTAViewer {
+public:
+  OpenGTAViewer();
+  ~OpenGTAViewer() = default;
+
+  void init(std::string_view progname);
+  void run();
+  void quit();
+
+  void screenGammaCallback(float v);
+
+private:
+  void handleKeyPress(SDL_Keysym *keysym);
+  void createPedAt(const Vector3D v);
+  void showGammaConfig();
+
+  GUI::Manager guiManager_;
+  OpenGTA::Script::LuaVM luaVM_;
+};
+
+OpenGTAViewer::OpenGTAViewer()
+  : guiManager_ {}
+  , luaVM_ {}
+{
+}
+
+
+void OpenGTAViewer::quit() {
   SDL_Quit();
   if (city)
     delete city;
@@ -165,6 +195,66 @@ void print_version_info() {
   "GRY - 8 bit" <<
 #endif
   std::endl;
+}
+
+namespace {
+
+void create_ingame_gui(bool is32bit, GUI::Manager &gm) {
+  OpenGL::Screen & screen = OpenGL::Screen::Instance();
+  assert(!wantedLevel);
+  {
+    SDL_Rect r;
+    r.h = 32;
+    r.x = screen.width() / 2 - 50;
+    r.y = screen.height() - r.h;
+    r.w = 100;
+    SDL_Rect rs;
+    rs.x = rs.y = 0;
+    rs.w = rs.h = 16;
+    gm.cacheStyleArrowSprite(16, -1);
+    gm.cacheStyleArrowSprite(17, -1);
+    std::vector<uint16_t> anim2frames(2);
+    anim2frames[0] = 16;
+    anim2frames[1] = 17;
+    gm.createAnimation(anim2frames, 10, 2);
+    wantedLevel = new GUI::AnimStatusDisplay(GUI::WANTED_LEVEL_ID, r, rs, 2);
+    /*
+    wantedLevel->borderColor.r = wantedLevel->borderColor.g = wantedLevel->borderColor.b = wantedLevel->borderColor.unused = 255;
+    wantedLevel->drawBorder = 1;
+    */
+    gm.add(wantedLevel, 50);
+  }
+  assert(!cashLabel);
+  {
+    SDL_Rect r;
+    r.x = screen.width() - 5;
+    r.y = screen.height() - 30;
+    cashLabel = new GUI::Label(GUI::CASH_ID, r, "0", "F_MTEXT.FON", 1);
+    cashLabel->align = 1;
+    gm.add(cashLabel, 50);
+  }
+}
+
+void update_ingame_gui_values() {
+  OpenGTA::LocalPlayer & pc = OpenGTA::LocalPlayer::Instance();
+
+  if (wantedLevel)
+    wantedLevel->number = pc.getWantedLevel();
+
+  if (cashLabel)
+    cashLabel->text = std::to_string(pc.getCash());
+}
+
+void remove_ingame_gui(GUI::Manager &gm) {
+  if (wantedLevel)
+    gm.remove(wantedLevel);
+  wantedLevel = NULL;
+
+  if (cashLabel)
+    gm.remove(cashLabel);
+  cashLabel = NULL;
+}
+
 }
 
 void parse_args(int argc, char *argv[])
@@ -231,9 +321,50 @@ void parse_args(int argc, char *argv[])
     }
 }
 
-void run_init(const char* prg_name) {
+namespace {
+  void setGamma(SDL_Window * w, float v) {
+    Uint16 ramp[256];
+    for (int i = 0; i < 256; i++) {
+      float f = i / 255.0f;
+      f = pow(f, 1.0f / v);
+      ramp[i] = Uint16(f) * 65535;
+    }
+    SDL_SetWindowGammaRamp(w, ramp, ramp, ramp);
+  }
+}
+
+void OpenGTAViewer::screenGammaCallback(float v) {
+  screen_gamma = v;
+  setGamma(OpenGL::Screen::Instance().get(), v);
+  lua_State *L = luaVM_.getInternalState();
+  int top = lua_gettop(L);
+  lua_getglobal(L, "config");
+  if (lua_type(L, -1) != LUA_TTABLE) {
+    lua_pop(L, 1);
+    lua_newtable(L);
+    lua_pushvalue(L, -1);
+    lua_setglobal(L, "config");
+  }
+  uint8_t sf = OpenGTA::ActiveStyle::Instance().get().getFormat();
+  if (sf)
+    luaVM_.setFloat("screen_gamma_g24", v);
+  else
+    luaVM_.setFloat("screen_gamma_gry", v);
+  lua_settop(L, top);
+  GUI::Object * o = guiManager_.findObject(GUI::GAMMA_LABEL_ID);
+  if (o)
+    static_cast<GUI::Label*>(o)->text = "Gamma: " + std::to_string(v);
+  /*
+  Object * o2 = Manager::Instance().findObject(1001);
+  if (o2) {
+    static_cast<ImageStatusDisplay*>(o2)->number = screen_gamma * 3;
+  }*/
+
+}
+
+void OpenGTAViewer::init(std::string_view progname) {
   // physfs
-  PHYSFS_init(prg_name);
+  PHYSFS_init(progname.data());
 
   // physfs-ogta
   const auto &data_path = Util::FileHelper::BaseDataPath();
@@ -256,10 +387,9 @@ void run_init(const char* prg_name) {
     const auto config_as_string = Util::FileHelper::BufferFromVFS(
       Util::FileHelper::OpenReadVFS("config"));
     
-    OpenGTA::Script::LuaVM & vm = OpenGTA::Script::LuaVM::Instance();
     try {
       //vm.runString(config_as_string);
-      lua_State *L = vm.getInternalState();
+      lua_State *L = luaVM_.getInternalState();
       Util::LGUARD(L);
       if (luaL_loadbuffer(L, config_as_string.c_str(), config_as_string.size(), "config"))
         throw E_SCRIPTERROR("Error running string: " + std::string(lua_tostring(L, -1)));
@@ -275,36 +405,36 @@ void run_init(const char* prg_name) {
       exit(1);
     }
 
-    lua_State *L = vm.getInternalState();
+    lua_State *L = luaVM_.getInternalState();
     lua_getglobal(L, "config");
     if (lua_type(L, 1) == LUA_TTABLE) {
-      vm.tryGetBool("use_g24_graphics", highcolor_data);
+      luaVM_.tryGetBool("use_g24_graphics", highcolor_data);
 
       int tmpInt;
-      if (vm.tryGetInt("screen_width", tmpInt))
+      if (luaVM_.tryGetInt("screen_width", tmpInt))
         arg_screen_w = tmpInt;
-      if (vm.tryGetInt("screen_height", tmpInt))
+      if (luaVM_.tryGetInt("screen_height", tmpInt))
         arg_screen_h = tmpInt;
-      if (vm.tryGetInt("screen_vsync", tmpInt))
+      if (luaVM_.tryGetInt("screen_vsync", tmpInt))
         screen.setVSyncMode(static_cast<OpenGL::VSyncMode>(tmpInt));
 
-      vm.tryGetBool("full_screen", full_screen);
+      luaVM_.tryGetBool("full_screen", full_screen);
 
       float fov = screen.fieldOfView();
       float np = screen.nearPlane();
       float fp = screen.farPlane();
-      vm.tryGetFloat("gl_field_of_view", fov);
-      vm.tryGetFloat("gl_near_plane", np);
-      vm.tryGetFloat("gl_far_plane", fp);
+      luaVM_.tryGetFloat("gl_field_of_view", fov);
+      luaVM_.tryGetFloat("gl_near_plane", np);
+      luaVM_.tryGetFloat("gl_far_plane", fp);
       screen.setupGlVars(fov, np, fp);
 
-      vm.tryGetBool("gl_mipmap_textures", ImageUtil::mipmapTextures);
+      luaVM_.tryGetBool("gl_mipmap_textures", ImageUtil::mipmapTextures);
 
       bool tmpBool;
-      if (vm.tryGetBool("scale2x_sprites", tmpBool))
+      if (luaVM_.tryGetBool("scale2x_sprites", tmpBool))
         OpenGL::SpriteCache::Instance().setScale2x(tmpBool);
 
-      vm.tryGetInt("active_area_size", city_blocks_area);
+      luaVM_.tryGetInt("active_area_size", city_blocks_area);
     }
     // can't check for gl-extensions now
 
@@ -329,18 +459,17 @@ void run_init(const char* prg_name) {
   screen.activate(arg_screen_w, arg_screen_h);
 
   // more setup; that requires an active screen
-  OpenGTA::Script::LuaVM & vm = OpenGTA::Script::LuaVM::Instance();
-  lua_State *L = vm.getInternalState();
+  lua_State *L = luaVM_.getInternalState();
   if (lua_type(L, 1) == LUA_TTABLE) {
     float tmpFloat;
-    if (vm.tryGetFloat("gl_anisotropic_textures", tmpFloat) &&
+    if (luaVM_.tryGetFloat("gl_anisotropic_textures", tmpFloat) &&
         ImageUtil::supportedMaxAnisoDegree >= tmpFloat)
       ImageUtil::supportedMaxAnisoDegree = tmpFloat;
     
     if (highcolor_data)
-      vm.tryGetFloat("screen_gamma_g24", screen_gamma);
+      luaVM_.tryGetFloat("screen_gamma_g24", screen_gamma);
     else
-      vm.tryGetFloat("screen_gamma_gry", screen_gamma);
+      luaVM_.tryGetFloat("screen_gamma_gry", screen_gamma);
     // FIXME: Find a replacement
     // SDL_SetGamma(v, v, v);
     WARN("SDL_SetGamma to be called!");
@@ -368,13 +497,12 @@ void run_init(const char* prg_name) {
   OpenGL::SpriteCache::Instance().setScale2x(config_scale2x);
 
   // FIXME: basic gui setup; should not be here
-  GUI::Manager & gm = GUI::Manager::Instance();
   SDL_Rect rect;
   rect.x = 5;
   rect.y = 50;
   fps_label = new GUI::Label(rect, "", "F_MTEXT.FON", 1);
   //fps_label->borderColor.r = fps_label->borderColor.unused = 200;
-  gm.add(fps_label, 5);
+  guiManager_.add(fps_label, 5);
 }
 
 
@@ -433,14 +561,14 @@ void handleKeyUp( SDL_Keysym *keysym) {
 
 void draw_mapmode();
 
-void create_ped_at(const Vector3D v) {
+void OpenGTAViewer::createPedAt(const Vector3D v) {
   OpenGTA::Pedestrian p(Vector3D(0.2f, 0.5f, 0.2f), v, 0xffffffff);
   p.remap = OpenGTA::ActiveStyle::Instance().get().getRandomPedRemapNumber();
   INFO("using remap: {}", p.remap);
   OpenGTA::Pedestrian & pr = OpenGTA::SpriteManager::Instance().add(p);
   pr.switchToAnim(1);
   OpenGTA::LocalPlayer::Instance().setCtrl(pr.m_control);
-  GUI::create_ingame_gui(1);
+  create_ingame_gui(1, guiManager_);
   //pr.m_control = &OpenGTA::LocalPlayer::Instance();
   //OpenGTA::SpriteManager::Instance().getPed(0xffffffff).giveItem(1, 255);
 }
@@ -541,9 +669,8 @@ void toggle_player_run() {
     pc->setRunning(false);
 }
 
-void show_gamma_config() {
+void OpenGTAViewer::showGammaConfig() {
   OpenGL::Screen & screen = OpenGL::Screen::Instance();
-  GUI::Manager & gm = GUI::Manager::Instance();
   if (gamma_slide) {
   SDL_Rect r;
 
@@ -557,8 +684,8 @@ void show_gamma_config() {
   sb->color.a = 255;
   sb->innerColor.r = 250;
   sb->value = screen_gamma/2;
-  sb->changeCB = GUI::ScrollBar::SC_Functor(GUI::screen_gamma_callback);
-  gm.add(sb, 90);
+  sb->changeCB = GUI::ScrollBar::SC_Functor([this](float v){ screenGammaCallback(v); });
+  guiManager_.add(sb, 90);
 
   r.y += 40;
   GUI::Label *l = new GUI::Label(GUI::GAMMA_LABEL_ID,
@@ -566,14 +693,14 @@ void show_gamma_config() {
                                  "Gamma: " + std::to_string(screen_gamma),
                                  "F_MTEXT.FON",
                                  1);
-  gm.add(l, 80);
+  guiManager_.add(l, 80);
 
   screen.setSystemMouseCursor(true);
 
   }
   else {
-    gm.removeById(GUI::GAMMA_SCROLLBAR_ID);
-    gm.removeById(GUI::GAMMA_LABEL_ID);
+    guiManager_.removeById(GUI::GAMMA_SCROLLBAR_ID);
+    guiManager_.removeById(GUI::GAMMA_LABEL_ID);
     screen.setSystemMouseCursor(false);
   }
 }
@@ -605,7 +732,7 @@ void car_toggle() {
 
 }
 
-void handleKeyPress(SDL_Keysym *keysym) {
+void OpenGTAViewer::handleKeyPress(SDL_Keysym *keysym) {
   GLfloat* cp = city->getCamPos();
   mapPos[0] = cp[0]; mapPos[1] = cp[1]; mapPos[2] = cp[2];
   OpenGL::Camera & cam = OpenGL::Camera::Instance();
@@ -632,20 +759,6 @@ void handleKeyPress(SDL_Keysym *keysym) {
     case SDLK_SPACE:
       cam.setSpeed(0.0f);
       break;
-    case SDLK_F1:
-      //cam.interpolate(Vector3D(254, 9, 254), 1, 20000);
-      
-      //zoomToTrain(next_station_zoom++);
-      //if (next_station_zoom >= OpenGTA::SpriteManager::Instance().trainSystem.getNumTrains())
-      //  next_station_zoom = 0;
-      global_Restart = 1;
-      global_Done = 1;
-      return;
-      {
-        Vector3D p(cam.getEye());
-        OpenGTA::ActiveMap::Instance().get().getNearestLocationByType(0, p.x, p.z);
-      }
-      break;
     case SDLK_F2:
       bbox_toggle = !bbox_toggle;
       OpenGTA::SpriteManager::Instance().setDrawBBox(bbox_toggle);
@@ -660,7 +773,7 @@ void handleKeyPress(SDL_Keysym *keysym) {
         // SDL_EnableKeyRepeat( 0, SDL_DEFAULT_REPEAT_INTERVAL );
         city->setViewMode(false);
         Vector3D p(cam.getEye());
-        create_ped_at(p);
+        createPedAt(p);
         cam.setVectors( Vector3D(p.x, 10, p.z), Vector3D(p.x, 9.0f, p.z), Vector3D(0, 0, -1) );
         cam.setFollowMode(OpenGTA::SpriteManager::Instance().getPed(0xffffffff).pos);
         cam.setCamGravity(true);
@@ -673,7 +786,7 @@ void handleKeyPress(SDL_Keysym *keysym) {
         cam.releaseFollowMode();
         OpenGTA::SpriteManager::Instance().removePed(0xffffffff);
         OpenGTA::SpriteManager::Instance().removeDeadPeds();
-        GUI::remove_ingame_gui();
+        remove_ingame_gui(guiManager_);
       }
       break;
     case SDLK_RETURN:
@@ -700,7 +813,7 @@ void handleKeyPress(SDL_Keysym *keysym) {
       break;
     case SDLK_F12:
       gamma_slide = !gamma_slide;
-      show_gamma_config();
+      showGammaConfig();
       break;
     case SDLK_LSHIFT:
       toggle_player_run();
@@ -845,7 +958,7 @@ void handleKeyPress(SDL_Keysym *keysym) {
 
 }
 
-void drawScene(Uint32 ticks) {
+void drawScene(Uint32 ticks, GUI::Manager &manager) {
   glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
   
   OpenGL::Screen::Instance().set3DProjection();
@@ -876,7 +989,7 @@ void drawScene(Uint32 ticks) {
   m_font->drawString(strstr.str());
   glPopMatrix();*/
 
-  GUI::Manager::Instance().draw();
+  manager.draw();
  
   num_frames_drawn += 1;
   glEnable(GL_DEPTH_TEST);
@@ -983,7 +1096,7 @@ void draw_mapmode() {
   glDeleteTextures(1, &map_tex.inPage); 
 }
 
-void run_main() {
+void OpenGTAViewer::run() {
   SDL_Event event;
   const char * lang = getenv("OGTA_LANG");
   if (!lang)
@@ -1032,16 +1145,13 @@ void run_main() {
   last_tick = SDL_GetTicks();
 #endif
 
-  OpenGTA::Script::LuaVM & vm = OpenGTA::Script::LuaVM::Instance();
-  vm.setCityView(*city);
-  vm.setMap(OpenGTA::ActiveMap::Instance().get());
+  luaVM_.setCityView(*city);
+  luaVM_.setMap(OpenGTA::ActiveMap::Instance().get());
   if (!script_file.empty())
-    vm.runFile(script_file.c_str());
+    luaVM_.runFile(script_file.c_str());
   bool vm_tick_ok = true;
   script_last_tick = last_tick;
   
-  GUI::Manager & guiManager = GUI::Manager::Instance();
-
   while(!global_Done) {
     while (SDL_PollEvent(&event)) {
       switch(event.type) {
@@ -1069,7 +1179,7 @@ void run_main() {
           //std::cout << "Mouse move: x " << float(event.motion.x)/screen->w << " y " << float(event.motion.y)/screen->h << std::endl;
           break;
         case SDL_MOUSEBUTTONDOWN:
-          guiManager.receive(event.button);
+          guiManager_.receive(event.button);
           break;
         default:
           break;
@@ -1083,14 +1193,14 @@ void run_main() {
 #endif
     OpenGTA::SpriteManager::Instance().update(now_ticks);
     city->blockAnims->update(now_ticks);
-    GUI::Manager::Instance().update(now_ticks);
-    GUI::update_ingame_gui_values();
+    guiManager_.update(now_ticks);
+    update_ingame_gui_values();
     if (!paused) {
-      drawScene(now_ticks - last_tick);
+      drawScene(now_ticks - last_tick, guiManager_);
     last_tick = now_ticks;
       if (vm_tick_ok && (now_ticks - script_last_tick > 100)) {
         try {
-          vm.callSimpleFunction("game_tick");
+          luaVM_.callSimpleFunction("game_tick");
           script_last_tick = now_ticks;
         }
         catch (Exception & e) {
@@ -1110,13 +1220,13 @@ void run_main() {
       num_frames_drawn = 0;
       fps_last_tick = now_ticks;
       fps_label->text = std::to_string(fps) + " fps";
-      vm.setGlobalInt("current_fps", fps);
+      luaVM_.setGlobalInt("current_fps", fps);
     }
 //#endif
 //    SDL_Delay(10);
   }
 
-  vm.runFile("scripts/dump_config.lua");
+  luaVM_.runFile("scripts/dump_config.lua");
 
 }
 
@@ -1124,14 +1234,16 @@ int main(int argc, char* argv[]) {
   if (argc > 1)
     parse_args(argc, argv);
 
-  run_init(argv[0]);
+  OpenGTAViewer app;
+
+  app.init(argv[0]);
    try {
-    run_main();
+    app.run();
   } catch (const std::exception &e) {
     ERROR("Exception occured: {}", e.what());
     throw;
   }
-  on_exit();
+  app.quit();
 
   return 0;
 }

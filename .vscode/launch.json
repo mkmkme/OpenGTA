@@ -63,10 +63,10 @@
             "name": "LuaViewer",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceRoot}/build/clang/Debug/luaviewer",
+            "program": "${workspaceRoot}/build/clang/Debug/viewer",
             "windows": {
                 "type": "cppvsdbg",
-                "program": "${workspaceRoot}/build/msvc/Debug/luaviewer.exe",
+                "program": "${workspaceRoot}/build/msvc/Debug/viewer.exe",
             },
             "args": [
                 "-c",

@@ -87,6 +87,7 @@ add_executable(viewer
 target_link_libraries(viewer
     ogta
     ogta-gl
+    ogta-lua
     ogta-util
     opensteer-clock
     cxxopts::cxxopts)
@@ -112,17 +113,6 @@ target_link_libraries(gfxextract
 
 add_subdirectory(lua_addon)
 include_directories(lua_addon)
-add_executable(luaviewer EXCLUDE_FROM_ALL
-    main2.cpp
-    viewer.cpp)
-target_compile_definitions(luaviewer PRIVATE WITH_LUA)
-target_link_libraries(luaviewer
-    ogta
-    ogta-gl
-    ogta-lua
-    ogta-util
-    opensteer-clock
-    cxxopts::cxxopts)
 
 add_executable(lua_map_test EXCLUDE_FROM_ALL
     main2.cpp

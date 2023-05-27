@@ -4,9 +4,7 @@
 #include "gl_spritecache.h"
 #include "gl_screen.h"
 #include "sprite-info.h"
-#ifdef WITH_LUA
-#include "lua_vm.h"
-#endif
+#include "lua_addon/lua_vm.h"
 #include "localplayer.h"
 
 extern float screen_gamma;
@@ -436,7 +434,6 @@ namespace GUI {
   void screen_gamma_callback(float v) {
     screen_gamma = v;
     setGamma(OpenGL::Screen::Instance().get(), v);
-#ifdef WITH_LUA
     OpenGTA::Script::LuaVM & vm = OpenGTA::Script::LuaVM::Instance();
     lua_State *L = vm.getInternalState();
     int top = lua_gettop(L);
@@ -453,7 +450,6 @@ namespace GUI {
     else
       vm.setFloat("screen_gamma_gry", v);
     lua_settop(L, top);
-#endif
     Object * o = Manager::Instance().findObject(GAMMA_LABEL_ID);
     if (o)
       static_cast<Label*>(o)->text = "Gamma: " + std::to_string(v);

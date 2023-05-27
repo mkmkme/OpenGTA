@@ -47,10 +47,8 @@
 #include "spritemanager.h"
 #include "gl_spritecache.h"
 #include "timer.h"
-#ifdef WITH_LUA
 #include "lua_addon/lua_vm.h"
 #include "lua_addon/lua_stackguard.h"
-#endif
 #include "gui.h"
 #include "font_cache.h"
 #include "ai.h"
@@ -119,13 +117,7 @@ void print_version_info() {
 #define PRINT_FORMATED(spaces) std::setw(spaces) << std::left <<
 #define PRINT_OFFSET PRINT_FORMATED(19)
   std::cout << PRINT_OFFSET "OpenGTA version:" << OGTA_VERSION_INFO << std::endl <<
-  PRINT_OFFSET "Lua support:" << 
-#ifdef WITH_LUA
-  "yes [" LUA_RELEASE "]" <<
-#else
-  "no" <<
-#endif
-  std::endl <<
+  PRINT_OFFSET "Lua version:" << LUA_RELEASE << std::endl <<
   PRINT_OFFSET "sound support:" <<
 #ifdef WITH_SOUND
   "yes" <<
@@ -176,9 +168,7 @@ void parse_args(int argc, char *argv[])
     cxxopts::Options options { "viewer", "Demo program for OpenGTA" };
     // clang-format off
     options.positional_help("[CITY_NUMBER]").add_options()
-#ifdef WITH_LUA
         ("s", "Path to Lua script to execute", cxxopts::value<std::string>(script_file))
-#endif
         ("a", "Anisotropic filter degree: 1.0 = disabled", cxxopts::value<float>(anisotropic_filter_degree))
         ("c", "Color mode: 0 = 8bit GRY, 1 = 24bit G24", cxxopts::value<bool>(highcolor_data))
         ("m", "Load specified map", cxxopts::value<std::string>(specific_map))
@@ -258,7 +248,6 @@ void run_init(const char* prg_name) {
   OpenGL::Screen & screen = OpenGL::Screen::Instance();
 
   // check for a configfile
-#ifdef WITH_LUA
   if (PHYSFS_exists("config")) {
     const auto config_as_string = Util::FileHelper::BufferFromVFS(
       Util::FileHelper::OpenReadVFS("config"));
@@ -316,7 +305,6 @@ void run_init(const char* prg_name) {
     // can't check for gl-extensions now
 
   }
-#endif
   //INFO << "AREA:: " << city_blocks_area << std::endl;
 
 
@@ -337,7 +325,6 @@ void run_init(const char* prg_name) {
   screen.activate(arg_screen_w, arg_screen_h);
 
   // more setup; that requires an active screen
-#ifdef WITH_LUA
   OpenGTA::Script::LuaVM & vm = OpenGTA::Script::LuaVM::Instance();
   lua_State *L = vm.getInternalState();
   if (lua_type(L, 1) == LUA_TTABLE) {
@@ -355,7 +342,6 @@ void run_init(const char* prg_name) {
     WARN("SDL_SetGamma to be called!");
   }
   lua_settop(L, 0);
-#endif
   if (ImageUtil::supportedMaxAnisoDegree >= anisotropic_filter_degree)
     ImageUtil::supportedMaxAnisoDegree = anisotropic_filter_degree;
   else
@@ -1042,7 +1028,6 @@ void run_main() {
   last_tick = SDL_GetTicks();
 #endif
 
-#ifdef WITH_LUA
   OpenGTA::Script::LuaVM & vm = OpenGTA::Script::LuaVM::Instance();
   vm.setCityView(*city);
   vm.setMap(OpenGTA::ActiveMap::Instance().get());
@@ -1050,7 +1035,6 @@ void run_main() {
     vm.runFile(script_file.c_str());
   bool vm_tick_ok = true;
   script_last_tick = last_tick;
-#endif
   
   GUI::Manager & guiManager = GUI::Manager::Instance();
 
@@ -1100,7 +1084,6 @@ void run_main() {
     if (!paused) {
       drawScene(now_ticks - last_tick);
     last_tick = now_ticks;
-#ifdef WITH_LUA
       if (vm_tick_ok && (now_ticks - script_last_tick > 100)) {
         try {
           vm.callSimpleFunction("game_tick");
@@ -1111,7 +1094,6 @@ void run_main() {
           ERROR("Disabling script game_tick because of error: {}", e.what());
         }
       }
-#endif
     }
     OpenGTA::SpriteManager::Instance().creationArea.setRects(
       city->getActiveRect(), city->getOnScreenRect());
@@ -1124,16 +1106,12 @@ void run_main() {
       num_frames_drawn = 0;
       fps_last_tick = now_ticks;
       fps_label->text = std::to_string(fps) + " fps";
-#ifdef WITH_LUA
       vm.setGlobalInt("current_fps", fps);
-#endif
     }
 //#endif
 //    SDL_Delay(10);
   }
 
-#ifdef WITH_LUA
   vm.runFile("scripts/dump_config.lua");
-#endif
 
 }

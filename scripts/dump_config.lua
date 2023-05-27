@@ -18,11 +18,7 @@ function config_as_string()
   table.sort(config)
   for i, j in pairsByKeys(config) do
     if type(j) == 'boolean' then
-      if j == true then
-        conf_str = conf_str .. i .. ' = true\n'
-      else
-        conf_str = conf_str .. i .. ' = false\n'
-      end
+      conf_str = conf_str .. i .. ' = ' .. tostring(j) .. '\n'
     elseif type(j) == 'string' then
       conf_str = conf_str .. i .. ' = "' .. j .. '"\n'
     else
@@ -37,4 +33,3 @@ print("-- CONFIG DUMP --")
 print(config_as_string())
 print("-- END OF CONFIG --")
 quit()
-

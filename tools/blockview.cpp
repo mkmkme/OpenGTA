@@ -16,7 +16,7 @@ float r = 0;
 bool wireframe = true;
 
 
-extern int global_Done;
+int global_Done;
 
 
 const size_t numBlockTypes = 53;
@@ -226,4 +226,21 @@ void run_main() {
     if (!paused)
       drawScene();
   }
+}
+
+int main(int argc, char* argv[]) {
+  if (argc > 1)
+    parse_args(argc, argv);
+
+  atexit(on_exit);
+
+  run_init(argv[0]);
+  try {
+    run_main();
+  } catch (const std::exception &e) {
+    ERROR("Exception occured: {}", e.what());
+    throw;
+  }
+
+  return 0;
 }

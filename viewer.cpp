@@ -20,6 +20,10 @@
 * 3. This notice may not be removed or altered from any source          *
 * distribution.                                                         *
 ************************************************************************/
+
+// Prevent SDL from overriding main().
+#define SDL_MAIN_HANDLED
+
 #include <array>
 #include <filesystem>
 #include <iostream>
@@ -53,8 +57,8 @@
 #include "font_cache.h"
 #include "ai.h"
 
-extern int global_Done;
-extern int global_Restart;
+int global_Done;
+int global_Restart;
 GLfloat mapPos[3] = {12.0f, 12.0f, 20.0f};
 
 OpenGTA::CityView *city = NULL;
@@ -1114,4 +1118,20 @@ void run_main() {
 
   vm.runFile("scripts/dump_config.lua");
 
+}
+
+int main(int argc, char* argv[]) {
+  if (argc > 1)
+    parse_args(argc, argv);
+
+  run_init(argv[0]);
+   try {
+    run_main();
+  } catch (const std::exception &e) {
+    ERROR("Exception occured: {}", e.what());
+    throw;
+  }
+  on_exit();
+
+  return 0;
 }

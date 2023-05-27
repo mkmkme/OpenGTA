@@ -80,9 +80,7 @@ add_library(ogta-gl STATIC
     util/physfsrwops.c)
 target_link_libraries(ogta-gl ogta)
 
-add_executable(viewer
-    main2.cpp
-    viewer.cpp)
+add_executable(viewer viewer.cpp)
 
 target_link_libraries(viewer
     ogta
@@ -114,9 +112,7 @@ target_link_libraries(gfxextract
 add_subdirectory(lua_addon)
 include_directories(lua_addon)
 
-add_executable(lua_map_test EXCLUDE_FROM_ALL
-    main2.cpp
-    tests/lua_map_test.cpp)
+add_executable(lua_map_test EXCLUDE_FROM_ALL tests/lua_map_test.cpp)
 
 target_link_libraries(lua_map_test
     ogta
@@ -139,7 +135,6 @@ target_link_libraries(spriteplayer
     physfs-static)
 
 add_executable(slopeview EXCLUDE_FROM_ALL
-    main.cpp
     tools/display_slopes.cpp
     navdata.cpp
     map.cpp
@@ -153,9 +148,7 @@ target_link_libraries(slopeview
     physfs-static)
 
 # broken due to missing slope2_data.h
-add_executable(blockview EXCLUDE_FROM_ALL
-    main2.cpp
-    tools/blockview.cpp)
+add_executable(blockview EXCLUDE_FROM_ALL tools/blockview.cpp)
 
 target_link_libraries(blockview
     SDL2::SDL2

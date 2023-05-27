@@ -1,3 +1,5 @@
+#define SDL_MAIN_HANDLED
+
 #include <iostream>
 #include <cmath>
 #include <SDL_image.h>
@@ -5,7 +7,7 @@
 #include "common_sdl_gl.h"
 #include "log.h"
 
-extern SDL_Surface* screen;
+SDL_Surface* screen = nullptr;
 GLfloat mapPos[2] = {0.0f, 0.0f};
 
 OpenGTA::Map *map = NULL;
@@ -441,4 +443,21 @@ void run_main() {
   glDeleteTextures(1, &west);
   glDeleteTextures(1, &east);
 
+}
+
+int main(int argc, char* argv[]) {
+  if (SDL_Init(SDL_INIT_VIDEO) < 0) {
+    std::cerr << "Fatal error initialising SDL!" << std::endl;
+    return 1;
+  }
+  atexit(on_exit);
+  if (argc == 2) {
+    city_num = atoi(argv[1]);
+  }
+  SDL_EnableKeyRepeat( 100, SDL_DEFAULT_REPEAT_INTERVAL );
+  initVideo(1024, 768, 32);
+  initGL();
+  
+  run_main();
+  exit(0);
 }

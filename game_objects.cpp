@@ -890,7 +890,7 @@ activeWeapon = chooseWeapon;
     return false;
   }
 
-  void Projectile::update(uint32_t ticks) {
+  void Projectile::update(uint32_t ticks, LocalPlayer & player) {
     auto dt = ticks - lastUpdateAt;
     Vector3D new_pos(pos + delta * dt);
     /*INFO << "p-m " << pos.x << " " << pos.y << " " << pos.z << 
@@ -910,10 +910,9 @@ activeWeapon = chooseWeapon;
         else
           INFO("BACK");
         ped.getShot(owner, Projectile::damageByType(typeId), true);
-        LocalPlayer & pc = LocalPlayer::Instance();
-        if (owner == pc.getId()) {
-          pc.addCash(10);
-          pc.addWanted(1);
+        if (owner == player.getId()) {
+          player.addCash(10);
+          player.addWanted(1);
         }
         endsAtTick = 0;
       }

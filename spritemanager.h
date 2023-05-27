@@ -81,7 +81,7 @@ public:
 
     void drawExplosion(SpriteObject &);
 
-    void update(Uint32 ticks);
+    void update(Uint32 ticks, OpenGTA::LocalPlayer &player);
 
     SpriteObject::Animation &getAnimationById(const Uint32 &id);
     void registerAnimation(const Uint32 &id, const SpriteObject::Animation &anim);

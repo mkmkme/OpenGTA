@@ -9,20 +9,16 @@
 namespace OpenGTA {
 
   class LocalPlayer : public Util::KeyHandler {
-    private:
+    public:
       LocalPlayer() {
         reset();
       }
       ~LocalPlayer() = default;
-    public:
+
       LocalPlayer(const LocalPlayer& copy) = delete;
       LocalPlayer& operator=(const LocalPlayer& copy) = delete;
-
-      static LocalPlayer& Instance()
-      {
-        static LocalPlayer instance;
-        return instance;
-      }
+      LocalPlayer(LocalPlayer&& move) = delete;
+      LocalPlayer& operator=(LocalPlayer&& move) = delete;
 
       void reset() {
         playerId = TypeIdBlackBox::Instance().getPlayerId();

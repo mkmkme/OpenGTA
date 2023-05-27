@@ -36,6 +36,7 @@
 
 namespace OpenGTA {
 
+  class LocalPlayer;
   struct CarInfo;
   struct GameObject_common;
   // FIXME: OpenSteer doesn't seem to be used at all. Consider replacing it.
@@ -191,7 +192,7 @@ namespace OpenGTA {
       Vector3D delta;
       uint32_t endsAtTick;
       uint32_t owner;
-      void update(uint32_t ticks);
+      void update(uint32_t ticks, LocalPlayer & player);
       uint32_t lastUpdateAt;
       bool testCollideBlock(Util::CellIterator &, Vector3D & newp);
       bool testCollideBlock_flat(Util::CellIterator &, Vector3D & newp);

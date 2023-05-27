@@ -29,6 +29,7 @@
 #include "log.h"
 #include "sprite-info.h"
 #include "timer.h"
+#include "localplayer.h"
 
 #include <SDL2/SDL_opengl.h>
 
@@ -146,7 +147,7 @@ SpriteObject &SpriteManager::getObject(uint32_t id)
     throw E_UNKNOWNKEY(std::to_string(id));
 }
 
-void SpriteManager::update(Uint32 ticks)
+void SpriteManager::update(Uint32 ticks, LocalPlayer &player)
 {
     size_t num_peds, num_cars, num_obj;
     num_peds = 0;
@@ -172,7 +173,7 @@ void SpriteManager::update(Uint32 ticks)
     }
     for (auto it = activeProjectiles.begin(); it != activeProjectiles.end();) {
         Projectile &pr = (*it);
-        pr.update(ticks);
+        pr.update(ticks, player);
         if (pr.lastUpdateAt >= pr.endsAtTick) {
             activeProjectiles.erase(it++);
         } else {

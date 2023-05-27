@@ -130,11 +130,13 @@ private:
 
   GUI::Manager guiManager_;
   OpenGTA::Script::LuaVM luaVM_;
+  OpenGTA::LocalPlayer localPlayer_;
 };
 
 OpenGTAViewer::OpenGTAViewer()
   : guiManager_ {}
   , luaVM_ {}
+  , localPlayer_ {}
 {
 }
 
@@ -235,9 +237,7 @@ void create_ingame_gui(bool is32bit, GUI::Manager &gm) {
   }
 }
 
-void update_ingame_gui_values() {
-  OpenGTA::LocalPlayer & pc = OpenGTA::LocalPlayer::Instance();
-
+void update_ingame_gui_values(OpenGTA::LocalPlayer &pc) {
   if (wantedLevel)
     wantedLevel->number = pc.getWantedLevel();
 
@@ -529,33 +529,14 @@ void print_position() {
 
 }
 
-void handleKeyUp( SDL_Keysym *keysym) {
+void handleKeyUp(SDL_Keysym *keysym, OpenGTA::LocalPlayer & player) {
   switch (keysym->sym) {
-    case 'j':
-      OpenGTA::LocalPlayer::Instance().getCtrl().releaseTurnLeft();
-      //OpenGTA::LocalPlayer::Instance().turn = 0;
-      //OpenGTA::LocalPlayer::Instance().setTurn(0);
-      break;
-    case 'l':
-      OpenGTA::LocalPlayer::Instance().getCtrl().releaseTurnRight();
-      //OpenGTA::LocalPlayer::Instance().turn = 0;
-      //OpenGTA::LocalPlayer::Instance().setTurn(0);
-      break;
-    case 'i':
-      OpenGTA::LocalPlayer::Instance().getCtrl().releaseMoveForward();
-      //OpenGTA::LocalPlayer::Instance().move = 0;
-      //OpenGTA::LocalPlayer::Instance().setMove(0);
-      break;
-    case 'k':
-      OpenGTA::LocalPlayer::Instance().getCtrl().releaseMoveBack();
-      //OpenGTA::LocalPlayer::Instance().move = 0;
-      //OpenGTA::LocalPlayer::Instance().setMove(0);
-      break;
-    case SDLK_LCTRL:
-      OpenGTA::LocalPlayer::Instance().getCtrl().setFireWeapon(false);
-      break;
-    default:
-      break;
+    case 'j': player.getCtrl().releaseTurnLeft(); break;
+    case 'l': player.getCtrl().releaseTurnRight(); break;
+    case 'i': player.getCtrl().releaseMoveForward(); break;
+    case 'k': player.getCtrl().releaseMoveBack(); break;
+    case SDLK_LCTRL: player.getCtrl().setFireWeapon(false); break;
+    default: break;
   }
 }
 
@@ -567,10 +548,8 @@ void OpenGTAViewer::createPedAt(const Vector3D v) {
   INFO("using remap: {}", p.remap);
   OpenGTA::Pedestrian & pr = OpenGTA::SpriteManager::Instance().add(p);
   pr.switchToAnim(1);
-  OpenGTA::LocalPlayer::Instance().setCtrl(pr.m_control);
+  localPlayer_.setCtrl(pr.m_control);
   create_ingame_gui(1, guiManager_);
-  //pr.m_control = &OpenGTA::LocalPlayer::Instance();
-  //OpenGTA::SpriteManager::Instance().getPed(0xffffffff).giveItem(1, 255);
 }
 
 void explode_ped() {
@@ -657,8 +636,8 @@ void add_auto_ped() {
   }
 }
 
-void toggle_player_run() {
-  OpenGTA::PedController * pc = &OpenGTA::LocalPlayer::Instance().getCtrl();
+void toggle_player_run(OpenGTA::LocalPlayer & player) {
+  OpenGTA::PedController * pc = &player.getCtrl();
   if (!pc) {
     WARN("no player yet!");
     return;
@@ -705,8 +684,8 @@ void OpenGTAViewer::showGammaConfig() {
   }
 }
 
-void car_toggle() {
-  OpenGTA::Pedestrian & pped = OpenGTA::LocalPlayer::Instance().getPed();
+void car_toggle(OpenGTA::LocalPlayer & player) {
+  OpenGTA::Pedestrian & pped = player.getPed();
   Vector3D pos = pped.pos;
   auto &cars = OpenGTA::SpriteManager::Instance().getCars();
   float min_dist = 360;
@@ -790,7 +769,7 @@ void OpenGTAViewer::handleKeyPress(SDL_Keysym *keysym) {
       }
       break;
     case SDLK_RETURN:
-      car_toggle();
+      car_toggle(localPlayer_);
       break;
     case SDLK_F5:
       draw_arrows = !draw_arrows;
@@ -816,7 +795,7 @@ void OpenGTAViewer::handleKeyPress(SDL_Keysym *keysym) {
       showGammaConfig();
       break;
     case SDLK_LSHIFT:
-      toggle_player_run();
+      toggle_player_run(localPlayer_);
       break;
     /*
     case SDLK_F6:
@@ -826,23 +805,19 @@ void OpenGTAViewer::handleKeyPress(SDL_Keysym *keysym) {
       break;
     */
     case SDLK_LCTRL:
-      OpenGTA::LocalPlayer::Instance().getCtrl().setFireWeapon();
+      localPlayer_.getCtrl().setFireWeapon();
       break;
     case '1':
-      //OpenGTA::SpriteManager::Instance().getPed(0xffffffff).equip(1);
-      OpenGTA::LocalPlayer::Instance().getCtrl().setActiveWeapon(1);
+      localPlayer_.getCtrl().setActiveWeapon(1);
       break;
     case '2':
-      //OpenGTA::SpriteManager::Instance().getPed(0xffffffff).equip(2);
-      OpenGTA::LocalPlayer::Instance().getCtrl().setActiveWeapon(2);
+      localPlayer_.getCtrl().setActiveWeapon(2);
       break;
     case '3':
-      //OpenGTA::SpriteManager::Instance().getPed(0xffffffff).equip(3);
-      OpenGTA::LocalPlayer::Instance().getCtrl().setActiveWeapon(3);
+      localPlayer_.getCtrl().setActiveWeapon(3);
       break;
     case '4':
-      //OpenGTA::SpriteManager::Instance().getPed(0xffffffff).equip(4);
-      OpenGTA::LocalPlayer::Instance().getCtrl().setActiveWeapon(4);
+      localPlayer_.getCtrl().setActiveWeapon(4);
       break;
     case '5':
       //OpenGTA::SpriteManager::Instance().getPed(0xffffffff).equip(5);
@@ -866,7 +841,7 @@ void OpenGTAViewer::handleKeyPress(SDL_Keysym *keysym) {
       */
       break;
     case '0':
-      OpenGTA::LocalPlayer::Instance().getCtrl().setActiveWeapon(0);
+      localPlayer_.getCtrl().setActiveWeapon(0);
       /*
       ped_anim += 1; if (ped_anim > 200) ped_anim = 200;
       pedAnim.firstFrameOffset = ped_anim;
@@ -882,16 +857,16 @@ void OpenGTAViewer::handleKeyPress(SDL_Keysym *keysym) {
       cam.setSpeed(-0.2f);
       break;
     case 'j':
-      OpenGTA::LocalPlayer::Instance().getCtrl().setTurnLeft();
+      localPlayer_.getCtrl().setTurnLeft();
       break;
     case 'l':
-      OpenGTA::LocalPlayer::Instance().getCtrl().setTurnRight();
+      localPlayer_.getCtrl().setTurnRight();
       break;
     case 'i':
-      OpenGTA::LocalPlayer::Instance().getCtrl().setMoveForward();
+      localPlayer_.getCtrl().setMoveForward();
       break;
     case 'k':
-      OpenGTA::LocalPlayer::Instance().getCtrl().setMoveBack();
+      localPlayer_.getCtrl().setMoveBack();
       break;
     case 'f':
 //FIXME: simply ignored on windows for now
@@ -1167,7 +1142,7 @@ void OpenGTAViewer::run() {
           }
           break;
         case SDL_KEYUP:
-          handleKeyUp(&event.key.keysym);
+          handleKeyUp(&event.key.keysym, localPlayer_);
           break;
         case SDL_WINDOWEVENT_SIZE_CHANGED:
           OpenGL::Screen::Instance().resize(event.window.data1, event.window.data2);
@@ -1191,10 +1166,10 @@ void OpenGTAViewer::run() {
 #else
     Uint32 now_ticks = SDL_GetTicks();
 #endif
-    OpenGTA::SpriteManager::Instance().update(now_ticks);
+    OpenGTA::SpriteManager::Instance().update(now_ticks, localPlayer_);
     city->blockAnims->update(now_ticks);
     guiManager_.update(now_ticks);
-    update_ingame_gui_values();
+    update_ingame_gui_values(localPlayer_);
     if (!paused) {
       drawScene(now_ticks - last_tick, guiManager_);
     last_tick = now_ticks;

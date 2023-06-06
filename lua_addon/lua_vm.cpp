@@ -15,7 +15,8 @@ extern int global_Done;
 
 namespace OpenGTA {
   namespace Script {
-    LuaVM::LuaVM() : L(NULL) {
+    LuaVM::LuaVM(OpenGL::Screen &screen, OpenGL::Camera &camera)
+    : L(NULL) , screen_(screen), camera_(camera) {
       L = luaL_newstate();
       if (L == NULL)
         throw E_SCRIPTERROR("Failed to create Lua state!");
@@ -46,8 +47,8 @@ namespace OpenGTA {
         Lunar<LMap>::Register2(L);
         Lunar<CityView>::Register2(L);
         lua_newtable(L);
-        luaL_requiref(L, "camera", luaopen_camera, 1);
-        luaL_requiref(L, "screen", luaopen_screen, 1);
+        camera_.registerFunctions(L);
+        screen_.registerFunctions(L);
         luaL_requiref(L, "spritecache", luaopen_spritecache, 1);
         lua_pushcfunction(L, vm_quit);
         lua_setglobal(L, "quit");

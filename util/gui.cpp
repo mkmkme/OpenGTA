@@ -305,14 +305,13 @@ namespace GUI {
       return true;
     return false;
   }
-  void Manager::receive(SDL_MouseButtonEvent & mb_event) {
-    Uint32 sh = OpenGL::Screen::Instance().height();
+  void Manager::receive(SDL_MouseButtonEvent & mb_event, uint32_t height) {
     auto l = guiLayers.rbegin();
     while (l != guiLayers.rend()) {
       GuiObjectList & list = l->second;
       for (GuiObjectList::iterator i = list.begin(); i != list.end(); ++i) {
         Object * obj = *i;
-        if (isInside(*obj, mb_event.x, sh - mb_event.y)) {
+        if (isInside(*obj, mb_event.x, height - mb_event.y)) {
       //    std::cout << "mouse inside obj id: " << obj->id << " at " << mb_event.x << "," << mb_event.y << std::endl;
           obj->receive(mb_event);
           return;

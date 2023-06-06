@@ -38,9 +38,6 @@
 
 using namespace std::string_view_literals;
 
-// FIXME: This is needed just to link
-float screen_gamma = 1.0f;
-
 bool done = false;
 
 OpenGTA::Car *car = NULL;
@@ -107,13 +104,13 @@ const char *vtype2name(int vt)
     return "";
 }
 
-void drawScene(Uint32 ticks)
+void drawScene(Uint32 ticks, OpenGL::Screen &screen, OpenGL::Camera &camera)
 {
     GL_CHECKERROR;
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    OpenGL::Screen::Instance().set3DProjection();
-    OpenGL::Camera::Instance().update(ticks);
+    screen.set3DProjection();
+    camera.update(ticks, screen);
 
     if (playWithCar) {
         if (car) {
@@ -121,7 +118,7 @@ void drawScene(Uint32 ticks)
             OpenGTA::SpriteManager::Instance().draw(*car);
         }
 
-        OpenGL::Screen::Instance().setFlatProjection();
+        screen.setFlatProjection();
 
         glPushMatrix();
         glTranslatef(10, 10, 0);
@@ -147,7 +144,7 @@ void drawScene(Uint32 ticks)
         }
         OpenGTA::SpriteManager::Instance().draw(ped);
 
-        OpenGL::Screen::Instance().setFlatProjection();
+        screen.setFlatProjection();
 
         glPushMatrix();
         glTranslatef(10, 10, 0);
@@ -156,14 +153,12 @@ void drawScene(Uint32 ticks)
         glPopMatrix();
     }
 
-    auto &screen = OpenGL::Screen::Instance();
     SDL_GL_SwapWindow(screen.get());
     GL_CHECKERROR;
 }
 
-void handleKeyPress(SDL_Keysym *keysym)
+void handleKeyPress(SDL_Keysym *keysym, OpenGL::Camera &camera)
 {
-    auto &cam = OpenGL::Camera::Instance();
     auto &style = OpenGTA::ActiveStyle::Instance().get();
     bool update_anim = false;
     switch (keysym->sym) {
@@ -189,10 +184,10 @@ void handleKeyPress(SDL_Keysym *keysym)
             }
             break;
         case '=':
-            cam.translateBy(Vector3D(0, -0.5f, 0));
+            camera.translateBy(Vector3D(0, -0.5f, 0));
             break;
         case '-':
-            cam.translateBy(Vector3D(0, 0.5f, 0));
+            camera.translateBy(Vector3D(0, 0.5f, 0));
             break;
         case '1':
             if (playWithCar) {
@@ -341,7 +336,7 @@ void usage(const char *a0)
               << " s   : toggle siren anim (if exists)" << std::endl;
 }
 
-void main_loop()
+void main_loop(OpenGL::Screen &screen, OpenGL::Camera &camera)
 {
     SDL_Event event;
 
@@ -349,13 +344,13 @@ void main_loop()
         while (SDL_PollEvent(&event)) {
             switch (event.type) {
                 case SDL_KEYDOWN:
-                    handleKeyPress(&event.key.keysym);
+                    handleKeyPress(&event.key.keysym, camera);
                     break;
                     // case SDL_KEYUP:
                     //          handleKeyUp(&event.key.keysym);
                     // break;
                 case SDL_WINDOWEVENT_SIZE_CHANGED:
-                    OpenGL::Screen::Instance().resize(event.window.data1, event.window.data2);
+                    screen.resize(event.window.data1, event.window.data2);
                     break;
                 case SDL_QUIT:
                     done = true;
@@ -369,7 +364,7 @@ void main_loop()
             }
         }
         const auto now_ticks = SDL_GetTicks();
-        drawScene(now_ticks);
+        drawScene(now_ticks, screen, camera);
     }
 }
 
@@ -388,10 +383,13 @@ int main(int argc, char *argv[])
         style_file = argv[1];
     }
 
+    OpenGL::Screen screen;
+    OpenGL::Camera camera;
+
     PHYSFS_init("mapview");
     PHYSFS_mount(PHYSFS_getBaseDir(), nullptr, 1);
     PHYSFS_mount("gtadata.zip", nullptr, 1);
-    OpenGL::Screen::Instance().activate(640, 480);
+    screen.activate(640, 480);
 
     OpenGTA::ActiveStyle::Instance().load(style_file);
     OpenGTA::ActiveStyle::Instance().get().setDeltaHandling(true);
@@ -410,11 +408,10 @@ int main(int argc, char *argv[])
     glEnable(GL_ALPHA_TEST);
     glAlphaFunc(GL_GREATER, 0);
 
-    auto &cam = OpenGL::Camera::Instance();
-    cam.setVectors({ 4, 5, 4 }, { 4, 0.0f, 4.0f }, { 0, 0, -1 });
-    cam.setFollowMode(ped.pos);
+    camera.setVectors({ 4, 5, 4 }, { 4, 0.0f, 4.0f }, { 0, 0, -1 });
+    camera.setFollowMode(ped.pos);
 
-    main_loop();
+    main_loop(screen, camera);
 
     if (car)
         delete car;

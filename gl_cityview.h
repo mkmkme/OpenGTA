@@ -31,13 +31,18 @@
 
 #include <SDL2/SDL.h>
 
+namespace OpenGL {
+class Camera;
+class Screen;
+}
+
 namespace OpenGTA {
 
   class BlockAnimCtrl;
   class GraphicsBase;
   class CityView {
     public:
-      CityView();
+      CityView(OpenGL::Screen &screen, OpenGL::Camera &camera);
       ~CityView();
       void loadMap(const std::string &map, const std::string &style);
       void createLevelObject(OpenGTA::Map::ObjectPosition *obj);
@@ -105,6 +110,9 @@ namespace OpenGTA {
       Uint32 lastCacheEmptyTicks;
 
       NavData::Sector *current_sector;
+
+      OpenGL::Screen &screen_;
+      OpenGL::Camera &camera_;
   };
 }
 

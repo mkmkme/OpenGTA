@@ -2,13 +2,20 @@
 #define OPENGTA_SCRIPT_VM_H
 
 #include "lua.hpp"
+#include "lua_camera.h"
+#include "lua_screen.h"
 #include "gl_cityview.h"
+
+namespace OpenGL {
+class Screen;
+class Camera;
+}
 
 namespace OpenGTA {
   namespace Script {
     class LuaVM {
       public:
-        LuaVM();
+        LuaVM(OpenGL::Screen &, OpenGL::Camera &);
         ~LuaVM();
 
         LuaVM(const LuaVM& copy) = delete;
@@ -43,9 +50,10 @@ namespace OpenGTA {
         bool  tryGetBool(const char*, bool&) noexcept;
 
         lua_State *getInternalState();
-      protected:
-        lua_State *L;
       private:
+        lua_State *L;
+        LuaScreen screen_;
+        LuaCamera camera_;
         bool _registered;
         void prepare();
     };

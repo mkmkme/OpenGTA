@@ -108,7 +108,8 @@ namespace OpenGTA {
     return block_colors[0].rgb;
   }
 
-  CityView::CityView() {
+  CityView::CityView(OpenGL::Screen &screen, OpenGL::Camera &camera)
+  : screen_(screen), camera_(camera) {
     setNull();
     /*
     Pedestrian p(Vector3D(0.5f, 0.5f, 0.5f), Vector3D(4, 5.01f, 4), 0xffffffff);
@@ -300,9 +301,8 @@ namespace OpenGTA {
   }
 
   OpenGL::PagedTexture CityView::renderMap2Texture() {
-    OpenGL::Screen & screen = OpenGL::Screen::Instance();
     // uint32_t width = screen.width();
-    uint32_t height = screen.height();
+    uint32_t height = screen_.height();
 
     uint32_t gl_h = 1;
     while (gl_h < height)
@@ -315,7 +315,7 @@ namespace OpenGTA {
     int persp_find_done = 0;
     int break_loop_safe = 500;
     while (persp_find_done != 3) {
-      OpenGL::Screen::Instance().set3DProjection();
+      screen_.set3DProjection();
       glRotatef(180, 0, 0, 1);
 
       gluLookAt(128+v_off.x, 230, 128+v_off.y, 128+v_off.x, 0, 128+v_off.y, 0.0f, 0.0f, 1.0f);
@@ -442,10 +442,9 @@ namespace OpenGTA {
 
     }
     else {
-      OpenGL::Camera & cam = OpenGL::Camera::Instance();
       //gluLookAt(camPos[0], camPos[1], camPos[2], camPos[0]+5, 0, (camPos[2])+5, camVec[0], camVec[1], camVec[2]);
-      cam.update(ticks);
-      Vector3D & e = cam.getEye();
+      camera_.update(ticks, screen_);
+      Vector3D & e = camera_.getEye();
       //INFO << "eye: " << e.x << ", " << e.y << ", " << e.z << std::endl;
       setPosition(e.x, e.y, e.z);
       x1 = int(e.x) - visibleRange;

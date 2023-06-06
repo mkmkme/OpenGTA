@@ -59,12 +59,12 @@ namespace OpenGL {
     gameCamMode = 0;
   }
 
-  void Camera::update(Uint32 ticks) {
+  void Camera::update(Uint32 ticks, OpenGL::Screen & screen) {
     if (gameCamMode) {
       update_game(ticks);
       return;
     }
-    moveByMouse();
+    moveByMouse(screen);
 
     float x,y,z;
     x = floor(eye.x);
@@ -230,8 +230,7 @@ namespace OpenGL {
     }
   }
 
-  void Camera::moveByMouse() {
-    Screen & screen = Screen::Instance();
+  void Camera::moveByMouse(OpenGL::Screen & screen) {
     int w, h;
     w = screen.width() / 2;
     h = screen.height() / 2;

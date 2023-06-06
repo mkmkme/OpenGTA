@@ -72,10 +72,10 @@ void handleKeyPress( SDL_keysym *keysym ) {
   }
 }
 
-void drawScene() {
+void drawScene(OpenGL::Screen &screen, OpenGL::Camera &camera) {
   glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-  OpenGL::Screen::Instance().set3DProjection();
-  OpenGL::Camera::Instance().update(1);
+  screen.set3DProjection();
+  camera.update(1);
 
   glRotatef(r, 0, 1, 0);
   glColor3f(0.5f, 1, 0.2f);
@@ -175,23 +175,22 @@ void drawScene() {
 }
 
 
-void run_init(const char* prg) {
+void run_init(const char* prg, OpenGL::Screen &screen, OpenGL::Camera &camera) {
   PHYSFS_init("blockview");
   PHYSFS_mount("gtadata.zip", nullptr, 1);
   PHYSFS_mount(PHYSFS_getBaseDir(), nullptr, 1);
 
-  OpenGL::Screen & screen = OpenGL::Screen::Instance();
   screen.activate(arg_screen_w, arg_screen_h);
   SDL_EnableKeyRepeat( 100, SDL_DEFAULT_REPEAT_INTERVAL );
 
   OpenGTA::MainMsgLookup::Instance().load("ENGLISH.FXT");
   OpenGTA::ActiveMap::Instance().load(map_file);
 
-  OpenGL::Camera::Instance().setVectors(e, c, u);
+  camera.setVectors(e, c, u);
 
 }
 
-void run_main() {
+void run_main(OpenGL::Screen &screen, OpenGL::Camera &camera) {
   SDL_Event event;
   int paused = 0;
 
@@ -224,7 +223,7 @@ void run_main() {
       }
     }
     if (!paused)
-      drawScene();
+      drawScene(screen, camera);
   }
 }
 
@@ -234,9 +233,12 @@ int main(int argc, char* argv[]) {
 
   atexit(on_exit);
 
-  run_init(argv[0]);
+  OpenGL::Screen screen {};
+  OpenGL::Camera camera {};
+
+  run_init(argv[0], screen, camera);
   try {
-    run_main();
+    run_main(screen);
   } catch (const std::exception &e) {
     ERROR("Exception occured: {}", e.what());
     throw;

@@ -2,6 +2,18 @@
 
 #include "lua.hpp"
 
-namespace OpenGTA::Script {
-int luaopen_screen(lua_State *L);
+namespace OpenGL {
+class Screen;
 }
+
+namespace OpenGTA::Script {
+class LuaScreen {
+public:
+    LuaScreen(OpenGL::Screen &s);
+    int registerFunctions(lua_State *L);
+
+private:
+    OpenGL::Screen &screen_;
+};
+
+} // namespace OpenGTA::Script

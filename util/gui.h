@@ -71,7 +71,7 @@ namespace GUI {
 #endif
       ImageUtil::WidthHeightPair cacheStyleArrowSprite(const size_t id, int remap);
       const OpenGL::PagedTexture & getCachedImage(size_t id);
-      void receive(SDL_MouseButtonEvent & mb_event);
+      void receive(SDL_MouseButtonEvent & mb_event, uint32_t height);
       Animation* findAnimation(uint16_t id);
       void createAnimation(const std::vector<uint16_t> & indices, uint16_t fps, size_t asAnimId);
       void update(uint32_t nowTicks);

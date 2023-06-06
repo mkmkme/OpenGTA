@@ -6,19 +6,17 @@
 
 namespace OpenGL {
 
+  class Screen;
+
   class Camera {
-    private:
+    public:
       Camera();
       ~Camera() = default;
-    public:
+
       Camera(const Camera& copy) = delete;
       Camera& operator=(const Camera& copy) = delete;
-
-      static Camera& Instance()
-      {
-        static Camera instance;
-        return instance;
-      }
+      Camera(Camera&& move) = delete;
+      Camera& operator=(Camera&& move) = delete;
 
       void setSpeed(float forward_is_positive);
       void setRotating(bool demo);
@@ -28,12 +26,12 @@ namespace OpenGL {
       void translateBy(const Vector3D & t);
       void translateTo(const Vector3D & e);
       void setVectors(const Vector3D & e, const Vector3D & c, const Vector3D & u);
-      void moveByMouse();
+      void moveByMouse(OpenGL::Screen & screen);
       void interpolate(const Vector3D & to, const Uint32 & start, const Uint32 & end);
       void setFollowMode(const Vector3D & target);
       void releaseFollowMode();
 
-      void update(Uint32 dt);
+      void update(Uint32 dt, OpenGL::Screen & screen);
       Vector3D & getEye() { return eye; }
       Vector3D & getCenter() { return center; }
       Vector3D & getUp() { return up; }

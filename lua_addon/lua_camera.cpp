@@ -5,21 +5,24 @@
 namespace {
 int setSpeed(lua_State *L)
 {
+    auto *c = static_cast<OpenGL::Camera *>(lua_touserdata(L, lua_upvalueindex(1)));
     float tmp = float(luaL_checknumber(L, 1));
-    OpenGL::Camera::Instance().setSpeed(tmp);
+    c->setSpeed(tmp);
     return 0;
 }
 
 int setRotating(lua_State *L)
 {
+    auto *c = static_cast<OpenGL::Camera *>(lua_touserdata(L, lua_upvalueindex(1)));
     bool b = lua_toboolean(L, 1);
-    OpenGL::Camera::Instance().setRotating(b);
+    c->setRotating(b);
     return 0;
 }
 
 int getEye(lua_State *L)
 {
-    Vector3D &e = OpenGL::Camera::Instance().getEye();
+    auto *c = static_cast<OpenGL::Camera *>(lua_touserdata(L, lua_upvalueindex(1)));
+    Vector3D &e = c->getEye();
     lua_pushnumber(L, e.x);
     lua_pushnumber(L, e.y);
     lua_pushnumber(L, e.z);
@@ -28,7 +31,8 @@ int getEye(lua_State *L)
 
 int setEye(lua_State *L)
 {
-    Vector3D &e = OpenGL::Camera::Instance().getEye();
+    auto *c = static_cast<OpenGL::Camera *>(lua_touserdata(L, lua_upvalueindex(1)));
+    Vector3D &e = c->getEye();
     e.x = luaL_checknumber(L, 1);
     e.y = luaL_checknumber(L, 2);
     e.z = luaL_checknumber(L, 3);
@@ -37,7 +41,8 @@ int setEye(lua_State *L)
 
 int getCenter(lua_State *L)
 {
-    Vector3D &e = OpenGL::Camera::Instance().getCenter();
+    auto *c = static_cast<OpenGL::Camera *>(lua_touserdata(L, lua_upvalueindex(1)));
+    Vector3D &e = c->getCenter();
     lua_pushnumber(L, e.x);
     lua_pushnumber(L, e.y);
     lua_pushnumber(L, e.z);
@@ -46,7 +51,8 @@ int getCenter(lua_State *L)
 
 int setCenter(lua_State *L)
 {
-    Vector3D &e = OpenGL::Camera::Instance().getCenter();
+    auto *c = static_cast<OpenGL::Camera *>(lua_touserdata(L, lua_upvalueindex(1)));
+    Vector3D &e = c->getCenter();
     e.x = luaL_checknumber(L, 1);
     e.y = luaL_checknumber(L, 2);
     e.z = luaL_checknumber(L, 3);
@@ -55,16 +61,18 @@ int setCenter(lua_State *L)
 
 int getUp(lua_State *L)
 {
-    Vector3D &e = OpenGL::Camera::Instance().getUp();
+    auto *c = static_cast<OpenGL::Camera *>(lua_touserdata(L, lua_upvalueindex(1)));
+    Vector3D &e = c->getUp();
     lua_pushnumber(L, e.x);
     lua_pushnumber(L, e.y);
     lua_pushnumber(L, e.z);
-    return 0; // FIXME: 3
+    return 3;
 }
 
 int setUp(lua_State *L)
 {
-    Vector3D &e = OpenGL::Camera::Instance().getUp();
+    auto *c = static_cast<OpenGL::Camera *>(lua_touserdata(L, lua_upvalueindex(1)));
+    Vector3D &e = c->getUp();
     e.x = luaL_checknumber(L, 1);
     e.y = luaL_checknumber(L, 2);
     e.z = luaL_checknumber(L, 3);
@@ -73,39 +81,78 @@ int setUp(lua_State *L)
 
 int setGravityOn(lua_State *L)
 {
+    auto *c = static_cast<OpenGL::Camera *>(lua_touserdata(L, lua_upvalueindex(1)));
     bool v = lua_toboolean(L, 1);
-    OpenGL::Camera::Instance().setCamGravity(v);
+    c->setCamGravity(v);
     return 0;
 }
 
 int interpolateToPosition(lua_State *L)
 {
-    float x, y, z;
-    x = float(luaL_checknumber(L, 1));
-    y = float(luaL_checknumber(L, 2));
-    z = float(luaL_checknumber(L, 3));
+    auto *c = static_cast<OpenGL::Camera *>(lua_touserdata(L, lua_upvalueindex(1)));
+    auto x = float(luaL_checknumber(L, 1));
+    auto y = float(luaL_checknumber(L, 2));
+    auto z = float(luaL_checknumber(L, 3));
     Uint32 msecInterval = Uint32(luaL_checkinteger(L, 4));
-    OpenGL::Camera::Instance().interpolate(Vector3D(x, y, z), 1, msecInterval);
+    c->interpolate(Vector3D(x, y, z), 1, msecInterval);
     return 0;
 }
 
-const luaL_Reg camera_functions[] = {
-    { "setSpeed", setSpeed },
-    { "setRotating", setRotating },
-    { "getEye", getEye },
-    { "setEye", setEye },
-    { "getCenter", getCenter },
-    { "setCenter", setCenter },
-    { "getUp", getUp },
-    { "setUp", setUp },
-    { "setGravityOn", setGravityOn },
-    { "interpolateToPosition", interpolateToPosition },
-    { NULL, NULL },
-};
 } // namespace
 
-int OpenGTA::Script::luaopen_camera(lua_State *L)
+OpenGTA::Script::LuaCamera::LuaCamera(OpenGL::Camera &c)
+    : camera_(c)
 {
-    luaL_newlib(L, camera_functions);
-    return 1;
+}
+
+int OpenGTA::Script::LuaCamera::registerFunctions(lua_State *L)
+{
+    // Put all functions into a table
+    lua_createtable(L, 0, 10);
+
+    // Add the functions to the table
+    lua_pushlightuserdata(L, &camera_);
+    lua_pushcclosure(L, setSpeed, 1);
+    lua_setfield(L, -2, "setSpeed");
+
+    lua_pushlightuserdata(L, &camera_);
+    lua_pushcclosure(L, setRotating, 1);
+    lua_setfield(L, -2, "setRotating");
+
+    lua_pushlightuserdata(L, &camera_);
+    lua_pushcclosure(L, getEye, 1);
+    lua_setfield(L, -2, "getEye");
+
+    lua_pushlightuserdata(L, &camera_);
+    lua_pushcclosure(L, setEye, 1);
+    lua_setfield(L, -2, "setEye");
+
+    lua_pushlightuserdata(L, &camera_);
+    lua_pushcclosure(L, getCenter, 1);
+    lua_setfield(L, -2, "getCenter");
+
+    lua_pushlightuserdata(L, &camera_);
+    lua_pushcclosure(L, setCenter, 1);
+    lua_setfield(L, -2, "setCenter");
+
+    lua_pushlightuserdata(L, &camera_);
+    lua_pushcclosure(L, getUp, 1);
+    lua_setfield(L, -2, "getUp");
+
+    lua_pushlightuserdata(L, &camera_);
+    lua_pushcclosure(L, setUp, 1);
+    lua_setfield(L, -2, "setUp");
+
+    lua_pushlightuserdata(L, &camera_);
+    lua_pushcclosure(L, setGravityOn, 1);
+    lua_setfield(L, -2, "setGravityOn");
+
+    lua_pushlightuserdata(L, &camera_);
+    lua_pushcclosure(L, interpolateToPosition, 1);
+    lua_setfield(L, -2, "interpolateToPosition");
+
+    // Set the table as the global "Camera" object
+    lua_setglobal(L, "Camera");
+
+    return 0;
 }

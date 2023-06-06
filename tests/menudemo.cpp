@@ -24,13 +24,10 @@ void on_exit() {
   std::cout << "Goodbye" << std::endl;
 }
 
-void parse_args(int argc, char* argv[]) {
-}
-
 void turn_anim_off(float) {
   GUI::AnimatedTextureObject * obj= (GUI::AnimatedTextureObject *)guiManager.findObject(2);
   obj->animation->set(obj->animation->get(), Util::Animation::STOP);
-  INFO << "stopped animation" << std::endl;
+  INFO("Stopped animation");
 }
 
 void font_play(float b) {
@@ -39,13 +36,12 @@ void font_play(float b) {
   obj->color.r = obj->color.g = obj->color.b = obj->color.unused = Uint8((1.0f - b) * 255);
 }
 
-void run_init() {
+void run_init(OpenGL::Screen & screen) {
   PHYSFS_init("ogta");
   PHYSFS_mount(PHYSFS_getBaseDir(), nullptr, 1);
   PHYSFS_mount("gtadata.zip", nullptr, 1);
   if (getenv("OGTA_MOD"))
     PHYSFS_mount(getenv("OGTA_MOD"), nullptr, 0);
-  OpenGL::Screen & screen = OpenGL::Screen::Instance();
   screen.activate(arg_screen_w, arg_screen_h);
   screen.setSystemMouseCursor(true);
   glEnable(GL_ALPHA_TEST);
@@ -113,9 +109,8 @@ void handleKeyPress( SDL_keysym *keysym ) {
   }
 }
 
-void draw_menu() {
+void draw_menu(OpenGL::Screen & screen) {
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-  OpenGL::Screen & screen = OpenGL::Screen::Instance();
   screen.setFlatProjection();
   glDisable(GL_DEPTH_TEST);
 
@@ -127,7 +122,7 @@ void draw_menu() {
   SDL_GL_SwapBuffers();
 }
 
-void run_main() {
+void run_main(OpenGL::Screen & screen) {
   SDL_Event event;
   Timer & t = Timer::Instance();
   t.update();
@@ -146,7 +141,7 @@ void run_main() {
             handleKeyUp(&event.key.keysym);
             break;*/
         case SDL_VIDEORESIZE:
-          OpenGL::Screen::Instance().resize(event.resize.w, event.resize.h);
+          screen.resize(event.resize.w, event.resize.h);
           break;
         case SDL_QUIT:
           global_Done = 1;
@@ -155,7 +150,7 @@ void run_main() {
           break;
       }
     }
-    draw_menu();
+    draw_menu(screen);
     //now_ticks = SDL_GetTicks();
     t.update();
     now_ticks = t.getRealTime(); 
@@ -165,4 +160,12 @@ void run_main() {
   // otherwise only at exit, which... troubles loki::smallobject
   guiManager.clearCache();
   Timer::Instance().clearAllEvents();
+}
+
+int main(int argc, char* argv[]) {
+  atexit(on_exit);
+  OpenGL::Screen screen {};
+  run_init(screen);
+  run_main(screen);
+  return 0;
 }

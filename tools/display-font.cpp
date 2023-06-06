@@ -34,7 +34,7 @@ bool handleKeyPress(SDL_Keysym *keysym)
 }
 
 // returns true when need to quit
-void drawScene(GUI::Label *label, GUI::Manager &manager)
+void drawScene(GUI::Label *label, GUI::Manager &manager, OpenGL::Screen &screen)
 {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glLoadIdentity();
@@ -62,10 +62,10 @@ void drawScene(GUI::Label *label, GUI::Manager &manager)
 
     glEnable(GL_DEPTH_TEST);
 
-    SDL_GL_SwapWindow(OpenGL::Screen::Instance().get());
+    SDL_GL_SwapWindow(screen.get());
 }
 
-void main_loop(GUI::Label *label, GUI::Manager &manager)
+void main_loop(GUI::Label *label, GUI::Manager &manager, OpenGL::Screen &screen)
 {
     SDL_Event event;
     int paused = 0;
@@ -88,7 +88,7 @@ void main_loop(GUI::Label *label, GUI::Manager &manager)
                     }
                     break;
                 case SDL_WINDOWEVENT_SIZE_CHANGED:
-                    OpenGL::Screen::Instance().resize(event.window.data1, event.window.data2);
+                    screen.resize(event.window.data1, event.window.data2);
                     break;
                 case SDL_QUIT:
                     return;
@@ -97,7 +97,7 @@ void main_loop(GUI::Label *label, GUI::Manager &manager)
             }
         }
         if (!paused) {
-            drawScene(label, manager);
+            drawScene(label, manager, screen);
         }
     }
 }
@@ -108,7 +108,7 @@ int main(int argc, char *argv[])
     PHYSFS_mount(PHYSFS_getBaseDir(), nullptr, 1);
     PHYSFS_mount("gtadata.zip", nullptr, 1);
 
-    OpenGL::Screen &screen = OpenGL::Screen::Instance();
+    OpenGL::Screen screen {};
     screen.activate(640, 480);
 
     GUI::Manager gm {};
@@ -120,7 +120,7 @@ int main(int argc, char *argv[])
     auto *fps_label = new GUI::Label(rect, "", "F_MTEXT.FON", 1);
     gm.add(fps_label, 5);
 
-    main_loop(fps_label, gm);
+    main_loop(fps_label, gm, screen);
 
     SDL_Quit();
     PHYSFS_deinit();

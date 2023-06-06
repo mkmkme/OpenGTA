@@ -129,13 +129,17 @@ private:
   void showGammaConfig();
 
   GUI::Manager guiManager_;
+  OpenGL::Screen screen_;
+  OpenGL::Camera camera_;
   OpenGTA::Script::LuaVM luaVM_;
   OpenGTA::LocalPlayer localPlayer_;
 };
 
 OpenGTAViewer::OpenGTAViewer()
   : guiManager_ {}
-  , luaVM_ {}
+  , screen_ {}
+  , camera_ {}
+  , luaVM_ { screen_, camera_ }
   , localPlayer_ {}
 {
 }
@@ -201,8 +205,7 @@ void print_version_info() {
 
 namespace {
 
-void create_ingame_gui(bool is32bit, GUI::Manager &gm) {
-  OpenGL::Screen & screen = OpenGL::Screen::Instance();
+void create_ingame_gui(bool is32bit, GUI::Manager &gm, OpenGL::Screen &screen) {
   assert(!wantedLevel);
   {
     SDL_Rect r;
@@ -335,7 +338,7 @@ namespace {
 
 void OpenGTAViewer::screenGammaCallback(float v) {
   screen_gamma = v;
-  setGamma(OpenGL::Screen::Instance().get(), v);
+  setGamma(screen_.get(), v);
   lua_State *L = luaVM_.getInternalState();
   int top = lua_gettop(L);
   lua_getglobal(L, "config");
@@ -379,9 +382,6 @@ void OpenGTAViewer::init(std::string_view progname) {
   if (std::filesystem::exists(mod_path))
     PHYSFS_mount(mod_path.c_str(), nullptr, 0);
 
-  // screen, no window yet
-  OpenGL::Screen & screen = OpenGL::Screen::Instance();
-
   // check for a configfile
   if (PHYSFS_exists("config")) {
     const auto config_as_string = Util::FileHelper::BufferFromVFS(
@@ -416,17 +416,17 @@ void OpenGTAViewer::init(std::string_view progname) {
       if (luaVM_.tryGetInt("screen_height", tmpInt))
         arg_screen_h = tmpInt;
       if (luaVM_.tryGetInt("screen_vsync", tmpInt))
-        screen.setVSyncMode(static_cast<OpenGL::VSyncMode>(tmpInt));
+        screen_.setVSyncMode(static_cast<OpenGL::VSyncMode>(tmpInt));
 
       luaVM_.tryGetBool("full_screen", full_screen);
 
-      float fov = screen.fieldOfView();
-      float np = screen.nearPlane();
-      float fp = screen.farPlane();
+      float fov = screen_.fieldOfView();
+      float np = screen_.nearPlane();
+      float fp = screen_.farPlane();
       luaVM_.tryGetFloat("gl_field_of_view", fov);
       luaVM_.tryGetFloat("gl_near_plane", np);
       luaVM_.tryGetFloat("gl_far_plane", fp);
-      screen.setupGlVars(fov, np, fp);
+      screen_.setupGlVars(fov, np, fp);
 
       luaVM_.tryGetBool("gl_mipmap_textures", ImageUtil::mipmapTextures);
 
@@ -451,12 +451,12 @@ void OpenGTAViewer::init(std::string_view progname) {
   }
   
   // fullscreen before first video init; only chance to set it on win32
-  screen.setFullScreenFlag(full_screen);
+  screen_.setFullScreenFlag(full_screen);
   if (vsync_config != -1)
-    screen.setVSyncMode(OpenGL::VSyncMode{ static_cast<uint8_t>(vsync_config) });
+    screen_.setVSyncMode(OpenGL::VSyncMode{ static_cast<uint8_t>(vsync_config) });
 
   // create screen
-  screen.activate(arg_screen_w, arg_screen_h);
+  screen_.activate(arg_screen_w, arg_screen_h);
 
   // more setup; that requires an active screen
   lua_State *L = luaVM_.getInternalState();
@@ -506,10 +506,10 @@ void OpenGTAViewer::init(std::string_view progname) {
 }
 
 
-void print_position() {
-  Vector3D & v = OpenGL::Camera::Instance().getCenter();
-  Vector3D & e = OpenGL::Camera::Instance().getEye();
-  Vector3D & u = OpenGL::Camera::Instance().getUp();
+void print_position(OpenGL::Camera & camera) {
+  Vector3D & v = camera.getCenter();
+  Vector3D & e = camera.getEye();
+  Vector3D & u = camera.getUp();
   if (!city->getViewMode()) {
   std::cout << cities[city_num] << ": " << city->getCurrentSector()->getFullName() << std::endl <<
   "camera.setCenter(" << v.x << ", " << v.y << ", " << v.z << ")" << std::endl <<
@@ -540,7 +540,7 @@ void handleKeyUp(SDL_Keysym *keysym, OpenGTA::LocalPlayer & player) {
   }
 }
 
-void draw_mapmode();
+// void draw_mapmode();
 
 void OpenGTAViewer::createPedAt(const Vector3D v) {
   OpenGTA::Pedestrian p(Vector3D(0.2f, 0.5f, 0.2f), v, 0xffffffff);
@@ -549,7 +549,7 @@ void OpenGTAViewer::createPedAt(const Vector3D v) {
   OpenGTA::Pedestrian & pr = OpenGTA::SpriteManager::Instance().add(p);
   pr.switchToAnim(1);
   localPlayer_.setCtrl(pr.m_control);
-  create_ingame_gui(1, guiManager_);
+  create_ingame_gui(1, guiManager_, screen_);
 }
 
 void explode_ped() {
@@ -649,12 +649,11 @@ void toggle_player_run(OpenGTA::LocalPlayer & player) {
 }
 
 void OpenGTAViewer::showGammaConfig() {
-  OpenGL::Screen & screen = OpenGL::Screen::Instance();
   if (gamma_slide) {
   SDL_Rect r;
 
-  r.x = screen.width() / 2;
-  r.y = screen.height() / 2;
+  r.x = screen_.width() / 2;
+  r.y = screen_.height() / 2;
   r.w = 200;
   r.h = 30;
 
@@ -674,13 +673,13 @@ void OpenGTAViewer::showGammaConfig() {
                                  1);
   guiManager_.add(l, 80);
 
-  screen.setSystemMouseCursor(true);
+  screen_.setSystemMouseCursor(true);
 
   }
   else {
     guiManager_.removeById(GUI::GAMMA_SCROLLBAR_ID);
     guiManager_.removeById(GUI::GAMMA_LABEL_ID);
-    screen.setSystemMouseCursor(false);
+    screen_.setSystemMouseCursor(false);
   }
 }
 
@@ -711,32 +710,33 @@ void car_toggle(OpenGTA::LocalPlayer & player) {
 
 }
 
+void draw_mapmode(OpenGL::Screen &);
+
 void OpenGTAViewer::handleKeyPress(SDL_Keysym *keysym) {
   GLfloat* cp = city->getCamPos();
   mapPos[0] = cp[0]; mapPos[1] = cp[1]; mapPos[2] = cp[2];
-  OpenGL::Camera & cam = OpenGL::Camera::Instance();
   switch ( keysym->sym ) {
     case SDLK_ESCAPE:
       global_Done = 1;
       break;
     case SDLK_LEFT:
       mapPos[0] -= 1.0f;
-      cam.translateBy(Vector3D(-1, 0, 0));
+      camera_.translateBy(Vector3D(-1, 0, 0));
       break;
     case SDLK_RIGHT:
       mapPos[0] += 1.0f;
-      cam.translateBy(Vector3D(1, 0, 0));
+      camera_.translateBy(Vector3D(1, 0, 0));
       break;
     case SDLK_UP:
       mapPos[2] -= 1.0f;
-      cam.translateBy(Vector3D(0, 0, -1));
+      camera_.translateBy(Vector3D(0, 0, -1));
       break;
     case SDLK_DOWN:
       mapPos[2] += 1.0f;
-      cam.translateBy(Vector3D(0, 0, 1));
+      camera_.translateBy(Vector3D(0, 0, 1));
       break;
     case SDLK_SPACE:
-      cam.setSpeed(0.0f);
+      camera_.setSpeed(0.0f);
       break;
     case SDLK_F2:
       bbox_toggle = !bbox_toggle;
@@ -751,18 +751,18 @@ void OpenGTAViewer::handleKeyPress(SDL_Keysym *keysym) {
       if (follow_toggle) {
         // SDL_EnableKeyRepeat( 0, SDL_DEFAULT_REPEAT_INTERVAL );
         city->setViewMode(false);
-        Vector3D p(cam.getEye());
+        Vector3D p(camera_.getEye());
         createPedAt(p);
-        cam.setVectors( Vector3D(p.x, 10, p.z), Vector3D(p.x, 9.0f, p.z), Vector3D(0, 0, -1) );
-        cam.setFollowMode(OpenGTA::SpriteManager::Instance().getPed(0xffffffff).pos);
-        cam.setCamGravity(true);
+        camera_.setVectors( Vector3D(p.x, 10, p.z), Vector3D(p.x, 9.0f, p.z), Vector3D(0, 0, -1) );
+        camera_.setFollowMode(OpenGTA::SpriteManager::Instance().getPed(0xffffffff).pos);
+        camera_.setCamGravity(true);
       }
       else {
         // SDL_EnableKeyRepeat( 100, SDL_DEFAULT_REPEAT_INTERVAL );
-        cam.setVectors(cam.getEye(), 
-          Vector3D(cam.getEye() + Vector3D(1, -1, 1)), Vector3D(0, 1, 0));
-        cam.setCamGravity(false);
-        cam.releaseFollowMode();
+        camera_.setVectors(camera_.getEye(), 
+          Vector3D(camera_.getEye() + Vector3D(1, -1, 1)), Vector3D(0, 1, 0));
+        camera_.setCamGravity(false);
+        camera_.releaseFollowMode();
         OpenGTA::SpriteManager::Instance().removePed(0xffffffff);
         OpenGTA::SpriteManager::Instance().removeDeadPeds();
         remove_ingame_gui(guiManager_);
@@ -776,7 +776,7 @@ void OpenGTAViewer::handleKeyPress(SDL_Keysym *keysym) {
       city->setDrawHeadingArrows(draw_arrows);
       break;
     case SDLK_F6:
-      draw_mapmode();
+      draw_mapmode(screen_);
       break;
     case SDLK_F7:
       explode_ped();
@@ -851,10 +851,10 @@ void OpenGTAViewer::handleKeyPress(SDL_Keysym *keysym) {
       //OpenGTA::SpriteManager::Instance().getPed(0xffffffff).equip(0);
       break;
     case 'w':
-      cam.setSpeed(0.2f);
+      camera_.setSpeed(0.2f);
       break;
     case 's':
-      cam.setSpeed(-0.2f);
+      camera_.setSpeed(-0.2f);
       break;
     case 'j':
       localPlayer_.getCtrl().setTurnLeft();
@@ -871,7 +871,7 @@ void OpenGTAViewer::handleKeyPress(SDL_Keysym *keysym) {
     case 'f':
 //FIXME: simply ignored on windows for now
 #ifndef _WIN32
-      OpenGL::Screen::Instance().toggleFullscreen();
+      screen_.toggleFullscreen();
 #endif
 #if 0
 #ifdef _WIN32
@@ -883,11 +883,11 @@ void OpenGTAViewer::handleKeyPress(SDL_Keysym *keysym) {
       break;
     case 'r':
       rotate = !rotate;
-      cam.setRotating(rotate);
+      camera_.setRotating(rotate);
       break;
     case 'g':
       cam_grav = !cam_grav;
-      cam.setCamGravity(cam_grav);
+      camera_.setCamGravity(cam_grav);
       break;
     case 't':
       mapPos[0] = mapPos[2] = 128;
@@ -895,15 +895,15 @@ void OpenGTAViewer::handleKeyPress(SDL_Keysym *keysym) {
       city->setVisibleRange(128);
       break;
     case 'p':
-      print_position();
+      print_position(camera_);
       break;
     case '+':
       mapPos[1] += 1.0f;
-      cam.translateBy(Vector3D(0, 1, 0));
+      camera_.translateBy(Vector3D(0, 1, 0));
       break;
     case '-':
       mapPos[1] -= 1.0f;
-      cam.translateBy(Vector3D(0, -1, 0));
+      camera_.translateBy(Vector3D(0, -1, 0));
       break;
     case 'x':
       city->setViewMode(false);
@@ -924,7 +924,7 @@ void OpenGTAViewer::handleKeyPress(SDL_Keysym *keysym) {
       INFO(" new visible range {}", city->getVisibleRange());
       break;
     case SDLK_PRINTSCREEN:
-      OpenGL::Screen::Instance().makeScreenshot("screenshot.bmp"); 
+      screen_.makeScreenshot("screenshot.bmp"); 
       break;
     default:
       return; 
@@ -933,10 +933,10 @@ void OpenGTAViewer::handleKeyPress(SDL_Keysym *keysym) {
 
 }
 
-void drawScene(Uint32 ticks, GUI::Manager &manager) {
+void drawScene(Uint32 ticks, GUI::Manager &manager, OpenGL::Screen &screen) {
   glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
   
-  OpenGL::Screen::Instance().set3DProjection();
+  screen.set3DProjection();
   city->draw(ticks);
 
   glColor3f(1, 0, 0);
@@ -948,7 +948,7 @@ void drawScene(Uint32 ticks, GUI::Manager &manager) {
   glColor3f(1, 1, 1);
 
 
-  OpenGL::Screen::Instance().setFlatProjection();
+  screen.setFlatProjection();
   glDisable(GL_DEPTH_TEST);
   
   glPushMatrix();
@@ -969,14 +969,13 @@ void drawScene(Uint32 ticks, GUI::Manager &manager) {
   num_frames_drawn += 1;
   glEnable(GL_DEPTH_TEST);
 
-  SDL_GL_SwapWindow(OpenGL::Screen::Instance().get());
+  SDL_GL_SwapWindow(screen.get());
 }
 
-void draw_mapmode() {
+void draw_mapmode(OpenGL::Screen &screen) {
   SDL_Event event;
   OpenGL::PagedTexture map_tex = city->renderMap2Texture();
   bool done_map = false;
-  OpenGL::Screen & screen = OpenGL::Screen::Instance();
   screen.setSystemMouseCursor(true);
   glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
   glDisable(GL_DEPTH_TEST);
@@ -1093,7 +1092,7 @@ void OpenGTAViewer::run() {
   glEnable(GL_ALPHA_TEST);
   glAlphaFunc(GL_GREATER, 2/255.0f);//0);
 
-  city = new OpenGTA::CityView();
+  city = new OpenGTA::CityView(screen_, camera_);
   if (specific_map.size() > 0 && specific_style.size() > 0) {
     city->loadMap(specific_map, specific_style);
   }
@@ -1107,9 +1106,8 @@ void OpenGTAViewer::run() {
     city->setVisibleRange(city_blocks_area);
   city->setPosition(mapPos[0], mapPos[1], mapPos[2]);
 
-  OpenGL::Camera & cam = OpenGL::Camera::Instance(); 
   //cam.setVectors( Vector3D(4, 10, 4), Vector3D(4, 0.0f, 4.0f), Vector3D(0, 0, -1) );
-  cam.setVectors( Vector3D(12, 20, 12), Vector3D(13.0f, 19.0f, 13.0f), Vector3D(0, 1, 0) );
+  camera_.setVectors( Vector3D(12, 20, 12), Vector3D(13.0f, 19.0f, 13.0f), Vector3D(0, 1, 0) );
 
 #ifdef TIMER_OPENSTEER_CLOCK
   Timer & timer = Timer::Instance();
@@ -1145,7 +1143,7 @@ void OpenGTAViewer::run() {
           handleKeyUp(&event.key.keysym, localPlayer_);
           break;
         case SDL_WINDOWEVENT_SIZE_CHANGED:
-          OpenGL::Screen::Instance().resize(event.window.data1, event.window.data2);
+          screen_.resize(event.window.data1, event.window.data2);
           break;
         case SDL_QUIT:
           global_Done = 1;
@@ -1154,7 +1152,7 @@ void OpenGTAViewer::run() {
           //std::cout << "Mouse move: x " << float(event.motion.x)/screen->w << " y " << float(event.motion.y)/screen->h << std::endl;
           break;
         case SDL_MOUSEBUTTONDOWN:
-          guiManager_.receive(event.button);
+          guiManager_.receive(event.button, screen_.height());
           break;
         default:
           break;
@@ -1171,7 +1169,7 @@ void OpenGTAViewer::run() {
     guiManager_.update(now_ticks);
     update_ingame_gui_values(localPlayer_);
     if (!paused) {
-      drawScene(now_ticks - last_tick, guiManager_);
+      drawScene(now_ticks - last_tick, guiManager_, screen_);
     last_tick = now_ticks;
       if (vm_tick_ok && (now_ticks - script_last_tick > 100)) {
         try {

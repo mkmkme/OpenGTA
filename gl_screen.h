@@ -31,19 +31,14 @@ namespace OpenGL {
 enum class VSyncMode : uint8_t { NoSync, SDL, Native };
 
 class Screen final {
-private:
+public:
     Screen();
     ~Screen();
 
-public:
     Screen(const Screen &copy) = delete;
     Screen &operator=(const Screen &copy) = delete;
-
-    static Screen &Instance()
-    {
-        static Screen instance;
-        return instance;
-    }
+    Screen(Screen &&move) = delete;
+    Screen &operator=(Screen &&move) = delete;
 
     void set3DProjection();
     void setFlatProjection();

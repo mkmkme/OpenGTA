@@ -28,7 +28,7 @@ public:
             return;
 
         prefix(level, file, line);
-        fmt::print(stderr, "{}", std::vformat(format, std::make_format_args(std::forward<Args>(args)...)));
+        fmt::print(stderr, "{}", fmt::vformat(format, fmt::make_format_args(std::forward<Args>(args)...)));
         fmt::print(stderr, "\n");
     }
 

@@ -42,7 +42,11 @@
 #include "id_sys.h"
 #include "map_helper.h"
 
+#ifdef __APPLE__
+#include <OpenGL/glu.h>
+#else
 #include <GL/glu.h>
+#endif
 
 float slope_height_offset(unsigned char slope_type, float dx, float dz);
 namespace OpenGTA {

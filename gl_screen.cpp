@@ -29,11 +29,13 @@
 
 #ifdef _WIN32
 #include <Windows.h>
+#elif defined(__APPLE__)
+#include <OpenGL/glext.h>
+#include <OpenGL/glu.h>
 #else
-#include <GL/glext.h>
+#include <GL/glu.h>
 #endif
 
-#include <GL/glu.h>
 #include <assert.h>
 #include <memory>
 #include <string>

@@ -8,7 +8,11 @@
 #ifdef _WIN32
 #include <Windows.h>
 #endif
+#ifdef __APPLE__
+#include <OpenGL/glu.h>
+#else
 #include <GL/glu.h>
+#endif
 
 using namespace OpenGTA;
 float slope_height_offset(unsigned char slope_type, float dx, float dz);

@@ -34,9 +34,12 @@
 #include <Windows.h>
 #elif defined(__APPLE__)
 #include <OpenGL/glext.h>
-#include <OpenGL/glu.h>
 #else
 #include <GL/glext.h>
+#endif
+#ifdef __APPLE__
+#include <OpenGL/glu.h>
+#else
 #include <GL/glu.h>
 #endif
 #include <SDL2/SDL_opengl.h>

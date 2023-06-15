@@ -14,7 +14,7 @@ find_package(SDL_mixer)
 find_package(glu REQUIRED)
 find_package(PhysFS REQUIRED)
 find_package(lua REQUIRED)
-find_package(gtest REQUIRED)
+find_package(GTest REQUIRED)
 
 configure_file(config.h.in config.h)
 

@@ -14,6 +14,17 @@
             "cacheVariables": {
                 "CMAKE_CXX_FLAGS_INIT": "/W4 /EHsc"
             }
+        },
+        {
+            "name": "GCC",
+            "displayName": "GCC Compiler",
+            "description": "Configure using GCC Compiler and Debug conan dependencies.",
+            "inherits": [
+                "conan-gcc-debug"
+            ],
+            "cacheVariables": {
+                "CMAKE_CXX_FLAGS_INIT": "-Wall"
+            }
         }
     ],
     "buildPresets": [
@@ -26,6 +37,11 @@
             "name": "MSVC Release",
             "configurePreset": "MSVC",
             "configuration": "Release"
+        },
+        {
+            "name": "GCC Debug",
+            "configurePreset": "GCC",
+            "configuration": "Debug"
         }
     ],
     "testPresets": []

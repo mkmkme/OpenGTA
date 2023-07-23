@@ -48,16 +48,7 @@ private:
     struct FontIdentifier {
         const std::string filename;
         const uint32_t scale;
-        // TODO: strong_ordering
-        bool operator==(const FontIdentifier &o) const { return scale == o.scale && filename == o.filename; }
-        bool operator<(const FontIdentifier &o) const
-        {
-            if (scale < o.scale)
-                return true;
-            if (scale > o.scale)
-                return false;
-            return filename < o.filename;
-        }
+        auto operator<=>(const FontIdentifier &) const = default;
     };
     std::map<FontIdentifier, std::unique_ptr<OpenGL::DrawableFont>> loaded_fonts_;
 };

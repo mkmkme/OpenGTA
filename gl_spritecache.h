@@ -36,14 +36,13 @@ namespace OpenGL {
   
   struct SpriteIdentifier;
   struct SpriteIdentifier {
-    PHYSFS_uint16 sprNum;
-    PHYSFS_sint16 remap;
-    PHYSFS_uint32 delta;
-    SpriteIdentifier();
+    PHYSFS_uint16 sprNum = 0;
+    PHYSFS_sint16 remap = -1;
+    PHYSFS_uint32 delta = 0;
+    SpriteIdentifier() = default;
     SpriteIdentifier(PHYSFS_uint16, PHYSFS_sint16, PHYSFS_uint32);
     SpriteIdentifier(const SpriteIdentifier & other);
-    bool operator ==(const SpriteIdentifier & other) const;
-    bool operator <(const SpriteIdentifier & other) const;
+    auto operator<=>(const SpriteIdentifier &) const = default;
   };
   
   class SpriteCache {

@@ -33,30 +33,23 @@ namespace Util {
 
   class CellIterator {
     public:
-      CellIterator(const Vector3D & p) :
+      explicit CellIterator(const Vector3D & p) :
         x(int(floor(p.x))), y(int(floor(p.z))), z(int(floor(p.y))),
         mapRef(OpenGTA::ActiveMap::Instance().get()) {}
 
       CellIterator(OpenGTA::Map & map, int _x, int _y, int _z) :
         x(_x), y(_y), z(_z), mapRef(map) {}
 
-      CellIterator(const CellIterator & o) :
-        x(o.x), y(o.y), z(o.z), mapRef(o.mapRef) {}
+      CellIterator(const CellIterator & o) = default;
 
       bool isValid() const;
       int  distance(const CellIterator & o) const;
 
       bool operator == (const CellIterator & o) const {
-        return (x == o.x && y == o.y && z == o.z);
+        return x == o.x && y == o.y && z == o.z;
       }
 
-      CellIterator operator = (const CellIterator & o) {
-        mapRef = o.mapRef;
-        x = o.x;
-        y = o.y;
-        z = o.z;
-        return *this;
-      }
+      CellIterator &operator = (const CellIterator & o) = default;
 
       CellIterator left() const {
         CellIterator p(*this);

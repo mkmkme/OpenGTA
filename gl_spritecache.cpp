@@ -31,31 +31,9 @@
 #include "sprite-info.h"
 
 namespace OpenGL {
-  SpriteIdentifier::SpriteIdentifier() : sprNum(0), remap(-1), delta(0) {}
   SpriteIdentifier::SpriteIdentifier(PHYSFS_uint16 num, PHYSFS_sint16 map, PHYSFS_uint32 d) :
     sprNum(num), remap(map), delta(d) {}
   SpriteIdentifier::SpriteIdentifier(const SpriteIdentifier & other) = default;
-
-  bool SpriteIdentifier::operator ==(const SpriteIdentifier & other) const {
-    if ((sprNum == other.sprNum) &&
-      (remap == other.remap) &&
-      (delta == other.delta))
-      return true;
-    return false;
-  }
-  bool SpriteIdentifier::operator <(const SpriteIdentifier & other) const {
-    if (sprNum < other.sprNum)
-      return true;
-    else if (sprNum > other.sprNum)
-      return false;
-    if (remap < other.remap)
-      return true;
-    else if (remap > other.remap)
-      return false;
-    if (delta < other.delta)
-      return true;
-    return false;
-  }
 
   SpriteCache::SpriteCache() {
 #ifdef DO_SCALE2X

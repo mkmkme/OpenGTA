@@ -50,7 +50,7 @@ namespace OpenGTA {
     }
     if (x < 0 || x > 255 || z < 0 || z > 255) {
       //ERROR << "x = " << x << "(" << v.x << ") z = " << z << " (" << v.z << ")" << std::endl;
-      throw E_OUTOFRANGE("invalid x/z pos");
+      throw Util::OutOfRange("invalid x/z pos");
     }
     if (y > 20) {
       WARN("{} seems a bit high; going to 20", y);

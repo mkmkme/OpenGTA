@@ -382,13 +382,13 @@ void OpenGTAViewer::init(std::string_view progname) {
       lua_State *L = luaVM_.getInternalState();
       Util::LGUARD(L);
       if (luaL_loadbuffer(L, config_as_string.c_str(), config_as_string.size(), "config"))
-        throw E_SCRIPTERROR("Error running string: " + std::string(lua_tostring(L, -1)));
+        throw Util::ScriptError("Error running string: " + std::string(lua_tostring(L, -1)));
       lua_newtable(L);
       lua_pushvalue(L, -1);
       // lua_setglobal(L, "config");
       lua_setfield(L, -2, "config");
       if (lua_pcall(L, 0, 0, 0))
-        throw E_SCRIPTERROR("Error running string: " + std::string(lua_tostring(L, -1)));
+        throw Util::ScriptError("Error running string: " + std::string(lua_tostring(L, -1)));
     }
     catch (const Util::ScriptError & e) {
       std::cerr << "Error in config-file: " << e.what() << std::endl;
@@ -1165,7 +1165,7 @@ void OpenGTAViewer::run() {
           luaVM_.callSimpleFunction("game_tick");
           script_last_tick = now_ticks;
         }
-        catch (Exception & e) {
+        catch (Util::Exception & e) {
           vm_tick_ok = false;
           ERROR("Disabling script game_tick because of error: {}", e.what());
         }

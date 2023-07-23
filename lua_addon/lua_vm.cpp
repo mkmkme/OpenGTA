@@ -18,7 +18,7 @@ extern int global_Done;
     : L(nullptr) , screen_(screen), camera_(camera) {
       L = luaL_newstate();
       if (L == nullptr)
-        throw E_SCRIPTERROR("Failed to create Lua state!");
+        throw Util::ScriptError("Failed to create Lua state!");
 
       luaL_requiref(L, "base", luaopen_base, 1);
       luaL_requiref(L, "math", luaopen_math, 1);
@@ -85,13 +85,13 @@ extern int global_Done;
         return;
       if (luaL_loadbuffer(L, _str, strlen(_str), "cmd") ||
         lua_pcall(L, 0, 0, 0))
-        throw E_SCRIPTERROR("Error running string: " + std::string(lua_tostring(L, -1)));
+        throw Util::ScriptError("Error running string: " + std::string(lua_tostring(L, -1)));
     }
 
     void LuaVM::runFile(const char* filename) {
       LGUARD(L);
       if (luaL_loadfile(L, filename) || lua_pcall(L, 0, 0, 0))
-        throw E_SCRIPTERROR("Error running file: " + std::string(lua_tostring(L, -1)));
+        throw Util::ScriptError("Error running file: " + std::string(lua_tostring(L, -1)));
     }
 
     void LuaVM::callSimpleFunction(const char* func_name) {
@@ -99,17 +99,17 @@ extern int global_Done;
       lua_getglobal(L, func_name);
       if (lua_type(L, -1) == LUA_TFUNCTION) {
         if (lua_pcall(L, 0, 0, 0) != 0)
-          throw E_SCRIPTERROR(("Exception calling function: ") + std::string(lua_tostring(L, -1)));
+          throw Util::ScriptError(("Exception calling function: ") + std::string(lua_tostring(L, -1)));
       }
       else
-        throw E_SCRIPTERROR("No such function: " + std::string(func_name));
+        throw Util::ScriptError("No such function: " + std::string(func_name));
     }
 
     int LuaVM::getGlobalInt(const char* key) {
       LGUARD(L);
       lua_getglobal(L, key);
       if (!lua_isnumber(L, -1))
-        throw E_SCRIPTERROR("Expected int value for key: " + std::string(key));
+        throw Util::ScriptError("Expected int value for key: " + std::string(key));
       int v = int(lua_tointeger(L, -1));
       return v;
     }
@@ -118,7 +118,7 @@ extern int global_Done;
       LGUARD(L);
       lua_getglobal(L, key);
       if (!lua_isnumber(L, -1))
-        throw E_SCRIPTERROR("Expected float value for key: " + std::string(key));
+        throw Util::ScriptError("Expected float value for key: " + std::string(key));
       float v = float(lua_tonumber(L, -1));
       return v;
     }
@@ -127,7 +127,7 @@ extern int global_Done;
       LGUARD(L);
       lua_getglobal(L, key);
       if (!lua_isstring(L, -1))
-        throw E_SCRIPTERROR("Expected string value for key: " + std::string(key));
+        throw Util::ScriptError("Expected string value for key: " + std::string(key));
       const char* v = lua_tostring(L, -1);
       return v;
     }
@@ -136,7 +136,7 @@ extern int global_Done;
       LGUARD(L);
       lua_getglobal(L, key);
       if (!lua_isboolean(L, -1))
-        throw E_SCRIPTERROR("Expected boolean value for key: " + std::string(key));
+        throw Util::ScriptError("Expected boolean value for key: " + std::string(key));
       return lua_toboolean(L, -1);
     }
 
@@ -149,7 +149,7 @@ extern int global_Done;
       int ret;
       if (tryGetInt(key, ret))
         return ret;
-      throw E_SCRIPTERROR("Expected int value for key: " + std::string(key));
+      throw Util::ScriptError("Expected int value for key: " + std::string(key));
     }
 
     bool LuaVM::tryGetInt(const char *key, int &buf) noexcept
@@ -171,7 +171,7 @@ extern int global_Done;
       float ret;
       if (tryGetFloat(key, ret))
         return ret;
-      throw E_SCRIPTERROR("Expected float value for key: " + std::string(key));
+      throw Util::ScriptError("Expected float value for key: " + std::string(key));
     }
 
     bool LuaVM::tryGetFloat(const char *key, float &buf) noexcept
@@ -193,7 +193,7 @@ extern int global_Done;
       LGUARD(L);
       lua_getfield(L, -1, key);
       if (!lua_isstring(L, -1))
-        throw E_SCRIPTERROR("Expected string value for key: " + std::string(key));
+        throw Util::ScriptError("Expected string value for key: " + std::string(key));
       return luaL_checkstring(L, -1);
     }
 
@@ -206,7 +206,7 @@ extern int global_Done;
       bool ret;
       if (tryGetBool(key, ret))
         return ret;
-      throw E_SCRIPTERROR("Expected boolean value for key: " + std::string(key));
+      throw Util::ScriptError("Expected boolean value for key: " + std::string(key));
     }
 
     bool LuaVM::tryGetBool(const char *key, bool &buf) noexcept
@@ -244,4 +244,3 @@ extern int global_Done;
     }
 
   }
-

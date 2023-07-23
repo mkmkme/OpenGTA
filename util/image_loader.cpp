@@ -103,7 +103,7 @@ using OpenGL::PagedTexture;
     if (whp.first == 0 || whp.second == 0) {
       PHYSFS_close(fd);
       WARN("aborting image load");
-      throw E_UNKNOWNKEY(name + " - RAW file size unknown");
+      throw Util::UnknownKey(name + " - RAW file size unknown");
     }
 
     auto buffer = std::make_unique<uint8_t[]>(nbytes);
@@ -124,7 +124,7 @@ using OpenGL::PagedTexture;
     if (whp.first == 0 || whp.second == 0) {
       PHYSFS_close(fd);
       WARN("aborting image load");
-      throw E_UNKNOWNKEY(name + " - RAT file size unknown");
+      throw Util::UnknownKey(name + " - RAT file size unknown");
     }
     auto lb1 = std::make_unique<uint8_t[]>(nbytes);
     PHYSFS_readBytes(fd, lb1.get(), nbytes);

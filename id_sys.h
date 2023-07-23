@@ -16,7 +16,7 @@ public:
     uint32_t requestId()
     {
         if (nextId + 1 >= firstPlayerId) {
-            throw E_OUTOFRANGE("Player id range reached!");
+            throw Util::OutOfRange("Player id range reached!");
         }
         return nextId++;
     }

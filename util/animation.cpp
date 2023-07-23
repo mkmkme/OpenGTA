@@ -74,8 +74,7 @@ namespace Util {
 
   void Animation::jumpToFrame(const uint16_t num, const Status andDo) {
     if (num >= numFrames)
-      throw E_OUTOFRANGE(std::to_string(num)
-                         + " >= " + std::to_string(numFrames));
+      throw Util::OutOfRange(std::to_string(num) + " >= " + std::to_string(numFrames));
     currentFrame = num;
     status = andDo;
   }

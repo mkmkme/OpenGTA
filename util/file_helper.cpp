@@ -88,7 +88,7 @@ PHYSFS_file *OpenReadVFS(const std::string &file)
     std::string name2 { string_lower(file) };
     fd = PHYSFS_openRead(name2.c_str());
     if (!fd) // still no joy, give up
-        throw E_FILENOTFOUND(
+        throw Util::FileNotFound(
             file + " with error: "
             + PHYSFS_getErrorByCode(PHYSFS_getLastErrorCode()));
     // take this one instead

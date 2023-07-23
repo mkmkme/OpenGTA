@@ -51,7 +51,7 @@ inline size_t mapFileName2Number(const std::string & file) {
     nav = nullptr;
     fd = Util::FileHelper::OpenReadVFS(filename);
     if (!fd) {
-      throw E_FILENOTFOUND(filename);
+      throw Util::FileNotFound(filename);
     }
     size_t level_as_num = mapFileName2Number(filename);
     loadHeader();
@@ -119,7 +119,7 @@ inline size_t mapFileName2Number(const std::string & file) {
   int Map::loadColumn() {
     if (!PHYSFS_seek(fd, baseSize + topHeaderSize)) {
       //throw std::string("IO Error while seeking in mapfile");
-      throw E_IOERROR(PHYSFS_getErrorByCode(PHYSFS_getLastErrorCode()));
+      throw Util::IOError(PHYSFS_getErrorByCode(PHYSFS_getLastErrorCode()));
     }
     //PHYSFS_uint16 v;
     for (unsigned int i = 0; i < columnSize/2; i++) {
@@ -281,8 +281,7 @@ inline size_t mapFileName2Number(const std::string & file) {
     auto i = locations.find(t);
     auto j = i;
     if (i == locations.end())
-      throw E_UNKNOWNKEY("location-type " + std::to_string(int(t))
-                         + " not found in map");
+      throw Util::UnknownKey("location-type " + std::to_string(int(t)) + " not found in map");
     int _x(x);
     int _y(y);
     int min_d = 255 * 255;

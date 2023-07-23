@@ -45,7 +45,6 @@ namespace OpenGTA {
   };
 
   class Pedestrian;
-//  class PedController : public EntityController {
   class PedController : public ControllerWithMemory {
     public:
       void setTurnLeft(bool press = true);

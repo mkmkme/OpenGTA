@@ -224,7 +224,7 @@ namespace GUI {
   const OpenGL::PagedTexture & Manager::getCachedImage(size_t Id) {
     auto i = texCache.find(Id);
     if (i == texCache.end())
-      throw E_UNKNOWNKEY("cached texture id " + std::to_string(int(Id)));
+      throw Util::UnknownKey("cached texture id " + std::to_string(int(Id)));
     return i->second;
   }
 
@@ -278,7 +278,7 @@ namespace GUI {
         }
       }
     }
-    throw E_UNKNOWNKEY("not a managed object-ptr");
+    throw Util::UnknownKey("not a managed object-ptr");
   }
 
   Object* Manager::findObject(const size_t id) {
@@ -288,7 +288,7 @@ namespace GUI {
           return obj;
       }
     }
-    throw E_UNKNOWNKEY("object by id " + std::to_string(int(id)));
+    throw Util::UnknownKey("object by id " + std::to_string(int(id)));
   }
 
   void Manager::removeById(const size_t id) {

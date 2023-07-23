@@ -20,11 +20,13 @@
 * 3. This notice may not be removed or altered from any source          *
 * distribution.                                                         *
 ************************************************************************/
-#include <cassert>
-#include <cstring>
 #include "file_helper.h"
-#include "m_exceptions.h"
 #include "fx_sdt.h"
+#include "m_exceptions.h"
+
+#include <cassert>
+#include <cstdint>
+#include <cstring>
 
 #ifdef SOUND_DUMPER
 #include <iostream>
@@ -44,8 +46,7 @@ namespace OpenGTA {
     dataFile = Util::FileHelper::OpenReadVFS(sdt_file);
     PHYSFS_uint32 num_e = PHYSFS_fileLength(dataFile);
     if (num_e % 12) {
-      //throw std::string("Ups: invalid SDT file?");
-      throw E_INVALIDFORMAT("SDT filesize " + std::to_string(uint32_t(num_e))
+      throw Util::InvalidFormat("SDT filesize " + std::to_string(uint32_t(num_e))
                             + " % 12 != 0");
     }
     num_e /= 12;
@@ -84,8 +85,7 @@ namespace OpenGTA {
     auto i = knownEntries.find(key);
     if (i == knownEntries.end()) {
       //throw std::string("Unknown sound-db entry");
-      throw E_UNKNOWNKEY("Querying for sound id: "
-                         + std::to_string(unsigned(key)));
+      throw Util::UnknownKey("Querying for sound id: " + std::to_string(unsigned(key)));
     }
     return i->second;
   }

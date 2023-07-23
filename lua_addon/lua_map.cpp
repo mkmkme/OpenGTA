@@ -67,7 +67,7 @@ namespace OpenGTA {
       int which = luaL_checkinteger(L, 1);
       int v = 0;
       if ((which < 0) || (which > 4))
-        throw E_OUTOFRANGE("Quad id " + std::to_string(which) + " is invalid");
+        throw Util::OutOfRange("Quad id " + std::to_string(which) + " is invalid");
       switch(which) {
         case 0:
           v = lid;

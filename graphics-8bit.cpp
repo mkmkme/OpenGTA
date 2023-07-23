@@ -80,7 +80,7 @@ namespace OpenGTA {
         ERROR("graphics file specifies version {} instead of {}",
               vc,
               GTA_GRAPHICS_GRY);
-        throw E_INVALIDFORMAT("8-bit loader failed");
+        throw Util::InvalidFormat("8-bit loader failed");
     }
     PHYSFS_readULE32(fd, &sideSize);
     PHYSFS_readULE32(fd, &lidSize);

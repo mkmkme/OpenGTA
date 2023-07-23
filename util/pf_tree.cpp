@@ -25,6 +25,7 @@
 #include "m_exceptions.h"
 
 #include <cstring>
+#include <format>
 #include <string>
 
 namespace PrefixFreeTree {
@@ -48,12 +49,11 @@ namespace PrefixFreeTree {
       }
       else {
         if (i->second->isLeaf())
-            throw E_INVALIDFORMAT(std::string { "Cannot enter '" } + str
-                                  + "' at offset " + std::to_string(offset)
-                                  + " as a leaf node already exists");
+            throw Util::InvalidFormat(
+                std::format("Cannot enter '{}' at offset {} as a leaf node already exists", str, offset)
+            );
         if ((offset == str_len) && (!i->second->isLeaf()))
-          throw E_INVALIDFORMAT(std::string { "Cannot enter '" } + str
-                                + "' as a non-leaf node already exists");
+            throw Util::InvalidFormat(std::format("Cannot enter '{}' as a non-leaf node already exists", str));
         return i->second->insert(str, offset);
       }
     }

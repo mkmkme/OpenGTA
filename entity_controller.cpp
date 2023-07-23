@@ -104,7 +104,7 @@ namespace OpenGTA {
 
   void PedController::setActiveWeapon(unsigned char k) {
     if (k > 7) {
-      throw E_OUTOFRANGE("foo");
+      throw Util::OutOfRange("Weapon index out of range");
     }
     for (int j = 0; j < 3; ++j) {
       if (k & 1u)

@@ -20,11 +20,13 @@
 * 3. This notice may not be removed or altered from any source          *
 * distribution.                                                         *
 ************************************************************************/
-#include <cstring>
-#include <cstdlib>
+#include "set.h"
+
 #include <cassert>
 #include <cstdio>
-#include "set.h"
+#include <cstdlib>
+#include <cstring>
+#include <format>
 
 #define INTEGRATE_OGTA
 #ifdef INTEGRATE_OGTA
@@ -105,7 +107,7 @@ namespace Util {
   void Set::set_data(int n, unsigned char* data) {
     if (!ext_data) {
 #ifdef INTEGRATE_OGTA
-      throw E_NOTSUPPORTED("set_data() called on an instance with own data");
+      throw Util::NotSupported("set_data() called on an instance with own data");
 #else
       fprintf(stderr, "Set::Err: set_data() called on an instance with own data\n");
 #endif
@@ -116,7 +118,7 @@ namespace Util {
   void Set::set_last(int n) {
     if (n > last) {
 #ifdef INTEGRATE_OGTA
-      throw E_OUTOFRANGE(std::to_string(n) + " > " + std::to_string(last));
+      throw Util::OutOfRange(std::to_string(n) + " > " + std::to_string(last));
 #else
       printf("%i is larger than previous last n (%i), aborting\n", n, last);
 #endif
@@ -155,7 +157,7 @@ namespace Util {
     else
 #ifdef INTEGRATE_OGTA
     {
-      throw E_OUTOFRANGE(std::to_string(k) + " >= " + std::to_string(last));
+      throw Util::OutOfRange(std::to_string(k) + " >= " + std::to_string(last));
     }
 #else
     assert(k < last);
@@ -172,7 +174,7 @@ namespace Util {
     else
 #ifdef INTEGRATE_OGTA
     {
-      throw E_OUTOFRANGE(std::to_string(k) + " >= " + std::to_string(last));
+      throw Util::OutOfRange(std::to_string(k) + " >= " + std::to_string(last));
     }
 #else
     assert(k < last);
@@ -183,9 +185,7 @@ namespace Util {
   int Set::as_int(int start, int len) const {
     if (start < 0 || start > last || start + len > last) {
 #ifdef INTEGRATE_OGTA
-      throw E_OUTOFRANGE("invalid query: " + std::to_string(start) + " length "
-                         + std::to_string(len) + " with data-length "
-                         + std::to_string(last));
+      throw Util::OutOfRange(std::format("invalid query: {} length {} with data-length {}", start, len, last));
 #else
       fprintf(stderr, "Set::Err: queried index out of range (%i, %i ; %i)\n", start, len, last);
       return -1;
@@ -205,9 +205,7 @@ namespace Util {
   int Set::as_int2(int start, int len) const {
     if (start < 0 || start > last || start + len > last) {
 #ifdef INTEGRATE_OGTA
-      throw E_OUTOFRANGE("invalid query: " + std::to_string(start) + " length "
-                         + std::to_string(len) + " with data-length "
-                         + std::to_string(last));
+      throw Util::OutOfRange(std::format("invalid query: {} length {} with data-length {}", start, len, last));
 #else
       fprintf(stderr, "Set::Err: queried index out of range (%i, %i ; %i)\n", start, len, last);
       return -1;

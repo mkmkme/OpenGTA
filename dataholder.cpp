@@ -36,7 +36,7 @@ template<> ActiveStyle::~ActiveData() {
 
   template<> GraphicsBase & ActiveStyle::get() {
     if (m_data == nullptr)
-      throw E_NOTSUPPORTED("Load a style-file first!");
+      throw Util::NotSupported("Load a style-file first!");
     return *m_data;
   }
 
@@ -58,12 +58,12 @@ template<> ActiveStyle::~ActiveData() {
       try {
         m_data = new Graphics8Bit(file);
       }
-      catch (const Exception & e) {
+      catch (const Util::Exception & e) {
         WARN("loading 8 bit failed: {}", e.what());
         try {
           m_data = new Graphics24Bit(file);
         }
-        catch (const Exception & e) {
+        catch (const Util::Exception & e) {
           ERROR("loading 24 bit failed: {}", e.what());
           m_data = nullptr;
         }
@@ -78,7 +78,7 @@ template<> ActiveStyle::~ActiveData() {
   
   template<> Map & ActiveMap::get() {
     if (!m_data)
-      throw E_NOTSUPPORTED("Load a map-file first!");
+      throw Util::NotSupported("Load a map-file first!");
     return *m_data;
   }
   
@@ -87,7 +87,7 @@ template<> ActiveStyle::~ActiveData() {
     try {
       m_data = new Map(file); 
     }
-    catch (const Exception & e) {
+    catch (const Util::Exception & e) {
       ERROR("loading map failed: {}", e.what());
       m_data = nullptr;
     }
@@ -100,7 +100,7 @@ template<> ActiveStyle::~ActiveData() {
   
   template<> MessageDB & MainMsgLookup::get() {
     if (!m_data)
-      throw E_NOTSUPPORTED("Load a message-file first!");
+      throw Util::NotSupported("Load a message-file first!");
     return *m_data;
   }
   
@@ -110,7 +110,7 @@ template<> ActiveStyle::~ActiveData() {
       INFO("Trying to load: {}", file);
       m_data = new MessageDB(file); 
     }
-    catch (const Exception & e) {
+    catch (const Util::Exception & e) {
       ERROR("loading message-db failed: {}", e.what());
       m_data = nullptr;
     }

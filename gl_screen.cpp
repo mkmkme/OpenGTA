@@ -143,7 +143,7 @@ void Screen::initScreen(uint32_t w, uint32_t h)
 {
     int err = SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER);
     if (err)
-        throw E_INVALIDFORMAT("SDL_Init failed: " + std::string(SDL_GetError()));
+        throw Util::InvalidFormat("SDL_Init failed: " + std::string(SDL_GetError()));
     checkAndClearSDLError("SDL_Init");
 
     INFO("Creating window {}x{}", w, h);
@@ -175,7 +175,7 @@ void Screen::initScreen(uint32_t w, uint32_t h)
             case 8:
                 return {2, 3, 3};
             default:
-                throw E_NOTSUPPORTED("Invalid bit-per-pixel setting");
+                throw Util::NotSupported("Invalid bit-per-pixel setting");
         }
     }();
 

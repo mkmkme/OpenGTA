@@ -29,7 +29,7 @@ namespace OpenGTA {
       }
       PedController & getCtrl() {
         if (pc_ptr == nullptr)
-          throw E_NOTSUPPORTED("Player is not available");
+          throw Util::NotSupported("Player is not available");
         return *pc_ptr;
       }
       void setCtrl(PedController & pc) {

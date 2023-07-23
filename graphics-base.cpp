@@ -128,8 +128,7 @@ CarInfo &GraphicsBase::findCarByModel(PHYSFS_uint8 model)
         if (car.model == model)
             return car;
     }
-    // throw std::string("Failed to find car by model");
-    throw E_UNKNOWNKEY("Searching for car model " + std::to_string(int(model)) + " failed");
+    throw Util::UnknownKey("Searching for car model " + std::to_string(int(model)) + " failed");
 }
 
 unsigned int GraphicsBase::getRandomPedRemapNumber() const
@@ -149,7 +148,7 @@ uint8_t GraphicsBase::getFormat()
         return 0;
     else if (_topHeaderSize == 64)
         return 1;
-    throw E_INVALIDFORMAT("graphics-base header size");
+    throw Util::InvalidFormat("graphics-base header size");
 }
 
 PHYSFS_uint16 GraphicsBase::SpriteNumbers::reIndex(const PHYSFS_uint16 &id, const SpriteTypes &t) const

@@ -20,11 +20,14 @@
 * 3. This notice may not be removed or altered from any source          *
 * distribution.                                                         *
 ************************************************************************/
-#include <cassert>
-#include <memory>
 #include "gl_font.h"
+
 #include "font.h"
 #include "m_exceptions.h"
+
+#include <cassert>
+#include <cstring>
+#include <memory>
 
 namespace OpenGL {
   DrawableFont::DrawableFont() {
@@ -129,8 +132,7 @@ namespace OpenGL {
     unsigned char * src = fontSource->getCharacterBitmap(
         fontSource->getIdByChar(c), &w, &h);
     if (src == nullptr) {
-      throw E_UNKNOWNKEY("Failed to load bitmap for: " + std::to_string(c));
-      //throw std::string("Failed to load bitmap for character: " + c);
+      throw Util::UnknownKey("Failed to load bitmap for: " + std::to_string(c));
     }
     unsigned int glwidth = 1;
     unsigned int glheight = 1;

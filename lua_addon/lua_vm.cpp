@@ -13,12 +13,11 @@ using namespace Util;
 
 extern int global_Done;
 
-namespace OpenGTA {
-  namespace Script {
+  namespace OpenGTA::Script {
     LuaVM::LuaVM(OpenGL::Screen &screen, OpenGL::Camera &camera)
-    : L(NULL) , screen_(screen), camera_(camera) {
+    : L(nullptr) , screen_(screen), camera_(camera) {
       L = luaL_newstate();
-      if (L == NULL)
+      if (L == nullptr)
         throw E_SCRIPTERROR("Failed to create Lua state!");
 
       luaL_requiref(L, "base", luaopen_base, 1);
@@ -30,9 +29,9 @@ namespace OpenGTA {
     }
 
     LuaVM::~LuaVM() {
-      if (L != NULL)
+      if (L != nullptr)
         lua_close(L);
-      L = NULL;
+      L = nullptr;
     }
 
     int vm_quit([[maybe_unused]] lua_State *L) {
@@ -245,4 +244,4 @@ namespace OpenGTA {
     }
 
   }
-}
+

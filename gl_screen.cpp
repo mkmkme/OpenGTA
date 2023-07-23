@@ -31,8 +31,6 @@
 #include <Windows.h>
 #elif defined(__APPLE__)
 #include <OpenGL/glext.h>
-#else
-#include <GL/glext.h>
 #endif
 
 #ifdef __APPLE__
@@ -42,7 +40,7 @@
 #endif
 
 
-#include <assert.h>
+#include <cassert>
 #include <memory>
 #include <string>
 
@@ -114,9 +112,7 @@ void Screen::setSystemMouseCursor(bool visible)
 
 void Screen::setFullScreenFlag(bool v)
 {
-    if (v && fullscreen())
-        return;
-    else if (!v && !fullscreen())
+    if ((v && fullscreen()) || (!v && !fullscreen()))
         return;
     if (v)
         video_flags_ |= SDL_WINDOW_FULLSCREEN;
@@ -167,30 +163,25 @@ void Screen::initScreen(uint32_t w, uint32_t h)
     INFO("video-probe:");
     INFO(" bpp: {}", bpp);
 
-    struct {
-        int r, g, b;
-    } color_depth;
-    switch (bpp) {
-        case 32:
-        case 24:
-            color_depth = { 8, 8, 8 };
-            break;
-        case 16:
-            color_depth = { 5, 6, 5 };
-            break;
-        case 15:
-            color_depth = { 5, 5, 5 };
-            break;
-        case 8:
-            color_depth = { 2, 3, 3 };
-            break;
-        default:
-            throw E_NOTSUPPORTED("Invalid bit-per-pixel setting");
-    }
+    auto [r, g, b] = [bpp]() -> std::tuple<int, int, int> {
+        switch (bpp) {
+            case 32:
+            case 24:
+                return { 8, 8, 8 };
+            case 16:
+                return { 5, 6, 5 };
+            case 15:
+                return { 5, 5, 5 };
+            case 8:
+                return {2, 3, 3};
+            default:
+                throw E_NOTSUPPORTED("Invalid bit-per-pixel setting");
+        }
+    }();
 
-    SDL_GL_SetAttribute(SDL_GL_RED_SIZE, color_depth.r);
-    SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, color_depth.g);
-    SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, color_depth.b);
+    SDL_GL_SetAttribute(SDL_GL_RED_SIZE, r);
+    SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, g);
+    SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, b);
     SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 16);
     SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
 

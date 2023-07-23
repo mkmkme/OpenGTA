@@ -28,7 +28,7 @@
 namespace OpenGTA {
 class BlockAnim : public Util::Animation {
 public:
-    BlockAnim(LoadedAnim &anim_data)
+    explicit BlockAnim(LoadedAnim &anim_data)
         : // fix for STYLE001.G24 water anim seems one frame longer than data
           // exists!
         Util::Animation((anim_data.frameCount == 11 && anim_data.which == 1
@@ -45,7 +45,7 @@ public:
         int(anim_data->frame[i]) << std::endl;
         }*/
     }
-    inline uint8_t getFrame(uint8_t num) const noexcept
+    [[nodiscard]] inline uint8_t getFrame(uint8_t num) const noexcept
     {
         return ad_ptr.frame[num];
     }
@@ -54,7 +54,7 @@ public:
 
 class BlockAnimCtrl {
 public:
-    BlockAnimCtrl(std::vector<LoadedAnim> &v);
+    explicit BlockAnimCtrl(std::vector<LoadedAnim> &v);
     void update(uint32_t ticks);
     std::optional<BlockAnim> getAnim(uint8_t area, uint8_t id);
 

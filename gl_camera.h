@@ -36,11 +36,11 @@ namespace OpenGL {
       Vector3D & getCenter() { return center; }
       Vector3D & getUp() { return up; }
     private:
-      void update_game(Uint32 dt);
+        void update_game();
       Vector3D eye;
       Vector3D center;
       Vector3D up;
-      float  speed;
+      float  speed{};
       bool   doRotate;
       bool   camGravity;
       bool   gameCamMode;

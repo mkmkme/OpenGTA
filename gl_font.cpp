@@ -24,13 +24,12 @@
 #include <memory>
 #include "gl_font.h"
 #include "font.h"
-#include "log.h"
 #include "m_exceptions.h"
 
 namespace OpenGL {
   DrawableFont::DrawableFont() {
-    fontSource = NULL;
-    texCache = NULL;
+    fontSource = nullptr;
+    texCache = nullptr;
     scale = 1;
   }
   DrawableFont::~DrawableFont() {
@@ -41,10 +40,8 @@ namespace OpenGL {
     clearCached();
   }
   void DrawableFont::clearCached() {
-    std::map<char, FontQuad*>::const_iterator j = drawables.begin();
-    while (j != drawables.end()) {
-      delete j->second;
-      ++j;
+    for (auto &drawable : drawables) {
+      delete drawable.second;
     }
     drawables.clear();
   }
@@ -61,16 +58,14 @@ namespace OpenGL {
   }
   void DrawableFont::cleanup() {
     clearCached();
-    if (fontSource != NULL)
-      delete fontSource;
-    if (texCache != NULL)
-      delete texCache;
-    fontSource = NULL;
-    texCache = NULL;
+    delete fontSource;
+    delete texCache;
+    fontSource = nullptr;
+    texCache = nullptr;
   }
   GLfloat DrawableFont::drawString(const std::string & text) {
-    assert(texCache != NULL);
-    assert(fontSource != NULL);
+    assert(texCache != nullptr);
+    assert(fontSource != nullptr);
     std::string::const_iterator i = text.begin();
     std::string::const_iterator e = text.end();
     GLfloat move = 0.0f;
@@ -78,7 +73,7 @@ namespace OpenGL {
 
       if (*i != ' ') {
         FontQuad* character = NULL;
-        std::map<char, FontQuad*>::const_iterator j = drawables.find(*i);
+        auto j = drawables.find(*i);
         if (j == drawables.end()) {
           character = createDrawableCharacter(*i);
           drawables[*i] = character;
@@ -96,16 +91,16 @@ namespace OpenGL {
   }
 
   GLfloat DrawableFont::drawString_r2l(const std::string & text) {
-    assert(texCache != NULL);
-    assert(fontSource != NULL);
+    assert(texCache != nullptr);
+    assert(fontSource != nullptr);
     std::string::const_reverse_iterator i = text.rbegin();
     std::string::const_reverse_iterator e = text.rend();
     GLfloat move = 0.0f;
     while (i != e) {
 
       if (*i != ' ') {
-        FontQuad* character = NULL;
-        std::map<char, FontQuad*>::const_iterator j = drawables.find(*i);
+        FontQuad* character = nullptr;
+        auto j = drawables.find(*i);
         if (j == drawables.end()) {
           character = createDrawableCharacter(*i);
           drawables[*i] = character;
@@ -133,7 +128,7 @@ namespace OpenGL {
     unsigned int h;
     unsigned char * src = fontSource->getCharacterBitmap(
         fontSource->getIdByChar(c), &w, &h);
-    if (src == NULL) {
+    if (src == nullptr) {
       throw E_UNKNOWNKEY("Failed to load bitmap for: " + std::to_string(c));
       //throw std::string("Failed to load bitmap for character: " + c);
     }
@@ -147,7 +142,6 @@ namespace OpenGL {
       glheight <<= 1;
 
     auto dst = std::make_unique<unsigned char[]>(glwidth * glheight * 4);
-    assert(dst != NULL);
     unsigned char * t = dst.get();
     unsigned char * r = src;
     for (unsigned int i = 0; i < h; i++) {
@@ -164,7 +158,7 @@ namespace OpenGL {
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, glwidth, glheight, 0, GL_RGBA, GL_UNSIGNED_BYTE, dst.get());
     texCache->addTexture(c, texid);
 
-    FontQuad* res = new FontQuad();
+    auto* res = new FontQuad();
     res->vertices[0][0] = res->vertices[0][1] = 0;
     res->vertices[1][0] = w * scale;
     res->vertices[1][1] = 0;

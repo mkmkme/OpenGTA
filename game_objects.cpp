@@ -21,11 +21,9 @@
  * distribution.                                                         *
  ************************************************************************/
 #include "game_objects.h"
-#include "car-info.h"
 #include "spritemanager.h"
 #include "dataholder.h"
 #include "cell_iterator.h"
-#include "object-info.h"
 #include "sprite-info.h"
 #include "timer.h"
 #include "plane.h"
@@ -33,7 +31,6 @@
 #include "localplayer.h"
 
 #define INT2FLOAT_WRLD(c) (float(c >> 6) + float(c % 64) / 64.0f)
-#define INT2F_DIV64(v) (float(v) / 64.0f)
 #define INT2F_DIV128(v) (float(v) / 128.0f)
 
 float slope_height_offset(unsigned char slope_type, float dx, float dz);
@@ -127,10 +124,7 @@ namespace OpenGTA {
     anim(), animId(),
     sprType(sprT) {}
 
-  Sprite::Sprite(const Sprite & other) :
-    sprNum(other.sprNum), remap(other.remap), anim(other.anim), animId(other.animId),
-    sprType(other.sprType) {
-    }
+  Sprite::Sprite(const Sprite & other) = default;
 
   void Sprite::switchToAnim(uint32_t newId) {
     DEBUG("switching to anim {}", newId);
@@ -139,15 +133,13 @@ namespace OpenGTA {
     animId = newId;
   }
 
-  uint32_t Pedestrian::fistAmmo = 0;
-
-  Pedestrian::Pedestrian(Vector3D e, const Vector3D & p, uint32_t id, int16_t remapId) :
+  Pedestrian::Pedestrian(const Vector3D& e, const Vector3D & p, uint32_t id, int16_t remapId) :
     GameObject_common(p), 
     Sprite(0, remapId, GraphicsBase::SpriteNumbers::PED), 
     OBox(TranslateMatrix3D(p), e * 0.5f),
     m_control(),
     speedForces(0, 0, 0), 
-    inventory(), activeWeapon(0), activeAmmo(&fistAmmo),
+    inventory(), activeWeapon(0),
     aiData() {
       m_M = TranslateMatrix3D(p);
       m_M.RotZ(-rot);
@@ -155,14 +147,8 @@ namespace OpenGTA {
       animId = 0;
       isDead = 0;
       lastUpdateAt = Timer::Instance().getRealTime();
-      inGroundContact = 0;
+      inGroundContact = false;
     }
-
-  uint32_t *getActiveAmmo(Pedestrian::InventoryMap &inv, uint32_t activeWeapon) noexcept {
-    if (const auto it = inv.find(activeWeapon); it != inv.end())
-      return &it->second;
-    return &Pedestrian::fistAmmo;
-  }
 
   Pedestrian::Pedestrian(const Pedestrian & other) :
     GameObject_common(other), Sprite(other), OBox(other),
@@ -172,7 +158,6 @@ namespace OpenGTA {
     speedForces(other.speedForces),
     inventory(other.inventory),
     activeWeapon(other.activeWeapon),
-    activeAmmo(getActiveAmmo(inventory, activeWeapon)),
     aiData(other.aiData) {
       lastUpdateAt = other.lastUpdateAt;
       inGroundContact = other.inGroundContact;
@@ -201,13 +186,11 @@ namespace OpenGTA {
     if (chooseWeapon != activeWeapon) {
       if (chooseWeapon == 0) {
         activeWeapon = 0;
-        activeAmmo = &fistAmmo;
       }
       else {
-        InventoryMap::iterator i = inventory.find(chooseWeapon);
+        auto i = inventory.find(chooseWeapon);
         if (i != inventory.end()) {
           activeWeapon = chooseWeapon;
-          activeAmmo = &i->second;
         }
       }
     }
@@ -215,20 +198,20 @@ activeWeapon = chooseWeapon;
     switch(m_control.getMove()) {
       case 1:
         if (m_control.getRunning()) {
-          if (!(animId == 3u + activeWeapon*3))
+          if (animId != 3u + activeWeapon * 3)
             switchToAnim(3 + activeWeapon*3);
         }
         else {
-          if (!(animId == 2u + activeWeapon*3))
+          if (animId != 2u + activeWeapon * 3)
             switchToAnim(2 + activeWeapon*3);
         }
         break;
       case 0:
-        if (!(animId == 1u + activeWeapon*3))
+        if (animId != 1u + activeWeapon * 3)
           switchToAnim(1 + activeWeapon*3);
         break;
       case -1:
-        if (!(animId == 2u + activeWeapon*3)) {
+        if (animId != 2u + activeWeapon * 3) {
           switchToAnim(2 + activeWeapon*3);
           anim.set(Util::Animation::PLAY_BACKWARD, Util::Animation::LOOP);
         }
@@ -253,7 +236,7 @@ activeWeapon = chooseWeapon;
       rot -= 360.0f;
     if (rot < 0.0f)
       rot += 360.0f;
-    constexpr float pi = static_cast<float>(M_PI);
+    constexpr auto pi = static_cast<float>(M_PI);
     switch(m_control.getMove()) {
       case -1:
         moveDelta.x -= sin(rot * pi / 180.0f) * anim.moveSpeed * delta;
@@ -316,16 +299,16 @@ activeWeapon = chooseWeapon;
     //INFO << heightOverTerrain(nPos) << std::endl;
     float hot = heightOverTerrain(nPos);
     if (hot > 0.3f)
-      inGroundContact = 0;
+      inGroundContact = false;
     else if (hot < 0.0) {
       WARN("gone below: {} at {}, {}, {}", hot, nPos.x, nPos.y, nPos.z);
       nPos.y -= (hot - 0.3f);
       //nPos.y += 1;
       //INFO << nPos.y << std::endl;
-      inGroundContact = 1;
+      inGroundContact = true;
     }
     else {
-      inGroundContact = 1;
+      inGroundContact = true;
       if (isDead)
         nPos.y -= hot - 0.05f;
       else
@@ -352,7 +335,7 @@ activeWeapon = chooseWeapon;
             nPos.x = (nPos.x < pos.x) ? pos.x : nPos.x;
         }
       }
-      if (block->right && block->isFlat() == false) {
+      if (block->right && !block->isFlat()) {
 #ifdef DEBUG_OLD_PED_BLOCK
         DEBUG("xblock right: {} tex: {}", pos.x - x - 1, int(block->right));
 #endif
@@ -363,26 +346,12 @@ activeWeapon = chooseWeapon;
           nPos.x = (nPos.x > pos.x) ? pos.x : nPos.x;
       }
       if (block->top && graphics.isBlockingSide(block->top)) {
-        if (block->isFlat()) {
-#ifdef DEBUG_OLD_PED_BLOCK
-          DEBUG("zblock top: {} tex: {}", z - pos.z, int(block->top));
-#endif
-          if (z - pos.z > 0 && z - pos.z < 0.2f)
-            nPos.z = pos.z;
-          else if (z - pos.z < 0 && z - pos.z > -0.2f)
-            nPos.z = (nPos.z < pos.z) ? pos.z : nPos.z;
-        }
-        else {
-#ifdef DEBUG_OLD_PED_BLOCK
-          DEBUG("zblock top: {} tex: {}", z - pos.z, int(block->top));
-#endif
-          if (z - pos.z > 0 && z - pos.z < 0.2f)
-            nPos.z = pos.z;
-          else if (z - pos.z < 0 && z - pos.z > -0.2f)
-            nPos.z = (nPos.z < pos.z) ? pos.z : nPos.z;
-        }
+        if (z - pos.z > 0 && z - pos.z < 0.2f)
+          nPos.z = pos.z;
+        else if (z - pos.z < 0 && z - pos.z > -0.2f)
+          nPos.z = (nPos.z < pos.z) ? pos.z : nPos.z;
       }
-      if (block->bottom && block->isFlat() == false) {
+      if (block->bottom && !block->isFlat()) {
 #ifdef DEBUG_OLD_PED_BLOCK
         DEBUG("zblock bottom: {} tex: {}", pos.z - z - 1, int(block->bottom));
 #endif
@@ -394,7 +363,7 @@ activeWeapon = chooseWeapon;
       }
       if (x >= 1 && y < map.getNumBlocksAtNew(PHYSFS_uint8(x-1), PHYSFS_uint8(z))) {
         block = map.getBlockAtNew(PHYSFS_uint8(x-1), PHYSFS_uint8(z), PHYSFS_uint8(y));
-        if (block->right && block->isFlat() == false) {
+        if (block->right && !block->isFlat()) {
 #ifdef DEBUG_OLD_PED_BLOCK
           DEBUG("xblock right: {} tex: {}", pos.x - x, int(block->right));
 #endif
@@ -421,7 +390,7 @@ activeWeapon = chooseWeapon;
       }
       if (z >= 1 && y < map.getNumBlocksAtNew(PHYSFS_uint8(x), PHYSFS_uint8(z-1))) {
         block = map.getBlockAtNew(PHYSFS_uint8(x), PHYSFS_uint8(z-1), PHYSFS_uint8(y));
-        if (block->bottom && block->isFlat() == false) {
+        if (block->bottom && !block->isFlat()) {
 #ifdef DEBUG_OLD_PED_BLOCK
           DEBUG("zblock bottom: {} tex: {}", pos.z - z, int(block->bottom));
 #endif
@@ -456,7 +425,7 @@ activeWeapon = chooseWeapon;
         break;
       }
     }
-    if ((inGroundContact) && (obj_blocked == false))
+    if (inGroundContact && !obj_blocked)
       pos = nPos;
     //else
     //  inGroundContact = 0;
@@ -507,7 +476,7 @@ activeWeapon = chooseWeapon;
     deltaSet.set_item(k, true);
   }
 
-  bool CarSprite::assertDeltaById(uint8_t k) {
+  bool CarSprite::assertDeltaById(uint8_t k) const {
     GraphicsBase & style = ActiveStyle::Instance().get();
     PHYSFS_uint16 absNum = style.spriteNumbers.reIndex(sprNum, sprType);
     SpriteInfo * info = style.getSprite(absNum);
@@ -522,7 +491,7 @@ activeWeapon = chooseWeapon;
   }
 
   void CarSprite::closeDoor(uint8_t k) {
-    doorAnims.push_back(DoorDeltaAnimation(k, false));
+    doorAnims.emplace_back(k, false);
   }
 
   void CarSprite::setSirenAnim(bool on) {
@@ -552,7 +521,7 @@ activeWeapon = chooseWeapon;
       // 5-8 door-closing
       lt_door = ticks;
     }*/
-    DoorAnimList::iterator i = doorAnims.begin();
+    auto i = doorAnims.begin();
     while (i != doorAnims.end()) {
       i->update(ticks);
       if (i->opening) {
@@ -604,7 +573,7 @@ activeWeapon = chooseWeapon;
         }
       }
       if (i->get() == Util::Animation::STOPPED) {
-        DoorAnimList::iterator j = i;
+        auto j = i;
         i++;
         animState.set_item(j->doorId + 1, j->opening);
         doorAnims.erase(j);
@@ -718,7 +687,7 @@ activeWeapon = chooseWeapon;
 #define A3 (180 + A1)
 #define A4 (360 - A1)
 
-    uint8_t k = 0;
+    uint8_t k; // TODO: lambda
     if (angle <= A1) {
       // front left
       k = 3;
@@ -777,7 +746,7 @@ activeWeapon = chooseWeapon;
       isActive = true;
     }
 
-  SpriteObject::SpriteObject(Vector3D pos, uint16_t sprNum, OpenGTA::GraphicsBase::SpriteNumbers::SpriteTypes sprT) :
+  SpriteObject::SpriteObject(const Vector3D& pos, uint16_t sprNum, OpenGTA::GraphicsBase::SpriteNumbers::SpriteTypes sprT) :
     GameObject_common(pos), Sprite(sprNum, -1, sprT), OBox() {
       isActive = true;
       m_M = TranslateMatrix3D(pos);
@@ -798,22 +767,19 @@ activeWeapon = chooseWeapon;
     anim.update(ticks);
   }
 
-  Projectile::Projectile(unsigned char t, float r, Vector3D p, Vector3D d, uint32_t ticks, uint32_t o) :
+  Projectile::Projectile(unsigned char t, float r, const Vector3D& p, const Vector3D& d, uint32_t ticks, uint32_t o) :
     GameObject_common(p, r),
     typeId(t), delta(d), endsAtTick(ticks),
     owner(o), lastUpdateAt(ticks) {
       endsAtTick = lastUpdateAt + 1000;
     }
 
-  Projectile::Projectile(const Projectile & other) :
-    GameObject_common(other),
-    typeId(other.typeId), delta(other.delta), endsAtTick(other.endsAtTick),
-    owner(other.owner), lastUpdateAt(other.lastUpdateAt) {}
+  Projectile::Projectile(const Projectile & other) = default;
 
   bool Projectile::testCollideBlock_flat(Util::CellIterator & ci, Vector3D & newp) {
     Map::BlockInfo & bi = ci.getBlock();
     if (bi.top) {
-      Math::Plane plane(Vector3D(ci.x, ci.z, ci.y), Vector3D(0, 0, -1));
+      Math::Plane plane(Vector3D(ci.x, ci.y, ci.z), Vector3D(0, 0, -1));
       Vector3D hit_pos;
       if (plane.segmentIntersect(pos, newp, hit_pos)) {
         INFO("intersect flat-t: {} {} {}", hit_pos.x, hit_pos.y, hit_pos.z);
@@ -824,7 +790,7 @@ activeWeapon = chooseWeapon;
       }
     }
     if (bi.left) {
-      Math::Plane plane(Vector3D(ci.x, ci.z, ci.y), Vector3D(-1, 0, 0));
+      Math::Plane plane(Vector3D(ci.x, ci.y, ci.z), Vector3D(-1, 0, 0));
       Vector3D hit_pos;
       if (plane.segmentIntersect(pos, newp, hit_pos)) {
         INFO("intersect flat-l: {} {} {}", hit_pos.x, hit_pos.y, hit_pos.z);
@@ -843,7 +809,7 @@ activeWeapon = chooseWeapon;
     //if (bi.isFlat())
     //  return false;
     if (bi.left) {
-      Math::Plane plane(Vector3D(ci.x, ci.z, ci.y), Vector3D(-1, 0, 0));
+      Math::Plane plane(Vector3D(ci.x, ci.y, ci.z), Vector3D(-1, 0, 0));
       Vector3D hit_pos;
       if (plane.segmentIntersect(pos, newp, hit_pos)) {
         INFO("intersect left: {} {} {}", hit_pos.x, hit_pos.y, hit_pos.z);
@@ -854,7 +820,7 @@ activeWeapon = chooseWeapon;
       }
     }
     if (bi.right && !bi.isFlat()) {
-      Math::Plane plane(Vector3D(ci.x+1, ci.z, ci.y), Vector3D(1, 0, 0));
+      Math::Plane plane(Vector3D(ci.x+1, ci.y, ci.z), Vector3D(1, 0, 0));
       Vector3D hit_pos;
       if (plane.segmentIntersect(pos, newp, hit_pos)) {
         INFO("intersect right: {} {} {}", hit_pos.x, hit_pos.y, hit_pos.z);
@@ -865,7 +831,7 @@ activeWeapon = chooseWeapon;
       }
     }
     if (bi.top) {
-      Math::Plane plane(Vector3D(ci.x, ci.z, ci.y), Vector3D(0, 0, -1));
+      Math::Plane plane(Vector3D(ci.x, ci.y, ci.z), Vector3D(0, 0, -1));
       Vector3D hit_pos;
       if (plane.segmentIntersect(pos, newp, hit_pos)) {
         INFO("intersect top: {} {} {}", hit_pos.x, hit_pos.y, hit_pos.z);
@@ -960,12 +926,6 @@ activeWeapon = chooseWeapon;
   }
 
   uint32_t Projectile::damageByType(const uint8_t & k) {
-    uint32_t v = 7;
-    switch(k) {
-      case 2:
-        v = 150;
-        break;
-    }
-    return v;
+    return k == 2 ? 150 : 7;
   }
 }

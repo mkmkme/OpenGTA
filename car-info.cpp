@@ -17,14 +17,14 @@ OpenGTA::CarInfo::CarInfo(PHYSFS_file *fd)
     PHYSFS_readSLE16(fd, &handling);
     bytes_read_ += 2 * 11;
 
-    for (int i = 0; i < 12; i++) {
-        PHYSFS_readSLE16(fd, &remap24[i].h);
-        PHYSFS_readSLE16(fd, &remap24[i].l);
-        PHYSFS_readSLE16(fd, &remap24[i].s);
+    for (auto & i : remap24) {
+        PHYSFS_readSLE16(fd, &i.h);
+        PHYSFS_readSLE16(fd, &i.l);
+        PHYSFS_readSLE16(fd, &i.s);
     }
     bytes_read_ += 12 * 3 * 2;
-    for (int i = 0; i < 12; i++)
-        PHYSFS_readBytes(fd, static_cast<void *>(&remap8[i]), 1);
+    for (unsigned char & i : remap8)
+        PHYSFS_readBytes(fd, static_cast<void *>(&i), 1);
     bytes_read_ += 12;
 
     PHYSFS_readBytes(fd, static_cast<void *>(&vtype), 1);
@@ -33,8 +33,8 @@ OpenGTA::CarInfo::CarInfo(PHYSFS_file *fd)
     PHYSFS_readBytes(fd, static_cast<void *>(&damagable), 1);
     bytes_read_ += 4;
 
-    for (int i = 0; i < 4; i++)
-        PHYSFS_readULE16(fd, &value[i]);
+    for (unsigned short & i : value)
+        PHYSFS_readULE16(fd, &i);
     bytes_read_ += 4 * 2;
 
     PHYSFS_readBytes(fd, static_cast<void *>(&cx), 1);
@@ -44,25 +44,25 @@ OpenGTA::CarInfo::CarInfo(PHYSFS_file *fd)
 
     PHYSFS_uint32 fixed_tmp;
     PHYSFS_readULE32(fd, &fixed_tmp);
-    rbpMass = float(fixed_tmp) / 65536;
+    // rbpMass = fixed_tmp / 65536
 
     PHYSFS_readULE32(fd, &fixed_tmp);
-    g1_Thrust = float(fixed_tmp) / 65536;
+    // g1_Thrust = fixed_tmp / 65536
 
     PHYSFS_readULE32(fd, &fixed_tmp);
-    tyreAdhesionX = float(fixed_tmp) / 65536;
+    // tyreAdhesionX = fixed_tmp / 65536
 
     PHYSFS_readULE32(fd, &fixed_tmp);
-    tyreAdhesionY = float(fixed_tmp) / 65536;
+    // tyreAdhesionY = fixed_tmp / 65536
 
     PHYSFS_readULE32(fd, &fixed_tmp);
-    handBrakeFriction = float(fixed_tmp) / 65536;
+    // handBrakeFriction = fixed_tmp / 65536
 
     PHYSFS_readULE32(fd, &fixed_tmp);
-    footBrakeFriction = float(fixed_tmp) / 65536;
+    // footBrakeFriction = fixed_tmp / 65536
 
     PHYSFS_readULE32(fd, &fixed_tmp);
-    frontBrakeBias = float(fixed_tmp) / 65536;
+    // fronBrakeBias = fixed_tmp / 65536
 
     bytes_read_ += 7 * 4;
 
@@ -72,10 +72,10 @@ OpenGTA::CarInfo::CarInfo(PHYSFS_file *fd)
     bytes_read_ += 3 * 2;
 
     PHYSFS_readULE32(fd, &fixed_tmp);
-    backEndSlideValue = float(fixed_tmp) / 65536;
+    // backEndSlideValue = fixed_tmp / 65536
 
     PHYSFS_readULE32(fd, &fixed_tmp);
-    handBrakeSlideValue = float(fixed_tmp) / 65536;
+    // handBrakeSlideValue = fixed_tmp / 65536
 
     bytes_read_ += 2 * 4;
 

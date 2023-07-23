@@ -35,7 +35,7 @@ public:
     FontCache(const FontCache &copy) = delete;
     FontCache &operator=(const FontCache &copy) = delete;
 
-    OpenGL::DrawableFont &getFont(const std::string &file, const uint32_t scale);
+    OpenGL::DrawableFont &getFont(const std::string &file, uint32_t scale);
 
     static FontCache &Instance()
     {
@@ -44,10 +44,11 @@ public:
     }
 
 private:
-    FontCache() {}
+    FontCache() = default;
     struct FontIdentifier {
         const std::string filename;
         const uint32_t scale;
+        // TODO: strong_ordering
         bool operator==(const FontIdentifier &o) const { return scale == o.scale && filename == o.filename; }
         bool operator<(const FontIdentifier &o) const
         {

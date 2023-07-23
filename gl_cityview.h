@@ -45,7 +45,7 @@ namespace OpenGTA {
       CityView(OpenGL::Screen &screen, OpenGL::Camera &camera);
       ~CityView();
       void loadMap(const std::string &map, const std::string &style);
-      void createLevelObject(OpenGTA::Map::ObjectPosition *obj);
+      static void createLevelObject(OpenGTA::Map::ObjectPosition *obj);
       void setPosition(const GLfloat & x, const GLfloat & y, const GLfloat & z);
       void setTopDownView(const GLfloat & height);
       //void setCamVector(const GLfloat & x, const GLfloat & y, const GLfloat & z);
@@ -56,15 +56,15 @@ namespace OpenGTA {
       void setTexFlipTest(int v) { texFlipTest = v; }
       GLfloat* getCamPos() { return (GLfloat*)&camPos; }
       void setVisibleRange(int);
-      int  getVisibleRange();
+      int  getVisibleRange() const;
       void getTerrainHeight(GLfloat & x, GLfloat & y, GLfloat & z);
       void draw(Uint32 ticks);
       NavData::Sector* getCurrentSector();
       OpenGL::PagedTexture renderMap2Texture();
 
-      bool getDrawTextured();
-      bool getDrawLines();
-      bool getDrawLinesBlockColor();
+      bool getDrawTextured() const;
+      bool getDrawLines() const;
+      bool getDrawLinesBlockColor() const;
       void setDrawTextured(bool v);
       void setDrawLines(bool v);
       void setDrawLinesBlockColor(bool v);
@@ -72,7 +72,7 @@ namespace OpenGTA {
       void resetTextures();
       const SDL_Rect & getActiveRect() { return activeRect; }
       const SDL_Rect & getOnScreenRect() { return drawnRect; }
-      BlockAnimCtrl* blockAnims;
+      BlockAnimCtrl* blockAnims{};
       
     protected:
       void setNull();
@@ -80,36 +80,36 @@ namespace OpenGTA {
       void drawBlock(OpenGTA::Map::BlockInfo* bi);
       void drawObject(OpenGTA::Map::ObjectPosition*);
       //OpenGL::PagedTexture createSprite(size_t sprNum, GraphicsBase::SpriteInfo* info);
-      Util::CFrustum frustum;
-      OpenGL::TextureCache<uint8_t>* sideCache;
-      OpenGL::TextureCache<uint8_t>* lidCache;
-      OpenGL::TextureCache<uint8_t>* auxCache;
-      Map* loadedMap;
-      OpenGTA::GraphicsBase* style;
-      GLfloat zoomLevel;
-      GLfloat camPos[3];
-      GLfloat camVec[3];
-      int visibleRange;
-      bool topDownView;
-      bool drawTextured;
-      bool drawLines;
-      bool drawLinesBlockType;
-      bool drawHeadingMarkers;
-      uint8_t aboveBlockType;
+      Util::CFrustum frustum{};
+      OpenGL::TextureCache<uint8_t>* sideCache{};
+      OpenGL::TextureCache<uint8_t>* lidCache{};
+      OpenGL::TextureCache<uint8_t>* auxCache{};
+      Map* loadedMap{};
+      OpenGTA::GraphicsBase* style{};
+      GLfloat zoomLevel{};
+      GLfloat camPos[3]{};
+      GLfloat camVec[3]{};
+      int visibleRange{};
+      bool topDownView{};
+      bool drawTextured{};
+      bool drawLines{};
+      bool drawLinesBlockType{};
+      bool drawHeadingMarkers{};
+      uint8_t aboveBlockType{};
 
-      SDL_Rect activeRect;
-      SDL_Rect drawnRect;
+      SDL_Rect activeRect{};
+      SDL_Rect drawnRect{};
 
-      int  scene_rendered_vertices;
-      int  scene_rendered_blocks;
+      int  scene_rendered_vertices{};
+      int  scene_rendered_blocks{};
 
-      GLuint scene_display_list;
-      bool scene_is_dirty;
-      int texFlipTest;
+      GLuint scene_display_list{};
+      bool scene_is_dirty{};
+      int texFlipTest{};
 
-      Uint32 lastCacheEmptyTicks;
+      Uint32 lastCacheEmptyTicks{};
 
-      NavData::Sector *current_sector;
+      NavData::Sector *current_sector{};
 
       OpenGL::Screen &screen_;
       OpenGL::Camera &camera_;

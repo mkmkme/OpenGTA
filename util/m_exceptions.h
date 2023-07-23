@@ -8,17 +8,14 @@
 namespace Util {
 
 struct LocalException : public std::exception {
-    LocalException(const char *f, const size_t l, const std::string &n)
-        : msg { fmt::format("{} ({}:{})", n, f, l) }
-    {}
     LocalException(const std::string &f,
                    const size_t l,
                    const std::string &n,
                    const std::string &m)
         : msg { fmt::format("{} ({}:{}): {}", n, f, l, m) }
     {}
-    virtual ~LocalException() noexcept = default;
-    const char *what() const noexcept { return msg.c_str(); }
+    ~LocalException() noexcept override = default;
+    [[nodiscard]] const char *what() const noexcept override { return msg.c_str(); }
     std::string msg;
 };
 
@@ -78,7 +75,7 @@ typedef Util::LocalException Exception;
 #undef E_OUTOFMEMORY
 #endif
 
-// to auto-fill line+file information where the exception was created
+// to autofill line+file information where the exception was created
 #define E_FILENOTFOUND(m) Util::FileNotFound(__FILE__, __LINE__, m)
 #define E_IOERROR(m) Util::IOError(__FILE__, __LINE__, m)
 #define E_INVALIDFORMAT(m) Util::InvalidFormat(__FILE__, __LINE__, m)

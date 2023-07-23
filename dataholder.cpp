@@ -29,33 +29,29 @@
 #include <cassert>
 
 namespace OpenGTA {
-  template<> ActiveStyle::ActiveData() {
-    m_data = 0;
-  }
 
-  template<> ActiveStyle::~ActiveData() {
+template<> ActiveStyle::~ActiveData() {
     unload();
   }
 
   template<> GraphicsBase & ActiveStyle::get() {
-    if (!m_data)
+    if (m_data == nullptr)
       throw E_NOTSUPPORTED("Load a style-file first!");
     return *m_data;
   }
 
   template<class T> void ActiveData<T>::unload() {
-    if (m_data)
-      delete m_data;
-    m_data = 0;
+    delete m_data;
+    m_data = nullptr;
   }
   
   template<> void ActiveStyle::load(const std::string & file) {
     unload();
-    std::string tmpname { Util::string_lower(file) };
-    if (tmpname.find(".g24") != std::string::npos) {
+    std::string tempName { Util::string_lower(file) };
+    if (tempName.find(".g24") != std::string::npos) {
       m_data = new Graphics24Bit(file);
     }
-    else if (tmpname.find(".gry") != std::string::npos) {
+    else if (tempName.find(".gry") != std::string::npos) {
       m_data = new Graphics8Bit(file);
     }
     else {
@@ -64,21 +60,16 @@ namespace OpenGTA {
       }
       catch (const Exception & e) {
         WARN("loading 8 bit failed: {}", e.what());
-        m_data = 0;
         try {
           m_data = new Graphics24Bit(file);
         }
         catch (const Exception & e) {
           ERROR("loading 24 bit failed: {}", e.what());
-          m_data = 0;
+          m_data = nullptr;
         }
       }
     }
     assert(m_data);
-  }
-
-  template<> ActiveMap::ActiveData() {
-    m_data = 0;
   }
 
   template<> ActiveMap::~ActiveData() {
@@ -98,13 +89,9 @@ namespace OpenGTA {
     }
     catch (const Exception & e) {
       ERROR("loading map failed: {}", e.what());
-      m_data = 0;
+      m_data = nullptr;
     }
     assert(m_data);
-  }
-
-  template<> MainMsgLookup::ActiveData() {
-    m_data = 0;
   }
 
   template<> MainMsgLookup::~ActiveData() {
@@ -125,7 +112,7 @@ namespace OpenGTA {
     }
     catch (const Exception & e) {
       ERROR("loading message-db failed: {}", e.what());
-      m_data = 0;
+      m_data = nullptr;
     }
     assert(m_data);
   }

@@ -45,7 +45,7 @@ namespace OpenGL {
        *
        * Set a name for this instance; to clarify status output with multiple caches.
        */
-      TextureCache(const char * with_name);
+      explicit TextureCache(const char * with_name);
 
       /** Just a simple destructor, nothing see here... move along.
        *
@@ -128,8 +128,6 @@ namespace OpenGL {
       std::string m_name;
       static unsigned int instance_count;
       unsigned int instance_id;
-      const static uint32_t _max_4;
-      const static uint32_t _max_2;
       bool  has_cached_query;
       key_type last_query_id;
       texTuple* last_query_result;

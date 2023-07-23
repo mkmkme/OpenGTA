@@ -4,7 +4,7 @@
 #include <SDL2/SDL_keycode.h>
 
 namespace OpenGTA {
-  Pedestrian & LocalPlayer::getPed() {
+  Pedestrian & LocalPlayer::getPed() const {
     return SpriteManager::Instance().getPed(playerId);
   }
 

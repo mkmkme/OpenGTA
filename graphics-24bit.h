@@ -36,13 +36,13 @@ protected:
                    bool rgba);
 
 private:
-    PHYSFS_uint32 clutSize;
-    PHYSFS_uint32 pagedClutSize;
-    PHYSFS_uint32 tileclutSize;
-    PHYSFS_uint32 spriteclutSize;
-    PHYSFS_uint32 newcarclutSize;
-    PHYSFS_uint32 fontclutSize;
-    PHYSFS_uint32 paletteIndexSize;
+    PHYSFS_uint32 clutSize{};
+    PHYSFS_uint32 pagedClutSize{};
+    PHYSFS_uint32 tileclutSize{};
+    PHYSFS_uint32 spriteclutSize{};
+    PHYSFS_uint32 newcarclutSize{};
+    PHYSFS_uint32 fontclutSize{};
+    PHYSFS_uint32 paletteIndexSize{};
 
     unsigned char *rawClut;
     PHYSFS_uint16 *palIndex;

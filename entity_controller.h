@@ -23,7 +23,7 @@
 #ifndef OBJECT_CONTROLLER_H
 #define OBJECT_CONTROLLER_H
 
-#include <stdint.h>
+#include <cstdint>
 #include "set.h"
 
 namespace OpenGTA {
@@ -31,11 +31,9 @@ namespace OpenGTA {
     public:
       EntityController();
 
-      void zero();
-      typedef uint32_t Storage_T;
-      void setRaw(Storage_T v); 
-      inline const Storage_T & getRaw() { return rawData; }
-    protected:
+        typedef uint32_t Storage_T;
+
+  protected:
       EntityController(const EntityController & other);
       Storage_T rawData;
       Util::Set    dataSet;
@@ -43,22 +41,13 @@ namespace OpenGTA {
 
   class ControllerWithMemory : public EntityController {
     public:
-      ControllerWithMemory() : EntityController(),
-        lastRawData(rawData) {}
-      ControllerWithMemory(const ControllerWithMemory & o) : 
-        EntityController(o), lastRawData(o.lastRawData) {}
-      bool statusChanged(); 
-    protected:
-      Storage_T lastRawData;
+      ControllerWithMemory() : EntityController() {}
   };
 
   class Pedestrian;
 //  class PedController : public EntityController {
   class PedController : public ControllerWithMemory {
     public:
-      PedController() {}
-//      PedController(const PedController & other) : EntityController(other) {}
-      PedController(const PedController & other) : ControllerWithMemory(other) {}
       void setTurnLeft(bool press = true);
       inline void releaseTurnLeft() { setTurnLeft(false); }
       void setTurnRight(bool press = true);
@@ -70,13 +59,7 @@ namespace OpenGTA {
       inline void releaseMoveBack() { setMoveBack(false); }
       signed char getMove();
       void setAction(bool press = true);
-      inline void releaseAction() { setAction(false); }
-      bool getAction();
-      // bool getAction();
       void setJump(bool press = true);
-      inline void releaseJump() { setJump(false); }
-      bool getJump();
-      // bool getJump();
       void setFireWeapon(bool press = true);
       inline void releaseFireWeapon() { setFireWeapon(false); }
       bool getFireWeapon();
@@ -85,30 +68,9 @@ namespace OpenGTA {
       unsigned char getActiveWeapon();
 
       void setRunning(bool yes = true);
-      inline void releaseRunning() { setRunning(false); }
       bool getRunning();
 
       // weapons, equip, shoot
-  };
-
-  class VehicleController : public EntityController {
-    public:
-      VehicleController() {}
-      VehicleController(const VehicleController & other) : EntityController(other) {}
-      void setTurnLeft(bool press = true);
-      inline void releaseTurnLeft() { setTurnLeft(false); }
-      void setTurnRight(bool press = true);
-      inline void releaseTurnRight() { setTurnRight(false); }
-      void setAccelerate(bool press = true);
-      inline void releaseAccelerate() { setAccelerate(false); }
-      void setReverse(bool press = true);
-      inline void releaseReverse() { setReverse(false); }
-      void setHandbrake(bool press = true);
-      inline void releaseHandbrake() { setHandbrake(false); }
-      void setAction(bool press = true);
-      inline void releaseAction() { setAction(false); }
-      
-      // vehicle specials
   };
 
   // HeliController?

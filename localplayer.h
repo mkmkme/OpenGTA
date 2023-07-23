@@ -13,7 +13,7 @@ namespace OpenGTA {
       LocalPlayer() {
         reset();
       }
-      ~LocalPlayer() = default;
+      ~LocalPlayer() override = default;
 
       LocalPlayer(const LocalPlayer& copy) = delete;
       LocalPlayer& operator=(const LocalPlayer& copy) = delete;
@@ -24,9 +24,8 @@ namespace OpenGTA {
         playerId = TypeIdBlackBox::Instance().getPlayerId();
         cash = 0;
         wantedLevel = 0;
-        modifier = 0;
         numLives = 0;
-        pc_ptr = NULL;
+        pc_ptr = nullptr;
       }
       PedController & getCtrl() {
         if (pc_ptr == nullptr)
@@ -39,25 +38,22 @@ namespace OpenGTA {
       void giveLives(uint16_t k) {
         numLives += k;
       }
-      void disableCtrl(bool soft);
-      void enableCtrl();
-      Pedestrian & getPed();
-      int32_t  getNumLives() { return numLives; }
-      int32_t  getWantedLevel() { return wantedLevel; }
-      uint32_t getCash() { return cash; }
-      bool up(const uint32_t & key);
-      bool down(const uint32_t & key);
-      uint32_t getId() { return playerId; }
+      Pedestrian & getPed() const;
+      [[maybe_unused]] [[nodiscard]] int32_t  getNumLives() const { return numLives; }
+      [[nodiscard]] int32_t  getWantedLevel() const { return wantedLevel; }
+      [[nodiscard]] uint32_t getCash() const { return cash; }
+      bool up(const uint32_t & key) override;
+      bool down(const uint32_t & key) override;
+      [[nodiscard]] uint32_t getId() const { return playerId; }
       void addCash(uint32_t v) { cash += v; }
       void setWanted(int32_t v) { wantedLevel = v; }
       void addWanted(uint32_t v) { wantedLevel += v; if (wantedLevel > 5) wantedLevel = 5; }
     private:
-      uint32_t playerId;
-      uint32_t cash;
-      int32_t  wantedLevel;
-      uint32_t modifier;
-      int32_t  numLives;
-      PedController * pc_ptr;
+      uint32_t playerId{};
+      uint32_t cash{};
+      int32_t  wantedLevel{};
+      int32_t  numLives{};
+      PedController * pc_ptr{};
   };
 }
 

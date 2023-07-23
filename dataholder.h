@@ -39,6 +39,7 @@ namespace OpenGTA {
       public:
         ActiveData(const ActiveData<T>& copy) = delete;
         ActiveData<T>& operator=(const ActiveData<T>& copy) = delete;
+        ~ActiveData();
         T & get();
         void load(const std::string & file);
 
@@ -48,10 +49,9 @@ namespace OpenGTA {
           return instance;
         }
       private:
-        ActiveData();
-        ~ActiveData();
+        ActiveData() = default;
         void unload();
-        T* m_data;
+        T* m_data = nullptr;
     };
 
   /** The wrapper around the GRY/G24 data interface.

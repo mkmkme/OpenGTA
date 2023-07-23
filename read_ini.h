@@ -2,14 +2,14 @@
 #define READ_INI_H
 #include <string>
 #include <map>
-#include <stdlib.h>
+#include <cstdlib>
 #include <physfs.h>
 
 namespace OpenGTA {
 
   class ScriptParser {
     public:
-      ScriptParser(const std::string &file);
+      explicit ScriptParser(const std::string &file);
       virtual ~ScriptParser();
       void loadLevel(PHYSFS_uint32 level);
     private:

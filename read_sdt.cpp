@@ -37,7 +37,7 @@ namespace OpenGTA {
   }
 
   SoundsDB::SoundsDB() {
-    dataFile = 0;
+    dataFile = nullptr;
   }
 
   SoundsDB::SoundsDB(const std::string & sdt_file) {
@@ -81,7 +81,7 @@ namespace OpenGTA {
   }
 
   SoundsDB::Entry & SoundsDB::getEntry(KeyType key) {
-    MapType::iterator i = knownEntries.find(key);
+    auto i = knownEntries.find(key);
     if (i == knownEntries.end()) {
       //throw std::string("Unknown sound-db entry");
       throw E_UNKNOWNKEY("Querying for sound id: "
@@ -93,8 +93,7 @@ namespace OpenGTA {
   unsigned char* SoundsDB::getBuffered(KeyType key) {
     Entry & e = getEntry(key);
     unsigned int t_len = e.rawSize;// + 36 + 8;
-    unsigned char* buf = new unsigned char[t_len];
-    assert(buf);
+    auto* buf = new unsigned char[t_len];
     memset(buf, 0, t_len);
     PHYSFS_seek(dataFile, e.rawStart);
     PHYSFS_readBytes(dataFile, buf, e.rawSize);

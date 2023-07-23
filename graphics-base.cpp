@@ -5,6 +5,7 @@
 #include "m_exceptions.h"
 #include "sprite-info.h"
 
+#include <algorithm>
 #include <cassert>
 
 using namespace OpenGTA;
@@ -65,8 +66,8 @@ PHYSFS_uint16 GraphicsBase::SpriteNumbers::countByType(const SpriteTypes &t) con
 GraphicsBase::GraphicsBase()
     : sideTexBlockMove(256)
 {
-    rawTiles = NULL;
-    rawSprites = NULL;
+    rawTiles = nullptr;
+    rawSprites = nullptr;
     delta_is_a_set = false;
     for (int i = 0; i < 256; ++i)
         sideTexBlockMove.set_item(i, true);
@@ -77,7 +78,7 @@ bool GraphicsBase::isBlockingSide(uint8_t id)
     return sideTexBlockMove.get_item(id);
 }
 
-void GraphicsBase::setupBlocking(const std::string &filename)
+void GraphicsBase::setupBlocking()
 {
     // style001
     sideTexBlockMove.set_item(10, false);
@@ -107,25 +108,18 @@ GraphicsBase::~GraphicsBase()
 {
     if (fd)
         PHYSFS_close(fd);
-    std::vector<SpriteInfo *>::iterator i2 = spriteInfos.begin();
-    while (i2 != spriteInfos.end()) {
-        delete *i2;
-        i2++;
-    }
+    for (auto &spriteInfo : spriteInfos)
+        delete spriteInfo;
     spriteInfos.clear();
-    if (rawTiles)
-        delete[] rawTiles;
-    if (rawSprites)
-        delete[] rawSprites;
+    delete[] rawTiles;
+    delete[] rawSprites;
 }
 
 bool GraphicsBase::isAnimatedBlock(uint8_t area_code, uint8_t id)
 {
-    for (const auto &anim : animations) {
-        if (anim.which == area_code && anim.block == id)
-            return true;
-    }
-    return false;
+    return std::ranges::any_of(animations, [&](const auto &anim) {
+        return anim.which == area_code && anim.block == id;
+    });
 }
 
 CarInfo &GraphicsBase::findCarByModel(PHYSFS_uint8 model)
@@ -138,7 +132,7 @@ CarInfo &GraphicsBase::findCarByModel(PHYSFS_uint8 model)
     throw E_UNKNOWNKEY("Searching for car model " + std::to_string(int(model)) + " failed");
 }
 
-unsigned int GraphicsBase::getRandomPedRemapNumber()
+unsigned int GraphicsBase::getRandomPedRemapNumber() const
 {
     return int(rand() * (1.0f / (1.0f + RAND_MAX)) * (lastValidPedRemap - firstValidPedRemap) + firstValidPedRemap);
 }
@@ -156,11 +150,10 @@ uint8_t GraphicsBase::getFormat()
     else if (_topHeaderSize == 64)
         return 1;
     throw E_INVALIDFORMAT("graphics-base header size");
-    return 255;
 }
 
 PHYSFS_uint16 GraphicsBase::SpriteNumbers::reIndex(const PHYSFS_uint16 &id, const SpriteTypes &t) const
-{
+{                                                                                                                                                   
     switch (t) {
         case ARROW:
             return id;

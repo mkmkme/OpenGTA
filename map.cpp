@@ -19,8 +19,8 @@
 
 namespace {
 
-static constexpr PHYSFS_uint8 topHeaderSize = 28;
-static constexpr PHYSFS_uint64 baseSize = 262144;
+constexpr PHYSFS_uint8 topHeaderSize = 28;
+constexpr PHYSFS_uint64 baseSize = 262144;
 
 }
 
@@ -48,7 +48,7 @@ inline size_t mapFileName2Number(const std::string & file) {
 }
 
   Map::Map(const std::string& filename) {
-    nav = 0;
+    nav = nullptr;
     fd = Util::FileHelper::OpenReadVFS(filename);
     if (!fd) {
       throw E_FILENOTFOUND(filename);
@@ -218,7 +218,7 @@ inline size_t mapFileName2Number(const std::string & file) {
         continue;
       if (i < 6)
         loc_type = 0;
-      else if ((i >= 6) && (i < 12))
+      else if (i < 12)
         loc_type = 1;
       else if ((i >= 24) && (i < 30))
         loc_type = 2;
@@ -278,8 +278,8 @@ inline size_t mapFileName2Number(const std::string & file) {
   }
   const Map::Location & Map::getNearestLocationByType(uint8_t t, uint8_t x, uint8_t y) {
     INFO("{} at {} {}", int(t), int(x), int(y));
-    LocationMap::iterator i = locations.find(t);
-    LocationMap::iterator j;
+    auto i = locations.find(t);
+    auto j = i;
     if (i == locations.end())
       throw E_UNKNOWNKEY("location-type " + std::to_string(int(t))
                          + " not found in map");

@@ -22,42 +22,21 @@
 ************************************************************************/
 #include "gl_base.h"
 #include <SDL2/SDL_opengl.h>
-#include "common_sdl_gl.h"
-#include "log.h"
 
-using namespace Util;
 
 namespace OpenGL {
-  template<class T> void ImmediateRenderer<T>::assertCorrectPrimitive(GLenum newType) {
-    if (!insideBegin) {
-      WARN("Missing glBegin() call");
-    }
-    else {
-      if (currentPrimitiveType == newType)
-        return;
-      WARN("Forcing switch of primitive type");
-      glEnd();
-    }
-    glBegin(newType);
-    currentPrimitiveType = newType;
-    insideBegin = true;
-  }
 
-  template<class T> void ImmediateRenderer<T>::begin(GLenum type) {
-    // FIXME: check !insideBegin
-    currentPrimitiveType = type;
-    insideBegin = true;
+template<class T>
+void ImmediateRenderer<T>::begin()
+{
   }
   template<class T> void ImmediateRenderer<T>::end() {
-    insideBegin = false;
   }
-   
-  template<class T> GLenum ImmediateRenderer<T>::currentPrimitiveType = GL_POINTS;
 
   template<> void ImmediateRenderer<Quad2Int>::draw(const Quad2Int & quad) {
     //assertCorrectPrimitive(quad.primitiveType);
-    for (int i = 0; i < 4; i++)
-      glVertex2i(quad.vertices[i][0], quad.vertices[i][1]);
+    for (auto vertex : quad.vertices)
+      glVertex2i(vertex[0], vertex[1]);
   }
   template<> void ImmediateRenderer<ColoredQuad2Int>::draw(const ColoredQuad2Int & quad) {
     //assertCorrectPrimitive(quad.primitiveType);
@@ -68,7 +47,7 @@ namespace OpenGL {
   }
   template<> void ImmediateRenderer<FontQuad>::draw(const FontQuad & quad) {
     glBindTexture(GL_TEXTURE_2D, quad.texId);
-    glBegin(quad.primitiveType);
+    glBegin(OpenGL::FontQuad::primitiveType);
     for (int i = 0; i < 4; i++) {
       glTexCoord2f(quad.texCoords[i][0], quad.texCoords[i][1]);
       glVertex2i(quad.vertices[i][0], quad.vertices[i][1]);

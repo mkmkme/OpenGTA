@@ -33,14 +33,13 @@
 #include <SDL2/SDL_opengl.h>
 #include <array>
 #include <iostream>
-#include <memory>
 #include <string_view>
 
 using namespace std::string_view_literals;
 
 bool done = false;
 
-OpenGTA::Car *car = NULL;
+OpenGTA::Car *car = nullptr;
 Vector3D _p(4, 0.01f, 4);
 OpenGTA::Pedestrian ped(Vector3D(0.5f, 0.5f, 0.5f), Vector3D(4, 0.01f, 4), 0xffffffff);
 OpenGTA::SpriteObject::Animation pedAnim(0, 0);
@@ -58,7 +57,6 @@ bool texsprite_toggle = false;
 bool c_c = true;
 int car_model = 0;
 int car_remap = -1;
-int car_last_model_ok = 0;
 bool playWithCar = false;
 uint32_t car_delta = 0;
 
@@ -69,16 +67,14 @@ void ai_step_fake(OpenGTA::Pedestrian *) {}
 
 void safe_try_model(uint8_t model_id)
 {
-    if (car)
-        delete car;
+    delete car;
     try {
         car = new OpenGTA::Car(_p, 0, 0, model_id, car_remap);
     } catch (Util::UnknownKey &uk) {
-        car = NULL;
+        car = nullptr;
         ERROR("not a model");
         return;
     }
-    car_last_model_ok = model_id;
 }
 
 const char *spr_type_name(int t)
@@ -100,6 +96,8 @@ const char *vtype2name(int vt)
             return "car";
         case 8:
             return "train";
+        default:
+            break;
     }
     return "";
 }
@@ -159,7 +157,7 @@ void drawScene(Uint32 ticks, OpenGL::Screen &screen, OpenGL::Camera &camera)
 
 void handleKeyPress(SDL_Keysym *keysym, OpenGL::Camera &camera)
 {
-    auto &style = OpenGTA::ActiveStyle::Instance().get();
+    const auto &style = OpenGTA::ActiveStyle::Instance().get();
     bool update_anim = false;
     switch (keysym->sym) {
         case SDLK_ESCAPE:
@@ -253,7 +251,7 @@ void handleKeyPress(SDL_Keysym *keysym, OpenGL::Camera &camera)
             );
             ped.sprType = (OpenGTA::GraphicsBase::SpriteNumbers::SpriteTypes) spr_type;
             frame_offset = 0;
-            update_anim = 1;
+            update_anim = true;
             break;
         case 'm':
             if (playWithCar && car_remap < 11) {
@@ -268,7 +266,7 @@ void handleKeyPress(SDL_Keysym *keysym, OpenGL::Camera &camera)
             );
             ped.sprType = (OpenGTA::GraphicsBase::SpriteNumbers::SpriteTypes) spr_type;
             frame_offset = 0;
-            update_anim = 1;
+            update_anim = true;
             break;
         case 's':
             if (playWithCar) {
@@ -412,9 +410,8 @@ int main(int argc, char *argv[])
     camera.setFollowMode(ped.pos);
 
     main_loop(screen, camera);
-
-    if (car)
-        delete car;
+    
+    delete car;
     SDL_Quit();
     PHYSFS_deinit();
 

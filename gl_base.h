@@ -41,11 +41,6 @@ namespace OpenGL {
       vertex_type vertices[4][entries_per_vertex];
       static const GLenum primitiveType = GL_QUADS;
     };
-  template<typename normal_type, int entries_per_vertex>
-    struct QuadNormals
-    {
-      normal_type normals[4][entries_per_vertex];
-    };
   template<typename color_type, int num_colors>
     struct QuadColors
     {
@@ -78,14 +73,11 @@ namespace OpenGL {
   template<class T> class ImmediateRenderer
   {
     public:
-      static void draw(const T & t);
-      static void begin(GLenum type);
+      static void begin();
       static void end();
-    protected:
-      static GLenum currentPrimitiveType;
-      static bool   insideBegin;
-      static void   assertCorrectPrimitive(GLenum newType);
+      static void draw(const T & quad);
   };
+
 
   // ugly as hell, but seems to work
 #define Renderer ImmediateRenderer

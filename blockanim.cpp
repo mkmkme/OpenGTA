@@ -27,13 +27,8 @@ namespace OpenGTA {
     for (auto &anim : v) {
       anims_.emplace_back(anim);
     }
-   /* while (i != v.end()) {
-      OpenGTA::GraphicsBase::LoadedAnim * da = *i;
-      anims.push_back(new BlockAnim(da));
-      i++;
-    }*/
   
-  };
+  }
 
   std::optional<BlockAnim> BlockAnimCtrl::getAnim(uint8_t area, uint8_t id)
   {

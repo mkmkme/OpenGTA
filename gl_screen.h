@@ -28,7 +28,7 @@
 
 namespace OpenGL {
 
-enum class VSyncMode : uint8_t { NoSync, SDL, Native };
+enum class VSyncMode : uint8_t { NoSync, SDL };
 
 class Screen final {
 public:
@@ -46,13 +46,13 @@ public:
     void toggleFullscreen();
     void activate(uint32_t w = 0, uint32_t h = 0);
     void resize(uint32_t w, uint32_t h);
-    void setSystemMouseCursor(bool visible);
-    inline uint32_t width() const noexcept { return width_; }
-    inline uint32_t height() const noexcept { return height_; }
-    inline bool fullscreen() const noexcept { return video_flags_ & SDL_WINDOW_FULLSCREEN; }
-    inline float fieldOfView() const noexcept { return field_of_view_; }
-    inline float nearPlane() const noexcept { return near_plane_; }
-    inline float farPlane() const noexcept { return far_plane_; }
+    static void setSystemMouseCursor(bool visible);
+    [[nodiscard]] inline uint32_t width() const noexcept { return width_; }
+    [[nodiscard]] inline uint32_t height() const noexcept { return height_; }
+    [[nodiscard]] inline bool fullscreen() const noexcept { return video_flags_ & SDL_WINDOW_FULLSCREEN; }
+    [[nodiscard]] inline float fieldOfView() const noexcept { return field_of_view_; }
+    [[nodiscard]] inline float nearPlane() const noexcept { return near_plane_; }
+    [[nodiscard]] inline float farPlane() const noexcept { return far_plane_; }
     inline SDL_Window *get() noexcept { return window_; }
     void makeScreenshot(const char *filename);
     void setupGlVars(float fov, float near_p, float far_p);
@@ -63,7 +63,7 @@ private:
     void initScreen(uint32_t w, uint32_t h);
 
     SDL_Window *window_;
-    SDL_GLContext gl_context_;
+    SDL_GLContext gl_context_{};
     uint32_t width_, height_;
     uint32_t video_flags_;
     VSyncMode vsync_mode_;

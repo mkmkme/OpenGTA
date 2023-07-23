@@ -10,33 +10,30 @@
 ************************************************************************/
 #include "graphics-8bit.h"
 
-#include <iostream>
 #include <cassert>
+#include <memory>
 #include "car-info.h"
 #include "file_helper.h"
 #include "loaded-anim.h"
 #include "log.h"
 #include "m_exceptions.h"
-#include "object-info.h"
 #include "sprite-info.h"
-#include "set.h"
 
 using namespace Util;
 
 namespace OpenGTA {
 
-#define GTA_GRAPHICS_GRX 290
 #define GTA_GRAPHICS_GRY 325
 #define GTA_GRAPHICS_G24 336
 
   Graphics8Bit::Graphics8Bit(const std::string& style) : GraphicsBase() {
     fd = Util::FileHelper::OpenReadVFS(style);
     _topHeaderSize = 52;
-    rawTiles = NULL;
-    rawSprites = NULL;
+    rawTiles = nullptr;
+    rawSprites = nullptr;
     auxBlockTrailSize = 0;
     loadHeader();
-    setupBlocking(style);
+    setupBlocking();
     firstValidPedRemap = 131;
     lastValidPedRemap = 187;
   }
@@ -84,7 +81,6 @@ namespace OpenGTA {
               vc,
               GTA_GRAPHICS_GRY);
         throw E_INVALIDFORMAT("8-bit loader failed");
-        return;
     }
     PHYSFS_readULE32(fd, &sideSize);
     PHYSFS_readULE32(fd, &lidSize);
@@ -158,7 +154,7 @@ namespace OpenGTA {
     PHYSFS_uint64 st = static_cast<PHYSFS_uint64>(_topHeaderSize) +
       sideSize + lidSize + auxSize + auxBlockTrailSize + animSize;
     PHYSFS_seek(fd, st);
-    masterRGB_.reset(new RGBPalette(fd));
+    masterRGB_ = std::make_unique<RGBPalette>(fd);
   }
   
   void Graphics8Bit::loadRemapTables() {
@@ -210,15 +206,15 @@ namespace OpenGTA {
       remapSize + remapIndexSize + objectInfoSize + carInfoSize;
     PHYSFS_seek(fd, st);
 
-    PHYSFS_uint8 v;
+    PHYSFS_uint8 compressionFlag;
     PHYSFS_uint32 w;
     PHYSFS_uint32 _bytes_read = 0;
     while (_bytes_read < spriteInfoSize) {
-      SpriteInfo *si = new SpriteInfo();
+      auto *si = new SpriteInfo();
       PHYSFS_readBytes(fd, static_cast<void*>(&si->w), 1);
       PHYSFS_readBytes(fd, static_cast<void*>(&si->h), 1);
       PHYSFS_readBytes(fd, static_cast<void*>(&si->deltaCount), 1);
-      PHYSFS_readBytes(fd, static_cast<void*>(&v), 1);
+      PHYSFS_readBytes(fd, static_cast<void*>(&compressionFlag), 1);
       PHYSFS_readULE16(fd, &si->size);
       PHYSFS_readULE32(fd, &w);
       _bytes_read += 10;
@@ -228,13 +224,8 @@ namespace OpenGTA {
       si->yoffset = (w % 65536) / 256;
       si->clut = 0;
 
-      /*
-      std::cout << int(si->w) << "," << int(si->h) << " = " << si->size << " deltas: " << int(si->deltaCount) <<
-        " at " << w << std::endl;
-      */
-
       // sanity check
-      if (v)
+      if (compressionFlag)
         WARN("Compression flag active in sprite!");
       if (int(si->w) * int(si->h) != int(si->size)) {
         ERROR("Sprite info size mismatch: {}x{} != {}",
@@ -249,7 +240,7 @@ namespace OpenGTA {
       }
       for (PHYSFS_uint8 j = 0; j < 33; ++j) {
         si->delta[j].size = 0;
-        si->delta[j].ptr = 0;
+        si->delta[j].ptr = nullptr;
         if (si->deltaCount && (j < si->deltaCount)) {
           //std::cout << "reading " << int(j) << std::endl;
           PHYSFS_readULE16(fd, &si->delta[j].size);
@@ -273,15 +264,15 @@ namespace OpenGTA {
       remapSize + remapIndexSize + objectInfoSize + carInfoSize + spriteInfoSize;
     PHYSFS_seek(fd, st);
     rawSprites = new unsigned char[spriteGraphicsSize];
-    assert(rawSprites != NULL);
+    assert(rawSprites != nullptr);
     PHYSFS_readBytes(fd, static_cast<void*>(rawSprites), spriteGraphicsSize);
 
-    if (spriteInfos.size() == 0) {
+    if (spriteInfos.empty()) {
       INFO("No SpriteInfo post-loading work done - structure is empty");
       return;
     }
-    std::vector<SpriteInfo*>::const_iterator i = spriteInfos.begin();
-    std::vector<SpriteInfo*>::const_iterator end = spriteInfos.end();
+    auto i = spriteInfos.cbegin();
+    auto end = spriteInfos.cend();
     PHYSFS_uint32 _pagewise = 256 * 256;
     while (i != end) {
       SpriteInfo *info = *i;
@@ -305,7 +296,6 @@ namespace OpenGTA {
       i++;
     }
 
-    return;
   }
 
   void Graphics8Bit::loadSpriteNumbers() {
@@ -316,11 +306,9 @@ namespace OpenGTA {
     loadSpriteNumbers_shared(st);
   }
 
-  std::unique_ptr<unsigned char[]> Graphics8Bit::getSpriteBitmap(
-    size_t id, int remap = -1, uint32_t delta = 0
-  ) {
+  std::unique_ptr<unsigned char[]> Graphics8Bit::getSpriteBitmap(size_t id, int remap, uint32_t delta) {
     SpriteInfo *info = spriteInfos[id];
-    assert(info != NULL);
+    assert(info != nullptr);
     //PHYSFS_uint32 offset = reinterpret_cast<PHYSFS_uint32>(info->ptr);
     //const PHYSFS_uint32 page = offset / 65536;
     const PHYSFS_uint32 y = info->yoffset; // (offset % 65536) / 256;
@@ -328,7 +316,7 @@ namespace OpenGTA {
     const PHYSFS_uint32 page_size = 256 * 256;
 
     unsigned char * page_start = rawSprites + info->page * page_size;// + 256 * y + x;
-    assert(page_start != NULL);
+    assert(page_start != nullptr);
     
     auto dest = std::make_unique<unsigned char[]>(page_size);
 
@@ -359,7 +347,7 @@ namespace OpenGTA {
   }
 
   void Graphics8Bit::applyRemap(unsigned int len, unsigned int which, unsigned char* buffer) {
-    assert(buffer!=NULL);
+    assert(buffer != nullptr);
     unsigned char* t = buffer;
     for (unsigned int i = 0; i < len; ++i) {
       *t = remapTables[which][*t]; //FIXME: is this the right order? Is this correct at all?
@@ -369,7 +357,7 @@ namespace OpenGTA {
   
 
   
-  unsigned char* Graphics8Bit::getSide(unsigned int idx, unsigned int palIdx, bool rgba = false) {
+  unsigned char* Graphics8Bit::getSide(unsigned int idx, unsigned int palIdx, bool rgba) {
     prepareSideTexture(idx-1, tileTmp);
     unsigned char *res;
     if (rgba) {
@@ -384,7 +372,7 @@ namespace OpenGTA {
   }
 
   
-  unsigned char *Graphics8Bit::getLid(unsigned int idx, unsigned int palIdx, bool rgba = false) {
+  unsigned char *Graphics8Bit::getLid(unsigned int idx, unsigned int palIdx, bool rgba) {
     prepareLidTexture(idx-1, tileTmp);
     if (palIdx > 0)
       applyRemap(4096, palIdx, tileTmp);
@@ -401,7 +389,7 @@ namespace OpenGTA {
     return res;
   }
   
-  unsigned char* Graphics8Bit::getAux(unsigned int idx, unsigned int palIdx, bool rgba = false) {
+  unsigned char* Graphics8Bit::getAux(unsigned int idx, unsigned int palIdx, bool rgba) {
     prepareAuxTexture(idx-1, tileTmp);
     unsigned char *res;
     if (rgba) {
@@ -417,8 +405,7 @@ namespace OpenGTA {
   }
 
   /* RGBPalette */
-  Graphics8Bit::RGBPalette::RGBPalette() {
-  }
+  Graphics8Bit::RGBPalette::RGBPalette() = default;
   
   Graphics8Bit::RGBPalette::RGBPalette(const std::string& palette) {
     PHYSFS_file* fd = Util::FileHelper::OpenReadVFS(palette);
@@ -441,8 +428,7 @@ namespace OpenGTA {
     return 0;
   }
   
-  void Graphics8Bit::RGBPalette::apply(unsigned int len, const unsigned char* src,
-      unsigned char* dst, bool rgba ) {
+  void Graphics8Bit::RGBPalette::apply(unsigned int len, const unsigned char* src, unsigned char* dst, bool rgba) {
     for (unsigned int i = 0; i < len; i++) {
       *dst = data[*src * 3 ]; ++dst;
       *dst = data[*src * 3 + 1]; ++dst;

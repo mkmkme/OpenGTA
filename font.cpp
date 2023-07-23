@@ -8,11 +8,8 @@
 *                                                                       *
 * This notice may not be removed or altered.                            *
 ************************************************************************/
-#include <iostream>
-#include <cassert>
 #include "file_helper.h"
 #include "font.h"
-#include "m_exceptions.h"
 #include "log.h"
 #include "string_helpers.h"
 
@@ -24,7 +21,7 @@ namespace OpenGTA {
     int ww = 0;
     int lw = 0;
     for (uint8_t i = 0; i < numChars; i++) {
-      Character * ch = new Character(fd, charHeight);
+      auto * ch = new Character(fd, charHeight);
       ww += ch->width;
       if (ch->width > lw)
         lw = ch->width;
@@ -42,12 +39,8 @@ namespace OpenGTA {
     loadMapping(file);
   }
   Font::~Font() {
-    std::vector<Character*>::iterator i = chars.begin();
-    while(i != chars.end()) {
-      delete *i;
-      i++;
-    }
-    chars.clear();
+    for (auto & c : chars)
+      delete c;
     delete [] workBuffer;
   }
   void Font::readHeader(PHYSFS_file *fd) {
@@ -58,18 +51,15 @@ namespace OpenGTA {
   void Font::addMapping(char c, size_t num) {
     mapping[c] = num;
   }
-  Font::Character* Font::getCharById(size_t num) {
-    return chars[num];
-  }
   size_t Font::getIdByChar(const char c) {
-    std::map<char, size_t>::iterator i = mapping.find(c);
+    auto i = mapping.find(c);
     if (i == mapping.end())
       return 0;
     else
       return i->second;
   }
   uint8_t Font::getMoveWidth(const char c) {
-    std::map<char, size_t>::iterator i = mapping.find(c);
+    auto i = mapping.find(c);
     if (i == mapping.end()) {
       return chars[0]->width;
     }
@@ -80,9 +70,9 @@ namespace OpenGTA {
     unsigned int len = chars[num]->width;
     len *= charHeight;
     palette.apply(len, chars[num]->rawData, workBuffer, true);
-    if (width != NULL)
+    if (width != nullptr)
       *width = chars[num]->width;
-    if (height != NULL)
+    if (height != nullptr)
       *height = charHeight;
     return workBuffer;
     /*

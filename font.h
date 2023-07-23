@@ -17,16 +17,14 @@ public:
     public:
         Character(PHYSFS_file *, uint8_t);
         ~Character();
-        uint8_t width;
+        uint8_t width{};
         uint8_t *rawData;
     };
-    Font(const std::string &file);
+    explicit Font(const std::string &file);
     ~Font();
-    uint8_t getNumChars() const noexcept { return numChars; }
-    uint8_t getCharHeight() const noexcept { return charHeight; }
-    Character *getCharById(size_t num);
-    size_t getIdByChar(const char c);
-    uint8_t getMoveWidth(const char c);
+    [[nodiscard]] uint8_t getCharHeight() const noexcept { return charHeight; }
+    size_t getIdByChar(char c);
+    uint8_t getMoveWidth(char c);
 
     void addMapping(char c, size_t num);
 
@@ -38,8 +36,8 @@ public:
 private:
     void loadMapping(const std::string &name);
     void readHeader(PHYSFS_file *);
-    uint8_t charHeight;
-    uint8_t numChars;
+    uint8_t charHeight{};
+    uint8_t numChars{};
     std::vector<Character *> chars;
     std::map<char, size_t> mapping;
     Graphics8Bit::RGBPalette palette;

@@ -65,9 +65,8 @@ public:
     inline void removeObject(uint32_t id) { _objects.erase(id); }
     inline std::map<uint32_t, SpriteObject> &getObjects() { return _objects; }
 
-    inline bool getDrawTexture() { return (_drawMode & 1); }
-    inline bool getDrawTexBorder() { return (_drawMode & 2); }
-    inline bool getDrawBBox() { return (_drawMode & 4); }
+    inline bool getDrawTexBorder() const { return (_drawMode & 2); }
+    inline bool getDrawBBox() const { return (_drawMode & 4); }
     void setDrawTexture(bool v);
     void setDrawTexBorder(bool v);
     void setDrawBBox(bool v);
@@ -99,7 +98,7 @@ protected:
 
 private:
     uint32_t _drawMode;
-    uint32_t _lastCreateTick;
+    uint32_t _lastCreateTick{};
 
     std::map<uint32_t, Pedestrian> _peds;
     std::map<uint32_t, Car> _cars;

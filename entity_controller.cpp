@@ -21,7 +21,6 @@
 * distribution.                                                         *
 ************************************************************************/
 #include "entity_controller.h"
-#include "log.h"
 #include "m_exceptions.h"
 
 namespace OpenGTA {
@@ -32,21 +31,6 @@ namespace OpenGTA {
   EntityController::EntityController(const EntityController & other) :
     rawData(other.rawData),
     dataSet(sizeof(rawData) * 8, (unsigned char*)&rawData) {}
-
-  void EntityController::zero() {
-    rawData = 0;
-  }
-
-  void EntityController::setRaw(Storage_T v) {
-    rawData = v;
-  }
-
-  bool ControllerWithMemory::statusChanged() {
-    bool res = (rawData != lastRawData);
-    if (res)
-      lastRawData = rawData;
-    return res; 
-  }
 
   void PedController::setTurnLeft(bool press) {
     dataSet.set_item(0, press);
@@ -94,14 +78,6 @@ namespace OpenGTA {
     else if (dataSet.get_item(3))
       return -1;
     return 0;
-  }
-
-  bool PedController::getAction() {
-    return dataSet.get_item(4);
-  }
-
-  bool PedController::getJump() {
-    return dataSet.get_item(5);
   }
 
   bool PedController::getFireWeapon() {

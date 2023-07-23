@@ -9,7 +9,6 @@
 * This notice may not be removed or altered.                            *
 ************************************************************************/
 #include <cassert>
-#include <iostream>
 #include <iomanip>
 #include <fmt/format.h>
 #include "navdata.h"
@@ -20,13 +19,6 @@
 namespace OpenGTA {
   Rect2D::Rect2D() {
     x = y = w = h = 0;
-  }
-
-  Rect2D::Rect2D(PHYSFS_uint8 a, PHYSFS_uint8 b, PHYSFS_uint8 c, PHYSFS_uint8 d) {
-    x = a;
-    y = b;
-    w = c;
-    h = d;
   }
 
   bool Rect2D::isInside(PHYSFS_uint8 _x, PHYSFS_uint8 _y) {
@@ -44,32 +36,30 @@ namespace OpenGTA {
   }
 
   // 0 = central, 1 = north, 2 = south, 4 = east, 8 = west
-  PHYSFS_uint8 Rect2D::subLocation(PHYSFS_uint8 _x, PHYSFS_uint8 _y) {
+  PHYSFS_uint8 Rect2D::subLocation(PHYSFS_uint8 _x, PHYSFS_uint8 _y) const {
     PHYSFS_uint8 in_x = _x - x; // offset in rect; assume: x <= _x
     PHYSFS_uint8 in_y = _y - y;
     float rel_x = float(in_x)/w;
     float rel_y = float(in_y)/h;
     PHYSFS_uint8 res = 0;
-#define ONE_THIRD 1.0f/3.0f
-#define TWO_THIRDS 2.0f/3.0f
-    if (rel_x <= ONE_THIRD)
+    const float oneThird = 1.0f / 3.0f;
+    const float twoThirds = 2.0f / 3.0f;
+    if (rel_x <= oneThird)
       // INFO << "west" << std::endl;
       res |= 8;
-    else if (rel_x >= TWO_THIRDS)
+    else if (rel_x >= twoThirds)
       //INFO << "east" << std::endl;
       res |= 4;
-    if (rel_y <= ONE_THIRD)
+    if (rel_y <= oneThird)
       res |= 1;
       //INFO << "north" << std::endl;
-    else if (rel_y >= TWO_THIRDS)
+    else if (rel_y >= twoThirds)
       res |= 2;
       //INFO << "south" << std::endl;
     return res;
   }
 
-  NavData::Sector::Sector(PHYSFS_file* fd) : Rect2D(), sam(0), name("") {
-    sam = 0;
-    isADummy = 0;
+  NavData::Sector::Sector(PHYSFS_file* fd) : Rect2D() {
     assert(fd);
     //memset(name2, 0, 30);
     PHYSFS_readBytes(fd, static_cast<void*>(&x), 1);
@@ -83,14 +73,13 @@ namespace OpenGTA {
     PHYSFS_seek(fd, PHYSFS_tell(fd) + 30);
   }
 
-  NavData::Sector::Sector() : Rect2D(), sam(0), name("") {
+  NavData::Sector::Sector() : Rect2D() {
     x = 0;
     y = 0;
     w = 255;
     h = 255;
     sam = 0;
-    isADummy = 1;
-    //memset(name2, 0, 30);
+    isADummy = true;
   }
 
   std::string NavData::Sector::getFullName() const {
@@ -171,13 +160,12 @@ namespace OpenGTA {
     _sw = msg.getText("sw");
     _se = msg.getText("se");
     for (PHYSFS_uint32 i = 0; i < c; ++i) {
-      Sector *sec = new Sector(fd);
+      auto *sec = new Sector(fd);
       if (sec->getSize() == 0) { // workaround for 'NYC.CMP' (empty sectors)
         delete sec;
         WARN("skipping zero size sector");
         continue;
-      }
-      else {
+      } else {
         //INFO << i << " " << sec->name2 << std::endl << os.str() << " : " << msg.getText(os.str()) << std::endl;
         sec->name = msg.getText(
           fmt::format("{:03}area{:03}", level_num, int(sec->sam))
@@ -205,21 +193,17 @@ namespace OpenGTA {
   }
 
   NavData::Sector* NavData::getSectorAt(PHYSFS_uint8 x, PHYSFS_uint8 y) {
-    SectorMapType::iterator it = areas.begin();
-    while (it != areas.end()) {
-      if (it->second->isInside(x, y))
-        return it->second;
-      ++it;
+    for (const auto& area : areas) {
+      if (area.second->isInside(x, y))
+        return area.second;
     }
     throw E_OUTOFRANGE("Querying invalid sector at " + std::to_string(int(x))
                        + ", " + std::to_string(int(y)));
   }
 
   void NavData::clear() {
-    SectorMapType::iterator it = areas.begin();
-    while (it != areas.end()) {
-      delete it->second;
-      ++it;
+    for (const auto& area : areas) {
+      delete area.second;
     }
     areas.clear();
   }

@@ -8,14 +8,13 @@
  *                                                                       *
  * This notice may not be removed or altered.                            *
  ************************************************************************/
-#include <iostream>
 #include <cstring>
 #include "log.h"
 #include "read_ini.h"
 
 namespace OpenGTA {
 
-  ScriptParser::ScriptParser(const std::string &file) : section_info(""), section_vars("") {
+  ScriptParser::ScriptParser(const std::string &file) {
     fd = PHYSFS_openRead(file.c_str());
     if (!fd)
       ERROR("could not open file {} for reading!", file);
@@ -101,7 +100,7 @@ namespace OpenGTA {
 */
 
   ScriptParser::~ScriptParser() {
-    if (fd != NULL)
+    if (fd != nullptr)
       PHYSFS_close(fd);
     levels.clear();
   }
@@ -134,7 +133,7 @@ namespace OpenGTA {
       memset(buffer+offset, 0, read_bytes+1);
       PHYSFS_readBytes(fd, buffer + offset, read_bytes);
       char* line_start = buffer;
-      while (1) {
+      while (true) {
         char* line_end = strchr(line_start, '\r');
         if (line_start && line_end) { 
           if (*(line_end - 1) == ' ')
@@ -171,9 +170,9 @@ namespace OpenGTA {
           break;
       }
       //std::cout << uint32(line_start) - uint32(buffer) << std::endl; 
-      auto start_casted = reinterpret_cast<uintptr_t>(line_start);
-      auto buffer_casted = reinterpret_cast<uintptr_t>(buffer);
-      PHYSFS_uint32 begin_rest = static_cast<PHYSFS_uint32>(start_casted - buffer_casted);
+      const auto start_casted = reinterpret_cast<uintptr_t>(line_start);
+      const auto buffer_casted = reinterpret_cast<uintptr_t>(buffer);
+      const auto begin_rest = static_cast<PHYSFS_uint32>(start_casted - buffer_casted);
       offset = buf_len - begin_rest;
       memmove(buffer, &buffer[begin_rest], buf_len - begin_rest);
       read_bytes = buf_len - offset;

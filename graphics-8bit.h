@@ -28,7 +28,7 @@ public:
      */
     class RGBPalette {
     private:
-        unsigned char data[256 * 3];
+        unsigned char data[256 * 3]{};
 
     public:
         /** Empty constructor.
@@ -73,9 +73,9 @@ public:
     void dump();
 
 private:
-    PHYSFS_uint32 paletteSize;
-    PHYSFS_uint32 remapSize;
-    PHYSFS_uint32 remapIndexSize;
+    PHYSFS_uint32 paletteSize{};
+    PHYSFS_uint32 remapSize{};
+    PHYSFS_uint32 remapIndexSize{};
 
 protected:
     void loadHeader();
@@ -91,8 +91,8 @@ protected:
                     unsigned int which,
                     unsigned char *buffer);
     std::unique_ptr<RGBPalette> masterRGB_;
-    PHYSFS_uint8 remapTables[256][256];
-    PHYSFS_uint8 remapIndex[256][4];
+    PHYSFS_uint8 remapTables[256][256]{};
+    PHYSFS_uint8 remapIndex[256][4]{};
 };
 
 } // namespace OpenGTA

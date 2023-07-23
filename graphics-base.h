@@ -92,13 +92,13 @@ public:
     void prepareSideTexture(unsigned int idx, unsigned char *dst);
     void prepareLidTexture(unsigned int idx, unsigned char *dst);
     void prepareAuxTexture(unsigned int idx, unsigned char *dst);
-    unsigned int getRandomPedRemapNumber();
+    unsigned int getRandomPedRemapNumber() const;
     unsigned int getPedRemapNumberType(unsigned int _type);
 
-    SpriteNumbers spriteNumbers;
+    SpriteNumbers spriteNumbers{};
 
     CarInfo &findCarByModel(PHYSFS_uint8);
-    inline size_t getNumCarModels() const noexcept { return carInfos.size(); }
+    [[maybe_unused]] [[nodiscard]] inline size_t getNumCarModels() const noexcept { return carInfos.size(); }
     unsigned char *getTmpBuffer(bool rgba);
     SpriteInfo *getSprite(size_t id) { return spriteInfos[id]; }
 
@@ -125,7 +125,7 @@ public:
     void setDeltaHandling(bool delta_as_set);
 
     bool isBlockingSide(uint8_t id);
-    void setupBlocking(const std::string &file);
+    void setupBlocking();
 
 protected:
     void loadTileTextures();
@@ -145,21 +145,21 @@ protected:
                     const DeltaInfo &deltaInfo,
                     bool mirror = false);
 
-    PHYSFS_file *fd;
+    PHYSFS_file *fd{};
     unsigned char *rawTiles;
     unsigned char *rawSprites;
 
-    PHYSFS_uint32 sideSize;
-    PHYSFS_uint32 lidSize;
-    PHYSFS_uint32 auxSize;
-    PHYSFS_uint32 animSize;
-    PHYSFS_uint32 objectInfoSize;
-    PHYSFS_uint32 carInfoSize;
-    PHYSFS_uint32 spriteInfoSize;
-    PHYSFS_uint32 spriteGraphicsSize;
-    PHYSFS_uint32 spriteNumberSize;
+    PHYSFS_uint32 sideSize{};
+    PHYSFS_uint32 lidSize{};
+    PHYSFS_uint32 auxSize{};
+    PHYSFS_uint32 animSize{};
+    PHYSFS_uint32 objectInfoSize{};
+    PHYSFS_uint32 carInfoSize{};
+    PHYSFS_uint32 spriteInfoSize{};
+    PHYSFS_uint32 spriteGraphicsSize{};
+    PHYSFS_uint32 spriteNumberSize{};
 
-    PHYSFS_uint32 auxBlockTrailSize;
+    PHYSFS_uint32 auxBlockTrailSize{};
 
     /*
     int loadSide();
@@ -172,18 +172,18 @@ protected:
     int loadSpriteGraphics();
     int loadSpriteNumbers();*/
 
-    PHYSFS_uint8 _topHeaderSize;
+    PHYSFS_uint8 _topHeaderSize{};
 
-    unsigned char tileTmp[4096];
-    unsigned char tileTmpRGB[4096 * 3];
-    unsigned char tileTmpRGBA[4096 * 4];
+    unsigned char tileTmp[4096]{};
+    unsigned char tileTmpRGB[4096 * 3]{};
+    unsigned char tileTmpRGBA[4096 * 4]{};
 
     bool delta_is_a_set;
 
     Util::Set sideTexBlockMove;
 
-    unsigned int firstValidPedRemap;
-    unsigned int lastValidPedRemap;
+    unsigned int firstValidPedRemap{};
+    unsigned int lastValidPedRemap{};
 };
 
 } // namespace OpenGTA

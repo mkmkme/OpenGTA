@@ -42,15 +42,12 @@
 #include "gl_font.h"
 #include "gl_screen.h"
 #include "gl_spritecache.h"
-#include "gl_texturecache.h"
 #include "id_sys.h"
 #include "localplayer.h"
 #include "log.h"
 #include "m_exceptions.h"
 #include "navdata.h"
 #include "spritemanager.h"
-#include "gl_spritecache.h"
-#include "timer.h"
 #include "lua_addon/lua_vm.h"
 #include "lua_addon/lua_stackguard.h"
 #include "gui.h"
@@ -61,22 +58,20 @@ int global_Done;
 int global_Restart;
 GLfloat mapPos[3] = {12.0f, 12.0f, 20.0f};
 
-OpenGTA::CityView *city = NULL;
-//OpenGL::DrawableFont* m_font = NULL;
-GUI::Label * fps_label = NULL;
+OpenGTA::CityView *city = nullptr;
+GUI::Label * fps_label = nullptr;
 
-GUI::AnimStatusDisplay* wantedLevel = NULL;
-GUI::Label*             cashLabel   = NULL;
+GUI::AnimStatusDisplay* wantedLevel = nullptr;
+GUI::Label*             cashLabel   = nullptr;
 
 int city_num = 0;
-constexpr std::array<std::string_view, 3>  styles_8 = { "STYLE001.GRY", "STYLE002.GRY", "STYLE003.GRY" };
-constexpr std::array<std::string_view, 3> styles_24 = { "STYLE001.G24", "STYLE002.G24", "STYLE003.G24" };
-constexpr std::array<std::string_view, 3> cities = { "NYC.CMP", "SANB.CMP", "MIAMI.CMP" };
+constexpr std::array styles_8 = { "STYLE001.GRY", "STYLE002.GRY", "STYLE003.GRY" };
+constexpr std::array styles_24 = { "STYLE001.G24", "STYLE002.G24", "STYLE003.G24" };
+constexpr std::array cities = { "NYC.CMP", "SANB.CMP", "MIAMI.CMP" };
 std::string specific_map;
 std::string specific_style;
 
 uint32_t num_frames_drawn = 0;
-uint32_t fps = 0;
 uint32_t last_tick;
 uint32_t fps_last_tick;
 uint32_t script_last_tick;
@@ -84,9 +79,7 @@ uint32_t arg_screen_w = 640;
 uint32_t arg_screen_h = 480;
 bool rotate = false;
 bool cam_grav = false;
-bool tex_flip = false;
 bool draw_arrows = false;
-int ped_anim = 0;
 bool bbox_toggle = false;
 bool texsprite_toggle = false;
 bool follow_toggle = false;
@@ -102,11 +95,9 @@ bool highcolor_data = true;
 bool highcolor_data = false;
 #endif
 bool full_screen = false;
-bool player_toggle_run = false;
 
 std::string script_file;
 int paused = 0;
-int next_station_zoom = 0;
 bool gamma_slide = false;
 float screen_gamma = 1.0f;
 
@@ -115,7 +106,6 @@ Vector3D test_dot(-1, -1, -1);
 class OpenGTAViewer {
 public:
   OpenGTAViewer();
-  ~OpenGTAViewer() = default;
 
   void init(std::string_view progname);
   void run();
@@ -125,7 +115,7 @@ public:
 
 private:
   void handleKeyPress(SDL_Keysym *keysym);
-  void createPedAt(const Vector3D v);
+  void createPedAt(const Vector3D& v);
   void showGammaConfig();
 
   GUI::Manager guiManager_;
@@ -147,8 +137,7 @@ OpenGTAViewer::OpenGTAViewer()
 
 void OpenGTAViewer::quit() {
   SDL_Quit();
-  if (city)
-    delete city;
+  delete city;
   PHYSFS_deinit();
   std::cout << "Goodbye" << std::endl;
 }
@@ -205,7 +194,8 @@ void print_version_info() {
 
 namespace {
 
-void create_ingame_gui(bool is32bit, GUI::Manager &gm, OpenGL::Screen &screen) {
+void create_ingame_gui(GUI::Manager &gm, OpenGL::Screen &screen)
+{
   assert(!wantedLevel);
   {
     SDL_Rect r;
@@ -251,11 +241,11 @@ void update_ingame_gui_values(OpenGTA::LocalPlayer &pc) {
 void remove_ingame_gui(GUI::Manager &gm) {
   if (wantedLevel)
     gm.remove(wantedLevel);
-  wantedLevel = NULL;
+  wantedLevel = nullptr;
 
   if (cashLabel)
     gm.remove(cashLabel);
-  cashLabel = NULL;
+  cashLabel = nullptr;
 }
 
 }
@@ -328,9 +318,9 @@ namespace {
   void setGamma(SDL_Window * w, float v) {
     Uint16 ramp[256];
     for (int i = 0; i < 256; i++) {
-      float f = i / 255.0f;
-      f = pow(f, 1.0f / v);
-      ramp[i] = Uint16(f) * 65535;
+        auto f = static_cast<float>(i) / 255.0f;
+        f = pow(f, 1.0f / v);
+        ramp[i] = Uint16(f) * 65535;
     }
     SDL_SetWindowGammaRamp(w, ramp, ramp, ramp);
   }
@@ -355,8 +345,8 @@ void OpenGTAViewer::screenGammaCallback(float v) {
     luaVM_.setFloat("screen_gamma_gry", v);
   lua_settop(L, top);
   GUI::Object * o = guiManager_.findObject(GUI::GAMMA_LABEL_ID);
-  if (o)
-    static_cast<GUI::Label*>(o)->text = "Gamma: " + std::to_string(v);
+  if (auto l = dynamic_cast<GUI::Label*>(o))
+    l->text = "Gamma: " + std::to_string(v);
   /*
   Object * o2 = Manager::Instance().findObject(1001);
   if (o2) {
@@ -542,14 +532,14 @@ void handleKeyUp(SDL_Keysym *keysym, OpenGTA::LocalPlayer & player) {
 
 // void draw_mapmode();
 
-void OpenGTAViewer::createPedAt(const Vector3D v) {
+void OpenGTAViewer::createPedAt(const Vector3D& v) {
   OpenGTA::Pedestrian p(Vector3D(0.2f, 0.5f, 0.2f), v, 0xffffffff);
   p.remap = OpenGTA::ActiveStyle::Instance().get().getRandomPedRemapNumber();
   INFO("using remap: {}", p.remap);
   OpenGTA::Pedestrian & pr = OpenGTA::SpriteManager::Instance().add(p);
   pr.switchToAnim(1);
   localPlayer_.setCtrl(pr.m_control);
-  create_ingame_gui(1, guiManager_, screen_);
+  create_ingame_gui(guiManager_, screen_);
 }
 
 void explode_ped() {
@@ -615,7 +605,6 @@ namespace OpenGTA {
   }
 }
 
-#include "id_sys.h"
 void add_auto_ped() {
   try {
   OpenGTA::Pedestrian & pr = OpenGTA::SpriteManager::Instance().getPed(0xffffffff);
@@ -657,7 +646,7 @@ void OpenGTAViewer::showGammaConfig() {
   r.w = 200;
   r.h = 30;
 
-  GUI::ScrollBar * sb = new GUI::ScrollBar(GUI::GAMMA_SCROLLBAR_ID, r);
+  auto * sb = new GUI::ScrollBar(GUI::GAMMA_SCROLLBAR_ID, r);
   sb->color.r = sb->color.g = sb->color.b = 180;
   sb->color.a = 255;
   sb->innerColor.r = 250;
@@ -666,7 +655,7 @@ void OpenGTAViewer::showGammaConfig() {
   guiManager_.add(sb, 90);
 
   r.y += 40;
-  GUI::Label *l = new GUI::Label(GUI::GAMMA_LABEL_ID,
+  auto *l = new GUI::Label(GUI::GAMMA_LABEL_ID,
                                  r,
                                  "Gamma: " + std::to_string(screen_gamma),
                                  "F_MTEXT.FON",
@@ -819,20 +808,20 @@ void OpenGTAViewer::handleKeyPress(SDL_Keysym *keysym) {
     case '4':
       localPlayer_.getCtrl().setActiveWeapon(4);
       break;
-    case '5':
-      //OpenGTA::SpriteManager::Instance().getPed(0xffffffff).equip(5);
-      break;
-    case '6':
-      //OpenGTA::SpriteManager::Instance().getPed(0xffffffff).equip(6);
-      break;
-    case '7':
-      //OpenGTA::SpriteManager::Instance().getPed(0xffffffff).equip(7);
-      break;
-    case '8':
-      //OpenGTA::SpriteManager::Instance().getPed(0xffffffff).equip(8);
-      break;
-    case '9':
-      //OpenGTA::SpriteManager::Instance().getPed(0xffffffff).equip(9);
+//    case '5':
+//      //OpenGTA::SpriteManager::Instance().getPed(0xffffffff).equip(5);
+//      break;
+//    case '6':
+//      //OpenGTA::SpriteManager::Instance().getPed(0xffffffff).equip(6);
+//      break;
+//    case '7':
+//      //OpenGTA::SpriteManager::Instance().getPed(0xffffffff).equip(7);
+//      break;
+//    case '8':
+//      //OpenGTA::SpriteManager::Instance().getPed(0xffffffff).equip(8);
+//      break;
+//    case '9':
+//      //OpenGTA::SpriteManager::Instance().getPed(0xffffffff).equip(9);
       /*
       ped_anim -= 1; if (ped_anim < 0) ped_anim = 0;
       pedAnim.firstFrameOffset = ped_anim;
@@ -1093,14 +1082,14 @@ void OpenGTAViewer::run() {
   glAlphaFunc(GL_GREATER, 2/255.0f);//0);
 
   city = new OpenGTA::CityView(screen_, camera_);
-  if (specific_map.size() > 0 && specific_style.size() > 0) {
+  if (!specific_map.empty() && !specific_style.empty()) {
     city->loadMap(specific_map, specific_style);
   }
   else {
     if (highcolor_data)
-      city->loadMap(cities[city_num].data(), styles_24[city_num].data());
+      city->loadMap(cities[city_num], styles_24[city_num]);
     else
-      city->loadMap(cities[city_num].data(), styles_8[city_num].data());
+      city->loadMap(cities[city_num], styles_8[city_num]);
   }
   if (city_blocks_area > -1)
     city->setVisibleRange(city_blocks_area);
@@ -1189,7 +1178,7 @@ void OpenGTAViewer::run() {
 //    fps = int(timer.clock.getSmoothedFPS());
 //#else
     if (now_ticks - fps_last_tick > 2000) {
-      fps = num_frames_drawn / 2;
+      uint32_t fps = num_frames_drawn / 2;
       num_frames_drawn = 0;
       fps_last_tick = now_ticks;
       fps_label->text = std::to_string(fps) + " fps";
@@ -1213,7 +1202,7 @@ int main(int argc, char* argv[]) {
    try {
     app.run();
   } catch (const std::exception &e) {
-    ERROR("Exception occured: {}", e.what());
+    ERROR("Exception occurred: {}", e.what());
     throw;
   }
   app.quit();

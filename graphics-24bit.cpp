@@ -18,18 +18,17 @@
 using namespace Util;
 namespace OpenGTA {
 
-#define GTA_GRAPHICS_GRX 290
 #define GTA_GRAPHICS_GRY 325
 #define GTA_GRAPHICS_G24 336
 
   Graphics24Bit::Graphics24Bit(const std::string& style) : GraphicsBase() {
     fd = PHYSFS_openRead(style.c_str());
-    assert(fd!=NULL);
+    assert(fd != nullptr);
     _topHeaderSize = 64;
-    rawClut = NULL;
-    palIndex = NULL;
+    rawClut = nullptr;
+    palIndex = nullptr;
     loadHeader();
-    setupBlocking(style);
+    setupBlocking();
     // actually the next two are style003.g24, but at least somewhere close
     firstValidPedRemap = 60;
     lastValidPedRemap = 116;
@@ -50,10 +49,8 @@ namespace OpenGTA {
   }
 
   Graphics24Bit::~Graphics24Bit() {
-    if (rawClut)
-      delete [] rawClut;
-    if (palIndex)
-      delete [] palIndex;
+    delete [] rawClut;
+    delete [] palIndex;
     PHYSFS_close(fd);
   }
 
@@ -182,7 +179,7 @@ namespace OpenGTA {
     PHYSFS_uint32 w;
     PHYSFS_uint32 _bytes_read = 0;
     while (_bytes_read < spriteInfoSize) {
-      SpriteInfo *si = new SpriteInfo();
+      auto *si = new SpriteInfo();
       PHYSFS_readBytes(fd, static_cast<void*>(&si->w), 1);
       PHYSFS_readBytes(fd, static_cast<void*>(&si->h), 1);
       PHYSFS_readBytes(fd, static_cast<void*>(&si->deltaCount), 1);
@@ -215,7 +212,7 @@ namespace OpenGTA {
       }
       for (PHYSFS_uint8 j = 0; j < si->deltaCount; j++) {
         si->delta[j].size = 0;
-        si->delta[j].ptr = 0;
+        si->delta[j].ptr = nullptr;
         if (si->deltaCount && (j < si->deltaCount)) {
           PHYSFS_readULE16(fd, &si->delta[j].size);
           PHYSFS_readULE32(fd, &w);
@@ -249,11 +246,10 @@ namespace OpenGTA {
     PHYSFS_seek(fd, st);
 
     rawSprites = new unsigned char[spriteGraphicsSize];
-    assert(rawSprites != NULL);
     PHYSFS_readBytes(fd, static_cast<void*>(rawSprites), spriteGraphicsSize);
 
-    std::vector<SpriteInfo*>::const_iterator i = spriteInfos.begin();
-    std::vector<SpriteInfo*>::const_iterator end = spriteInfos.end();
+    auto i = spriteInfos.cbegin();
+    auto end = spriteInfos.cend();
     PHYSFS_uint32 _pagewise = 256 * 256;
     while (i != end) {
       SpriteInfo *info = *i;
@@ -297,7 +293,7 @@ namespace OpenGTA {
     }
   }
 
-  unsigned char *Graphics24Bit::getLid(unsigned int idx, unsigned int _not_used, bool rgba = false) {
+  unsigned char *Graphics24Bit::getLid(unsigned int idx, unsigned int _not_used, bool rgba) {
     prepareLidTexture(idx - 1, reinterpret_cast<unsigned char*>(tileTmp));
     unsigned char* src = tileTmp;
     unsigned char* dst = (rgba) ? tileTmpRGBA : tileTmpRGB;
@@ -307,7 +303,7 @@ namespace OpenGTA {
     return (rgba) ? tileTmpRGBA : tileTmpRGB;
   }
   
-  unsigned char *Graphics24Bit::getSide(unsigned int idx, unsigned int _not_used, bool rgba = false) {
+  unsigned char *Graphics24Bit::getSide(unsigned int idx, unsigned int _not_used, bool rgba) {
     prepareSideTexture(idx-1, reinterpret_cast<unsigned char*>(tileTmp));
     unsigned char* src = tileTmp;
     unsigned char* dst = (rgba) ? tileTmpRGBA : tileTmpRGB;
@@ -317,7 +313,7 @@ namespace OpenGTA {
     return (rgba) ? tileTmpRGBA : tileTmpRGB;
   }
   
-  unsigned char *Graphics24Bit::getAux(unsigned int idx, unsigned int _not_used, bool rgba = false) {
+  unsigned char *Graphics24Bit::getAux(unsigned int idx, unsigned int _not_used, bool rgba) {
     prepareAuxTexture(idx - 1, reinterpret_cast<unsigned char*>(tileTmp));
     
     unsigned char* src = tileTmp;
@@ -328,11 +324,9 @@ namespace OpenGTA {
     return (rgba) ? tileTmpRGBA : tileTmpRGB;
   }
 
-  std::unique_ptr<unsigned char[]> Graphics24Bit::getSpriteBitmap(
-    size_t id, int remap = -1, uint32_t delta = 0
-  ) {
+  std::unique_ptr<unsigned char[]> Graphics24Bit::getSpriteBitmap(size_t id, int remap, uint32_t delta) {
     const SpriteInfo *info = spriteInfos[id];
-    assert(info != NULL);
+    assert(info != nullptr);
     const PHYSFS_uint32 y = info->yoffset;
     const PHYSFS_uint32 x = info->xoffset;
     const PHYSFS_uint32 page_size = 256 * 256;

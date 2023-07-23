@@ -20,7 +20,6 @@
 * 3. This notice may not be removed or altered from any source          *
 * distribution.                                                         *
 ************************************************************************/
-#include <iostream>
 #include <limits>
 #include "gl_texturecache.h"
 #include "log.h"
@@ -31,7 +30,7 @@ namespace OpenGL {
       instance_id = instance_count++;
       clearMagic = 0;
       has_cached_query = false;
-      last_query_result = 0;
+      last_query_result = nullptr;
       minClearElements = 50;
     }
   template <typename key_type>
@@ -54,12 +53,10 @@ namespace OpenGL {
 
   template <typename key_type>
     void TextureCache<key_type>::clearAll() {
-      typename std::map<key_type, texTuple*>::iterator i = cached.begin();
-      while (i != cached.end()) {
-        GLuint tid = (i->second->texId);
+      for (auto &c : cached) {
+        GLuint tid = c.second->texId;
         glDeleteTextures(1, &tid);
-        delete i->second;
-        i++;
+        delete c.second;
       }
       cached.clear();
     }
@@ -74,21 +71,21 @@ namespace OpenGL {
 
   template <typename key_type>
     void TextureCache<key_type>::sink() {
-      typename std::map<key_type, texTuple*>::iterator i = cached.begin();
-      while (i != cached.end()) {
-        if (i->second->refCount <= 1)
-          i->second->refCount = 0;
-        else if (i->second->refCount < _max_4)
-          i->second->refCount = i->second->refCount >> 1;
-        else if (i->second->refCount < _max_2) {
-          INFO("{} texture id {} -- half-count reached", m_name, int(i->first));
-          i->second->refCount = i->second->refCount >> 2;
+      constexpr auto MAX_4 = std::numeric_limits<unsigned int>::max() / 4;
+      constexpr auto MAX_2 = std::numeric_limits<unsigned int>::max() / 2;
+      for (auto &c : cached) {
+        if (c.second->refCount <= 1)
+          c.second->refCount = 0;
+        else if (c.second->refCount < MAX_4)
+          c.second->refCount = c.second->refCount >> 1;
+        else if (c.second->refCount < MAX_2) {
+          INFO("{} texture id {} -- half-count reached", m_name, int(c.first));
+          c.second->refCount = c.second->refCount >> 2;
         }
         else {
-          WARN("{} texture id {} -- going critical", m_name, int(i->first));
-          i->second->refCount = i->second->refCount >> 3;
+          WARN("{} texture id {} -- going critical", m_name, int(c.first));
+          c.second->refCount = c.second->refCount >> 3;
         }
-        i++;
       }
     }
 
@@ -142,12 +139,11 @@ namespace OpenGL {
         last_query_result->refCount++;
         return last_query_result->texId;
       }
-      typename std::map<key_type, texTuple*>::iterator i = cached.find(id);
+      auto i = cached.find(id);
       if (i == cached.end()) {
         ERROR("{} failed to find texture {}", m_name, int(id));
         return 0;
-      }
-      else {
+      } else {
         cacheQuery(id, i->second);
         i->second->refCount++;
       }
@@ -163,7 +159,7 @@ namespace OpenGL {
     bool TextureCache<key_type>::hasTexture(key_type id) {
       if (matchingCachedQuery(id))
         return true; // last_query_result;
-      typename std::map<key_type, texTuple*>::iterator i = cached.find(id);
+      auto i = cached.find(id);
       if (i == cached.end())
         return false;
       cacheQuery(id, i->second);
@@ -172,7 +168,7 @@ namespace OpenGL {
 
   template <typename key_type>
     void TextureCache<key_type>::setToAlpha(key_type id) {
-      typename std::map<key_type, texTuple*>::iterator i = cached.find(id);
+      auto i = cached.find(id);
       if (i == cached.end()) {
         ERROR("{} texture not found when trying to set alpha", m_name);
         return;
@@ -182,7 +178,7 @@ namespace OpenGL {
 
   template <typename key_type>
     void TextureCache<key_type>::setToAnimated(key_type id) {
-      typename std::map<key_type, texTuple*>::iterator i = cached.find(id);
+      auto i = cached.find(id);
       if (i == cached.end()) {
         ERROR("{} texture not found when trying to set animation", m_name);
         return;
@@ -196,7 +192,7 @@ namespace OpenGL {
          std::map<uint8_t, texTuple*>::iterator i = cached.find(id);
          if (i == cached.end())
          return;*/
-      texTuple* tt = new texTuple();
+      auto* tt = new texTuple();
       tt->texId = texId;
       tt->refCount = 1;
       tt->hasAlpha = false;
@@ -230,12 +226,7 @@ namespace OpenGL {
   template <typename key_type>
     unsigned int TextureCache<key_type>::instance_count = 0;
 
-  std::numeric_limits<uint32_t> _countInfo;
-  template <typename key_type>
-    const uint32_t TextureCache<key_type>::_max_4 = _countInfo.max() / 4;
-  template <typename key_type>
-    const uint32_t TextureCache<key_type>::_max_2 = _countInfo.max() / 2;
-  
+
   template class TextureCache<uint8_t>;
   template class TextureCache<char>;
   template class TextureCache<uint16_t>;

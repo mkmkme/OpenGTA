@@ -39,22 +39,15 @@ namespace OpenGTA {
   class LocalPlayer;
   struct CarInfo;
   struct GameObject_common;
-  // FIXME: OpenSteer doesn't seem to be used at all. Consider replacing it.
-  typedef OpenSteer::AbstractTokenForProximityDatabase<GameObject_common*> ProximityToken;
-  typedef OpenSteer::AbstractProximityDatabase<GameObject_common*> ProximityDatabase;
   struct GameObject_common {
     Vector3D pos;
     float    rot;
-    float    bSphereRadius;
-    //uint8_t  activeState;
+    // uint8_t  activeState;
     GameObject_common() :
-      pos(0, 0, 0), rot(0), bSphereRadius(0.1f) {}
-    GameObject_common(const Vector3D & p) : pos(p), rot(0) {}
+      pos(0, 0, 0), rot(0) {}
+    explicit GameObject_common(const Vector3D & p) : pos(p), rot(0) {}
     GameObject_common(const Vector3D & p, float r) : pos(p), rot(r) {}
-    GameObject_common(const GameObject_common & o) :
-      pos(o.pos), rot(o.rot), bSphereRadius(o.bSphereRadius) {}
     float heightOverTerrain(const Vector3D &);
-    ProximityToken* proxToken;
   };
 
   class Sprite {
@@ -81,16 +74,14 @@ namespace OpenGTA {
 
   class Pedestrian : public GameObject_common, public Sprite, public OBox {
     public:
-      Pedestrian(Vector3D, const Vector3D &, uint32_t id, int16_t remapId = -1);
+      Pedestrian(const Vector3D&, const Vector3D &, uint32_t id, int16_t remapId = -1);
       Pedestrian(const Pedestrian & o);
       uint32_t pedId;
-      inline uint32_t id() const { return pedId; }
-      void equip(uint8_t eq_id);
-      void giveItem(uint8_t id, uint32_t amount);
+      [[nodiscard]] inline uint32_t id() const { return pedId; }
       PedController m_control;
       void update(uint32_t ticks);
       uint32_t lastUpdateAt;
-      uint32_t lastWeaponTick;
+      uint32_t lastWeaponTick{};
       Vector3D speedForces;
       bool inGroundContact;
       void tryMove(Vector3D nPos);
@@ -100,14 +91,9 @@ namespace OpenGTA {
       typedef std::map<uint8_t, uint32_t> InventoryMap;
       InventoryMap inventory;
       uint8_t activeWeapon;
-      uint32_t * activeAmmo;
       uint32_t aiMode = 0;
-      static uint32_t fistAmmo;
       struct AiData {
-        AiData() : id1(0), id2(0), pos1() {}
-        AiData(const AiData & o) : id1(o.id1), id2(o.id2), pos1(o.pos1) {}
-        uint32_t id1;
-        uint32_t id2;
+        AiData() = default;
         Vector3D pos1;
       };
       AiData aiData;
@@ -135,12 +121,12 @@ namespace OpenGTA {
       void openDoor(uint8_t k);
       void closeDoor(uint8_t k);
       void setSirenAnim(bool on);
-      bool assertDeltaById(uint8_t k);
-      void update(uint32_t ticks);
+      bool assertDeltaById(uint8_t k) const;
+      virtual void update(uint32_t ticks);
     private:
       typedef std::list<DoorDeltaAnimation> DoorAnimList;
       DoorAnimList doorAnims;
-      uint32_t lt_siren;
+      uint32_t lt_siren{};
   };
 
   class Car : public GameObject_common, public CarSprite, public OBox {
@@ -149,11 +135,10 @@ namespace OpenGTA {
       Car(OpenGTA::Map::ObjectPosition&, uint32_t id);
       Car(Vector3D & _pos, float _rot, uint32_t id, uint8_t _type, int16_t _remap = -1);
       uint32_t carId;
-      inline uint32_t id() const { return carId; }
+      [[nodiscard]] inline uint32_t id() const { return carId; }
       CarInfo & carInfo;
       uint8_t type;
-      void update(uint32_t ticks);
-      uint32_t lastUpdateAt;
+      void update(uint32_t ticks) override;
       void damageAt(const Vector3D & hit, uint32_t dmg);
       void explode();
     private:
@@ -164,12 +149,11 @@ namespace OpenGTA {
   class SpriteObject : public GameObject_common, public Sprite, public OBox {
     public:
       SpriteObject(OpenGTA::Map::ObjectPosition&, uint32_t id);
-      SpriteObject(Vector3D pos, uint16_t spriteNum, GraphicsBase::SpriteNumbers::SpriteTypes st);
+      SpriteObject(const Vector3D& pos, uint16_t spriteNum, GraphicsBase::SpriteNumbers::SpriteTypes st);
       SpriteObject(const SpriteObject & o);
-      uint32_t objId;    
-      inline uint32_t id() const { return objId; }
+      uint32_t objId{};
+      [[nodiscard]] inline uint32_t id() const { return objId; }
       void update(uint32_t ticks);
-      uint32_t lastUpdateAt;
 
       bool isActive;
 
@@ -186,7 +170,7 @@ namespace OpenGTA {
 
   class Projectile : public GameObject_common {
     public:
-      Projectile(uint8_t, float, Vector3D, Vector3D, uint32_t, uint32_t);
+      Projectile(uint8_t, float, const Vector3D&, const Vector3D&, uint32_t, uint32_t);
       Projectile(const Projectile & other);
       uint8_t typeId;
       Vector3D delta;

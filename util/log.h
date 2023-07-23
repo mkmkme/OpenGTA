@@ -52,12 +52,12 @@ private:
     error_code = ec;       \
     exit(ec);
 #define GL_CHECKERROR                                                                                              \
-    {                                                                                                              \
+    do {                                                                                                              \
         int _err = glGetError();                                                                                   \
         if (_err != GL_NO_ERROR)                                                                                   \
             Util::Log::_log(                                                                                       \
                 Util::LogLevel::error, __FILE__, __LINE__, "GL error: {} = {}", _err, Util::Log::glErrorName(_err) \
             );                                                                                                     \
-    }
+    } while (false)
 
 } // namespace Util

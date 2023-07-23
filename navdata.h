@@ -28,25 +28,18 @@ namespace OpenGTA {
        * Everything is 0
        */
       Rect2D();
-      /** Constructor with full params.
-       * @param x
-       * @param y
-       * @param w
-       * @param h
-       */
-      Rect2D(PHYSFS_uint8, PHYSFS_uint8, PHYSFS_uint8, PHYSFS_uint8);
-      /** Test: point-in-box.
-       * @param x
-       * @param y
-       * @note If the point is inside 'lastSubLocation' is updated before returning.
-       */
+        /** Test: point-in-box.
+         * @param x
+         * @param y
+         * @note If the point is inside 'lastSubLocation' is updated before returning.
+         */
       bool isInside(PHYSFS_uint8, PHYSFS_uint8);
       /** Calculate north/south/east/west/central of point (which has to be inside).
        * @param x
        * @param y
        * @return uint8 bitfield
        */
-      PHYSFS_uint8 subLocation(PHYSFS_uint8, PHYSFS_uint8);
+      PHYSFS_uint8 subLocation(PHYSFS_uint8, PHYSFS_uint8) const;
       PHYSFS_uint16 getSize() const noexcept;
       PHYSFS_uint8 x, y;
       PHYSFS_uint8 w, h;
@@ -58,7 +51,7 @@ namespace OpenGTA {
        * 8 = west
        * ... valid combinations of the last four
        */
-      PHYSFS_uint8  lastSubLocation;
+      PHYSFS_uint8  lastSubLocation{};
   };
 
   /** Container of all named sectors.
@@ -77,14 +70,14 @@ namespace OpenGTA {
          * 1) see $LANGUAGE.FXT file for actual name
          * 2) probably sound?
          */
-        PHYSFS_uint8 sam; // sample number
+        PHYSFS_uint8 sam{}; // sample number
         //char         name2[30]; // FIXME: should not be used
         std::string  name;
         /** Returns the name prefixed with sub-area location.
          */
         std::string  getFullName() const;
         private:
-          bool isADummy;
+          bool isADummy{};
       };
       NavData(PHYSFS_uint32 size, PHYSFS_file *fd, const size_t level_num);
       ~NavData();

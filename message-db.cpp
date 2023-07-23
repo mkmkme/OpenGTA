@@ -35,9 +35,7 @@ namespace OpenGTA {
   MessageDB::MessageDB(const std::string &file) {
     load(file);
   }
-  MessageDB::~MessageDB() {
-    messages.clear();
-  }
+
   void MessageDB::load(const std::string &file) {
     INFO("Trying to load file {}", file);
     PHYSFS_file* f = Util::FileHelper::OpenReadVFS(file);

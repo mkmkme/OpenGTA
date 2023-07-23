@@ -7,7 +7,7 @@
 #include "bitwise.hpp"
 
 namespace {
-static constexpr std::size_t GTA_MAP_MAXDIMENSION = 256;
+constexpr std::size_t GTA_MAP_MAXDIMENSION = 256;
 }
 
 namespace OpenGTA {
@@ -109,26 +109,26 @@ public:
                                   PHYSFS_uint8 z);
     void dump();
     NavData *nav;
-    ObjectPosition *objects;
-    PHYSFS_uint16 numObjects;
+    ObjectPosition *objects{};
+    PHYSFS_uint16 numObjects{};
     const Location &getNearestLocationByType(uint8_t t, uint8_t x, uint8_t y);
     const LocationMap &getLocationMap() const noexcept { return locations; }
 
 protected:
-    PHYSFS_uint32 base[GTA_MAP_MAXDIMENSION][GTA_MAP_MAXDIMENSION];
-    PHYSFS_uint16 *column;
-    BlockInfo *block;
+    PHYSFS_uint32 base[GTA_MAP_MAXDIMENSION][GTA_MAP_MAXDIMENSION]{};
+    PHYSFS_uint16 *column{};
+    BlockInfo *block{};
     LocationMap locations;
 
 private:
     PHYSFS_file *fd;
 
-    PHYSFS_uint8 styleNumber;
-    PHYSFS_uint32 routeSize;
-    PHYSFS_uint32 objectPosSize;
-    PHYSFS_uint32 columnSize;
-    PHYSFS_uint32 blockSize;
-    PHYSFS_uint32 navDataSize;
+    PHYSFS_uint8 styleNumber{};
+    PHYSFS_uint32 routeSize{};
+    PHYSFS_uint32 objectPosSize{};
+    PHYSFS_uint32 columnSize{};
+    PHYSFS_uint32 blockSize{};
+    PHYSFS_uint32 navDataSize{};
 
     int loadHeader();
     int loadBase();

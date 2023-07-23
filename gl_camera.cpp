@@ -1,9 +1,6 @@
 #include "gl_camera.h"
 #include "gl_screen.h"
 #include "dataholder.h"
-#include <iostream>
-#include "log.h"
-#include "blockdata.h"
 
 #ifdef _WIN32
 #include <Windows.h>
@@ -31,7 +28,8 @@ namespace OpenGL {
     interpolateEnd = 0;
   }
 
-  void Camera::update_game(Uint32 ticks) {
+  void Camera::update_game()
+  {
     Vector3D delta(center - *followTarget);
     //INFO << delta.x << ", " << delta.y << ", " << delta.z << std::endl;
     float height_dist = fabs(delta.y);
@@ -55,17 +53,17 @@ namespace OpenGL {
   void Camera::setFollowMode(const Vector3D & target) {
     followTarget = &target;
     //INFO << "following " << target.x << ", " << target.y << ", " << target.z << std::endl;
-    gameCamMode = 1;
+    gameCamMode = true;
   }
 
   void Camera::releaseFollowMode() {
     followTarget = &center;
-    gameCamMode = 0;
+    gameCamMode = false;
   }
 
   void Camera::update(Uint32 ticks, OpenGL::Screen & screen) {
     if (gameCamMode) {
-      update_game(ticks);
+      update_game();
       return;
     }
     moveByMouse(screen);
@@ -74,9 +72,8 @@ namespace OpenGL {
     x = floor(eye.x);
     y = floor(eye.y);
     z = floor(eye.z);
-    int do_grav = 1;
     float delta_y = 0;
-    if (camGravity && do_grav) {
+    if (camGravity) {
       center.y -= 0.1f * ticks/40.0f;
       eye.y -= 0.1f * ticks/40.0f;
     }
@@ -127,7 +124,6 @@ namespace OpenGL {
           //INFO << "setting " << new_eye.y << std::endl;
           center.y = center.y - eye.y + new_eye.y;
           eye.y = new_eye.y;
-          do_grav = 0;
         }
       }
     }

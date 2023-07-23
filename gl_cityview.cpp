@@ -33,7 +33,6 @@
 #include "math3d.h"
 #include "localplayer.h"
 #include "log.h"
-#include "object-info.h"
 #include "gl_screen.h"
 #include "blockdata.h"
 #include "image_loader.h"
@@ -85,9 +84,9 @@ namespace OpenGTA {
   }
 */
   struct GLColor {
-    GLfloat rgb[3];
+    GLfloat rgb[3]{}; // TODO: std::array
     GLColor() { rgb[0] = rgb[1] = rgb[2] = 0; }
-    GLColor(GLfloat i) { rgb[0] = rgb[1] = rgb[2] = i; }
+    explicit GLColor(GLfloat i) { rgb[0] = rgb[1] = rgb[2] = i; }
     GLColor(GLfloat r, GLfloat g, GLfloat b) { rgb[0] = r; rgb[1] = g; rgb[2] = b; }
   };
 
@@ -122,11 +121,11 @@ namespace OpenGTA {
     */
   }
   void CityView::setNull() {
-    loadedMap = NULL;
-    sideCache = NULL;
-    lidCache  = NULL;
-    auxCache  = NULL;
-    blockAnims = NULL;
+    loadedMap = nullptr;
+    sideCache = nullptr;
+    lidCache  = nullptr;
+    auxCache  = nullptr;
+    blockAnims = nullptr;
     camVec[0] = 0.0f;
     camVec[1] = 1.0f;
     camVec[2] = 0.0f;
@@ -141,7 +140,7 @@ namespace OpenGTA {
     scene_display_list = 0;
     texFlipTest = 0;
     drawHeadingMarkers = false;
-    current_sector = NULL;
+    current_sector = nullptr;
   }
   CityView::~CityView() {
     cleanup();
@@ -155,26 +154,20 @@ namespace OpenGTA {
     visibleRange = r;
     scene_is_dirty = true;
   }
-  int CityView::getVisibleRange() {
+  int CityView::getVisibleRange() const {
     return visibleRange;
   }
-  bool CityView::getDrawTextured() { return drawTextured; }
-  bool CityView::getDrawLines() { return drawLines; }
-  bool CityView::getDrawLinesBlockColor() { return drawLinesBlockType; }
+  bool CityView::getDrawTextured() const { return drawTextured; }
+  bool CityView::getDrawLines() const { return drawLines; }
+  bool CityView::getDrawLinesBlockColor() const { return drawLinesBlockType; }
   void CityView::setDrawTextured(bool v) { drawTextured = v; }
   void CityView::setDrawLines(bool v) { drawLines= v; }
   void CityView::setDrawLinesBlockColor(bool v) { drawLinesBlockType= v; }
   void CityView::cleanup() {
-    //if (loadedMap)
-    //  delete loadedMap;
-    if (sideCache)
-      delete sideCache;
-    if (lidCache)
-      delete lidCache;
-    if (auxCache)
-      delete auxCache;
-    if (blockAnims)
-      delete blockAnims;
+    delete sideCache;
+    delete lidCache;
+    delete auxCache;
+    delete blockAnims;
     if (scene_display_list)
       glDeleteLists(scene_display_list, 1);
     setNull();
@@ -249,8 +242,8 @@ namespace OpenGTA {
     scene_is_dirty = true;
     //INFO << "Position: " << x << ", " << z << " (" << y << ")" << std::endl;
     if (loadedMap) {
-      PHYSFS_uint8 _x = PHYSFS_uint8((x >= 1.0f) ? ((x < 255.0f) ? x : 254) : 1); // FIXME: crashes on 0 or 255
-      PHYSFS_uint8 _y = PHYSFS_uint8((z >= 1.0f) ? ((z < 255.0f) ? z : 254) : 1); // why???
+      auto _x = PHYSFS_uint8((x >= 1.0f) ? ((x < 255.0f) ? x : 254) : 1); // FIXME: crashes on 0 or 255
+      auto _y = PHYSFS_uint8((z >= 1.0f) ? ((z < 255.0f) ? z : 254) : 1); // why???
       NavData::Sector* in_sector = loadedMap->nav->getSectorAt(_x, _y);
       assert(in_sector);
       if (in_sector != current_sector) {
@@ -422,7 +415,7 @@ namespace OpenGTA {
     //float horiz_corr = (1.0f - f_w) / 2.0f;
     //return OpenGL::PagedTexture(tex, 0+horiz_corr, 0, f_w+horiz_corr, f_h);
     
-    return OpenGL::PagedTexture(tex, 0, 0, f_h, f_h);
+    return {tex, 0, 0, f_h, f_h};
   }
 
   void CityView::draw(Uint32 ticks) {
@@ -500,7 +493,7 @@ namespace OpenGTA {
     bool use_display_list = false;
 
     GL_CHECKERROR;
-    if ((!scene_is_dirty) && (use_display_list)) {
+    if (!scene_is_dirty) {
       glCallList(scene_display_list);
     }
     else {
@@ -618,7 +611,7 @@ namespace OpenGTA {
     float y = float(obj->y >> 6) + float(obj->y % 64)/64.0f;
     float z = float(obj->z >> 6) + float(obj->z % 64)/64.0f;
     size_t spriteNumAbs, sprNum;
-    SpriteInfo *info = NULL;
+    SpriteInfo *info = nullptr;
     GraphicsBase::SpriteNumbers::SpriteTypes st;
     if (obj->remap >= 128) { // car
       CarInfo &cinfo = style->findCarByModel(obj->type);
@@ -697,9 +690,9 @@ namespace OpenGTA {
 #undef GLTEX_HELPER
 #endif
 #define GLTEX_HELPER \
-    glTexCoord2f(lidTex[jj], lidTex[jj+1]); jj += 2; if (jj > 6) { jj = 0; }
+    do { glTexCoord2f(lidTex[jj], lidTex[jj+1]); jj += 2; if (jj > 6) { jj = 0; } } while (false)
 #define GLTEX1_HELPER \
-    glTexCoord2f(sideTex1[jj], sideTex1[jj+1]); jj += 2; if (jj > 6) { jj = 0; }
+    do { glTexCoord2f(sideTex1[jj], sideTex1[jj+1]); jj += 2; if (jj > 6) { jj = 0; } } while (false)
 
     bool is_flat = bi->isFlat(); // transparency in the texture ?
     GLuint lid_tex = 0, left_tex = 0, right_tex = 0, top_tex = 0, bottom_tex = 0;
@@ -820,13 +813,16 @@ namespace OpenGTA {
       }
     }
     
-#define RESET_COLOR glColor3f(1, 1, 1)
-#define COLOR_OFF if (drawLinesBlockType) RESET_COLOR
-#define COLOR_BY_BLOCK(idx) { GLfloat *_c = map_block_type_color(idx); glColor3f(_c[0], _c[1], _c[2]); }
-#define COLOR_ON  if (drawLinesBlockType) COLOR_BY_BLOCK(aboveBlockType)
-//#define COLOR_ON  if (drawLinesBlockType) COLOR_BY_BLOCK(bi->blockType())
+#define COLOR_OFF if (drawLinesBlockType) glColor3f(1, 1, 1)
+#define COLOR_ON                                            \
+    do {                                                    \
+      if (drawLinesBlockType) {                             \
+        GLfloat *_c = map_block_type_color(aboveBlockType); \
+        glColor3f(_c[0], _c[1], _c[2]);                     \
+      }                                                     \
+    } while (false)
 
-if (drawLinesBlockType)
+    if (drawLinesBlockType)
 
     // handle flat/transparent case
     if (is_flat) {
@@ -871,7 +867,7 @@ if (drawLinesBlockType)
         }
       }
 #undef MSWAP
-#define MSWAP(a, b) { sideTex1[a] = 1.0f - sideTex1[a]; sideTex1[b] = 1.0f - sideTex1[b]; }
+#define MSWAP(a, b) do { sideTex1[a] = 1.0f - sideTex1[a]; sideTex1[b] = 1.0f - sideTex1[b]; } while (false)
       jj = 0; // only 'lid' rotated
       if (bi->top) {
         SLOPE_TEX_CP(1);
@@ -992,8 +988,7 @@ if (drawLinesBlockType)
           // end-of-lines
         }
       }
-    }
-    else {
+    } else {
       if (bi->lid) {
         if (drawTextured) {
           glBindTexture(GL_TEXTURE_2D, lid_tex);
@@ -1036,7 +1031,7 @@ if (drawLinesBlockType)
       }
       jj = 0; // only 'lid' rotated
 #undef MSWAP
-#define MSWAP(a, b) { sideTex1[a] = 1.0f - sideTex1[a]; sideTex1[b] = 1.0f - sideTex1[b]; }
+#define MSWAP(a, b) do { sideTex1[a] = 1.0f - sideTex1[a]; sideTex1[b] = 1.0f - sideTex1[b]; } while (false)
       /*
       if (bi->flipTopBottom()) {
         //MSWAP(1, 5);
@@ -1228,7 +1223,6 @@ if (drawLinesBlockType)
 
 
 #if 0
-      
       for (int i = 0; i < 5; ++i) { // RESEARCH ME: is this correct? needed above as well?
         if ((which == 41) && (i == 1))
           continue;

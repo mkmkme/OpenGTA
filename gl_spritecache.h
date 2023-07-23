@@ -61,7 +61,7 @@ namespace OpenGL {
       }
 
       void           clearAll();
-      bool           getScale2x();
+      bool           getScale2x() const;
       void           setScale2x(bool enabled);
       bool           has(PHYSFS_uint16 sprNum);
       bool           has(PHYSFS_uint16 sprNum, PHYSFS_sint16 remap);
@@ -79,7 +79,7 @@ namespace OpenGL {
         PHYSFS_sint16 remap, PHYSFS_uint32 delta);
 
       OpenGL::PagedTexture createSprite(size_t sprite_num, PHYSFS_sint16 remap, 
-        PHYSFS_uint32 delta, OpenGTA::SpriteInfo* info);
+        PHYSFS_uint32 delta, OpenGTA::SpriteInfo* info) const;
     private:
 
       typedef std::map<SpriteIdentifier, PagedTexture> SpriteMapType;

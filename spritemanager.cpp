@@ -22,7 +22,6 @@
  ************************************************************************/
 #include "spritemanager.h"
 
-#include "car-info.h"
 #include "dataholder.h"
 #include "gl_spritecache.h"
 #include "id_sys.h"
@@ -185,7 +184,7 @@ void SpriteManager::update(Uint32 ticks, LocalPlayer &player)
         // MapHelper::createPeds(5);
         Map &map = OpenGTA::ActiveMap::Instance().get();
         _lastCreateTick = ticks;
-        while (1) {
+        while (true) {
             Util::TupleOfUint8 tu8 = creationArea.getValidCoord();
             INFO("testing: {}, {}", tu8.first, tu8.second);
             int k = -1;
@@ -264,8 +263,7 @@ void SpriteManager::clear()
     GL_CHECKERROR;                           \
     glPushMatrix();                          \
     glTranslatef(o.pos.x, o.pos.y, o.pos.z); \
-    glRotatef(o.rot, 0, 1, 0);               \
-    // glGetFloatv(GL_MODELVIEW_MATRIX, (GLfloat*)o.m_M.m)
+    glRotatef(o.rot, 0, 1, 0)
 
 #define DRAW_TEX_QUADS_OBJ(t, w, h)             \
     glBindTexture(GL_TEXTURE_2D, t.inPage);     \

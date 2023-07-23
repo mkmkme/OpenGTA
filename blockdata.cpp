@@ -21,8 +21,8 @@
  * distribution.                                                         *
  ************************************************************************/
 #include "blockdata.h"
-namespace OpenGTA {
-namespace BlockData {
+
+namespace OpenGTA::BlockData {
 float slope_raw_data[numBlockTypes][numFaces][4][3] = {
 #include "slope1_data.h"
 };
@@ -32,5 +32,4 @@ float slope_tex_data[numBlockTypes][numFaces - 1][4][2] = {
 float lid_normal_data[numBlockTypes][3] = {
 #include "lid_normal_data.h"
 };
-} // namespace BlockData
-} // namespace OpenGTA
+} // namespace OpenGTA::BlockData

@@ -23,7 +23,6 @@
 #include <map>
 #include <memory>
 #include <cassert>
-#include <SDL2/SDL_surface.h>
 #include "config.h"
 #include "gl_spritecache.h"
 #include "image_loader.h"
@@ -35,8 +34,7 @@ namespace OpenGL {
   SpriteIdentifier::SpriteIdentifier() : sprNum(0), remap(-1), delta(0) {}
   SpriteIdentifier::SpriteIdentifier(PHYSFS_uint16 num, PHYSFS_sint16 map, PHYSFS_uint32 d) :
     sprNum(num), remap(map), delta(d) {}
-  SpriteIdentifier::SpriteIdentifier(const SpriteIdentifier & other) :
-    sprNum(other.sprNum), remap(other.remap), delta(other.delta) {}
+  SpriteIdentifier::SpriteIdentifier(const SpriteIdentifier & other) = default;
 
   bool SpriteIdentifier::operator ==(const SpriteIdentifier & other) const {
     if ((sprNum == other.sprNum) &&
@@ -82,7 +80,7 @@ namespace OpenGL {
     }
   }
 
-  bool SpriteCache::getScale2x() {
+  bool SpriteCache::getScale2x() const {
     return doScale2x;
   }
 
@@ -91,16 +89,14 @@ namespace OpenGL {
   }
 
   void SpriteCache::clearAll() {
-    SpriteMapType::iterator i = loadedSprites.begin();
-    while (i != loadedSprites.end()) {
-      glDeleteTextures(1, &(*i).second.inPage);
-      ++i;
+    for (auto &sprite : loadedSprites) {
+      glDeleteTextures(1, &sprite.second.inPage);
     }
     loadedSprites.clear();
   }
 
   bool SpriteCache::has(PHYSFS_uint16 sprNum) {
-    SpriteMapType::iterator i = loadedSprites.find(SpriteIdentifier(sprNum, -1, 0));
+    auto i = loadedSprites.find(SpriteIdentifier(sprNum, -1, 0));
     if (i != loadedSprites.end())
       return true;
     INFO("sprite not loaded sprnum: {}", sprNum);
@@ -108,7 +104,7 @@ namespace OpenGL {
   }
 
   bool SpriteCache::has(PHYSFS_uint16 sprNum, PHYSFS_sint16 remap) {
-    SpriteMapType::iterator i = loadedSprites.find(SpriteIdentifier(sprNum, remap, 0));
+    auto i = loadedSprites.find(SpriteIdentifier(sprNum, remap, 0));
     if (i != loadedSprites.end())
       return true;
     INFO("sprite not loaded sprnum: {} remap: {}", sprNum, remap);
@@ -116,7 +112,7 @@ namespace OpenGL {
   }
 
   bool SpriteCache::has(const SpriteIdentifier & si) {
-    SpriteMapType::iterator i = loadedSprites.find(si);
+    auto i = loadedSprites.find(si);
     if (i != loadedSprites.end())
       return true;
     INFO("sprite not loaded sprnum: {} remap: {} delta: {}",
@@ -127,19 +123,19 @@ namespace OpenGL {
   }
 
   PagedTexture & SpriteCache::get(PHYSFS_uint16 sprNum) {
-    SpriteMapType::iterator i = loadedSprites.find(SpriteIdentifier(sprNum, -1, 0));
+    auto i = loadedSprites.find(SpriteIdentifier(sprNum, -1, 0));
     assert(i != loadedSprites.end());
     return i->second;
   }
 
   PagedTexture & SpriteCache::get(PHYSFS_uint16 sprNum, PHYSFS_sint16 remap) {
-    SpriteMapType::iterator i = loadedSprites.find(SpriteIdentifier(sprNum, remap, 0));
+    auto i = loadedSprites.find(SpriteIdentifier(sprNum, remap, 0));
     assert(i != loadedSprites.end());
     return i->second;
   }
 
   PagedTexture & SpriteCache::get(const SpriteIdentifier & si) {
-    SpriteMapType::iterator i = loadedSprites.find(si);
+    auto i = loadedSprites.find(si);
     assert(i != loadedSprites.end());
     return i->second;
   }
@@ -186,7 +182,7 @@ namespace OpenGL {
   }
 
   OpenGL::PagedTexture SpriteCache::createSprite(size_t sprite_num, PHYSFS_sint16 remap,
-    PHYSFS_uint32 delta, OpenGTA::SpriteInfo* info) {
+    PHYSFS_uint32 delta, OpenGTA::SpriteInfo* info) const {
     INFO("creating new sprite: {} remap: {}", sprite_num, remap);
     auto src_smart = OpenGTA::ActiveStyle::Instance().get().getSpriteBitmap(
       sprite_num, remap , delta
@@ -261,8 +257,8 @@ namespace OpenGL {
 #endif
 
 #endif
-    return OpenGL::PagedTexture(texid, 0, 0, 
-      float(info->w)/float(npot.w), float(info->h)/float(npot.h));
+    return {texid, 0, 0,
+      float(info->w)/float(npot.w), float(info->h)/float(npot.h)};
   }
 
 }

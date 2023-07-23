@@ -26,20 +26,6 @@ class OpenGTAConan(ConanFile):
         "CMakeLists.txt",
     )
 
-    default_options = {
-        "sdl/*:nas": False,
-        "sdl/*:x11": False,
-        "sdl/*:xcursor": False,
-        "sdl/*:xinerama": False,
-        "sdl/*:xinput": False,
-        "sdl/*:xrandr": False,
-        "sdl/*:xscrnsaver": False,
-        "sdl/*:xshape": False,
-        "sdl/*:xvm": False,
-        "sdl/*:opengles": False,
-        "sdl/*:vulkan": False,
-    }
-
     def set_version(self):
         git = Git(self)
         self.version = (

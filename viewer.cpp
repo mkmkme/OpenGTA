@@ -138,7 +138,8 @@ OpenGTAViewer::OpenGTAViewer()
 void OpenGTAViewer::quit() {
   SDL_Quit();
   delete city;
-  PHYSFS_deinit();
+  // XXX: This is a hack to avoid a crash on exit
+  //  PHYSFS_deinit();
   std::cout << "Goodbye" << std::endl;
 }
 
@@ -272,7 +273,7 @@ void parse_args(int argc, char *argv[])
         ;
     // clang-format on
 
-    options.parse_positional({"city"});
+//    options.parse_positional({"city"});
 
     try {
       auto result = options.parse(argc, argv);

@@ -63,8 +63,8 @@ inline GLboolean queryExtension(const char *extName) noexcept
 
 inline void checkAndClearSDLError(const char *context) noexcept
 {
-    const char *sdl_err = SDL_GetError();
-    if (strlen(sdl_err) > 0) {
+    std::string_view sdl_err = SDL_GetError();
+    if (!sdl_err.empty()) {
         ERROR("SDL complained in context '{}': {}", context, sdl_err);
         SDL_ClearError();
     }

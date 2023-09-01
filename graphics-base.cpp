@@ -1,12 +1,16 @@
 #include "graphics-base.h"
 
+#include "graphics-24bit.h"
+#include "graphics-8bit.h"
 #include "loaded-anim.h"
 #include "log.h"
 #include "m_exceptions.h"
 #include "sprite-info.h"
+#include "string_helpers.h"
 
 #include <algorithm>
 #include <cassert>
+#include <utility>
 
 using namespace OpenGTA;
 using namespace Util;
@@ -429,4 +433,29 @@ unsigned char *GraphicsBase::getTmpBuffer(bool rgba = false)
     if (rgba)
         return tileTmpRGBA;
     return tileTmpRGB;
+}
+
+std::unique_ptr<GraphicsBase> GraphicsBase::create(std::string gfx_path)
+{
+    std::string tempName = Util::string_lower(std::move(gfx_path));
+    if (tempName.ends_with(".g24"))
+        return std::make_unique<Graphics24Bit>(tempName);
+    else if (tempName.ends_with(".gry"))
+        return std::make_unique<Graphics8Bit>(tempName);
+    else {
+        WARN("unknown graphics format, trying 24 bit");
+        try {
+            return std::make_unique<Graphics24Bit>(tempName);
+        } catch (const Util::Exception &e) {
+            WARN("loading 24 bit failed: {}", e.what());
+            WARN("trying 8 bit...");
+            try {
+                return std::make_unique<Graphics8Bit>(tempName);
+            } catch (const Util::Exception &e) {
+                ERROR("loading 8 bit failed: {}", e.what());
+                ERROR("No graphics format could be loaded, aborting");
+                throw;
+            }
+        }
+    }
 }

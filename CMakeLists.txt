@@ -40,8 +40,7 @@ add_library(ogta STATIC
     blockanim.cpp
     blockdata.cpp
     car-info.cpp
-    dataholder.cpp
-    entity_controller.cpp
+        entity_controller.cpp
     font.cpp
     font_cache.cpp
     game_objects.cpp
@@ -58,7 +57,8 @@ add_library(ogta STATIC
     read_sdt.cpp
     slope_height_func.cpp
     spritemanager.cpp
-    train_system.cpp)
+    train_system.cpp
+)
 target_link_libraries(ogta PUBLIC
     ogta-math
     coldet-math3d
@@ -96,7 +96,7 @@ add_executable(gfxextract EXCLUDE_FROM_ALL
     graphics-8bit.cpp
     map.cpp
     navdata.cpp
-    dataholder.cpp)
+)
 
 # TODO: refactor sources so this is not needed
 target_link_options(gfxextract PRIVATE

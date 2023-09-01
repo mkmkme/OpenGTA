@@ -24,25 +24,14 @@
 #include "m_exceptions.h"
 
 namespace Util {
-  Animation::Animation(uint16_t num, uint16_t fps) :
-    callback() {
-    status = STOPPED;
-    numFrames = num;
-    currentFrame = 0;
-    delay = 1000 / fps;
-    lastChangeTicks = 0;
-  }
 
-  Animation::Animation(const Animation & other) {
-    status = other.status;
-    onDone = other.onDone;
-    numFrames = other.numFrames;
-    currentFrame = other.currentFrame;
-    delay = other.delay;
+Animation::Animation(uint16_t num, uint16_t fps)
+    : numFrames { num }
+    , delay { 1000u / fps }
+{
+}
 
-    lastChangeTicks = other.lastChangeTicks;
-    callback = other.callback;
-  }
+Animation::Animation(const Animation &) = default;
 
   void Animation::update(const uint32_t & nowTicks) {
     if (status == STOPPED)

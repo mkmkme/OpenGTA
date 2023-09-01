@@ -21,17 +21,13 @@ std::string format_map(const std::map<std::string, std::string> &m)
 {
   std::string ret = "{ ";
   for (const auto& [key, val] : m)
-    ret.append("{" + key + ": " + val + "}, ");
+      ret.append(std::format("{{{}: {}}}, ", key, val));
   ret.append(" }");
   return ret;
 }
 }
 
 namespace OpenGTA {
-  MessageDB::MessageDB() {
-    load("ENGLISH.FXT");
-    _error = "ERROR";
-  }
   MessageDB::MessageDB(const std::string &file) {
     load(file);
   }
@@ -98,7 +94,7 @@ namespace OpenGTA {
     PHYSFS_close(f);
   }
   
-  const std::string& MessageDB::getText(const std::string &id) {
+  const std::string& MessageDB::getText(const std::string &id) const noexcept {
     if (auto i = messages.find(id); i != messages.end())
       return i->second;
 
@@ -108,7 +104,7 @@ namespace OpenGTA {
     return _error;
   }
   
-  const std::string& MessageDB::getText(const uint32_t id) {
+  const std::string& MessageDB::getText(const uint32_t id) const noexcept {
     if (auto i = messages.find(std::to_string(id)); i != messages.end())
       return i->second;
 
@@ -117,8 +113,13 @@ namespace OpenGTA {
           format_map(messages));
     return _error;
   }
+  
+  std::unique_ptr<MessageDB> MessageDB::create(const std::string &file)
+  {
+    return std::unique_ptr<MessageDB>(new MessageDB(file));
+  }
 
-}
+  }
 
 #if FXT_TEST
 #include "file_helper.h"

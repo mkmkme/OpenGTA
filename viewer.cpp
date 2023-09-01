@@ -34,7 +34,6 @@
 #include "blockanim.h"
 #include "car-info.h"
 #include "config.h"
-#include "dataholder.h"
 #include "entity_controller.h"
 #include "file_helper.h"
 #include "gl_camera.h"
@@ -123,6 +122,9 @@ private:
   OpenGL::Camera camera_;
   OpenGTA::Script::LuaVM luaVM_;
   OpenGTA::LocalPlayer localPlayer_;
+  OpenGTA::SpriteManager spriteManager_;
+
+  std::unique_ptr<OpenGTA::MessageDB> msgDB_;
 };
 
 OpenGTAViewer::OpenGTAViewer()
@@ -534,23 +536,22 @@ void handleKeyUp(SDL_Keysym *keysym, OpenGTA::LocalPlayer & player) {
 // void draw_mapmode();
 
 void OpenGTAViewer::createPedAt(const Vector3D& v) {
-  OpenGTA::Pedestrian p(Vector3D(0.2f, 0.5f, 0.2f), v, 0xffffffff);
+  OpenGTA::Pedestrian p(Vector3D(0.2f, 0.5f, 0.2f), v, 0xffffffff, <#initializer #>, 0);
   p.remap = OpenGTA::ActiveStyle::Instance().get().getRandomPedRemapNumber();
   INFO("using remap: {}", p.remap);
-  OpenGTA::Pedestrian & pr = OpenGTA::SpriteManager::Instance().add(p);
+  OpenGTA::Pedestrian & pr = spriteManager_.add(p);
   pr.switchToAnim(1);
   localPlayer_.setCtrl(pr.m_control);
   create_ingame_gui(guiManager_, screen_);
 }
 
-void explode_ped() {
+void explode_ped(OpenGTA::SpriteManager & sm) {
   try {
-  OpenGTA::Pedestrian & ped = OpenGTA::SpriteManager::Instance().getPed(0xffffffff);
-  Vector3D p(ped.pos);
-  p.y += 0.2f;
-  OpenGTA::SpriteManager::Instance().createExplosion(p);
-  }
-  catch (Util::UnknownKey & e) {
+    OpenGTA::Pedestrian &ped = sm.getPed(0xffffffff);
+    Vector3D p(ped.pos);
+    p.y += 0.2f;
+    sm.createExplosion(p);
+  } catch (Util::UnknownKey &e) {
     WARN("Cannot place explosion - press F4 to switch to player-mode first!");
   }
 }
@@ -569,6 +570,7 @@ void zoomToTrain(int k) {
 
 namespace OpenGTA {
   void ai_step_fake(OpenGTA::Pedestrian *p) {
+#if 0
     try {
     OpenGTA::Pedestrian & pr = OpenGTA::SpriteManager::Instance().getPed(0xffffffff);
     float t_angle = Util::xz_angle(p->pos, pr.pos);
@@ -603,21 +605,22 @@ namespace OpenGTA {
     catch (Util::UnknownKey & e) {
     }
 
+#endif
   }
 }
 
-void add_auto_ped() {
+void add_auto_ped(OpenGTA::SpriteManager & sm) {
   try {
-  OpenGTA::Pedestrian & pr = OpenGTA::SpriteManager::Instance().getPed(0xffffffff);
+  OpenGTA::Pedestrian & pr = sm.getPed(0xffffffff);
   int id = OpenGTA::TypeIdBlackBox::Instance().requestId();
   Vector3D v(pr.pos);
   v.y += 0.9f;
   //INFO << v.x << " " << v.y << " " << v.z << std::endl;
   Sint16 remap = OpenGTA::ActiveStyle::Instance().get().getRandomPedRemapNumber();
-  OpenGTA::Pedestrian p(Vector3D(0.2f, 0.5f, 0.2f), v, id, remap);
-  OpenGTA::Pedestrian & pr2 = OpenGTA::SpriteManager::Instance().add(p);
+  OpenGTA::Pedestrian p(Vector3D(0.2f, 0.5f, 0.2f), v, id, <#initializer #>, remap);
+  OpenGTA::Pedestrian & pr2 = sm.add(p);
   pr2.switchToAnim(1);
-  INFO("now {} peds", OpenGTA::SpriteManager::Instance().getPeds().size());
+  INFO("now {} peds", sm.getPeds().size());
 
   //pr2.m_control = &OpenGTA::nullAI;
   }
@@ -673,10 +676,10 @@ void OpenGTAViewer::showGammaConfig() {
   }
 }
 
-void car_toggle(OpenGTA::LocalPlayer & player) {
+void car_toggle(OpenGTA::LocalPlayer & player, OpenGTA::SpriteManager & sm) {
   OpenGTA::Pedestrian & pped = player.getPed();
   Vector3D pos = pped.pos;
-  auto &cars = OpenGTA::SpriteManager::Instance().getCars();
+  auto &cars = sm.getCars();
   float min_dist = 360;
   auto j = cars.end();
   for (auto it = cars.begin(); it != cars.end(); ++it) {
@@ -730,11 +733,11 @@ void OpenGTAViewer::handleKeyPress(SDL_Keysym *keysym) {
       break;
     case SDLK_F2:
       bbox_toggle = !bbox_toggle;
-      OpenGTA::SpriteManager::Instance().setDrawBBox(bbox_toggle);
+      spriteManager_.setDrawBBox(bbox_toggle);
       break;
     case SDLK_F3:
       texsprite_toggle = !texsprite_toggle;
-      OpenGTA::SpriteManager::Instance().setDrawTexBorder(texsprite_toggle);
+      spriteManager_.setDrawTexBorder(texsprite_toggle);
       break;
     case SDLK_F4:
       follow_toggle = !follow_toggle;
@@ -744,7 +747,7 @@ void OpenGTAViewer::handleKeyPress(SDL_Keysym *keysym) {
         Vector3D p(camera_.getEye());
         createPedAt(p);
         camera_.setVectors( Vector3D(p.x, 10, p.z), Vector3D(p.x, 9.0f, p.z), Vector3D(0, 0, -1) );
-        camera_.setFollowMode(OpenGTA::SpriteManager::Instance().getPed(0xffffffff).pos);
+        camera_.setFollowMode(spriteManager_.getPed(0xffffffff).pos);
         camera_.setCamGravity(true);
       }
       else {
@@ -753,13 +756,13 @@ void OpenGTAViewer::handleKeyPress(SDL_Keysym *keysym) {
           Vector3D(camera_.getEye() + Vector3D(1, -1, 1)), Vector3D(0, 1, 0));
         camera_.setCamGravity(false);
         camera_.releaseFollowMode();
-        OpenGTA::SpriteManager::Instance().removePed(0xffffffff);
-        OpenGTA::SpriteManager::Instance().removeDeadPeds();
+        spriteManager_.removePed(0xffffffff);
+        spriteManager_.removeDeadPeds();
         remove_ingame_gui(guiManager_);
       }
       break;
     case SDLK_RETURN:
-      car_toggle(localPlayer_);
+      car_toggle(localPlayer_, spriteManager_);
       break;
     case SDLK_F5:
       draw_arrows = !draw_arrows;
@@ -769,10 +772,10 @@ void OpenGTAViewer::handleKeyPress(SDL_Keysym *keysym) {
       draw_mapmode(screen_);
       break;
     case SDLK_F7:
-      explode_ped();
+      explode_ped(spriteManager_);
       break;
     case SDLK_F8:
-      add_auto_ped();
+      add_auto_ped(spriteManager_);
       break;
     case SDLK_F9:
       city->setDrawTextured(!city->getDrawTextured());
@@ -1025,7 +1028,7 @@ void draw_mapmode(OpenGL::Screen &screen) {
     glEnd();
 
     const OpenGTA::Map::LocationMap & lmap = OpenGTA::ActiveMap::Instance().get().getLocationMap();
-    OpenGTA::Map::LocationMap::const_iterator i = lmap.begin();
+    auto i = lmap.cbegin();
     glDisable(GL_TEXTURE_2D);
     while (i != lmap.end()) {
       if (i->first == 2) {
@@ -1067,7 +1070,8 @@ void OpenGTAViewer::run() {
     lang = getenv("LANG");
   if (!lang)
     lang = "en";
-  OpenGTA::MainMsgLookup::Instance().load(Util::FileHelper::Lang2MsgFilename(lang));
+
+  msgDB_ = OpenGTA::MessageDB::create(Util::FileHelper::Lang2MsgFilename(lang));
 
   //m_font = new OpenGL::DrawableFont();
   //m_font->loadFont("F_MTEXT.FON");
@@ -1154,7 +1158,7 @@ void OpenGTAViewer::run() {
 #else
     Uint32 now_ticks = SDL_GetTicks();
 #endif
-    OpenGTA::SpriteManager::Instance().update(now_ticks, localPlayer_);
+    spriteManager_.update(now_ticks, localPlayer_);
     city->blockAnims->update(now_ticks);
     guiManager_.update(now_ticks);
     update_ingame_gui_values(localPlayer_);
@@ -1172,8 +1176,7 @@ void OpenGTAViewer::run() {
         }
       }
     }
-    OpenGTA::SpriteManager::Instance().creationArea.setRects(
-      city->getActiveRect(), city->getOnScreenRect());
+    spriteManager_.creationArea.setRects(city->getActiveRect(), city->getOnScreenRect());
 
 //#ifdef TIMER_OPENSTEER_CLOCK
 //    fps = int(timer.clock.getSmoothedFPS());

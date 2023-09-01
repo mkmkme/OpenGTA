@@ -23,8 +23,11 @@
 #ifndef UTIL_CELLITERATOR_H
 #define UTIL_CELLITERATOR_H
 #include <cassert>
-#include "dataholder.h"
 #include "math3d.h"
+
+namespace OpenGTA {
+  class Map;
+}
 
 namespace Util {
   float distance(const Vector3D & p1, const Vector3D & p2);
@@ -49,7 +52,13 @@ namespace Util {
         return x == o.x && y == o.y && z == o.z;
       }
 
-      CellIterator &operator = (const CellIterator & o) = default;
+      CellIterator &operator = (const CellIterator & o) {
+        x = o.x;
+        y = o.y;
+        z = o.z;
+        mapRef = o.mapRef;
+        return *this;
+      }
 
       CellIterator left() const {
         CellIterator p(*this);

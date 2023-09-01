@@ -13,8 +13,8 @@
 #include <fmt/format.h>
 #include "navdata.h"
 #include "log.h"
-#include "dataholder.h"
 #include "m_exceptions.h"
+#include "message-db.h"
 
 namespace OpenGTA {
   Rect2D::Rect2D() {
@@ -140,7 +140,8 @@ namespace OpenGTA {
   std::string NavData::_sw;
   std::string NavData::_se;
 
-  NavData::NavData(PHYSFS_uint32 size, PHYSFS_file *fd, const size_t level_num) {
+  NavData::NavData(PHYSFS_uint32 size, PHYSFS_file *fd, size_t level_num, const MessageDB &msgDB)
+  {
     if (size % 35) {
         throw Util::InvalidFormat("Navdata size: " + std::to_string(size)
                               + " % 35 != 0");
@@ -149,16 +150,15 @@ namespace OpenGTA {
     PHYSFS_uint32 c = size / 35;
     assert(fd);
 
-    MessageDB & msg = MainMsgLookup::Instance().get();
-    _c =msg.getText("c");
-    _n = msg.getText("n");
-    _s = msg.getText("s");
-    _w = msg.getText("w");
-    _e = msg.getText("e");
-    _nw = msg.getText("nw");
-    _ne = msg.getText("ne");
-    _sw = msg.getText("sw");
-    _se = msg.getText("se");
+    _c =msgDB.getText("c");
+    _n = msgDB.getText("n");
+    _s = msgDB.getText("s");
+    _w = msgDB.getText("w");
+    _e = msgDB.getText("e");
+    _nw = msgDB.getText("nw");
+    _ne = msgDB.getText("ne");
+    _sw = msgDB.getText("sw");
+    _se = msgDB.getText("se");
     for (PHYSFS_uint32 i = 0; i < c; ++i) {
       auto *sec = new Sector(fd);
       if (sec->getSize() == 0) { // workaround for 'NYC.CMP' (empty sectors)
@@ -166,8 +166,8 @@ namespace OpenGTA {
         WARN("skipping zero size sector");
         continue;
       } else {
-        //INFO << i << " " << sec->name2 << std::endl << os.str() << " : " << msg.getText(os.str()) << std::endl;
-        sec->name = msg.getText(
+        //INFO << i << " " << sec->name2 << std::endl << os.str() << " : " << msgDB.getText(os.str()) << std::endl;
+        sec->name = msgDB.getText(
           fmt::format("{:03}area{:03}", level_num, int(sec->sam))
         );
 

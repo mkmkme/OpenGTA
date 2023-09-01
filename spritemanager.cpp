@@ -22,7 +22,6 @@
  ************************************************************************/
 #include "spritemanager.h"
 
-#include "dataholder.h"
 #include "gl_spritecache.h"
 #include "id_sys.h"
 #include "log.h"
@@ -203,7 +202,7 @@ void SpriteManager::update(Uint32 ticks, LocalPlayer &player)
             Vector3D pos(tu8.first + 0.5f, k + 1, tu8.second + 0.5f);
             int id = OpenGTA::TypeIdBlackBox::Instance().requestId();
             Sint16 remap = OpenGTA::ActiveStyle::Instance().get().getRandomPedRemapNumber();
-            OpenGTA::Pedestrian p(Vector3D(0.3f, 0.5f, 0.3f), pos, id, remap);
+            OpenGTA::Pedestrian p(Vector3D(0.3f, 0.5f, 0.3f), pos, id, *this, remap);
             p.rot = 360 * (rand() / (RAND_MAX + 1.0));
             Instance().add(p);
             break;
@@ -638,7 +637,8 @@ SpriteObject::Animation &SpriteManager::getAnimationById(const Uint32 &id)
         return it->second;
     }
     ERROR("Failed to find anim id: {}", id);
-    return animations.begin()->second;
+    throw Util::UnknownKey(std::format("Failed to find anim id: {}", id));
+//    return animations.begin()->second;
 }
 
 void SpriteManager::registerAnimation(const Uint32 &id, const SpriteObject::Animation &anim)
@@ -671,7 +671,7 @@ void SpriteManager::createProjectile(uint8_t typeId, float r, Vector3D p, Vector
 
 void SpriteManager::createExplosion(Vector3D center)
 {
-    SpriteObject expl(center, 0, GraphicsBase::SpriteNumbers::EX);
+    SpriteObject expl(center, 0, GraphicsBase::SpriteNumbers::EX, *this);
     expl.anim = SpriteObject::Animation(getAnimationById(99));
     expl.anim.set(Util::Animation::PLAY_FORWARD, Util::Animation::STOP);
     add(expl);

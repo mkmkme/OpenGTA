@@ -6,17 +6,18 @@
 
 namespace OpenGTA {
 
-class MessageDB {
+class MessageDB final {
+private:
+    explicit MessageDB(const std::string &file);
 public:
-    MessageDB();
-    MessageDB(const std::string &file);
+    static std::unique_ptr<MessageDB> create(const std::string &file);
     void load(const std::string &file);
-    const std::string &getText(const std::string &id);
-    const std::string &getText(const uint32_t id);
+    [[nodiscard]] const std::string &getText(const std::string &id) const noexcept;
+    [[nodiscard]] const std::string &getText(uint32_t id) const noexcept;
 
 private:
     std::map<std::string, std::string> messages;
-    std::string _error;
+    std::string _error = "ERROR";
 };
 
 } // namespace OpenGTA

@@ -30,8 +30,10 @@ struct SpriteInfo;
  * Contains a number of common variables; does essentially nothing.
  */
 class GraphicsBase {
-public:
+protected:
     GraphicsBase();
+public:
+    static std::unique_ptr<GraphicsBase> create(std::string gfx_path);
     virtual ~GraphicsBase();
     uint8_t getFormat();
 
@@ -185,6 +187,5 @@ protected:
     unsigned int firstValidPedRemap{};
     unsigned int lastValidPedRemap{};
 };
-
 } // namespace OpenGTA
 #endif

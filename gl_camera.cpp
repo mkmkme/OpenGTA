@@ -1,6 +1,5 @@
 #include "gl_camera.h"
 #include "gl_screen.h"
-#include "dataholder.h"
 
 #ifdef _WIN32
 #include <Windows.h>

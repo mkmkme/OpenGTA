@@ -26,7 +26,6 @@
 #include "config.h"
 #include "gl_spritecache.h"
 #include "image_loader.h"
-#include "dataholder.h"
 #include "log.h"
 #include "sprite-info.h"
 

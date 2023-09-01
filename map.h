@@ -16,12 +16,13 @@ class NavData; // see navdata.h
 
 /** the wrapper for the CMP (compressed map) files */
 class Map {
-    friend class MapViewGL;
-
+private:
+    explicit Map(std::string filename);
 public:
-    Map(const std::string &filename);
     ~Map();
 
+    static std::unique_ptr<Map> create(std::string filename);
+    
     struct BlockInfo {
         PHYSFS_uint16 typeMap;
         PHYSFS_uint8 typeMapExt;
@@ -103,16 +104,12 @@ public:
     PHYSFS_uint16 getNumBlocksAtNew(PHYSFS_uint8 x, PHYSFS_uint8 y);
     BlockInfo *getBlockAt(PHYSFS_uint8 x, PHYSFS_uint8 y, PHYSFS_uint8 z);
     BlockInfo *getBlockAtNew(PHYSFS_uint8 x, PHYSFS_uint8 y, PHYSFS_uint8 z);
-    BlockInfo *getBlockByInternalId(PHYSFS_uint16 id);
-    PHYSFS_uint16 getInternalIdAt(PHYSFS_uint8 x,
-                                  PHYSFS_uint8 y,
-                                  PHYSFS_uint8 z);
-    void dump();
     NavData *nav;
     ObjectPosition *objects{};
     PHYSFS_uint16 numObjects{};
-    const Location &getNearestLocationByType(uint8_t t, uint8_t x, uint8_t y);
     const LocationMap &getLocationMap() const noexcept { return locations; }
+
+
 
 protected:
     PHYSFS_uint32 base[GTA_MAP_MAXDIMENSION][GTA_MAP_MAXDIMENSION]{};
@@ -139,5 +136,6 @@ private:
     void loadLocations();
     void loadNavData(const size_t level_num);
 };
+
 
 } // namespace OpenGTA

@@ -1,6 +1,5 @@
 #include "gui.h"
 #include "m_exceptions.h"
-#include "dataholder.h"
 #include "gl_spritecache.h"
 #include "gl_screen.h"
 #include "sprite-info.h"

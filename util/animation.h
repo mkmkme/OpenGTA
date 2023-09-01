@@ -54,23 +54,23 @@ namespace Util {
       inline void set(const Status doThis, const OnDone done = STOP) { status = doThis; onDone = done; }
       inline const Status & get() const { return status; }
       inline const OnDone & getDone() const { return onDone; }
-      void jumpToFrame(const uint16_t num, const Status andDo);
+      void jumpToFrame(uint16_t num, Status andDo);
       void update(const uint32_t & nowTicks);
       using CallbackType = std::function<void()>;
       void setCallback(const CallbackType & cb) { callback = cb; }
 
-      uint16_t currentFrame;
+      uint16_t currentFrame { 0 };
       uint16_t numFrames;
       uint32_t delay;
     protected:
 
       void flipFrame(bool forward);
       void isDone();
-      Status   status;
-      OnDone   onDone;
-      uint32_t lastChangeTicks;
+      Status status { STOPPED };
+      OnDone onDone { STOP };
+      uint32_t lastChangeTicks { 0 };
 
-      CallbackType callback;
+      CallbackType callback {};
   };
 }
 

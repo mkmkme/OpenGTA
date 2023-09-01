@@ -11,7 +11,6 @@
 #include "m_exceptions.h"
 #include "gui.h"
 #include "timer.h"
-#include "dataholder.h"
 #include "gl_spritecache.h"
 #include "m_exceptions.h"
 

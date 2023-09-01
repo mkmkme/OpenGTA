@@ -84,8 +84,6 @@ namespace OpenGTA {
       OpenGL::TextureCache<uint8_t>* sideCache{};
       OpenGL::TextureCache<uint8_t>* lidCache{};
       OpenGL::TextureCache<uint8_t>* auxCache{};
-      Map* loadedMap{};
-      OpenGTA::GraphicsBase* style{};
       GLfloat zoomLevel{};
       GLfloat camPos[3]{};
       GLfloat camVec[3]{};
@@ -113,6 +111,9 @@ namespace OpenGTA {
 
       OpenGL::Screen &screen_;
       OpenGL::Camera &camera_;
+
+      std::unique_ptr<GraphicsBase> style_;
+      std::unique_ptr<Map> loadedMap_;
   };
 }
 

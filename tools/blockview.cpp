@@ -1,6 +1,5 @@
 #include <iostream>
 #include <SDL_opengl.h>
-#include "dataholder.h"
 #include "gl_screen.h"
 #include "gl_camera.h"
 #include "log.h"

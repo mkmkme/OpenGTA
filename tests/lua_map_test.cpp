@@ -1,7 +1,6 @@
 #include <filesystem>
 #include <string>
 #include "lua_vm.h"
-#include "dataholder.h"
 #include "file_helper.h"
 #include "log.h"
 
@@ -37,8 +36,8 @@ void run_init(const char* prg_name) {
 
 void run_main() {
   OpenGTA::Script::LuaVM vm;
+  auto msgDB = OpenGTA::MessageDB::create("ENGLISH.FXT");
 
-  OpenGTA::MainMsgLookup::Instance().load("ENGLISH.FXT");
   OpenGTA::ActiveMap::Instance().load(map_filename);
   OpenGTA::Map & loadedMap = OpenGTA::ActiveMap::Instance().get();
   vm.setMap(loadedMap);

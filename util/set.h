@@ -25,7 +25,7 @@
 
 namespace Util {
 
-  /* Implements a set for non-negative integer values.
+  /** Implements a set for non-negative integer values.
    * storage is a char* which is either a member of this class,
    * or given to an instance via alternative constructor
    * or the set_data() function.
@@ -42,7 +42,7 @@ namespace Util {
       /** Constructor with defined size. 
        * @param n the element count in an integer variable
        */
-      Set(int n);
+      explicit Set(int n);
       /** Copy constructor, copies internal data of another Set.
        * @param other reference to the other set
        *
@@ -62,29 +62,6 @@ namespace Util {
 
       ~Set();
 
-      /** Give another storage pointer to an instance.
-       * @param n size
-       * @param data pointer to data
-       * @note This only works for instances that were already
-       * constructed with external data.
-       */
-      void set_data(int n, unsigned char* data);
-
-      /** Mutator for the last index.
-       * @param n the element count
-       * @note You should only shrink sets previously defined @e larger,
-       * not the other way round!
-       */
-      void set_last(int n);
-
-      /** Set2Number - least significant bits first.
-       */
-      int as_int(int start, int len) const;
-
-      /** Set2Number - most significant bits first.
-       */
-      int as_int2(int start, int len) const;
-
       /** Accessor for the last index.
        * @return n the element count
        */
@@ -96,34 +73,15 @@ namespace Util {
        */
       void set_item(int k, bool val);
 
+      void set_items(int start, int end, bool val);
+
       /** Accessor for the contained data.
        * @param k item index to query
        * @return val either true (item in set) or false (not in set)
        */
       bool get_item(int k) const;
 
-      /** Test set for inclusion with another.
-       * the return value is either:
-       * 0  - the two sets are disjoint
-       * 1  - this set contains the other
-       * 2  - this set contains a subset of the other
-       * -1 - the other set contains this
-       * -2 - the other contains a subset of this
-       * 3  - the two sets are equal
-       * @param other a reference to another Set
-       * @return res an int value as listed above
-       */
-      int compare(const Set & other) const;
-
-      /** Returns the address of the internal storage data.
-       * KNOW WHAT YOU ARE DOING WITH THIS
-       * @return storage a char* to the entire storage block
-       */
-      unsigned char* give_storage() const;
-
-      void print_set() const;
-
-    protected:
+  protected:
       int last;
     private:
       unsigned char* storage;

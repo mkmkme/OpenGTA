@@ -31,29 +31,29 @@ namespace OpenGTA {
 
 namespace {
 
-inline size_t mapFileName2Number(const std::string & file) {
+inline size_t mapFileName2Number(std::string file) {
   size_t num = 0;
-  std::string file2 { Util::string_lower(file) };
-  if (file2.find("nyc.cmp") != std::string::npos)
+  std::string file2 { Util::string_lower(std::move(file)) };
+  if (file2 == "nyc.cmp")
     num = 1;
-  else if (file2.find("sanb.cmp") != std::string::npos)
+  else if (file2 == "sanb.cmp")
     num = 2;
-  else if (file2.find("miami.cmp") != std::string::npos)
+  else if (file2 == "miami.cmp")
     num = 3;
   else
-    ERROR("unknown level: {}", file);
+    ERROR("unknown level: {}", file2);
   return num;
 }
 
 }
 
-  Map::Map(const std::string& filename) {
+  Map::Map(std::string filename) {
     nav = nullptr;
     fd = Util::FileHelper::OpenReadVFS(filename);
     if (!fd) {
       throw Util::FileNotFound(filename);
     }
-    size_t level_as_num = mapFileName2Number(filename);
+    size_t level_as_num = mapFileName2Number(std::move(filename));
     loadHeader();
     loadBase();
     loadColumn();
@@ -65,10 +65,10 @@ inline size_t mapFileName2Number(const std::string & file) {
     //dump();
   }
   Map::~Map() {
-    if (column)  delete [] column;
-    if (block)   delete [] block;
-    if (objects) delete [] objects;
-    if (nav)     delete    nav;
+    delete [] column;
+    delete [] block;
+    delete [] objects;
+    delete    nav;
     if (fd)
       PHYSFS_close(fd);
   }
@@ -233,7 +233,7 @@ inline size_t mapFileName2Number(const std::string & file) {
     PHYSFS_uint32 _si = baseSize + columnSize + topHeaderSize +
       objectPosSize + routeSize + 3 * 6 * 6 + blockSize;
     PHYSFS_seek(fd, _si); 
-    nav = new NavData(navDataSize, fd, levelNum);
+    nav = new NavData(navDataSize, fd, levelNum, <#initializer #>);
     assert(nav);
   }
   PHYSFS_uint16 Map::getNumBlocksAt(PHYSFS_uint8 x, PHYSFS_uint8 y) {
@@ -255,46 +255,10 @@ inline size_t mapFileName2Number(const std::string & file) {
     idx0 = column[base[x][y] / 2 + idx0];
     return &block[idx0];
   }
-  PHYSFS_uint16 Map::getInternalIdAt(PHYSFS_uint8 x, PHYSFS_uint8 y, PHYSFS_uint8 z) {
-    return column[base[x][y] / 2 + z];
-  }
-  Map::BlockInfo* Map::getBlockByInternalId(PHYSFS_uint16 id) {
-    return &block[id];
-  }
-  void Map::dump() {
-    for (int y = 0; y < GTA_MAP_MAXDIMENSION; y++) {
-      for(int x = 0; x < GTA_MAP_MAXDIMENSION; x++) {
-        std::cout << x << "," << y << ":" << column[base[x][y] / 2] << "||";
-        PHYSFS_uint16 ts = column[base[x][y] / 2];
-        std::cout << "(";
-        for(int t=1; t <= (6 - ts); t++) {
-          BlockInfo *info = &block[column[base[x][y] / 2 + t]];
-          std::cout << int(info->slopeType()) << ", ";
-        
-        }
-        std::cout << ")" << std::endl;
-      }
-    }
-  }
-  const Map::Location & Map::getNearestLocationByType(uint8_t t, uint8_t x, uint8_t y) {
-    INFO("{} at {} {}", int(t), int(x), int(y));
-    auto i = locations.find(t);
-    auto j = i;
-    if (i == locations.end())
-      throw Util::UnknownKey("location-type " + std::to_string(int(t)) + " not found in map");
-    int _x(x);
-    int _y(y);
-    int min_d = 255 * 255;
 
-    while (i != locations.end()) {
-    INFO("{}: {} {}", int(i->first), int(i->second.x), int(i->second.y));
-      int d = abs(_x - i->second.x) + abs(_y - i->second.y);
-      if (d < min_d) {
-        min_d = d;
-        j = i;
-      }
-    }
-    return j->second;
+  std::unique_ptr<Map> Map::create(std::string filename)
+  {
+    return std::unique_ptr<Map>(new Map(std::move(filename)));
   }
 
-}
+  }

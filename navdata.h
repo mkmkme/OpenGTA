@@ -10,11 +10,14 @@
 ************************************************************************/
 #ifndef NAVDATA_H
 #define NAVDATA_H
+
 #include <map>
-#include <string>
 #include <physfs.h>
+#include <string>
 
 namespace OpenGTA {
+
+class MessageDB;
 
   /** Helper class for area names.
    *
@@ -59,8 +62,8 @@ namespace OpenGTA {
    */
   class NavData {
     public:
-      /** A named sector of the map.
-       */
+        /** A named sector of the map.
+         */
       struct Sector : public Rect2D {
         /** Constructor from valid PHYSFS handle.
          */
@@ -79,7 +82,7 @@ namespace OpenGTA {
         private:
           bool isADummy{};
       };
-      NavData(PHYSFS_uint32 size, PHYSFS_file *fd, const size_t level_num);
+      NavData(PHYSFS_uint32 size, PHYSFS_file *fd, size_t level_num, const MessageDB &msgDB);
       ~NavData();
       Sector* getSectorAt(PHYSFS_uint8, PHYSFS_uint8);
       static std::string _c, _n, _s, _w, _e, _nw, _ne, _sw, _se;

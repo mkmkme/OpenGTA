@@ -21,7 +21,6 @@
  * 3. This notice may not be removed or altered from any source          *
  * distribution.                                                         *
  ************************************************************************/
-#include "dataholder.h"
 #include "gl_camera.h"
 #include "gl_font.h"
 #include "gl_screen.h"
@@ -41,7 +40,7 @@ bool done = false;
 
 OpenGTA::Car *car = nullptr;
 Vector3D _p(4, 0.01f, 4);
-OpenGTA::Pedestrian ped(Vector3D(0.5f, 0.5f, 0.5f), Vector3D(4, 0.01f, 4), 0xffffffff);
+OpenGTA::Pedestrian ped(Vector3D(0.5f, 0.5f, 0.5f), Vector3D(4, 0.01f, 4), 0xffffffff, <#initializer #>, 0);
 OpenGTA::SpriteObject::Animation pedAnim(0, 0);
 
 OpenGL::DrawableFont m_font;
@@ -102,7 +101,7 @@ const char *vtype2name(int vt)
     return "";
 }
 
-void drawScene(Uint32 ticks, OpenGL::Screen &screen, OpenGL::Camera &camera)
+void drawScene(Uint32 ticks, OpenGL::Screen &screen, OpenGL::Camera &camera, OpenGTA::SpriteManager &spriteManager)
 {
     GL_CHECKERROR;
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -113,7 +112,7 @@ void drawScene(Uint32 ticks, OpenGL::Screen &screen, OpenGL::Camera &camera)
     if (playWithCar) {
         if (car) {
             car->update(ticks);
-            OpenGTA::SpriteManager::Instance().draw(*car);
+            spriteManager.draw(*car);
         }
 
         screen.setFlatProjection();
@@ -140,7 +139,7 @@ void drawScene(Uint32 ticks, OpenGL::Screen &screen, OpenGL::Camera &camera)
             ped.anim.firstFrameOffset = now_frame;
             play_anim_time = ticks;
         }
-        OpenGTA::SpriteManager::Instance().draw(ped);
+        spriteManager.draw(ped);
 
         screen.setFlatProjection();
 
@@ -155,7 +154,7 @@ void drawScene(Uint32 ticks, OpenGL::Screen &screen, OpenGL::Camera &camera)
     GL_CHECKERROR;
 }
 
-void handleKeyPress(SDL_Keysym *keysym, OpenGL::Camera &camera)
+void handleKeyPress(SDL_Keysym *keysym, OpenGL::Camera &camera, OpenGTA::SpriteManager &spriteManager)
 {
     const auto &style = OpenGTA::ActiveStyle::Instance().get();
     bool update_anim = false;
@@ -275,11 +274,11 @@ void handleKeyPress(SDL_Keysym *keysym, OpenGL::Camera &camera)
             break;
         case SDLK_F2:
             bbox_toggle = !bbox_toggle;
-            OpenGTA::SpriteManager::Instance().setDrawBBox(bbox_toggle);
+            spriteManager.setDrawBBox(bbox_toggle);
             break;
         case SDLK_F3:
             texsprite_toggle = !texsprite_toggle;
-            OpenGTA::SpriteManager::Instance().setDrawTexBorder(texsprite_toggle);
+            spriteManager.setDrawTexBorder(texsprite_toggle);
             break;
         case SDLK_F5:
             first_offset = frame_offset;
@@ -342,7 +341,7 @@ void main_loop(OpenGL::Screen &screen, OpenGL::Camera &camera)
         while (SDL_PollEvent(&event)) {
             switch (event.type) {
                 case SDL_KEYDOWN:
-                    handleKeyPress(&event.key.keysym, camera);
+                    handleKeyPress(&event.key.keysym, camera, <#initializer #>);
                     break;
                     // case SDL_KEYUP:
                     //          handleKeyUp(&event.key.keysym);
@@ -362,7 +361,7 @@ void main_loop(OpenGL::Screen &screen, OpenGL::Camera &camera)
             }
         }
         const auto now_ticks = SDL_GetTicks();
-        drawScene(now_ticks, screen, camera);
+        drawScene(now_ticks, screen, camera, <#initializer #>);
     }
 }
 

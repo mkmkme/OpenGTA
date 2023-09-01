@@ -28,7 +28,6 @@
 #include "gl_spritecache.h"
 #include "spritemanager.h"
 #include "gl_camera.h"
-#include "dataholder.h"
 #include "graphics-base.h"
 #include "math3d.h"
 #include "localplayer.h"
@@ -121,7 +120,6 @@ namespace OpenGTA {
     */
   }
   void CityView::setNull() {
-    loadedMap = nullptr;
     sideCache = nullptr;
     lidCache  = nullptr;
     auxCache  = nullptr;
@@ -178,11 +176,9 @@ namespace OpenGTA {
   void CityView::loadMap(const std::string &map, const std::string &style_f) {
     cleanup();
     //loadedMap = new Map(map);
-    ActiveMap::Instance().load(map);
-    loadedMap = &ActiveMap::Instance().get();
-    ActiveStyle::Instance().load(style_f);
-    style = &ActiveStyle::Instance().get();
-    style->setDeltaHandling(true);
+    loadedMap_ = Map::create(map);
+    style_ = GraphicsBase::create(style_f);
+    style_->setDeltaHandling(true);
     /*
     for (size_t i = 0; i < style->carInfos.size(); ++i) {
       OpenGTA::GraphicsBase::CarInfo * cinfo = style->carInfos[i];
@@ -196,7 +192,7 @@ namespace OpenGTA {
     sideCache->setClearMagic(5);
     lidCache->setClearMagic(8);
     auxCache->setClearMagic(5);
-    blockAnims = new BlockAnimCtrl(style->animations);
+    blockAnims = new BlockAnimCtrl(style_->animations);
     scene_is_dirty = true;
     lastCacheEmptyTicks = 0;
 
@@ -206,15 +202,15 @@ namespace OpenGTA {
 
     // safeguard against double car entries (in nyc.cmp)
     Util::MapOfPair2Int d_car_map;
-    for (PHYSFS_uint16 oc = 0; oc < loadedMap->numObjects; oc++) {
-      OpenGTA::Map::ObjectPosition & op = loadedMap->objects[oc];
+    for (PHYSFS_uint16 oc = 0; oc < loadedMap_->numObjects; oc++) {
+      OpenGTA::Map::ObjectPosition & op = loadedMap_->objects[oc];
       if (op.remap >= 128) {
         if (Util::item_count(d_car_map, op.x, op.y) == 0)
           Util::register_item1(d_car_map, op.x, op.y);
         else
           continue;
       }      
-      createLevelObject(&loadedMap->objects[oc]);
+      createLevelObject(&loadedMap_->objects[oc]);
     }
     //SpriteManager::Instance().trainSystem.loadStations(*loadedMap);
     activeRect.x = activeRect.y = 0;
@@ -228,7 +224,7 @@ namespace OpenGTA {
       s_man.add(car);
     }
     else {
-      SpriteObject gobj(*obj, id);
+      SpriteObject gobj(*obj, id, <#initializer #>);
       s_man.add(gobj);
     }
   }
@@ -241,10 +237,10 @@ namespace OpenGTA {
     camPos[2] = z;
     scene_is_dirty = true;
     //INFO << "Position: " << x << ", " << z << " (" << y << ")" << std::endl;
-    if (loadedMap) {
+    if (loadedMap_) {
       auto _x = PHYSFS_uint8((x >= 1.0f) ? ((x < 255.0f) ? x : 254) : 1); // FIXME: crashes on 0 or 255
       auto _y = PHYSFS_uint8((z >= 1.0f) ? ((z < 255.0f) ? z : 254) : 1); // why???
-      NavData::Sector* in_sector = loadedMap->nav->getSectorAt(_x, _y);
+      NavData::Sector* in_sector = loadedMap_->nav->getSectorAt(_x, _y);
       assert(in_sector);
       if (in_sector != current_sector) {
         current_sector = in_sector;
@@ -280,9 +276,9 @@ namespace OpenGTA {
     //int zi = int(z);
     float h = 0.5f;
     WARN("THIS FUNCTION SHOULD NOT BE USED!");
-    PHYSFS_uint16 emptycount = loadedMap->getNumBlocksAt(xi, yi);
+    PHYSFS_uint16 emptycount = loadedMap_->getNumBlocksAt(xi, yi);
     for (int c=6-emptycount; c >= 1; c--) {
-      OpenGTA::Map::BlockInfo* bi = loadedMap->getBlockAt(xi, yi, c);
+      OpenGTA::Map::BlockInfo* bi = loadedMap_->getBlockAt(xi, yi, c);
       if (bi->blockType() == 0) {
         //camPos[1] = h;
         break;
@@ -351,10 +347,10 @@ namespace OpenGTA {
       for (int j= 0; j <= 255; j++) {
         glPushMatrix();
         glTranslatef(1.0f*j, 0.0f, 1.0f*i);
-        PHYSFS_uint16 maxcount = loadedMap->getNumBlocksAtNew(j,i);
+        PHYSFS_uint16 maxcount = loadedMap_->getNumBlocksAtNew(j,i);
         for (int c=0; c < maxcount; ++c) {
           glPushMatrix();
-          drawBlock(loadedMap->getBlockAtNew(j, i, c));
+          drawBlock(loadedMap_->getBlockAtNew(j, i, c));
           glPopMatrix();
           glTranslatef(0.0f, 1.0f, 0.0f);
         }
@@ -516,18 +512,18 @@ namespace OpenGTA {
           glPushMatrix();
           glTranslatef(1.0f*j, 0.0f, 1.0f*i);
           //PHYSFS_uint16 emptycount = loadedMap->getNumBlocksAt(j,i);
-          PHYSFS_uint16 maxcount = loadedMap->getNumBlocksAtNew(j,i);
+          PHYSFS_uint16 maxcount = loadedMap_->getNumBlocksAtNew(j,i);
           //for (int c=6-emptycount; c >= 1; c--) {
           for (int c=0; c < maxcount; ++c) {
             ++scene_rendered_blocks;
             glPushMatrix();
             if (c < maxcount - 1) {
-              Map::BlockInfo * bi = loadedMap->getBlockAtNew(j, i, c + 1);
+              Map::BlockInfo * bi = loadedMap_->getBlockAtNew(j, i, c + 1);
               aboveBlockType = bi->blockType();
             }
             else
-              aboveBlockType = loadedMap->getBlockAtNew(j, i, c)->blockType();
-            drawBlock(loadedMap->getBlockAtNew(j, i, c));
+              aboveBlockType = loadedMap_->getBlockAtNew(j, i, c)->blockType();
+            drawBlock(loadedMap_->getBlockAtNew(j, i, c));
             glPopMatrix();
             glTranslatef(0.0f, 1.0f, 0.0f);
           }
@@ -614,18 +610,18 @@ namespace OpenGTA {
     SpriteInfo *info = nullptr;
     GraphicsBase::SpriteNumbers::SpriteTypes st;
     if (obj->remap >= 128) { // car
-      CarInfo &cinfo = style->findCarByModel(obj->type);
+      CarInfo &cinfo = style_->findCarByModel(obj->type);
       sprNum = cinfo.sprNum;
-      spriteNumAbs = style->spriteNumbers.reIndex(cinfo.sprNum, GraphicsBase::SpriteNumbers::CAR);
-      info = style->getSprite(spriteNumAbs);
+      spriteNumAbs = style_->spriteNumbers.reIndex(cinfo.sprNum, GraphicsBase::SpriteNumbers::CAR);
+      info = style_->getSprite(spriteNumAbs);
       w = float(info->w) / 64.0f;
       h = float(info->h) / 64.0f;
       st = GraphicsBase::SpriteNumbers::CAR;
     }
     else {
-      sprNum = style->objectInfos[obj->type].sprNum;
-      spriteNumAbs = style->spriteNumbers.reIndex(sprNum, GraphicsBase::SpriteNumbers::OBJECT);
-      info = style->getSprite(spriteNumAbs);
+      sprNum = style_->objectInfos[obj->type].sprNum;
+      spriteNumAbs = style_->spriteNumbers.reIndex(sprNum, GraphicsBase::SpriteNumbers::OBJECT);
+      info = style_->getSprite(spriteNumAbs);
       assert(info);
       w = float(info->w) / 64.0f;
       h = float(info->h) / 64.0f;
@@ -703,7 +699,7 @@ namespace OpenGTA {
       if (!banim.has_value()) {
         if (!lidCache->hasTexture(bi->lid)) {
           lid_tex = ImageUtil::createGLTexture(64, 64, is_flat, 
-              style->getLid(static_cast<unsigned int>(bi->lid), 0, is_flat));
+              style_->getLid(static_cast<unsigned int>(bi->lid), 0, is_flat));
           lidCache->addTexture(bi->lid, lid_tex); 
         }
         else
@@ -713,7 +709,7 @@ namespace OpenGTA {
         uint8_t aux_id = banim->getFrame(frame_num > 0 ? frame_num - 1 : 0);
         if (!auxCache->hasTexture(aux_id)) {
           lid_tex = ImageUtil::createGLTexture(64, 64, is_flat, 
-              style->getAux(static_cast<unsigned int>(aux_id), 0, is_flat));
+              style_->getAux(static_cast<unsigned int>(aux_id), 0, is_flat));
           auxCache->addTexture(aux_id, lid_tex); 
         }
         else
@@ -725,7 +721,7 @@ namespace OpenGTA {
       if (!banim.has_value()) {
         if (!sideCache->hasTexture(bi->left)) {
           left_tex = ImageUtil::createGLTexture(64, 64, is_flat,
-              style->getSide(static_cast<unsigned int>(bi->left), 0, is_flat));
+              style_->getSide(static_cast<unsigned int>(bi->left), 0, is_flat));
           sideCache->addTexture(bi->left, left_tex); 
         }
         else
@@ -735,7 +731,7 @@ namespace OpenGTA {
         uint8_t aux_id = banim->getFrame(frame_num > 0 ? frame_num - 1 : 0);
         if (!auxCache->hasTexture(aux_id)) {
           left_tex = ImageUtil::createGLTexture(64, 64, is_flat, 
-              style->getAux(static_cast<unsigned int>(aux_id), 0, is_flat));
+              style_->getAux(static_cast<unsigned int>(aux_id), 0, is_flat));
           auxCache->addTexture(aux_id, left_tex); 
         }
         else
@@ -748,7 +744,7 @@ namespace OpenGTA {
       if (!banim.has_value()) {
         if (!sideCache->hasTexture(bi->right)) {
           right_tex = ImageUtil::createGLTexture(64, 64, is_flat,
-              style->getSide(static_cast<unsigned int>(bi->right), 0, is_flat));
+              style_->getSide(static_cast<unsigned int>(bi->right), 0, is_flat));
           sideCache->addTexture(bi->right, right_tex); 
         }
         else
@@ -758,7 +754,7 @@ namespace OpenGTA {
         uint8_t aux_id = banim->getFrame(frame_num > 0 ? frame_num - 1 : 0);
         if (!auxCache->hasTexture(aux_id)) {
           right_tex = ImageUtil::createGLTexture(64, 64, is_flat, 
-              style->getAux(static_cast<unsigned int>(aux_id), 0, is_flat));
+              style_->getAux(static_cast<unsigned int>(aux_id), 0, is_flat));
           auxCache->addTexture(aux_id, right_tex); 
         }
         else
@@ -771,7 +767,7 @@ namespace OpenGTA {
 
         if (!sideCache->hasTexture(bi->top)) {
           top_tex = ImageUtil::createGLTexture(64, 64, is_flat,
-              style->getSide(static_cast<unsigned int>(bi->top), 0, is_flat));
+              style_->getSide(static_cast<unsigned int>(bi->top), 0, is_flat));
           sideCache->addTexture(bi->top, top_tex);
         }
         else
@@ -781,7 +777,7 @@ namespace OpenGTA {
         uint8_t aux_id = banim->getFrame(frame_num > 0 ? frame_num - 1 : 0);
         if (!auxCache->hasTexture(aux_id)) {
           top_tex = ImageUtil::createGLTexture(64, 64, is_flat, 
-              style->getAux(static_cast<unsigned int>(aux_id), 0, is_flat));
+              style_->getAux(static_cast<unsigned int>(aux_id), 0, is_flat));
           auxCache->addTexture(aux_id, top_tex); 
         }
         else
@@ -794,7 +790,7 @@ namespace OpenGTA {
 
         if (!sideCache->hasTexture(bi->bottom)) {
           bottom_tex = ImageUtil::createGLTexture(64, 64, is_flat,
-              style->getSide(static_cast<unsigned int>(bi->bottom), 0, is_flat));
+              style_->getSide(static_cast<unsigned int>(bi->bottom), 0, is_flat));
           sideCache->addTexture(bi->bottom, bottom_tex); 
         }
         else
@@ -804,7 +800,7 @@ namespace OpenGTA {
         uint8_t aux_id = banim->getFrame(frame_num > 0 ? frame_num - 1 : 0);
         if (!auxCache->hasTexture(aux_id)) {
           bottom_tex = ImageUtil::createGLTexture(64, 64, is_flat, 
-              style->getAux(static_cast<unsigned int>(aux_id), 0, is_flat));
+              style_->getAux(static_cast<unsigned int>(aux_id), 0, is_flat));
           auxCache->addTexture(aux_id, bottom_tex); 
         }
         else

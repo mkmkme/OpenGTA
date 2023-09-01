@@ -32,11 +32,10 @@
 namespace OpenGTA {
 
 class SpriteManager {
-private:
+public:
     SpriteManager();
     ~SpriteManager();
-
-public:
+    
     SpriteManager(const SpriteManager &copy) = delete;
     SpriteManager &operator=(const SpriteManager &copy) = delete;
 

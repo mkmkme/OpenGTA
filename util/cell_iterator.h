@@ -49,7 +49,14 @@ namespace Util {
         return x == o.x && y == o.y && z == o.z;
       }
 
-      CellIterator &operator = (const CellIterator & o) = default;
+      CellIterator operator=(const CellIterator &o)
+      {
+          mapRef = o.mapRef;
+          x = o.x;
+          y = o.y;
+          z = o.z;
+          return *this;
+      }
 
       CellIterator left() const {
         CellIterator p(*this);

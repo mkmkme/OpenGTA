@@ -2,10 +2,7 @@
 
 #include <fmt/color.h>
 #include <fmt/core.h>
-#include <format>
 #include <iostream>
-#include <string_view>
-#include <utility>
 
 #ifdef WIN32
 #undef ERROR
@@ -21,15 +18,20 @@ public:
 
     static const char *glErrorName(int k);
 
-    template <typename... Args>
-    static void _log(LogLevel level, const char *file, int line, std::string_view format, Args &&...args)
+    static void _vlog(LogLevel level, const char *file, int line, fmt::string_view format, fmt::format_args args)
     {
         if (int(level_) < int(level))
             return;
 
         prefix(level, file, line);
-        fmt::print(stderr, "{}", fmt::vformat(format, fmt::make_format_args(std::forward<Args>(args)...)));
+        fmt::vprint(stderr, format, args);
         fmt::print(stderr, "\n");
+    }
+
+    template <typename... Args>
+    static void _log(LogLevel level, const char *file, int line, fmt::format_string<Args...> format, Args &&...args)
+    {
+        _vlog(level, file, line, format, fmt::make_format_args(args...));
     }
 
 private:

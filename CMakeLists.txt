@@ -10,10 +10,9 @@ include(CompilerOptions.cmake)
 find_package(cxxopts REQUIRED)
 find_package(fmt REQUIRED)
 find_package(SDL2 REQUIRED)
-find_package(SDL_mixer)
-find_package(glu REQUIRED)
+find_package(OpenGL REQUIRED)
 find_package(PhysFS REQUIRED)
-find_package(lua REQUIRED)
+find_package(Lua REQUIRED)
 find_package(GTest REQUIRED)
 
 configure_file(config.h.in config.h)
@@ -63,9 +62,9 @@ target_link_libraries(ogta PUBLIC
     ogta-math
     coldet-math3d
     fmt::fmt
-    physfs-static
+    physfs
     SDL2::SDL2
-    glu::glu)
+    OpenGL::GLU)
 
 
 add_library(ogta-gl STATIC
@@ -106,8 +105,8 @@ target_link_options(gfxextract PRIVATE
 target_link_libraries(gfxextract
     ogta-util
     SDL2::SDL2
-    glu::glu
-    physfs-static)
+    OpenGL::GLU
+    physfs)
 
 add_subdirectory(lua_addon)
 include_directories(lua_addon)
@@ -119,7 +118,7 @@ target_link_libraries(lua_map_test
     ogta-gl
     ogta-util
     ogta-lua
-    physfs-static
+    physfs
     SDL2::SDL2)
 
 add_executable(spriteplayer EXCLUDE_FROM_ALL tools/spriteplayer.cpp)
@@ -130,9 +129,8 @@ target_link_libraries(spriteplayer
     ogta-util
     opensteer-clock
     SDL2::SDL2
-    SDL2::SDL2main
-    glu::glu
-    physfs-static)
+    OpenGL::GLU
+    physfs)
 
 add_executable(slopeview EXCLUDE_FROM_ALL
     tools/display_slopes.cpp
@@ -144,16 +142,16 @@ target_link_libraries(slopeview
     ogta
     ogta-util
     SDL2::SDL2
-    glu::glu
-    physfs-static)
+    OpenGL::GLU
+    physfs)
 
 # broken due to missing slope2_data.h
 add_executable(blockview EXCLUDE_FROM_ALL tools/blockview.cpp)
 
 target_link_libraries(blockview
     SDL2::SDL2
-    physfs-static
-    glu::glu)
+    physfs
+    OpenGL::GLU)
 
 add_executable(g24-dumper EXCLUDE_FROM_ALL tools/g24-dumper.cpp)
 
@@ -161,8 +159,7 @@ target_link_libraries(g24-dumper
     ogta
     ogta-util
     SDL2::SDL2
-    SDL2::SDL2main
-    physfs-static)
+    physfs)
 
 add_executable(font-dump EXCLUDE_FROM_ALL tools/font-dump.cpp)
 
@@ -170,8 +167,7 @@ target_link_libraries(font-dump
     ogta
     ogta-util
     SDL2::SDL2
-    SDL2::SDL2main
-    physfs-static)
+    physfs)
 
 add_executable(display-font EXCLUDE_FROM_ALL tools/display-font.cpp)
 
@@ -180,15 +176,14 @@ target_link_libraries(display-font
     ogta-gl
     ogta-util
     SDL2::SDL2
-    SDL2::SDL2main
-    physfs-static)
+    physfs)
 
 add_executable(obj-dump EXCLUDE_FROM_ALL tools/obj-dump.cpp)
 
 target_link_libraries(obj-dump
     ogta-gl
     ogta-util
-    physfs-static
+    physfs
     SDL2::SDL2)
 
 add_executable(car_dump EXCLUDE_FROM_ALL tools/car_dump.cpp)
@@ -196,7 +191,7 @@ add_executable(car_dump EXCLUDE_FROM_ALL tools/car_dump.cpp)
 target_link_libraries(car_dump
     ogta
     ogta-util
-    physfs-static
+    physfs
     SDL2::SDL2)
 
 # broken due to missing tests/test_plane.cpp

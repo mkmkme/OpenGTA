@@ -11,5 +11,5 @@ target_link_libraries(ogta-lua
     ogta
     ogta-gl
     ogta-util
-    lua::lua
-    glu::glu)
+    ${LUA_LIBRARIES}
+    OpenGL::GLU)

@@ -1,4 +1,5 @@
 /build
 /gtadata.zip
+/.cache
 /.vs
 /ConanPresets.json

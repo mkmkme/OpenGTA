@@ -2,46 +2,43 @@ name: Clean build of OpenGTA
 run-name: 🚘 Test if OpenGTA compiles on multiple platforms
 on: [push]
 jobs:
-  # Linux-Build:
-  #   runs-on: ubuntu-latest
+  Linux-Build:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: 🐧 Install dependencies
+        run: |
+          sudo apt update
+          sudo apt install --no-install-recommends -y cmake libgl1-mesa-dev ninja-build
+          sudo apt install --no-install-recommends -y \
+            libcxxopts-dev \
+            libfmt-dev \
+            libglu1-mesa-dev \
+            libsdl2-dev \
+            libphysfs-dev \
+            liblua5.4-dev \
+            libgtest-dev
+      - name: Check out repository code
+        uses: actions/checkout@v3
+      - name: ⚒️ Build OpenGTA 🐧
+        run: |
+          cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=RelWithDebInfo
+          cmake --build build -j $(nproc)
+  # Windows-Build:
+  #   runs-on: windows-latest
   #   steps:
-  #     - name: 🐧 Install system dependencies
-  #       run: |
-  #         sudo apt update
-  #         sudo apt install libgl1-mesa-dev ninja-build
   #     - name: 🐸 Install Conan
   #       run: pipx install conan
   #     - name: Check out repository code
   #       uses: actions/checkout@v3
+  #       with:
+  #         fetch-depth: 0
   #     - name: ⚙️ Install dependencies
   #       run: |
   #         conan profile detect --force
-  #         conan install ${{ github.workspace }} \
-  #             -of ${{ github.workspace }}/conan-install/gcc \
-  #             -pr:h default -pr:b default \
-  #             -b missing \
-  #             -c tools.system.package_manager:mode=install \
-  #             -c tools.system.package_manager:sudo=True
-  #     - name: ⚒️ Build OpenGTA 🐧
+  #         conan install ${{ github.workspace }} `
+  #             -u -b missing `
+  #             -c:h tools.cmake.cmake_layout:build_folder_vars="['settings.compiler']"
+  #     - name: ⚒️ Build OpenGTA 🪟
   #       run: |
-  #         cmake --preset 'GCC' -DCMAKE_BUILD_TYPE='Release'
-  #         cmake --build --preset 'GCC Release'
-  Windows-Build:
-    runs-on: windows-latest
-    steps:
-      - name: 🐸 Install Conan
-        run: pipx install conan
-      - name: Check out repository code
-        uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
-      - name: ⚙️ Install dependencies
-        run: |
-          conan profile detect --force
-          conan install ${{ github.workspace }} `
-              -u -b missing `
-              -c:h tools.cmake.cmake_layout:build_folder_vars="['settings.compiler']"
-      - name: ⚒️ Build OpenGTA 🪟
-        run: |
-          cmake --preset 'MSVC'
-          cmake --build --preset 'MSVC Release'
+  #         cmake --preset 'MSVC'
+  #         cmake --build --preset 'MSVC Release'

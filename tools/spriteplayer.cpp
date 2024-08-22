@@ -21,14 +21,14 @@
  * 3. This notice may not be removed or altered from any source          *
  * distribution.                                                         *
  ************************************************************************/
-#include "dataholder.h"
-#include "gl_camera.h"
-#include "gl_font.h"
-#include "gl_screen.h"
-#include "graphics-base.h"
-#include "log.h"
-#include "m_exceptions.h"
-#include "spritemanager.h"
+#include <core/dataholder.h>
+#include <graphics/camera.h>
+#include <graphics/font.h>
+#include <graphics/screen.h>
+#include <core/graphics-base.h>
+#include <util/log.h>
+#include <util/errors.h>
+#include <core/spritemanager.h>
 
 #include <SDL2/SDL_opengl.h>
 #include <array>

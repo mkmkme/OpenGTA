@@ -1,9 +1,9 @@
 #include <filesystem>
 #include <string>
-#include "lua_vm.h"
-#include "dataholder.h"
-#include "file_helper.h"
-#include "log.h"
+#include <lua-addon/vm.h>
+#include <core/dataholder.h>
+#include <util/file_helper.h>
+#include <util/log.h>
 
 std::string map_filename;
 const char* script_file;

@@ -1,6 +1,6 @@
 // #include <stdlib.h>
 
-#include "font.h"
+#include <core/font.h>
 
 #include <iostream>
 #include <physfs.h>

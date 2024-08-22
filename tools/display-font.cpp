@@ -1,8 +1,9 @@
 #include "common_sdl_gl.h"
-#include "gl_base.h"
-#include "gl_font.h"
-#include "gl_screen.h"
-#include "gui.h"
+#include <graphics/base.h>
+#include <graphics/font.h>
+#include <graphics/screen.h>
+#include <util/gui.h>
+#include <util/log.h>
 
 #include <GL/gl.h>
 #include <SDL2/SDL_events.h>

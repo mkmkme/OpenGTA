@@ -1,4 +1,4 @@
-#include "bitwise.hpp"
+#include <common/bitwise.h>
 #include <gtest/gtest.h>
 
 // Generated with Copilot, seems legit

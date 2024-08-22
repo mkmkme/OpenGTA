@@ -1,7 +1,7 @@
-#include "car-info.h"
-#include "graphics-8bit.h"
-#include "map.h"
-#include "sprite-info.h"
+#include <core/car-info.h>
+#include <core/graphics-8bit.h>
+#include <core/map.h>
+#include <core/sprite-info.h>
 
 #include <cassert>
 #include <iostream>

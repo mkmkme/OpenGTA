@@ -2,10 +2,10 @@
 
 #include <iostream>
 #include <cmath>
-#include <SDL_image.h>
+// #include <SDL_image.h>
 #include <SDL_opengl.h>
 #include "common_sdl_gl.h"
-#include "log.h"
+#include <util/log.h>
 
 SDL_Surface* screen = nullptr;
 GLfloat mapPos[2] = {0.0f, 0.0f};
@@ -13,11 +13,11 @@ GLfloat mapPos[2] = {0.0f, 0.0f};
 OpenGTA::Map *map = NULL;
 
 float slope_raw_data[45][5][4][3] = {
-#include "slope1_data.h"
+#include <data/slope1_data.h>
 };
 
 float lid_normal_data[45][3] = { 
-#include "lid_normal_data.h"
+#include <data/lid_normal_data.h>
 };
 
 int slope_idx = 0;

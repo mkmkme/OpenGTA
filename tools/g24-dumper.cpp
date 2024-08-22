@@ -1,5 +1,5 @@
-#include "graphics-24bit.h"
-#include "sprite-info.h"
+#include <core/graphics-24bit.h>
+#include <core/sprite-info.h>
 
 #include <SDL2/SDL.h>
 #include <cassert>

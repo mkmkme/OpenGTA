@@ -1,6 +1,5 @@
-#include <lua-addon/spritecache.h>
-
 #include <graphics/spritecache.h>
+#include <lua-addon/spritecache.h>
 
 namespace {
 int getScale2x(lua_State *L)

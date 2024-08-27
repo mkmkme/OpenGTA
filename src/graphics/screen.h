@@ -28,7 +28,10 @@
 
 namespace OpenGL {
 
-enum class VSyncMode : uint8_t { NoSync, SDL };
+enum class VSyncMode : uint8_t {
+    NoSync,
+    SDL,
+};
 
 class Screen final {
 public:
@@ -63,14 +66,13 @@ private:
     void initScreen(uint32_t w, uint32_t h);
 
     SDL_Window *window_;
-    SDL_GLContext gl_context_{};
+    SDL_GLContext gl_context_ {};
     uint32_t width_, height_;
     uint32_t video_flags_;
     VSyncMode vsync_mode_;
     float field_of_view_;
     float near_plane_;
     float far_plane_;
-
 };
 } // namespace OpenGL
 

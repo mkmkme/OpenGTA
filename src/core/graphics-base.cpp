@@ -1,13 +1,12 @@
-#include <core/graphics-base.h>
-
-#include <core/loaded-anim.h>
-
-#include <util/log.h>
-#include <util/errors.h>
-#include <core/sprite-info.h>
-
 #include <algorithm>
 #include <cassert>
+
+#include <core/graphics-base.h>
+#include <core/loaded-anim.h>
+#include <core/sprite-info.h>
+
+#include <util/errors.h>
+#include <util/log.h>
 
 using namespace OpenGTA;
 using namespace Util;
@@ -153,7 +152,7 @@ uint8_t GraphicsBase::getFormat()
 }
 
 PHYSFS_uint16 GraphicsBase::SpriteNumbers::reIndex(const PHYSFS_uint16 &id, const SpriteTypes &t) const
-{                                                                                                                                                   
+{
     switch (t) {
         case ARROW:
             return id;
@@ -344,7 +343,11 @@ void GraphicsBase::handleDeltas(const SpriteInfo &info, unsigned char *buffer, u
 }
 
 void GraphicsBase::applyDelta(
-    const SpriteInfo &spriteInfo, unsigned char *buffer, uint32_t page_offset, const DeltaInfo &deltaInfo, bool mirror
+    const SpriteInfo &spriteInfo,
+    unsigned char *buffer,
+    uint32_t page_offset,
+    const DeltaInfo &deltaInfo,
+    bool mirror
 )
 {
     unsigned char *b = buffer + page_offset;

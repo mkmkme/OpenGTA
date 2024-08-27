@@ -20,17 +20,16 @@
  * 3. This notice may not be removed or altered from any source          *
  * distribution.                                                         *
  ************************************************************************/
+#include <SDL2/SDL_opengl.h>
+#include <core/dataholder.h>
+#include <core/id_sys.h>
+#include <core/localplayer.h>
+#include <core/sprite-info.h>
 #include <core/spritemanager.h>
 
-#include <core/dataholder.h>
 #include <graphics/spritecache.h>
-#include <core/id_sys.h>
 #include <util/log.h>
-#include <core/sprite-info.h>
 #include <util/timer.h>
-#include <core/localplayer.h>
-
-#include <SDL2/SDL_opengl.h>
 
 namespace OpenGTA {
 
@@ -294,9 +293,13 @@ void SpriteManager::draw(Car &car)
     if (OpenGL::SpriteCache::Instance().has(si))
         t = OpenGL::SpriteCache::Instance().get(si);
     else {
-        t = OpenGL::SpriteCache::Instance().create(car.sprNum, // +
-                                                               // car.anim.firstFrameOffset + car.anim.currentFrame,
-                                                   car.sprType, car.remap, car.delta);
+        t = OpenGL::SpriteCache::Instance().create(
+            car.sprNum, // +
+                        // car.anim.firstFrameOffset + car.anim.currentFrame,
+            car.sprType,
+            car.remap,
+            car.delta
+        );
     }
 
     DRAW_TEX_QUADS_OBJ(t, w, h);
@@ -371,8 +374,11 @@ void SpriteManager::draw(SpriteObject &obj)
     if (OpenGL::SpriteCache::Instance().has(sprNum, obj.remap))
         t = OpenGL::SpriteCache::Instance().get(sprNum, obj.remap);
     else {
-        t = OpenGL::SpriteCache::Instance().create(obj.sprNum + obj.anim.firstFrameOffset + obj.anim.currentFrame,
-                                                   obj.sprType, obj.remap);
+        t = OpenGL::SpriteCache::Instance().create(
+            obj.sprNum + obj.anim.firstFrameOffset + obj.anim.currentFrame,
+            obj.sprType,
+            obj.remap
+        );
     }
 
     DRAW_TEX_QUADS_OBJ(t, w, h);
@@ -409,8 +415,11 @@ void SpriteManager::draw(Pedestrian &ped)
     if (OpenGL::SpriteCache::Instance().has(sprNum, ped.remap))
         t = OpenGL::SpriteCache::Instance().get(sprNum, ped.remap);
     else {
-        t = OpenGL::SpriteCache::Instance().create(ped.sprNum + ped.anim.firstFrameOffset + ped.anim.currentFrame,
-                                                   ped.sprType, ped.remap);
+        t = OpenGL::SpriteCache::Instance().create(
+            ped.sprNum + ped.anim.firstFrameOffset + ped.anim.currentFrame,
+            ped.sprType,
+            ped.remap
+        );
     }
 
     DRAW_TEX_QUADS_OBJ(t, w, h);
@@ -455,8 +464,11 @@ void SpriteManager::drawExplosion(SpriteObject &obj)
     if (OpenGL::SpriteCache::Instance().has(sprNum))
         t = OpenGL::SpriteCache::Instance().get(sprNum);
     else
-        t = OpenGL::SpriteCache::Instance().create(obj.sprNum + obj.anim.firstFrameOffset + obj.anim.currentFrame,
-                                                   obj.sprType, -1);
+        t = OpenGL::SpriteCache::Instance().create(
+            obj.sprNum + obj.anim.firstFrameOffset + obj.anim.currentFrame,
+            obj.sprType,
+            -1
+        );
 
     glBindTexture(GL_TEXTURE_2D, t.inPage);
 
@@ -481,8 +493,11 @@ void SpriteManager::drawExplosion(SpriteObject &obj)
     if (OpenGL::SpriteCache::Instance().has(sprNum))
         t = OpenGL::SpriteCache::Instance().get(sprNum);
     else
-        t = OpenGL::SpriteCache::Instance().create(obj.sprNum + obj.anim.firstFrameOffset + obj.anim.currentFrame + 12,
-                                                   obj.sprType, -1);
+        t = OpenGL::SpriteCache::Instance().create(
+            obj.sprNum + obj.anim.firstFrameOffset + obj.anim.currentFrame + 12,
+            obj.sprType,
+            -1
+        );
 
     glBindTexture(GL_TEXTURE_2D, t.inPage);
 
@@ -507,8 +522,11 @@ void SpriteManager::drawExplosion(SpriteObject &obj)
     if (OpenGL::SpriteCache::Instance().has(sprNum))
         t = OpenGL::SpriteCache::Instance().get(sprNum);
     else
-        t = OpenGL::SpriteCache::Instance().create(obj.sprNum + obj.anim.firstFrameOffset + obj.anim.currentFrame + 24,
-                                                   obj.sprType, -1);
+        t = OpenGL::SpriteCache::Instance().create(
+            obj.sprNum + obj.anim.firstFrameOffset + obj.anim.currentFrame + 24,
+            obj.sprType,
+            -1
+        );
 
     glBindTexture(GL_TEXTURE_2D, t.inPage);
 
@@ -533,8 +551,11 @@ void SpriteManager::drawExplosion(SpriteObject &obj)
     if (OpenGL::SpriteCache::Instance().has(sprNum))
         t = OpenGL::SpriteCache::Instance().get(sprNum);
     else
-        t = OpenGL::SpriteCache::Instance().create(obj.sprNum + obj.anim.firstFrameOffset + obj.anim.currentFrame + 36,
-                                                   obj.sprType, -1);
+        t = OpenGL::SpriteCache::Instance().create(
+            obj.sprNum + obj.anim.firstFrameOffset + obj.anim.currentFrame + 36,
+            obj.sprType,
+            -1
+        );
 
     glBindTexture(GL_TEXTURE_2D, t.inPage);
 

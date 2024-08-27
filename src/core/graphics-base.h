@@ -11,13 +11,15 @@
 #ifndef OPENGTA_MAIN_H
 #define OPENGTA_MAIN_H
 
+#include <memory>
+#include <vector>
+
+#include <physfs.h>
+
 #include <core/car-info.h>
 #include <core/object-info.h>
-#include <util/set.h>
 
-#include <memory>
-#include <physfs.h>
-#include <vector>
+#include <util/set.h>
 
 namespace OpenGTA {
 
@@ -81,8 +83,7 @@ public:
             FERRY
         };
 
-        PHYSFS_uint16 reIndex(const PHYSFS_uint16 &id,
-                              const enum SpriteTypes &st) const;
+        PHYSFS_uint16 reIndex(const PHYSFS_uint16 &id, const enum SpriteTypes &st) const;
         PHYSFS_uint16 countByType(const SpriteTypes &t) const;
     };
 
@@ -94,26 +95,18 @@ public:
     unsigned int getRandomPedRemapNumber() const;
     unsigned int getPedRemapNumberType(unsigned int _type);
 
-    SpriteNumbers spriteNumbers{};
+    SpriteNumbers spriteNumbers {};
 
     CarInfo &findCarByModel(PHYSFS_uint8);
     [[maybe_unused]] [[nodiscard]] inline size_t getNumCarModels() const noexcept { return carInfos.size(); }
     unsigned char *getTmpBuffer(bool rgba);
     SpriteInfo *getSprite(size_t id) { return spriteInfos[id]; }
 
-    virtual unsigned char *getSide(unsigned int idx,
-                                   unsigned int palIdx,
-                                   bool rgba) = 0;
-    virtual unsigned char *getLid(unsigned int idx,
-                                  unsigned int palIdx,
-                                  bool rgba) = 0;
-    virtual unsigned char *getAux(unsigned int idx,
-                                  unsigned int palIdx,
-                                  bool rgba) = 0;
+    virtual unsigned char *getSide(unsigned int idx, unsigned int palIdx, bool rgba) = 0;
+    virtual unsigned char *getLid(unsigned int idx, unsigned int palIdx, bool rgba) = 0;
+    virtual unsigned char *getAux(unsigned int idx, unsigned int palIdx, bool rgba) = 0;
 
-    virtual std::unique_ptr<unsigned char[]> getSpriteBitmap(size_t id,
-                                                             int remap,
-                                                             uint32_t delta) = 0;
+    virtual std::unique_ptr<unsigned char[]> getSpriteBitmap(size_t id, int remap, uint32_t delta) = 0;
 
     std::vector<LoadedAnim> animations;
     std::vector<SpriteInfo *> spriteInfos;
@@ -135,30 +128,30 @@ protected:
     void loadCarInfo_shared(PHYSFS_uint64 offset);
     // void loadSpriteInfo_shared(PHYSFS_uint64 offset);
 
-    void handleDeltas(const SpriteInfo &spriteinfo,
-                      unsigned char *buffer,
-                      uint32_t delta);
-    void applyDelta(const SpriteInfo &spriteInfo,
-                    unsigned char *buffer,
-                    uint32_t offset,
-                    const DeltaInfo &deltaInfo,
-                    bool mirror = false);
+    void handleDeltas(const SpriteInfo &spriteinfo, unsigned char *buffer, uint32_t delta);
+    void applyDelta(
+        const SpriteInfo &spriteInfo,
+        unsigned char *buffer,
+        uint32_t offset,
+        const DeltaInfo &deltaInfo,
+        bool mirror = false
+    );
 
-    PHYSFS_file *fd{};
+    PHYSFS_file *fd {};
     unsigned char *rawTiles;
     unsigned char *rawSprites;
 
-    PHYSFS_uint32 sideSize{};
-    PHYSFS_uint32 lidSize{};
-    PHYSFS_uint32 auxSize{};
-    PHYSFS_uint32 animSize{};
-    PHYSFS_uint32 objectInfoSize{};
-    PHYSFS_uint32 carInfoSize{};
-    PHYSFS_uint32 spriteInfoSize{};
-    PHYSFS_uint32 spriteGraphicsSize{};
-    PHYSFS_uint32 spriteNumberSize{};
+    PHYSFS_uint32 sideSize {};
+    PHYSFS_uint32 lidSize {};
+    PHYSFS_uint32 auxSize {};
+    PHYSFS_uint32 animSize {};
+    PHYSFS_uint32 objectInfoSize {};
+    PHYSFS_uint32 carInfoSize {};
+    PHYSFS_uint32 spriteInfoSize {};
+    PHYSFS_uint32 spriteGraphicsSize {};
+    PHYSFS_uint32 spriteNumberSize {};
 
-    PHYSFS_uint32 auxBlockTrailSize{};
+    PHYSFS_uint32 auxBlockTrailSize {};
 
     /*
     int loadSide();
@@ -171,18 +164,18 @@ protected:
     int loadSpriteGraphics();
     int loadSpriteNumbers();*/
 
-    PHYSFS_uint8 _topHeaderSize{};
+    PHYSFS_uint8 _topHeaderSize {};
 
-    unsigned char tileTmp[4096]{};
-    unsigned char tileTmpRGB[4096 * 3]{};
-    unsigned char tileTmpRGBA[4096 * 4]{};
+    unsigned char tileTmp[4096] {};
+    unsigned char tileTmpRGB[4096 * 3] {};
+    unsigned char tileTmpRGBA[4096 * 4] {};
 
     bool delta_is_a_set;
 
     Util::Set sideTexBlockMove;
 
-    unsigned int firstValidPedRemap{};
-    unsigned int lastValidPedRemap{};
+    unsigned int firstValidPedRemap {};
+    unsigned int lastValidPedRemap {};
 };
 
 } // namespace OpenGTA

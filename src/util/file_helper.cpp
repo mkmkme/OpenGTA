@@ -20,16 +20,17 @@
  * 3. This notice may not be removed or altered from any source          *
  * distribution.                                                         *
  ************************************************************************/
-#include <util/file_helper.h>
-
-#include <core/config.h>
-#include <util/log.h>
-#include <util/errors.h>
-#include <util/string_helpers.h>
-
 #include <cassert>
 #include <map>
+
 #include <physfs.h>
+
+#include <core/config.h>
+
+#include <util/errors.h>
+#include <util/file_helper.h>
+#include <util/log.h>
+#include <util/string_helpers.h>
 
 namespace {
 
@@ -68,7 +69,7 @@ std::string Lang2MsgFilename(std::string_view l)
         { "en", "ENGLISH.FXT" },
         { "de", "GERMAN.FXT" },
         { "fr", "FRENCH.FXT" },
-        { "it", "ITALIAN.FXT" }
+        { "it", "ITALIAN.FXT" },
     };
     if (l.size() > 2)
         l = l.substr(0, 2);
@@ -89,8 +90,8 @@ PHYSFS_file *OpenReadVFS(const std::string &file)
     fd = PHYSFS_openRead(name2.c_str());
     if (!fd) // still no joy, give up
         throw Util::FileNotFound(
-            file + " with error: "
-            + PHYSFS_getErrorByCode(PHYSFS_getLastErrorCode()));
+            file + " with error: " + PHYSFS_getErrorByCode(PHYSFS_getLastErrorCode())
+        );
     // take this one instead
     return fd;
 }

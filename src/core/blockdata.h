@@ -36,8 +36,8 @@ extern float lid_normal_data[numBlockTypes][3];
 } // namespace BlockData
 } // namespace OpenGTA
 
-#define SLOPE_RAW_DATA OpenGTA::BlockData::slope_raw_data
-#define SLOPE_TEX_DATA OpenGTA::BlockData::slope_tex_data
+#define SLOPE_RAW_DATA  OpenGTA::BlockData::slope_raw_data
+#define SLOPE_TEX_DATA  OpenGTA::BlockData::slope_tex_data
 #define LID_NORMAL_DATA OpenGTA::BlockData::lid_normal_data
 
 #endif

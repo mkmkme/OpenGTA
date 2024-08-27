@@ -1,16 +1,17 @@
 #pragma once
 
-#include <physfs.h>
 #include <vector>
+
+#include <physfs.h>
 
 namespace OpenGTA {
 
 struct LoadedAnim {
     explicit LoadedAnim(PHYSFS_file *fd);
-    PHYSFS_uint8 block{};
-    PHYSFS_uint8 which{};
-    PHYSFS_uint8 speed{};
-    PHYSFS_uint8 frameCount{};
+    PHYSFS_uint8 block {};
+    PHYSFS_uint8 which {};
+    PHYSFS_uint8 speed {};
+    PHYSFS_uint8 frameCount {};
     std::vector<PHYSFS_uint8> frame;
 };
 

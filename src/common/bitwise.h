@@ -2,8 +2,8 @@
 
 #include <cassert>
 #include <concepts>
-#include <cstdint>
 #include <cstddef>
+#include <cstdint>
 
 namespace {
 
@@ -54,9 +54,12 @@ constexpr void setRangeBit(std::unsigned_integral auto *value, uint8_t start, ui
 }
 
 constexpr void copyRangeBit(
-    std::unsigned_integral auto *value, uint8_t start, uint8_t end, std::unsigned_integral auto val
+    std::unsigned_integral auto *value,
+    uint8_t start,
+    uint8_t end,
+    std::unsigned_integral auto val
 )
-    requires (sizeof(val) <= sizeof(*value))
+    requires(sizeof(val) <= sizeof(*value))
 {
     const auto mask = val << (start - 1);
     assert(start >= 1 && start <= getBitCount(sizeof(value)));

@@ -1,14 +1,14 @@
-#include <util/log.h>
-
-#include <core/config.h>
+#include <assert.h>
 
 #include <SDL2/SDL_opengl.h>
-#include <assert.h>
+#include <core/config.h>
+
+#include <util/log.h>
 
 #ifdef _WIN32
 #include <io.h>
 #define STDERR_FILENO (_fileno(stderr))
-#define isatty (_isatty)
+#define isatty        (_isatty)
 #else
 #include <unistd.h>
 #endif
@@ -68,12 +68,14 @@ fmt::color Log::level_color(LogLevel level)
 void Log::prefix(LogLevel level, const char *file, int line)
 {
     if (isatty(STDERR_FILENO))
-        fmt::print(stderr,
-                   fg(level_color(level)),
-                   "{} ({}:{}): ",
-                   level_name(level),
-                   file,
-                   line);
+        fmt::print(
+            stderr,
+            fg(level_color(level)),
+            "{} ({}:{}): ",
+            level_name(level),
+            file,
+            line
+        );
     else
         fmt::print(stderr, "{} ({}:{}): ", level_name(level), file, line);
 }

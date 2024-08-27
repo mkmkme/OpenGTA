@@ -17,13 +17,13 @@ OpenGTA::CarInfo::CarInfo(PHYSFS_file *fd)
     PHYSFS_readSLE16(fd, &handling);
     bytes_read_ += 2 * 11;
 
-    for (auto & i : remap24) {
+    for (auto &i : remap24) {
         PHYSFS_readSLE16(fd, &i.h);
         PHYSFS_readSLE16(fd, &i.l);
         PHYSFS_readSLE16(fd, &i.s);
     }
     bytes_read_ += 12 * 3 * 2;
-    for (unsigned char & i : remap8)
+    for (unsigned char &i : remap8)
         PHYSFS_readBytes(fd, static_cast<void *>(&i), 1);
     bytes_read_ += 12;
 
@@ -33,7 +33,7 @@ OpenGTA::CarInfo::CarInfo(PHYSFS_file *fd)
     PHYSFS_readBytes(fd, static_cast<void *>(&damagable), 1);
     bytes_read_ += 4;
 
-    for (unsigned short & i : value)
+    for (unsigned short &i : value)
         PHYSFS_readULE16(fd, &i);
     bytes_read_ += 4 * 2;
 

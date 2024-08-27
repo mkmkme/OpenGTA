@@ -1,11 +1,11 @@
+#include <cassert>
+#include <iostream>
+#include <string>
+
 #include <core/car-info.h>
 #include <core/graphics-8bit.h>
 #include <core/map.h>
 #include <core/sprite-info.h>
-
-#include <cassert>
-#include <iostream>
-#include <string>
 
 void dump_in_map(const std::string &style_file, const std::string &map_file)
 {

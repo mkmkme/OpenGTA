@@ -20,8 +20,9 @@
  * 3. This notice may not be removed or altered from any source          *
  * distribution.                                                         *
  ************************************************************************/
-#include <core/font_cache.h>
 #include <cassert>
+
+#include <core/font_cache.h>
 
 namespace OpenGTA {
 

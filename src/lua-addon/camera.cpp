@@ -1,6 +1,5 @@
-#include <lua-addon/camera.h>
-
 #include <graphics/camera.h>
+#include <lua-addon/camera.h>
 
 namespace {
 int setSpeed(lua_State *L)
@@ -101,9 +100,7 @@ int interpolateToPosition(lua_State *L)
 } // namespace
 
 OpenGTA::Script::LuaCamera::LuaCamera(OpenGL::Camera &c)
-    : camera_(c)
-{
-}
+    : camera_(c) {}
 
 int OpenGTA::Script::LuaCamera::registerFunctions(lua_State *L)
 {

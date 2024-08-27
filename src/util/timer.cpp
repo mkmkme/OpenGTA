@@ -1,152 +1,156 @@
 /************************************************************************
-* Copyright (c) 2005-2007 tok@openlinux.org.uk                          *
-*                                                                       *
-* This software is provided as-is, without any express or implied       *
-* warranty. In no event will the authors be held liable for any         *
-* damages arising from the use of this software.                        *
-*                                                                       *
-* Permission is granted to anyone to use this software for any purpose, *
-* including commercial applications, and to alter it and redistribute   *
-* it freely, subject to the following restrictions:                     *
-*                                                                       *
-* 1. The origin of this software must not be misrepresented; you must   *
-* not claim that you wrote the original software. If you use this       *
-* software in a product, an acknowledgment in the product documentation *
-* would be appreciated but is not required.                             *
-*                                                                       *
-* 2. Altered source versions must be plainly marked as such, and must   *
-* not be misrepresented as being the original software.                 *
-*                                                                       *
-* 3. This notice may not be removed or altered from any source          *
-* distribution.                                                         *
-************************************************************************/
-#include <SDL2/SDL.h>
+ * Copyright (c) 2005-2007 tok@openlinux.org.uk                          *
+ *                                                                       *
+ * This software is provided as-is, without any express or implied       *
+ * warranty. In no event will the authors be held liable for any         *
+ * damages arising from the use of this software.                        *
+ *                                                                       *
+ * Permission is granted to anyone to use this software for any purpose, *
+ * including commercial applications, and to alter it and redistribute   *
+ * it freely, subject to the following restrictions:                     *
+ *                                                                       *
+ * 1. The origin of this software must not be misrepresented; you must   *
+ * not claim that you wrote the original software. If you use this       *
+ * software in a product, an acknowledgment in the product documentation *
+ * would be appreciated but is not required.                             *
+ *                                                                       *
+ * 2. Altered source versions must be plainly marked as such, and must   *
+ * not be misrepresented as being the original software.                 *
+ *                                                                       *
+ * 3. This notice may not be removed or altered from any source          *
+ * distribution.                                                         *
+ ************************************************************************/
 #include <iostream>
+
+#include <SDL2/SDL.h>
+
 #include <util/timer.h>
 
-Timer::TimeEvent::TimeEvent(const uint32_t & b, const uint32_t e, CallbackType & c) :
-  begin(b), end(e), callback(c) {}
+Timer::TimeEvent::TimeEvent(const uint32_t &b, const uint32_t e, CallbackType &c)
+    : begin(b), end(e), callback(c) {}
 
-Timer::TimeEvent::TimeEvent(const uint32_t & b, CallbackType & c) :
-  begin(b), end(b), callback(c) {}
+Timer::TimeEvent::TimeEvent(const uint32_t &b, CallbackType &c)
+    : begin(b), end(b), callback(c) {}
 
-Timer::TimeEvent::TimeEvent(const TimeEvent & o) :
-  begin(o.begin), end(o.end), callback(o.callback) {}
+Timer::TimeEvent::TimeEvent(const TimeEvent &o)
+    : begin(o.begin), end(o.end), callback(o.callback) {}
 
-Timer::Timer() {
-  simIsRunning = false;
+Timer::Timer()
+{
+    simIsRunning = false;
 #ifdef TIMER_OPENSTEER_CLOCK
-  sdlTicks = uint32_t(floor(clock.realTimeSinceFirstClockUpdate()*1000));
-  clock.setPausedState(simIsRunning);
+    sdlTicks = uint32_t(floor(clock.realTimeSinceFirstClockUpdate() * 1000));
+    clock.setPausedState(simIsRunning);
 #else
-  sdlTicks = SDL_GetTicks();
+    sdlTicks = SDL_GetTicks();
 #endif
-  simTicks = 0;
-  delta = 0;
+    simTicks = 0;
+    delta = 0;
 }
 
-Timer::~Timer() {
-  clearAllEvents();
+Timer::~Timer()
+{
+    clearAllEvents();
 }
 
-
-void Timer::update() {
+void Timer::update()
+{
 #ifdef TIMER_OPENSTEER_CLOCK
-  if (simIsRunning)
-    clock.update();
-  uint32_t nowTicks = uint32_t(floor(clock.realTimeSinceFirstClockUpdate()*1000));
+    if (simIsRunning)
+        clock.update();
+    uint32_t nowTicks = uint32_t(floor(clock.realTimeSinceFirstClockUpdate() * 1000));
 #else
-  uint32_t nowTicks = SDL_GetTicks();
+    uint32_t nowTicks = SDL_GetTicks();
 #endif
-  delta = nowTicks - sdlTicks;
-  sdlTicks = nowTicks;
-  if (simIsRunning)
-    simTicks += delta;
+    delta = nowTicks - sdlTicks;
+    sdlTicks = nowTicks;
+    if (simIsRunning)
+        simTicks += delta;
 
-  if (realTimeEvents.size() > 0)
-    checkRTEvents();
+    if (realTimeEvents.size() > 0)
+        checkRTEvents();
 
-  if (simIsRunning && simTimeEvents.size() > 0)
-    checkSimEvents();
+    if (simIsRunning && simTimeEvents.size() > 0)
+        checkSimEvents();
 }
 
-void Timer::setSimulationRunning(bool yes) {
-  simIsRunning = yes;
+void Timer::setSimulationRunning(bool yes)
+{
+    simIsRunning = yes;
 #ifdef TIMER_OPENSTEER_CLOCK
-  clock.setPausedState(!yes);
+    clock.setPausedState(!yes);
 #endif
 }
 
-void Timer::checkRTEvents() {
-  RealTimeMap::iterator i = realTimeEvents.begin();
-  while (i != realTimeEvents.end() && i->first <= sdlTicks) {
-    TimeEvent & te = i->second;
-    float as_float = 0.0f;
-    bool doRemove = false;
-    if (te.begin == te.end) {
-      doRemove = true;
+void Timer::checkRTEvents()
+{
+    RealTimeMap::iterator i = realTimeEvents.begin();
+    while (i != realTimeEvents.end() && i->first <= sdlTicks) {
+        TimeEvent &te = i->second;
+        float as_float = 0.0f;
+        bool doRemove = false;
+        if (te.begin == te.end) {
+            doRemove = true;
+        } else {
+            if (sdlTicks > te.end) {
+                as_float = 1.0f;
+                doRemove = true;
+            } else
+                as_float = float(sdlTicks - te.begin) / float(te.end - te.begin);
+        }
+        te.callback(as_float);
+        if (doRemove) {
+            RealTimeMap::iterator j = i++;
+            realTimeEvents.erase(j);
+        } else
+            ++i;
     }
-    else {
-      if (sdlTicks > te.end) {
-        as_float = 1.0f;
-        doRemove = true;
-      }
-      else
-        as_float = float(sdlTicks - te.begin) / float(te.end - te.begin);
+}
+
+void Timer::checkSimEvents()
+{
+    SimTimeMap::iterator i = simTimeEvents.begin();
+    while (i != simTimeEvents.end() && i->first <= simTicks) {
+        std::cout << "event start: " << i->first << " now " << simTicks << std::endl;
+        TimeEvent &te = i->second;
+        float as_float = 0.0f;
+        bool doRemove = false;
+        if (te.begin == te.end) {
+            doRemove = true;
+        } else {
+            if (simTicks > te.end) {
+                as_float = 1.0f;
+                doRemove = true;
+            } else
+                as_float = float(simTicks - te.begin) / float(te.end - te.begin);
+        }
+        te.callback(as_float);
+        if (doRemove) {
+            SimTimeMap::iterator j = i++;
+            simTimeEvents.erase(j);
+        } else
+            ++i;
     }
-    te.callback(as_float);
-    if (doRemove) {
-      RealTimeMap::iterator j = i++;
-      realTimeEvents.erase(j);
-    }
+}
+
+void Timer::registerCallback(bool simTime, CallbackType &c, const uint32_t &b, const uint32_t &e)
+{
+    if (simTime)
+        simTimeEvents.insert(std::make_pair(b, TimeEvent(b, e, c)));
     else
-      ++i;
-  }
+        realTimeEvents.insert(std::make_pair(b, TimeEvent(b, e, c)));
 }
 
-void Timer::checkSimEvents() {
-  SimTimeMap::iterator i = simTimeEvents.begin();
-  while (i != simTimeEvents.end() && i->first <= simTicks) {
-    std::cout << "event start: " << i->first << " now " << simTicks << std::endl;
-    TimeEvent & te = i->second;
-    float as_float = 0.0f;
-    bool doRemove = false;
-    if (te.begin == te.end) {
-      doRemove = true;
-    }
-    else {
-      if (simTicks > te.end) {
-        as_float = 1.0f;
-        doRemove = true;
-      }
-      else
-        as_float = float(simTicks - te.begin) / float(te.end - te.begin);
-    }
-    te.callback(as_float);
-    if (doRemove) {
-      SimTimeMap::iterator j = i++;
-      simTimeEvents.erase(j);
-    }
+void Timer::registerCallback(bool simTime, CallbackType &c, const uint32_t &b)
+{
+    if (simTime)
+        simTimeEvents.insert(std::make_pair(b, TimeEvent(b, c)));
     else
-      ++i;
-  }
+        realTimeEvents.insert(std::make_pair(b, TimeEvent(b, c)));
 }
 
-void Timer::registerCallback(bool simTime, CallbackType & c, const uint32_t & b, const uint32_t & e) {
-  if (simTime)
-    simTimeEvents.insert(std::make_pair(b, TimeEvent(b, e, c)));
-  else
-    realTimeEvents.insert(std::make_pair(b, TimeEvent(b, e, c)));
-}
-
-void Timer::registerCallback(bool simTime, CallbackType & c, const uint32_t & b) {
-  if (simTime)
-    simTimeEvents.insert(std::make_pair(b, TimeEvent(b, c)));
-  else
-    realTimeEvents.insert(std::make_pair(b, TimeEvent(b, c)));
-}
-
-void Timer::clearAllEvents() {
-  realTimeEvents.clear();
-  simTimeEvents.clear();
+void Timer::clearAllEvents()
+{
+    realTimeEvents.clear();
+    simTimeEvents.clear();
 }

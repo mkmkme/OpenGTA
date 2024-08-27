@@ -1,8 +1,8 @@
 #pragma once
 
-#include <core/graphics-base.h>
-
 #include <memory>
+
+#include <core/graphics-base.h>
 
 namespace OpenGTA {
 
@@ -28,7 +28,7 @@ public:
      */
     class RGBPalette {
     private:
-        unsigned char data[256 * 3]{};
+        unsigned char data[256 * 3] {};
 
     public:
         /** Empty constructor.
@@ -56,26 +56,21 @@ public:
          * @param rgba use 'true' to create a RGBA image, or 'false' (default)
          * for RGB
          */
-        void apply(unsigned int len,
-                   const unsigned char *src,
-                   unsigned char *dst,
-                   bool rgba = false);
+        void apply(unsigned int len, const unsigned char *src, unsigned char *dst, bool rgba = false);
     };
 
     unsigned char *getSide(unsigned int idx, unsigned int palIdx, bool rgba);
     unsigned char *getLid(unsigned int idx, unsigned int palIdx, bool rgba);
     unsigned char *getAux(unsigned int idx, unsigned int palIdx, bool rgba);
 
-    std::unique_ptr<unsigned char[]> getSpriteBitmap(size_t id,
-                                                     int remap,
-                                                     uint32_t delta) override;
+    std::unique_ptr<unsigned char[]> getSpriteBitmap(size_t id, int remap, uint32_t delta) override;
 
     void dump();
 
 private:
-    PHYSFS_uint32 paletteSize{};
-    PHYSFS_uint32 remapSize{};
-    PHYSFS_uint32 remapIndexSize{};
+    PHYSFS_uint32 paletteSize {};
+    PHYSFS_uint32 remapSize {};
+    PHYSFS_uint32 remapIndexSize {};
 
 protected:
     void loadHeader();
@@ -87,12 +82,10 @@ protected:
     void loadSpriteInfo();
     void loadSpriteGraphics();
     void loadSpriteNumbers();
-    void applyRemap(unsigned int len,
-                    unsigned int which,
-                    unsigned char *buffer);
+    void applyRemap(unsigned int len, unsigned int which, unsigned char *buffer);
     std::unique_ptr<RGBPalette> masterRGB_;
-    PHYSFS_uint8 remapTables[256][256]{};
-    PHYSFS_uint8 remapIndex[256][4]{};
+    PHYSFS_uint8 remapTables[256][256] {};
+    PHYSFS_uint8 remapIndex[256][4] {};
 };
 
 } // namespace OpenGTA

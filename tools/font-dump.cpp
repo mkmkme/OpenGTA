@@ -1,10 +1,11 @@
 // #include <stdlib.h>
 
-#include <core/font.h>
-
 #include <iostream>
+
 #include <physfs.h>
+
 #include <SDL2/SDL_surface.h>
+#include <core/font.h>
 
 void do_exit()
 {

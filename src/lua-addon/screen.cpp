@@ -1,6 +1,5 @@
-#include <lua-addon/screen.h>
-
 #include <graphics/screen.h>
+#include <lua-addon/screen.h>
 
 namespace {
 int getFullscreen(lua_State *L)
@@ -28,9 +27,7 @@ int makeScreenshot(lua_State *L)
 } // namespace
 
 OpenGTA::Script::LuaScreen::LuaScreen(OpenGL::Screen &s)
-    : screen_(s)
-{
-}
+    : screen_(s) {}
 
 int OpenGTA::Script::LuaScreen::registerFunctions(lua_State *L)
 {
@@ -50,7 +47,6 @@ int OpenGTA::Script::LuaScreen::registerFunctions(lua_State *L)
     lua_pushlightuserdata(L, &screen_);
     lua_pushcclosure(L, makeScreenshot, 1);
     lua_setfield(L, -2, "makeScreenshot");
-
 
     // Set the table as the global "Screen" variable
     lua_setglobal(L, "Screen");

@@ -21,19 +21,20 @@
  * 3. This notice may not be removed or altered from any source          *
  * distribution.                                                         *
  ************************************************************************/
-#include <core/dataholder.h>
-#include <graphics/camera.h>
-#include <graphics/font.h>
-#include <graphics/screen.h>
-#include <core/graphics-base.h>
-#include <util/log.h>
-#include <util/errors.h>
-#include <core/spritemanager.h>
-
-#include <SDL2/SDL_opengl.h>
 #include <array>
 #include <iostream>
 #include <string_view>
+
+#include <SDL2/SDL_opengl.h>
+#include <core/dataholder.h>
+#include <core/graphics-base.h>
+#include <core/spritemanager.h>
+
+#include <graphics/camera.h>
+#include <graphics/font.h>
+#include <graphics/screen.h>
+#include <util/errors.h>
+#include <util/log.h>
 
 using namespace std::string_view_literals;
 
@@ -79,9 +80,29 @@ void safe_try_model(uint8_t model_id)
 
 const char *spr_type_name(int t)
 {
-    static std::array types = { "arrow", "digit",  "boat", "box",      "bus",    "car",      "object",
-                                "ped",   "speedo", "tank", "tr light", "train",  "tr door",  "bike",
-                                "tram",  "wbus",   "wcar", "ex",       "tumcar", "tumtruck", "ferry" };
+    static const std::array types = {
+        "arrow",
+        "digit",
+        "boat",
+        "box",
+        "bus",
+        "car",
+        "object",
+        "ped",
+        "speedo",
+        "tank",
+        "tr light",
+        "train",
+        "tr door",
+        "bike",
+        "tram",
+        "wbus",
+        "wcar",
+        "ex",
+        "tumcar",
+        "tumtruck",
+        "ferry",
+    };
     return (t < 0 || t >= types.size()) ? "???" : types[t];
 }
 
@@ -124,7 +145,9 @@ void drawScene(Uint32 ticks, OpenGL::Screen &screen, OpenGL::Camera &camera)
         std::string sprite_info;
         if (car != nullptr) {
             sprite_info = fmt::format(
-                "{} model: {} name: {}", vtype2name(car->carInfo.vtype), car_model,
+                "{} model: {} name: {}",
+                vtype2name(car->carInfo.vtype),
+                car_model,
                 OpenGTA::MainMsgLookup::Instance().get().getText(fmt::format("car{}", car_model))
             );
         } else {
@@ -410,7 +433,7 @@ int main(int argc, char *argv[])
     camera.setFollowMode(ped.pos);
 
     main_loop(screen, camera);
-    
+
     delete car;
     SDL_Quit();
     PHYSFS_deinit();

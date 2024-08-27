@@ -22,11 +22,11 @@
  ************************************************************************/
 #pragma once
 
-#include <graphics/font.h>
-
 #include <map>
 #include <memory>
 #include <string>
+
+#include <graphics/font.h>
 
 namespace OpenGTA {
 

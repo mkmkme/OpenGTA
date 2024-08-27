@@ -1,6 +1,7 @@
+#include <core/dataholder.h>
+
 #include <graphics/camera.h>
 #include <graphics/screen.h>
-#include <core/dataholder.h>
 
 #ifdef _WIN32
 #include <Windows.h>
@@ -21,84 +22,106 @@ namespace OpenGL {
  * by DigiBen  (digiben@gametutorials.com)
  *
  */
-  
-  Camera::Camera() : eye(), center(), up(), doRotate(false), 
-    camGravity(false), gameCamMode(false), followTarget(&center) {
+
+Camera::Camera()
+    : eye()
+    , center()
+    , up()
+    , doRotate(false)
+    , camGravity(false)
+    , gameCamMode(false)
+    , followTarget(&center)
+{
     interpolateStart = 0;
     interpolateEnd = 0;
-  }
+}
 
-  void Camera::update_game()
-  {
+void Camera::update_game()
+{
     Vector3D delta(center - *followTarget);
-    //INFO << delta.x << ", " << delta.y << ", " << delta.z << std::endl;
+    // INFO << delta.x << ", " << delta.y << ", " << delta.z << std::endl;
     float height_dist = fabs(delta.y);
     delta.y = 0;
     if (camGravity) {
-      if (center.y - followTarget->y > 4.1) {
-        delta.y = 0.001f * height_dist;
-      }
-      else if (center.y - followTarget->y < 3.9) {
-        delta.y = -0.001f * height_dist; 
-      }
+        if (center.y - followTarget->y > 4.1) {
+            delta.y = 0.001f * height_dist;
+        } else if (center.y - followTarget->y < 3.9) {
+            delta.y = -0.001f * height_dist;
+        }
     }
-    //INFO << center.y << " " << followTarget->y<< " " << height_dist << std::endl;
+    // INFO << center.y << " " << followTarget->y<< " " << height_dist << std::endl;
 
     center += -delta;
     eye += -delta;
-    gluLookAt(eye.x, eye.y, eye.z, center.x, center.y, center.z,
-        up.x, up.y, up.z);
-  }
+    gluLookAt(
+        eye.x,
+        eye.y,
+        eye.z,
+        center.x,
+        center.y,
+        center.z,
+        up.x,
+        up.y,
+        up.z
+    );
+}
 
-  void Camera::setFollowMode(const Vector3D & target) {
+void Camera::setFollowMode(const Vector3D &target)
+{
     followTarget = &target;
-    //INFO << "following " << target.x << ", " << target.y << ", " << target.z << std::endl;
+    // INFO << "following " << target.x << ", " << target.y << ", " << target.z << std::endl;
     gameCamMode = true;
-  }
+}
 
-  void Camera::releaseFollowMode() {
+void Camera::releaseFollowMode()
+{
     followTarget = &center;
     gameCamMode = false;
-  }
+}
 
-  void Camera::update(Uint32 ticks, OpenGL::Screen & screen) {
+void Camera::update(Uint32 ticks, OpenGL::Screen &screen)
+{
     if (gameCamMode) {
-      update_game();
-      return;
+        update_game();
+        return;
     }
     moveByMouse(screen);
 
-    float x,y,z;
+    float x, y, z;
     x = floor(eye.x);
     y = floor(eye.y);
     z = floor(eye.z);
     float delta_y = 0;
     if (camGravity) {
-      center.y -= 0.1f * ticks/40.0f;
-      eye.y -= 0.1f * ticks/40.0f;
+        center.y -= 0.1f * ticks / 40.0f;
+        eye.y -= 0.1f * ticks / 40.0f;
     }
 
-    OpenGTA::Map & map = OpenGTA::ActiveMap::Instance().get();
+    OpenGTA::Map &map = OpenGTA::ActiveMap::Instance().get();
     if (y < map.getNumBlocksAtNew(PHYSFS_uint8(x), PHYSFS_uint8(z)) && y > 0.0f) {
-      OpenGTA::Map::BlockInfo * block = map.getBlockAtNew(PHYSFS_uint8(x), PHYSFS_uint8(z), PHYSFS_uint8(y));
-      if (block->blockType() > 0 && block->blockType() <= 5) {
-        float bz = slope_height_offset(block->slopeType(), eye.x - x, eye.z - z);
-        if (block->slopeType() == 0 && (block->blockType() != 5 && block->blockType() != 6))
-          bz -= 1;
-        //INFO << int(block->blockType()) << ", " << eye.y << ", " << 
-        //  eye.y - y << ", " << eye.y - y - bz << ", " << bz << std::endl;
-        float react_delta = 0.3f;
-        if (block->blockType() == 5 || block->blockType() == 6)
-          react_delta = 0.0f;
-        if (eye.y - y - bz < react_delta) {
-          //do_grav = 0;
-          Vector3D new_eye(eye);
-          new_eye.y = y + bz + react_delta;
-          delta_y = new_eye.y - eye.y;
-          center.y = center.y - eye.y + new_eye.y;
-          eye.y = new_eye.y;
+        OpenGTA::Map::BlockInfo *block = map.getBlockAtNew(
+            PHYSFS_uint8(x),
+            PHYSFS_uint8(z),
+            PHYSFS_uint8(y)
+        );
+        if (block->blockType() > 0 && block->blockType() <= 5) {
+            float bz = slope_height_offset(block->slopeType(), eye.x - x, eye.z - z);
+            if (block->slopeType() == 0 && (block->blockType() != 5 && block->blockType() != 6))
+                bz -= 1;
+            // INFO << int(block->blockType()) << ", " << eye.y << ", " <<
+            //   eye.y - y << ", " << eye.y - y - bz << ", " << bz << std::endl;
+            float react_delta = 0.3f;
+            if (block->blockType() == 5 || block->blockType() == 6)
+                react_delta = 0.0f;
+            if (eye.y - y - bz < react_delta) {
+                // do_grav = 0;
+                Vector3D new_eye(eye);
+                new_eye.y = y + bz + react_delta;
+                delta_y = new_eye.y - eye.y;
+                center.y = center.y - eye.y + new_eye.y;
+                eye.y = new_eye.y;
+            }
         }
-      }
 
 #if 0
       if (y >= 1.0f) {
@@ -113,19 +136,23 @@ namespace OpenGL {
     }
     y -= 1;
     if (y < map.getNumBlocksAtNew(PHYSFS_uint8(x), PHYSFS_uint8(z)) && y > 0.0f) {
-      OpenGTA::Map::BlockInfo * block = map.getBlockAtNew(PHYSFS_uint8(x), PHYSFS_uint8(z), PHYSFS_uint8(y));
-      if (block->blockType() == 5 || block->blockType() == 6) {
-        float bz = slope_height_offset(block->slopeType(), eye.x - x, eye.z - z);
-        //INFO << eye.y << ", " << y << " bz " << bz << std::endl;
-        if (eye.y - y - bz < 0.4f) {
-          Vector3D new_eye(eye);
-          new_eye.y = y + bz + 0.4;
-          delta_y = new_eye.y - eye.y;
-          //INFO << "setting " << new_eye.y << std::endl;
-          center.y = center.y - eye.y + new_eye.y;
-          eye.y = new_eye.y;
+        OpenGTA::Map::BlockInfo *block = map.getBlockAtNew(
+            PHYSFS_uint8(x),
+            PHYSFS_uint8(z),
+            PHYSFS_uint8(y)
+        );
+        if (block->blockType() == 5 || block->blockType() == 6) {
+            float bz = slope_height_offset(block->slopeType(), eye.x - x, eye.z - z);
+            // INFO << eye.y << ", " << y << " bz " << bz << std::endl;
+            if (eye.y - y - bz < 0.4f) {
+                Vector3D new_eye(eye);
+                new_eye.y = y + bz + 0.4;
+                delta_y = new_eye.y - eye.y;
+                // INFO << "setting " << new_eye.y << std::endl;
+                center.y = center.y - eye.y + new_eye.y;
+                eye.y = new_eye.y;
+            }
         }
-      }
     }
 
     /*
@@ -141,96 +168,113 @@ namespace OpenGL {
     }*/
 
     if (interpolateStart) {
-      float as_one = float(interpolateStart - 1) / interpolateEnd;
-      Vector3D now = (1 - as_one) * interpolateFrom + as_one * interpolateTo;
-      center = center - eye + now;
-      eye = now;
+        float as_one = float(interpolateStart - 1) / interpolateEnd;
+        Vector3D now = (1 - as_one) * interpolateFrom + as_one * interpolateTo;
+        center = center - eye + now;
+        eye = now;
 
-      interpolateStart += ticks;
-      if (interpolateStart > interpolateEnd)
-        interpolateStart = 0;
+        interpolateStart += ticks;
+        if (interpolateStart > interpolateEnd)
+            interpolateStart = 0;
+    } else {
+
+        if (speed > 0.01f || speed < -0.01f) {
+
+            Vector3D v = center - eye;
+            if (camGravity)
+                v.y = delta_y;
+            v = v.Normalized();
+            center += speed * ticks / 40.0f * v;
+            eye += speed * ticks / 40.0f * v;
+            // INFO << v.y << std::endl;
+        }
+
+        if (doRotate)
+            rotateAround(Vector3D(center.x, 0, center.z), 0, 0.01f, 0);
     }
-    else {
+    gluLookAt(
+        eye.x,
+        eye.y,
+        eye.z,
+        center.x,
+        center.y,
+        center.z,
+        up.x,
+        up.y,
+        up.z
+    );
+}
 
-      if (speed > 0.01f || speed < -0.01f) {
-
-        Vector3D v = center - eye;
-        if (camGravity)
-          v.y = delta_y;
-        v = v.Normalized();
-        center += speed * ticks/40.0f * v;
-        eye += speed * ticks/40.0f * v;
-        //INFO << v.y << std::endl;
-      }
-
-      if (doRotate)
-        rotateAround(Vector3D(center.x, 0, center.z), 0, 0.01f, 0);
-    }
-    gluLookAt(eye.x, eye.y, eye.z, center.x, center.y, center.z,
-        up.x, up.y, up.z);
-  }
-
-  void Camera::setRotating(bool demo) {
+void Camera::setRotating(bool demo)
+{
     doRotate = demo;
-  }
+}
 
-  void Camera::setCamGravity(bool demo) {
+void Camera::setCamGravity(bool demo)
+{
     camGravity = demo;
-  }
+}
 
-  void Camera::setVectors(const Vector3D & e, const Vector3D & c, const Vector3D & u) {
+void Camera::setVectors(const Vector3D &e, const Vector3D &c, const Vector3D &u)
+{
     eye = e;
     center = c;
     up = u;
-  }
+}
 
-  void Camera::setSpeed(float new_speed) {
+void Camera::setSpeed(float new_speed)
+{
     speed = new_speed;
-  }
+}
 
-  void Camera::translateBy(const Vector3D & t) {
+void Camera::translateBy(const Vector3D &t)
+{
     eye += t;
     center += t;
-  }
+}
 
-  void Camera::translateTo(const Vector3D & e) {
+void Camera::translateTo(const Vector3D &e)
+{
     Vector3D rel = eye - e;
     translateBy(rel);
-  }
+}
 
-  void Camera::rotateView(float x, float y, float z) {
+void Camera::rotateView(float x, float y, float z)
+{
     Vector3D v = center - eye;
     if (x) {
-      center.z = eye.z + sin(x) * v.y + cos(x) * v.z;
-      center.y = eye.y + cos(x) * v.y - sin(x) * v.z;
+        center.z = eye.z + sin(x) * v.y + cos(x) * v.z;
+        center.y = eye.y + cos(x) * v.y - sin(x) * v.z;
     }
     if (y) {
-      center.z = eye.z + sin(y) * v.x + cos(y) * v.z;
-      center.x = eye.x + cos(y) * v.x - sin(y) * v.z;
+        center.z = eye.z + sin(y) * v.x + cos(y) * v.z;
+        center.x = eye.x + cos(y) * v.x - sin(y) * v.z;
     }
     if (z) {
-      center.x = eye.x + sin(z) * v.y + cos(z) * v.x;
-      center.y = eye.y + cos(z) * v.y - sin(z) * v.x;
+        center.x = eye.x + sin(z) * v.y + cos(z) * v.x;
+        center.y = eye.y + cos(z) * v.y - sin(z) * v.x;
     }
-  }
+}
 
-  void Camera::rotateAround(const Vector3D & lookAt, float x, float y, float z) {
+void Camera::rotateAround(const Vector3D &lookAt, float x, float y, float z)
+{
     Vector3D v = eye - lookAt;
     if (x) {
-      eye.z = lookAt.z + sin(x) * v.y + cos(x) * v.z;
-      eye.y = lookAt.y + cos(x) * v.y - sin(x) * v.z;
+        eye.z = lookAt.z + sin(x) * v.y + cos(x) * v.z;
+        eye.y = lookAt.y + cos(x) * v.y - sin(x) * v.z;
     }
     if (y) {
-      eye.z = lookAt.z + sin(y) * v.x + cos(y) * v.z;
-      eye.x = lookAt.x + cos(y) * v.x - sin(y) * v.z;
+        eye.z = lookAt.z + sin(y) * v.x + cos(y) * v.z;
+        eye.x = lookAt.x + cos(y) * v.x - sin(y) * v.z;
     }
     if (z) {
-      eye.x = lookAt.x + sin(z) * v.y + cos(z) * v.x;
-      eye.y = lookAt.y + cos(z) * v.y - sin(z) * v.x;
+        eye.x = lookAt.x + sin(z) * v.y + cos(z) * v.x;
+        eye.y = lookAt.y + cos(z) * v.y - sin(z) * v.x;
     }
-  }
+}
 
-  void Camera::moveByMouse(OpenGL::Screen & screen) {
+void Camera::moveByMouse(OpenGL::Screen &screen)
+{
     int w, h;
     w = screen.width() / 2;
     h = screen.height() / 2;
@@ -238,23 +282,24 @@ namespace OpenGL {
     SDL_GetMouseState(&mx, &my);
     SDL_WarpMouseInWindow(screen.get(), w, h);
     if ((mx == w) && (my == h))
-      return;
+        return;
     float rot_x = (float(w) - mx) / 100.f;
     float rot_y = (float(h) - my) / 100.f;
     center.y += rot_y * 8;
     if (center.y - eye.y > 15)
-      center.y = eye.y + 15;
+        center.y = eye.y + 15;
     else if (center.y - eye.y < -15)
-      center.y = eye.y - 15;
+        center.y = eye.y - 15;
     rotateView(0, -rot_x, 0);
-  }
+}
 
-  void Camera::interpolate(const Vector3D & to, const Uint32 & start, const Uint32 & end) {
+void Camera::interpolate(const Vector3D &to, const Uint32 &start, const Uint32 &end)
+{
     interpolateFrom = eye;
     interpolateTo = to;
     interpolateStart = start;
     interpolateEnd = end;
-  }
+}
 
 #if 0
   void QuaternionCamera::update(Uint32 ticks) {
@@ -266,4 +311,4 @@ namespace OpenGL {
     glMultMatrixf((float*)m.x);
   }
 #endif
-}
+} // namespace OpenGL

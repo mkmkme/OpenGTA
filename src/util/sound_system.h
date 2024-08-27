@@ -5,23 +5,24 @@
 
 #ifdef WITH_SOUND
 #include "sound_device.h"
-#include "sound_music_player.h"
 #include "sound_fx_cache.h"
+#include "sound_music_player.h"
 #endif
 
 namespace Audio {
-  class SoundSystem {
-    private:
-      SoundDevice device;
-      AudioChunkCache chunkCache;
-    public:
-      SoundSystem();
-      ~SoundSystem();
-      void playFx(std::string file, size_t idx);
-      void playMusic(std::string file);
-      void listMusicDecoders();
-      bool enabled;
-  };
-}
+class SoundSystem {
+private:
+    SoundDevice device;
+    AudioChunkCache chunkCache;
+
+public:
+    SoundSystem();
+    ~SoundSystem();
+    void playFx(std::string file, size_t idx);
+    void playMusic(std::string file);
+    void listMusicDecoders();
+    bool enabled;
+};
+} // namespace Audio
 
 #endif

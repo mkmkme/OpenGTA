@@ -22,10 +22,11 @@
  ************************************************************************/
 #pragma once
 
-#include <util/animation.h>
+#include <optional>
+
 #include <core/loaded-anim.h>
 
-#include <optional>
+#include <util/animation.h>
 
 namespace OpenGTA {
 class BlockAnim : public Util::Animation {
@@ -33,10 +34,12 @@ public:
     explicit BlockAnim(LoadedAnim &anim_data)
         : // fix for STYLE001.G24 water anim seems one frame longer than data
           // exists!
-        Util::Animation((anim_data.frameCount == 11 && anim_data.which == 1
-                             ? anim_data.frameCount
-                             : anim_data.frameCount + 1),
-                        5)
+        Util::Animation(
+            (anim_data.frameCount == 11 && anim_data.which == 1
+                 ? anim_data.frameCount
+                 : anim_data.frameCount + 1),
+            5
+        )
         , ad_ptr(anim_data)
     {
         set(PLAY_FORWARD, LOOP);
@@ -47,10 +50,7 @@ public:
         int(anim_data->frame[i]) << std::endl;
         }*/
     }
-    [[nodiscard]] inline uint8_t getFrame(uint8_t num) const noexcept
-    {
-        return ad_ptr.frame[num];
-    }
+    [[nodiscard]] inline uint8_t getFrame(uint8_t num) const noexcept { return ad_ptr.frame[num]; }
     LoadedAnim &ad_ptr;
 };
 

@@ -23,6 +23,7 @@
 #define _INCLUDE_PHYSFSRWOPS_H_
 
 #include <physfs.h>
+
 #include <SDL2/SDL.h>
 
 #ifdef __cplusplus

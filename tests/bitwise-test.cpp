@@ -1,8 +1,10 @@
-#include <common/bitwise.h>
 #include <gtest/gtest.h>
 
+#include <common/bitwise.h>
+
 // Generated with Copilot, seems legit
-TEST(BitwiseTest, GetBit) {
+TEST(BitwiseTest, GetBit)
+{
     EXPECT_EQ(Util::getBit(0u, 1), false);
     EXPECT_EQ(Util::getBit(1u, 1), true);
     EXPECT_EQ(Util::getBit(1u, 2), false);
@@ -40,7 +42,8 @@ TEST(BitwiseTest, GetBit) {
 }
 
 // Generated with Copilot, seems legit
-TEST(BitwiseTest, SetBit) {
+TEST(BitwiseTest, SetBit)
+{
     uint32_t value = 0;
     Util::setBit(&value, 1, true);
     EXPECT_EQ(value, 1);
@@ -91,7 +94,8 @@ TEST(BitwiseTest, SetBit) {
     Util::setBit(&value, 12, false);
 }
 
-TEST(BitwiseTest, GetRangeBit) {
+TEST(BitwiseTest, GetRangeBit)
+{
     EXPECT_EQ(Util::getRangeBit(0b0110u, 2, 3), 0b11);
     EXPECT_EQ(Util::getRangeBit(0b0110u, 1, 2), 0b10);
     EXPECT_EQ(Util::getRangeBit(0b0110u, 1, 3), 0b110);
@@ -101,7 +105,8 @@ TEST(BitwiseTest, GetRangeBit) {
     EXPECT_EQ(Util::getRangeBit(0b00010010001101000101011001111000u, 25, 32), 0b00010010);
 }
 
-TEST(BitwiseTest, SetRangeBit) {
+TEST(BitwiseTest, SetRangeBit)
+{
     uint64_t value = 0;
     Util::setRangeBit(&value, 2, 3, true);
     EXPECT_EQ(value, 0b0110);
@@ -119,7 +124,8 @@ TEST(BitwiseTest, SetRangeBit) {
     EXPECT_EQ(value, 0b111111111111111100000000);
 }
 
-TEST(BitwiseTest, CopyRangeBit) {
+TEST(BitwiseTest, CopyRangeBit)
+{
     uint32_t value = 0;
     Util::copyRangeBit(&value, 2, 3, 0b11u);
     EXPECT_EQ(value, 0b0110);

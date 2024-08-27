@@ -10,9 +10,7 @@ struct Exception : public std::runtime_error {
 
 struct FileNotFound : public Exception {
     explicit FileNotFound(const std::string &file)
-        : Exception(std::format("File not found: {}", file))
-    {
-    }
+        : Exception(std::format("File not found: {}", file)) {}
 };
 
 struct IOError : public Exception {

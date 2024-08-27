@@ -23,9 +23,10 @@
 #ifndef UTIL_FILEHELPER_H
 #define UTIL_FILEHELPER_H
 
-#include <physfs.h>
 #include <string>
 #include <string_view>
+
+#include <physfs.h>
 
 namespace Util {
 namespace FileHelper {

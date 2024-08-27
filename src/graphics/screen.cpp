@@ -20,12 +20,12 @@
  * 3. This notice may not be removed or altered from any source          *
  * distribution.                                                         *
  ************************************************************************/
-#include <graphics/screen.h>
-
 #include <core/config.h>
+
+#include <graphics/screen.h>
+#include <util/errors.h>
 #include <util/image_loader.h>
 #include <util/log.h>
-#include <util/errors.h>
 
 #ifdef _WIN32
 #include <Windows.h>
@@ -38,7 +38,6 @@
 #else
 #include <GL/glu.h>
 #endif
-
 
 #include <cassert>
 #include <memory>
@@ -173,7 +172,7 @@ void Screen::initScreen(uint32_t w, uint32_t h)
             case 15:
                 return { 5, 5, 5 };
             case 8:
-                return {2, 3, 3};
+                return { 2, 3, 3 };
             default:
                 throw Util::NotSupported("Invalid bit-per-pixel setting");
         }

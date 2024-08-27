@@ -1,31 +1,32 @@
 #ifndef UTIL_SOUND_MIXER_H
 #define UTIL_SOUND_MIXER_H
 
-#include <SDL_sound.h>
 #include <SDL_mixer.h>
+#include <SDL_sound.h>
+
 #include <util/sound_device.h>
 
 namespace Audio {
-  class Mixer {
-    public:
-      Mixer();
-      ~Mixer();
+class Mixer {
+public:
+    Mixer();
+    ~Mixer();
 
-      Audio::SoundDevice device;
+    Audio::SoundDevice device;
 
-      int setVolume(int channel, int volume);
-      int setVolumeMusic();
-      int getVolume(int channel);
-      int getVolumeMusic();
+    int setVolume(int channel, int volume);
+    int setVolumeMusic();
+    int getVolume(int channel);
+    int getVolumeMusic();
 
-      void playSample(const size_t & sampleId);
+    void playSample(const size_t &sampleId);
 
-      void pause(int channel);
-      void pauseMusic();
-    private:
-      inline bool checkDeviceOK() { return (device.getStatus() == 
-        Audio::SoundDevice::OPEN); }
-  };
-}
+    void pause(int channel);
+    void pauseMusic();
+
+private:
+    inline bool checkDeviceOK() { return (device.getStatus() == Audio::SoundDevice::OPEN); }
+};
+} // namespace Audio
 
 #endif

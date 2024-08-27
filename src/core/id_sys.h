@@ -1,6 +1,7 @@
 #pragma once
 
 #include <core/game_objects.h>
+
 #include <util/errors.h>
 
 namespace OpenGTA {

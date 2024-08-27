@@ -1,21 +1,22 @@
 /************************************************************************
-* Copyright (c) 2005-2007 tok@openlinux.org.uk                          *
-*                                                                       *
-* This file contains code derived from information copyrighted by       *
-* DMA Design. It may not be used in a commercial product.               *
-*                                                                       *
-* See license.txt for details.                                          *
-*                                                                       *
-* This notice may not be removed or altered.                            *
-************************************************************************/
-#include <core/graphics-8bit.h>
-
+ * Copyright (c) 2005-2007 tok@openlinux.org.uk                          *
+ *                                                                       *
+ * This file contains code derived from information copyrighted by       *
+ * DMA Design. It may not be used in a commercial product.               *
+ *                                                                       *
+ * See license.txt for details.                                          *
+ *                                                                       *
+ * This notice may not be removed or altered.                            *
+ ************************************************************************/
 #include <cassert>
 #include <memory>
+
+#include <core/graphics-8bit.h>
+#include <core/sprite-info.h>
+
+#include <util/errors.h>
 #include <util/file_helper.h>
 #include <util/log.h>
-#include <util/errors.h>
-#include <core/sprite-info.h>
 
 using namespace Util;
 
@@ -24,7 +25,9 @@ namespace OpenGTA {
 #define GTA_GRAPHICS_GRY 325
 #define GTA_GRAPHICS_G24 336
 
-  Graphics8Bit::Graphics8Bit(const std::string& style) : GraphicsBase() {
+Graphics8Bit::Graphics8Bit(const std::string &style)
+    : GraphicsBase()
+{
     fd = Util::FileHelper::OpenReadVFS(style);
     _topHeaderSize = 52;
     rawTiles = nullptr;
@@ -34,18 +37,16 @@ namespace OpenGTA {
     setupBlocking();
     firstValidPedRemap = 131;
     lastValidPedRemap = 187;
-  }
+}
 
-  void Graphics8Bit::dump() {
-    
+void Graphics8Bit::dump()
+{
+
     uint32_t gs = sideSize + lidSize + auxSize;
 
     INFO("* graphics info *");
     INFO("{} bytes in {} pages {} images", gs, gs / 65536, gs / 4096);
-    INFO("{} sprites ({}) total: {} bytes",
-         spriteInfos.size(),
-         spriteInfoSize,
-         spriteGraphicsSize);
+    INFO("{} sprites ({}) total: {} bytes", spriteInfos.size(), spriteInfoSize, spriteGraphicsSize);
     INFO("sprite numbers:");
     INFO("{} arrows", spriteNumbers.GTA_SPRITE_ARROW);
     INFO("{} digits", spriteNumbers.GTA_SPRITE_DIGITS);
@@ -69,15 +70,14 @@ namespace OpenGTA {
     INFO("{} tumtrucks", spriteNumbers.GTA_SPRITE_TUMTRUCK);
     INFO("{} ferries", spriteNumbers.GTA_SPRITE_FERRY);
     INFO("#object-info: {} #car-info: {}", objectInfos.size(), carInfos.size());
-  }
+}
 
-  void Graphics8Bit::loadHeader() {
+void Graphics8Bit::loadHeader()
+{
     PHYSFS_uint32 vc;
     PHYSFS_readULE32(fd, &vc);
-    if(vc != GTA_GRAPHICS_GRY) {
-        ERROR("graphics file specifies version {} instead of {}",
-              vc,
-              GTA_GRAPHICS_GRY);
+    if (vc != GTA_GRAPHICS_GRY) {
+        ERROR("graphics file specifies version {} instead of {}", vc, GTA_GRAPHICS_GRY);
         throw Util::InvalidFormat("8-bit loader failed");
     }
     PHYSFS_readULE32(fd, &sideSize);
@@ -92,35 +92,34 @@ namespace OpenGTA {
     PHYSFS_readULE32(fd, &spriteInfoSize);
     PHYSFS_readULE32(fd, &spriteGraphicsSize);
     PHYSFS_readULE32(fd, &spriteNumberSize);
-    
-    INFO("Block textures: S {} L {} A {}",
-         sideSize / 4096,
-         lidSize / 4096,
-         auxSize / 4096);
+
+    INFO("Block textures: S {} L {} A {}", sideSize / 4096, lidSize / 4096, auxSize / 4096);
     if (sideSize % 4096 != 0) {
-      ERROR("Side-Block texture size is not a multiple of 4096");
-      return;
+        ERROR("Side-Block texture size is not a multiple of 4096");
+        return;
     }
     if (lidSize % 4096 != 0) {
-      ERROR("Lid-Block texture size is not a multiple of 4096");
-      return;
+        ERROR("Lid-Block texture size is not a multiple of 4096");
+        return;
     }
     if (auxSize % 4096 != 0) {
-      ERROR("Aux-Block texture size is not a multiple of 4096");
-      return;
+        ERROR("Aux-Block texture size is not a multiple of 4096");
+        return;
     }
-    
+
     PHYSFS_uint32 tmp = sideSize / 4096 + lidSize / 4096 + auxSize / 4096;
     tmp = tmp % 4;
     if (tmp) {
-      auxBlockTrailSize = (4 - tmp) * 4096;
-      INFO("adjusting aux-block by {}", auxBlockTrailSize);
+        auxBlockTrailSize = (4 - tmp) * 4096;
+        INFO("adjusting aux-block by {}", auxBlockTrailSize);
     }
-    INFO("Anim size: {} palette size: {} remap size: {} remap-index size: {}",
-         animSize,
-         paletteSize,
-         remapSize,
-         remapIndexSize);
+    INFO(
+        "Anim size: {} palette size: {} remap size: {} remap-index size: {}",
+        animSize,
+        paletteSize,
+        remapSize,
+        remapIndexSize
+    );
     INFO(
         "Obj-info size: {} car-size: {} sprite-info size: {} graphic size: {} "
         "numbers s: {}",
@@ -128,10 +127,11 @@ namespace OpenGTA {
         carInfoSize,
         spriteInfoSize,
         spriteGraphicsSize,
-        spriteNumberSize);
+        spriteNumberSize
+    );
     if (spriteNumberSize != 42) {
-      ERROR("spriteNumberSize is {} (should be 42)", spriteNumberSize);
-      return;
+        ERROR("spriteNumberSize is {} (should be 42)", spriteNumberSize);
+        return;
     }
     loadTileTextures();
     loadAnim();
@@ -144,22 +144,22 @@ namespace OpenGTA {
     loadSpriteGraphics();
     loadSpriteNumbers();
     dump();
-  }
+}
 
-
-  
-  void Graphics8Bit::loadPalette() {
-    PHYSFS_uint64 st = static_cast<PHYSFS_uint64>(_topHeaderSize) +
-      sideSize + lidSize + auxSize + auxBlockTrailSize + animSize;
+void Graphics8Bit::loadPalette()
+{
+    PHYSFS_uint64 st =
+        static_cast<PHYSFS_uint64>(_topHeaderSize) + sideSize + lidSize + auxSize + auxBlockTrailSize + animSize;
     PHYSFS_seek(fd, st);
     masterRGB_ = std::make_unique<RGBPalette>(fd);
-  }
-  
-  void Graphics8Bit::loadRemapTables() {
-    PHYSFS_uint64 st = static_cast<PHYSFS_uint64>(_topHeaderSize) +
-      sideSize + lidSize + auxSize + auxBlockTrailSize + animSize + paletteSize;
+}
+
+void Graphics8Bit::loadRemapTables()
+{
+    PHYSFS_uint64 st = static_cast<PHYSFS_uint64>(_topHeaderSize) + sideSize + lidSize + auxSize + auxBlockTrailSize +
+        animSize + paletteSize;
     PHYSFS_seek(fd, st);
-    PHYSFS_readBytes(fd, static_cast<void*>(remapTables), sizeof(remapTables));
+    PHYSFS_readBytes(fd, static_cast<void *>(remapTables), sizeof(remapTables));
     /*
     for (int i=0; i < 256; i++) {
       for (int j = 0; j < 256; j++) {
@@ -167,255 +167,250 @@ namespace OpenGTA {
       }
       std::cout << std::endl;
     }*/
-  }
+}
 
-  void Graphics8Bit::loadRemapIndex() {
-    PHYSFS_uint64 st = static_cast<PHYSFS_uint64>(_topHeaderSize) +
-      sideSize + lidSize + auxSize + auxBlockTrailSize + animSize + paletteSize +
-      remapSize;
+void Graphics8Bit::loadRemapIndex()
+{
+    PHYSFS_uint64 st = static_cast<PHYSFS_uint64>(_topHeaderSize) + sideSize + lidSize + auxSize + auxBlockTrailSize +
+        animSize + paletteSize + remapSize;
     PHYSFS_seek(fd, st);
-    PHYSFS_readBytes(fd, static_cast<void*>(remapIndex), sizeof(remapIndex));
+    PHYSFS_readBytes(fd, static_cast<void *>(remapIndex), sizeof(remapIndex));
     /*
     std::cout << "LID remap tables" << std::endl;
     for (int i=0; i<256; ++i) {
       std::cout << i << ": " << int(remapIndex[i][0]) << ", " << int(remapIndex[i][1]) <<
         ", " << int(remapIndex[i][2]) << ", " << int(remapIndex[i][3]) << std::endl;
     }*/
-  }
+}
 
-  void Graphics8Bit::loadObjectInfo() {
-    PHYSFS_uint64 st = static_cast<PHYSFS_uint64>(_topHeaderSize) +
-      sideSize + lidSize + auxSize + auxBlockTrailSize + animSize + paletteSize +
-      remapSize + remapIndexSize;
+void Graphics8Bit::loadObjectInfo()
+{
+    PHYSFS_uint64 st = static_cast<PHYSFS_uint64>(_topHeaderSize) + sideSize + lidSize + auxSize + auxBlockTrailSize +
+        animSize + paletteSize + remapSize + remapIndexSize;
     loadObjectInfo_shared(st);
-  }
+}
 
-
-  void Graphics8Bit::loadCarInfo() {
-    PHYSFS_uint64 st = static_cast<PHYSFS_uint64>(_topHeaderSize) +
-      sideSize + lidSize + auxSize + auxBlockTrailSize + animSize + paletteSize +
-      remapSize + remapIndexSize + objectInfoSize;
+void Graphics8Bit::loadCarInfo()
+{
+    PHYSFS_uint64 st = static_cast<PHYSFS_uint64>(_topHeaderSize) + sideSize + lidSize + auxSize + auxBlockTrailSize +
+        animSize + paletteSize + remapSize + remapIndexSize + objectInfoSize;
     loadCarInfo_shared(st);
-  }
-  
-  void Graphics8Bit::loadSpriteInfo() {
-    PHYSFS_uint64 st = static_cast<PHYSFS_uint64>(_topHeaderSize) +
-      sideSize + lidSize + auxSize + auxBlockTrailSize + animSize + paletteSize +
-      remapSize + remapIndexSize + objectInfoSize + carInfoSize;
+}
+
+void Graphics8Bit::loadSpriteInfo()
+{
+    PHYSFS_uint64 st = static_cast<PHYSFS_uint64>(_topHeaderSize) + sideSize + lidSize + auxSize + auxBlockTrailSize +
+        animSize + paletteSize + remapSize + remapIndexSize + objectInfoSize + carInfoSize;
     PHYSFS_seek(fd, st);
 
     PHYSFS_uint8 compressionFlag;
     PHYSFS_uint32 w;
     PHYSFS_uint32 _bytes_read = 0;
     while (_bytes_read < spriteInfoSize) {
-      auto *si = new SpriteInfo();
-      PHYSFS_readBytes(fd, static_cast<void*>(&si->w), 1);
-      PHYSFS_readBytes(fd, static_cast<void*>(&si->h), 1);
-      PHYSFS_readBytes(fd, static_cast<void*>(&si->deltaCount), 1);
-      PHYSFS_readBytes(fd, static_cast<void*>(&compressionFlag), 1);
-      PHYSFS_readULE16(fd, &si->size);
-      PHYSFS_readULE32(fd, &w);
-      _bytes_read += 10;
-      //si->ptr = reinterpret_cast<unsigned char*>(w);
-      si->page = w / 65536;
-      si->xoffset = (w % 65536) % 256;
-      si->yoffset = (w % 65536) / 256;
-      si->clut = 0;
+        auto *si = new SpriteInfo();
+        PHYSFS_readBytes(fd, static_cast<void *>(&si->w), 1);
+        PHYSFS_readBytes(fd, static_cast<void *>(&si->h), 1);
+        PHYSFS_readBytes(fd, static_cast<void *>(&si->deltaCount), 1);
+        PHYSFS_readBytes(fd, static_cast<void *>(&compressionFlag), 1);
+        PHYSFS_readULE16(fd, &si->size);
+        PHYSFS_readULE32(fd, &w);
+        _bytes_read += 10;
+        // si->ptr = reinterpret_cast<unsigned char*>(w);
+        si->page = w / 65536;
+        si->xoffset = (w % 65536) % 256;
+        si->yoffset = (w % 65536) / 256;
+        si->clut = 0;
 
-      // sanity check
-      if (compressionFlag)
-        WARN("Compression flag active in sprite!");
-      if (int(si->w) * int(si->h) != int(si->size)) {
-        ERROR("Sprite info size mismatch: {}x{} != {}",
-              int(si->w),
-              int(si->h),
-              si->size);
-        return;
-      }
-      if (si->deltaCount > 32) {
-        ERROR("Delta count of sprite is {} (should be <= 32)", si->deltaCount);
-        return;
-      }
-      for (PHYSFS_uint8 j = 0; j < 33; ++j) {
-        si->delta[j].size = 0;
-        si->delta[j].ptr = nullptr;
-        if (si->deltaCount && (j < si->deltaCount)) {
-          //std::cout << "reading " << int(j) << std::endl;
-          PHYSFS_readULE16(fd, &si->delta[j].size);
-          PHYSFS_readULE32(fd, &w);
-          _bytes_read += 6;
-          si->delta[j].ptr = reinterpret_cast<unsigned char*>(w);
+        // sanity check
+        if (compressionFlag)
+            WARN("Compression flag active in sprite!");
+        if (int(si->w) * int(si->h) != int(si->size)) {
+            ERROR("Sprite info size mismatch: {}x{} != {}", int(si->w), int(si->h), si->size);
+            return;
         }
-      }
-      spriteInfos.push_back(si);
-      
+        if (si->deltaCount > 32) {
+            ERROR("Delta count of sprite is {} (should be <= 32)", si->deltaCount);
+            return;
+        }
+        for (PHYSFS_uint8 j = 0; j < 33; ++j) {
+            si->delta[j].size = 0;
+            si->delta[j].ptr = nullptr;
+            if (si->deltaCount && (j < si->deltaCount)) {
+                // std::cout << "reading " << int(j) << std::endl;
+                PHYSFS_readULE16(fd, &si->delta[j].size);
+                PHYSFS_readULE32(fd, &w);
+                _bytes_read += 6;
+                si->delta[j].ptr = reinterpret_cast<unsigned char *>(w);
+            }
+        }
+        spriteInfos.push_back(si);
     }
-    st = static_cast<PHYSFS_uint64>(_topHeaderSize) +
-      sideSize + lidSize + auxSize + auxBlockTrailSize + animSize + paletteSize +
-      remapSize + remapIndexSize + objectInfoSize + carInfoSize + spriteInfoSize;
+    st = static_cast<PHYSFS_uint64>(_topHeaderSize) + sideSize + lidSize + auxSize + auxBlockTrailSize + animSize +
+        paletteSize + remapSize + remapIndexSize + objectInfoSize + carInfoSize + spriteInfoSize;
     assert(PHYSFS_tell(fd) == PHYSFS_sint64(st));
-  }
+}
 
-  void Graphics8Bit::loadSpriteGraphics() {
-    PHYSFS_uint64 st = static_cast<PHYSFS_uint64>(_topHeaderSize) +
-      sideSize + lidSize + auxSize + auxBlockTrailSize + animSize + paletteSize +
-      remapSize + remapIndexSize + objectInfoSize + carInfoSize + spriteInfoSize;
+void Graphics8Bit::loadSpriteGraphics()
+{
+    PHYSFS_uint64 st = static_cast<PHYSFS_uint64>(_topHeaderSize) + sideSize + lidSize + auxSize + auxBlockTrailSize +
+        animSize + paletteSize + remapSize + remapIndexSize + objectInfoSize + carInfoSize + spriteInfoSize;
     PHYSFS_seek(fd, st);
     rawSprites = new unsigned char[spriteGraphicsSize];
     assert(rawSprites != nullptr);
-    PHYSFS_readBytes(fd, static_cast<void*>(rawSprites), spriteGraphicsSize);
+    PHYSFS_readBytes(fd, static_cast<void *>(rawSprites), spriteGraphicsSize);
 
     if (spriteInfos.empty()) {
-      INFO("No SpriteInfo post-loading work done - structure is empty");
-      return;
+        INFO("No SpriteInfo post-loading work done - structure is empty");
+        return;
     }
     auto i = spriteInfos.cbegin();
     auto end = spriteInfos.cend();
     PHYSFS_uint32 _pagewise = 256 * 256;
     while (i != end) {
-      SpriteInfo *info = *i;
-      /*
-      PHYSFS_uint32 offset = reinterpret_cast<PHYSFS_uint32>(info->ptr);
-      PHYSFS_uint32 page = offset / 65536;
-      PHYSFS_uint32 y = (offset % 65536) / 256;
-      PHYSFS_uint32 x = (offset % 65536) % 256;
-      */
-      //std::cout << int(info->w) << "x" << int(info->h) << " " << int(info->deltaCount) << " deltas" << std::endl;
-      //std::cout << offset << " page " << page << " x,y " << x <<","<<y<< std::endl;
-//info->ptr = rawSprites + page * _pagewise + 256 * y + x;
-      for (uint8_t k = 0; k < info->deltaCount; ++k) {
-        const auto tmp = reinterpret_cast<uintptr_t>(info->delta[k].ptr);
-        const auto offset = static_cast<PHYSFS_uint32>(tmp);
-        const auto page = offset / 65536;
-        const auto y = (offset % 65536) / 256;
-        const auto x = (offset % 65536) % 256;
-        info->delta[k].ptr = rawSprites + page * _pagewise + 256 * y + x;
-      }
-      i++;
+        SpriteInfo *info = *i;
+        /*
+        PHYSFS_uint32 offset = reinterpret_cast<PHYSFS_uint32>(info->ptr);
+        PHYSFS_uint32 page = offset / 65536;
+        PHYSFS_uint32 y = (offset % 65536) / 256;
+        PHYSFS_uint32 x = (offset % 65536) % 256;
+        */
+        // std::cout << int(info->w) << "x" << int(info->h) << " " << int(info->deltaCount) << " deltas" << std::endl;
+        // std::cout << offset << " page " << page << " x,y " << x <<","<<y<< std::endl;
+        // info->ptr = rawSprites + page * _pagewise + 256 * y + x;
+        for (uint8_t k = 0; k < info->deltaCount; ++k) {
+            const auto tmp = reinterpret_cast<uintptr_t>(info->delta[k].ptr);
+            const auto offset = static_cast<PHYSFS_uint32>(tmp);
+            const auto page = offset / 65536;
+            const auto y = (offset % 65536) / 256;
+            const auto x = (offset % 65536) % 256;
+            info->delta[k].ptr = rawSprites + page * _pagewise + 256 * y + x;
+        }
+        i++;
     }
+}
 
-  }
-
-  void Graphics8Bit::loadSpriteNumbers() {
-    PHYSFS_uint64 st = static_cast<PHYSFS_uint64>(_topHeaderSize) +
-      sideSize + lidSize + auxSize + auxBlockTrailSize + animSize + paletteSize +
-      remapSize + remapIndexSize + objectInfoSize + carInfoSize +
-      spriteInfoSize + spriteGraphicsSize;
+void Graphics8Bit::loadSpriteNumbers()
+{
+    PHYSFS_uint64 st = static_cast<PHYSFS_uint64>(_topHeaderSize) + sideSize + lidSize + auxSize + auxBlockTrailSize +
+        animSize + paletteSize + remapSize + remapIndexSize + objectInfoSize + carInfoSize + spriteInfoSize +
+        spriteGraphicsSize;
     loadSpriteNumbers_shared(st);
-  }
+}
 
-  std::unique_ptr<unsigned char[]> Graphics8Bit::getSpriteBitmap(size_t id, int remap, uint32_t delta) {
+std::unique_ptr<unsigned char[]> Graphics8Bit::getSpriteBitmap(size_t id, int remap, uint32_t delta)
+{
     SpriteInfo *info = spriteInfos[id];
     assert(info != nullptr);
-    //PHYSFS_uint32 offset = reinterpret_cast<PHYSFS_uint32>(info->ptr);
-    //const PHYSFS_uint32 page = offset / 65536;
+    // PHYSFS_uint32 offset = reinterpret_cast<PHYSFS_uint32>(info->ptr);
+    // const PHYSFS_uint32 page = offset / 65536;
     const PHYSFS_uint32 y = info->yoffset; // (offset % 65536) / 256;
     const PHYSFS_uint32 x = info->xoffset; // (offset % 65536) % 256;
     const PHYSFS_uint32 page_size = 256 * 256;
 
-    unsigned char * page_start = rawSprites + info->page * page_size;// + 256 * y + x;
+    unsigned char *page_start = rawSprites + info->page * page_size; // + 256 * y + x;
     assert(page_start != nullptr);
-    
+
     auto dest = std::make_unique<unsigned char[]>(page_size);
 
-    unsigned char * result = dest.get();
+    unsigned char *result = dest.get();
     memcpy(dest.get(), page_start, page_size);
     if (delta > 0) {
-      handleDeltas(*info, result, delta);
-      /*
-      assert(delta < info->deltaCount);
-      DeltaInfo & di = info->delta[delta];
-      applyDelta(*info, result+256*y+x, di);
-      */
+        handleDeltas(*info, result, delta);
+        /*
+        assert(delta < info->deltaCount);
+        DeltaInfo & di = info->delta[delta];
+        applyDelta(*info, result+256*y+x, di);
+        */
     }
     if (remap > -1)
-      applyRemap(page_size, remap, result);
+        applyRemap(page_size, remap, result);
     auto bigbuf_smart = std::make_unique<unsigned char[]>(page_size * 4);
     auto bigbuf = bigbuf_smart.get();
-    
+
     masterRGB_->apply(page_size, result, bigbuf, true);
     assert(page_size > PHYSFS_uint32(info->w * info->h * 4));
     for (uint16_t i = 0; i < info->h; i++) {
-      memcpy(result, bigbuf+(256*y+x)*4, info->w * 4);
-      result += info->w * 4;
-      bigbuf += 256 * 4;
+        memcpy(result, bigbuf + (256 * y + x) * 4, info->w * 4);
+        result += info->w * 4;
+        bigbuf += 256 * 4;
     }
 
     return dest;
-  }
+}
 
-  void Graphics8Bit::applyRemap(unsigned int len, unsigned int which, unsigned char* buffer) {
+void Graphics8Bit::applyRemap(unsigned int len, unsigned int which, unsigned char *buffer)
+{
     assert(buffer != nullptr);
-    unsigned char* t = buffer;
+    unsigned char *t = buffer;
     for (unsigned int i = 0; i < len; ++i) {
-      *t = remapTables[which][*t]; //FIXME: is this the right order? Is this correct at all?
-      t++;
+        *t = remapTables[which][*t]; // FIXME: is this the right order? Is this correct at all?
+        t++;
     }
-  }
-  
+}
 
-  
-  unsigned char* Graphics8Bit::getSide(unsigned int idx, unsigned int palIdx, bool rgba) {
-    prepareSideTexture(idx-1, tileTmp);
+unsigned char *Graphics8Bit::getSide(unsigned int idx, unsigned int palIdx, bool rgba)
+{
+    prepareSideTexture(idx - 1, tileTmp);
     unsigned char *res;
     if (rgba) {
-      masterRGB_->apply(4096, tileTmp, tileTmpRGBA, true);
-      res = tileTmpRGBA;
-    }
-    else {
-      masterRGB_->apply(4096, tileTmp, tileTmpRGB, false);
-      res = tileTmpRGB;
+        masterRGB_->apply(4096, tileTmp, tileTmpRGBA, true);
+        res = tileTmpRGBA;
+    } else {
+        masterRGB_->apply(4096, tileTmp, tileTmpRGB, false);
+        res = tileTmpRGB;
     }
     return res;
-  }
+}
 
-  
-  unsigned char *Graphics8Bit::getLid(unsigned int idx, unsigned int palIdx, bool rgba) {
-    prepareLidTexture(idx-1, tileTmp);
+unsigned char *Graphics8Bit::getLid(unsigned int idx, unsigned int palIdx, bool rgba)
+{
+    prepareLidTexture(idx - 1, tileTmp);
     if (palIdx > 0)
-      applyRemap(4096, palIdx, tileTmp);
-    
+        applyRemap(4096, palIdx, tileTmp);
+
     unsigned char *res;
     if (rgba) {
-      masterRGB_->apply(4096, tileTmp, tileTmpRGBA, true);
-      res = tileTmpRGBA;
-    }
-    else {
-      masterRGB_->apply(4096, tileTmp, tileTmpRGB, false);
-      res = tileTmpRGB;
+        masterRGB_->apply(4096, tileTmp, tileTmpRGBA, true);
+        res = tileTmpRGBA;
+    } else {
+        masterRGB_->apply(4096, tileTmp, tileTmpRGB, false);
+        res = tileTmpRGB;
     }
     return res;
-  }
-  
-  unsigned char* Graphics8Bit::getAux(unsigned int idx, unsigned int palIdx, bool rgba) {
-    prepareAuxTexture(idx-1, tileTmp);
+}
+
+unsigned char *Graphics8Bit::getAux(unsigned int idx, unsigned int palIdx, bool rgba)
+{
+    prepareAuxTexture(idx - 1, tileTmp);
     unsigned char *res;
     if (rgba) {
 
-      masterRGB_->apply(4096, tileTmp, tileTmpRGBA, true);
-      res = tileTmpRGBA;
-    }
-    else {
-      masterRGB_->apply(4096, tileTmp, tileTmpRGB, false);
-      res = tileTmpRGB;
+        masterRGB_->apply(4096, tileTmp, tileTmpRGBA, true);
+        res = tileTmpRGBA;
+    } else {
+        masterRGB_->apply(4096, tileTmp, tileTmpRGB, false);
+        res = tileTmpRGB;
     }
     return res;
-  }
+}
 
-  /* RGBPalette */
-  Graphics8Bit::RGBPalette::RGBPalette() = default;
-  
-  Graphics8Bit::RGBPalette::RGBPalette(const std::string& palette) {
-    PHYSFS_file* fd = Util::FileHelper::OpenReadVFS(palette);
+/* RGBPalette */
+Graphics8Bit::RGBPalette::RGBPalette() = default;
+
+Graphics8Bit::RGBPalette::RGBPalette(const std::string &palette)
+{
+    PHYSFS_file *fd = Util::FileHelper::OpenReadVFS(palette);
     loadFromFile(fd);
-  }
-  
-  Graphics8Bit::RGBPalette::RGBPalette(PHYSFS_file* fd) {
+}
+
+Graphics8Bit::RGBPalette::RGBPalette(PHYSFS_file *fd)
+{
     loadFromFile(fd);
-  }
-  
-  int Graphics8Bit::RGBPalette::loadFromFile(PHYSFS_file* fd) {
-    PHYSFS_readBytes(fd, static_cast<void*>(data), sizeof(data));
+}
+
+int Graphics8Bit::RGBPalette::loadFromFile(PHYSFS_file *fd)
+{
+    PHYSFS_readBytes(fd, static_cast<void *>(data), sizeof(data));
     /*
     int max_sum = 0;
     for (int i = 1; i < 256; i+=3) {
@@ -424,21 +419,25 @@ namespace OpenGTA {
         max_sum = sum;
     }*/
     return 0;
-  }
-  
-  void Graphics8Bit::RGBPalette::apply(unsigned int len, const unsigned char* src, unsigned char* dst, bool rgba) {
-    for (unsigned int i = 0; i < len; i++) {
-      *dst = data[*src * 3 ]; ++dst;
-      *dst = data[*src * 3 + 1]; ++dst;
-      *dst = data[*src * 3 + 2]; ++dst;
-      if (rgba) {
-        if (*src == 0)
-          *dst = 0x00; 
-        else
-          *dst = 0xff;
-        ++dst;
-      }
-      ++src;
-    }
-  }
 }
+
+void Graphics8Bit::RGBPalette::apply(unsigned int len, const unsigned char *src, unsigned char *dst, bool rgba)
+{
+    for (unsigned int i = 0; i < len; i++) {
+        *dst = data[*src * 3];
+        ++dst;
+        *dst = data[*src * 3 + 1];
+        ++dst;
+        *dst = data[*src * 3 + 2];
+        ++dst;
+        if (rgba) {
+            if (*src == 0)
+                *dst = 0x00;
+            else
+                *dst = 0xff;
+            ++dst;
+        }
+        ++src;
+    }
+}
+} // namespace OpenGTA

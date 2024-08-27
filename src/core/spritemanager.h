@@ -23,6 +23,7 @@
 #pragma once
 
 #include <core/game_objects.h>
+
 #include <util/map_helper.h>
 // #include <core/train_system.h>
 
@@ -98,7 +99,7 @@ protected:
 
 private:
     uint32_t _drawMode;
-    uint32_t _lastCreateTick{};
+    uint32_t _lastCreateTick {};
 
     std::map<uint32_t, Pedestrian> _peds;
     std::map<uint32_t, Car> _cars;

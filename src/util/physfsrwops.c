@@ -19,7 +19,8 @@
  *  This file was written by Ryan C. Gordon. (icculus@clutteredmind.org).
  */
 
-#include <stdio.h>  /* used for SEEK_SET, SEEK_CUR, SEEK_END ... */
+#include <stdio.h> /* used for SEEK_SET, SEEK_CUR, SEEK_END ... */
+
 #include <util/physfsrwops.h>
 
 static const char *get_error(void)
@@ -32,87 +33,74 @@ static long physfsrwops_seek(SDL_RWops *rw, long offset, int whence)
     PHYSFS_file *handle = (PHYSFS_file *) rw->hidden.unknown.data1;
     int pos = 0;
 
-    if (whence == SEEK_SET)
-    {
+    if (whence == SEEK_SET) {
         pos = offset;
     } /* if */
 
-    else if (whence == SEEK_CUR)
-    {
+    else if (whence == SEEK_CUR) {
         PHYSFS_sint64 current = PHYSFS_tell(handle);
-        if (current == -1)
-        {
+        if (current == -1) {
             SDL_SetError("Can't find position in file: %s", get_error());
-            return(-1);
+            return (-1);
         } /* if */
 
         pos = (int) current;
-        if ( ((PHYSFS_sint64) pos) != current )
-        {
+        if (((PHYSFS_sint64) pos) != current) {
             SDL_SetError("Can't fit current file position in an int!");
-            return(-1);
+            return (-1);
         } /* if */
 
-        if (offset == 0)  /* this is a "tell" call. We're done. */
-            return(pos);
+        if (offset == 0) /* this is a "tell" call. We're done. */
+            return (pos);
 
         pos += offset;
     } /* else if */
 
-    else if (whence == SEEK_END)
-    {
+    else if (whence == SEEK_END) {
         PHYSFS_sint64 len = PHYSFS_fileLength(handle);
-        if (len == -1)
-        {
+        if (len == -1) {
             SDL_SetError("Can't find end of file: %s", get_error());
-            return(-1);
+            return (-1);
         } /* if */
 
         pos = (int) len;
-        if ( ((PHYSFS_sint64) pos) != len )
-        {
+        if (((PHYSFS_sint64) pos) != len) {
             SDL_SetError("Can't fit end-of-file position in an int!");
-            return(-1);
+            return (-1);
         } /* if */
 
         pos += offset;
     } /* else if */
 
-    else
-    {
+    else {
         SDL_SetError("Invalid 'whence' parameter.");
-        return(-1);
+        return (-1);
     } /* else */
 
-    if ( pos < 0 )
-    {
+    if (pos < 0) {
         SDL_SetError("Attempt to seek past start of file.");
-        return(-1);
+        return (-1);
     } /* if */
-    
-    if (!PHYSFS_seek(handle, (PHYSFS_uint64) pos))
-    {
+
+    if (!PHYSFS_seek(handle, (PHYSFS_uint64) pos)) {
         SDL_SetError("PhysicsFS error: %s", get_error());
-        return(-1);
+        return (-1);
     } /* if */
 
-    return(pos);
+    return (pos);
 } /* physfsrwops_seek */
-
 
 static size_t physfsrwops_read(SDL_RWops *rw, void *ptr, size_t size, size_t maxnum)
 {
     PHYSFS_file *handle = (PHYSFS_file *) rw->hidden.unknown.data1;
     PHYSFS_sint64 rc = PHYSFS_readBytes(handle, ptr, size * maxnum);
-    if (rc != maxnum)
-    {
+    if (rc != maxnum) {
         if (!PHYSFS_eof(handle)) /* not EOF? Must be an error. */
             SDL_SetError("PhysicsFS error: %s", get_error());
     } /* if */
 
-    return((int) rc);
+    return ((int) rc);
 } /* physfsrwops_read */
-
 
 static size_t physfsrwops_write(SDL_RWops *rw, const void *ptr, size_t size, size_t num)
 {
@@ -121,23 +109,20 @@ static size_t physfsrwops_write(SDL_RWops *rw, const void *ptr, size_t size, siz
     if (rc != num)
         SDL_SetError("PhysicsFS error: %s", get_error());
 
-    return((int) rc);
+    return ((int) rc);
 } /* physfsrwops_write */
-
 
 static int physfsrwops_close(SDL_RWops *rw)
 {
     PHYSFS_file *handle = (PHYSFS_file *) rw->hidden.unknown.data1;
-    if (!PHYSFS_close(handle))
-    {
+    if (!PHYSFS_close(handle)) {
         SDL_SetError("PhysicsFS error: %s", get_error());
-        return(-1);
+        return (-1);
     } /* if */
 
     SDL_FreeRW(rw);
-    return(0);
+    return (0);
 } /* physfsrwops_close */
-
 
 static SDL_RWops *create_rwops(PHYSFS_file *handle)
 {
@@ -145,22 +130,19 @@ static SDL_RWops *create_rwops(PHYSFS_file *handle)
 
     if (handle == NULL)
         SDL_SetError("PhysicsFS error: %s", get_error());
-    else
-    {
+    else {
         retval = SDL_AllocRW();
-        if (retval != NULL)
-        {
-            retval->seek  = physfsrwops_seek;
-            retval->read  = physfsrwops_read;
+        if (retval != NULL) {
+            retval->seek = physfsrwops_seek;
+            retval->read = physfsrwops_read;
             retval->write = physfsrwops_write;
             retval->close = physfsrwops_close;
             retval->hidden.unknown.data1 = handle;
         } /* if */
     } /* else */
 
-    return(retval);
+    return (retval);
 } /* create_rwops */
-
 
 SDL_RWops *PHYSFSRWOPS_makeRWops(PHYSFS_file *handle)
 {
@@ -170,25 +152,22 @@ SDL_RWops *PHYSFSRWOPS_makeRWops(PHYSFS_file *handle)
     else
         retval = create_rwops(handle);
 
-    return(retval);
+    return (retval);
 } /* PHYSFSRWOPS_makeRWops */
-
 
 SDL_RWops *PHYSFSRWOPS_openRead(const char *fname)
 {
-    return(create_rwops(PHYSFS_openRead(fname)));
+    return (create_rwops(PHYSFS_openRead(fname)));
 } /* PHYSFSRWOPS_openRead */
-
 
 SDL_RWops *PHYSFSRWOPS_openWrite(const char *fname)
 {
-    return(create_rwops(PHYSFS_openWrite(fname)));
+    return (create_rwops(PHYSFS_openWrite(fname)));
 } /* PHYSFSRWOPS_openWrite */
-
 
 SDL_RWops *PHYSFSRWOPS_openAppend(const char *fname)
 {
-    return(create_rwops(PHYSFS_openAppend(fname)));
+    return (create_rwops(PHYSFS_openAppend(fname)));
 } /* PHYSFSRWOPS_openAppend */
 
 /* end of physfsrwops.c ... */

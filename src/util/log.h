@@ -1,8 +1,9 @@
 #pragma once
 
+#include <iostream>
+
 #include <fmt/color.h>
 #include <fmt/core.h>
-#include <iostream>
 
 #ifdef WIN32
 #undef ERROR
@@ -10,7 +11,10 @@
 
 namespace Util {
 
-enum class LogLevel { error, warn, info, debug };
+enum class LogLevel { error,
+                      warn,
+                      info,
+                      debug };
 
 class Log {
 public:
@@ -53,13 +57,18 @@ private:
 #define ERROR_AND_EXIT(ec) \
     error_code = ec;       \
     exit(ec);
-#define GL_CHECKERROR                                                                                              \
-    do {                                                                                                              \
-        int _err = glGetError();                                                                                   \
-        if (_err != GL_NO_ERROR)                                                                                   \
-            Util::Log::_log(                                                                                       \
-                Util::LogLevel::error, __FILE__, __LINE__, "GL error: {} = {}", _err, Util::Log::glErrorName(_err) \
-            );                                                                                                     \
+#define GL_CHECKERROR                        \
+    do {                                     \
+        int _err = glGetError();             \
+        if (_err != GL_NO_ERROR)             \
+            Util::Log::_log(                 \
+                Util::LogLevel::error,       \
+                __FILE__,                    \
+                __LINE__,                    \
+                "GL error: {} = {}",         \
+                _err,                        \
+                Util::Log::glErrorName(_err) \
+            );                               \
     } while (false)
 
 } // namespace Util

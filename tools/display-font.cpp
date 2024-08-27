@@ -1,16 +1,19 @@
-#include "common_sdl_gl.h"
+#include <iostream>
+
+#include <physfs.h>
+
+#include <GL/gl.h>
+#include <SDL2/SDL_events.h>
+#include <SDL2/SDL_keycode.h>
+#include <SDL2/SDL_opengl.h>
+
 #include <graphics/base.h>
 #include <graphics/font.h>
 #include <graphics/screen.h>
 #include <util/gui.h>
 #include <util/log.h>
 
-#include <GL/gl.h>
-#include <SDL2/SDL_events.h>
-#include <SDL2/SDL_keycode.h>
-#include <SDL2/SDL_opengl.h>
-#include <iostream>
-#include <physfs.h>
+#include "common_sdl_gl.h"
 
 // FIXME: gui.cpp needs that
 float screen_gamma = 1.0f;

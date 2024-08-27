@@ -4,24 +4,42 @@ AlignConsecutiveMacros: true
 AlignEscapedNewlines: Left
 AlignOperands: false
 AllowAllParametersOfDeclarationOnNextLine: false
+AllowAllArgumentsOnNextLine: false
 AllowShortFunctionsOnASingleLine: Inline
+AllowShortBlocksOnASingleLine: false
 AlwaysBreakBeforeMultilineStrings: false
 AlwaysBreakTemplateDeclarations: true
-BinPackArguments: true
-BinPackParameters: true
+BinPackArguments: false
+BinPackParameters: false
 BraceWrapping:
   AfterFunction: true
   SplitEmptyRecord: false
 BreakBeforeBinaryOperators: false
 BreakBeforeBraces: Custom
 BreakConstructorInitializers: BeforeComma
-ColumnLimit: 120
+ColumnLimit: 0
 Cpp11BracedListStyle: false
 IndentCaseLabels: true
 IndentWidth: 4
-PenaltyBreakBeforeFirstCallParameter: 300
-PenaltyReturnTypeOnItsOwnLine: 600
+PackConstructorInitializers: NextLine
+PenaltyReturnTypeOnItsOwnLine: 0
+PenaltyBreakBeforeFirstCallParameter: 0
+PenaltyBreakString: 0
+PenaltyBreakAssignment: 0
 SpaceAfterCStyleCast: true
 SpaceBeforeCpp11BracedList: true
 TabWidth: 4
 IncludeBlocks: Regroup
+IncludeCategories:
+  - Regex: '^<[a-z_]+>'
+    Priority: 1
+  - Regex: '^<[a-z_]+.h>'
+    Priority: 2
+  - Regex: '^["<](common|code|graphics|lua-addon|util)/'
+    Priority: 90
+  - Regex: '^"'
+    Priority: 110
+  - Regex: '/'
+    Priority: 30
+  - Regex: '.*'
+    Priority: 40

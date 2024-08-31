@@ -21,7 +21,7 @@ public:
         }
         return nextId++;
     }
-    uint32_t getPlayerId() const noexcept { return lastPlayerId; }
+    constexpr uint32_t getPlayerId() const noexcept { return lastPlayerId; }
 
 private:
     TypeIdBlackBox() = default;
@@ -29,8 +29,8 @@ private:
     TypeIdBlackBox &operator=(const TypeIdBlackBox &) = delete;
 
     uint32_t nextId = 0;
-    uint32_t firstPlayerId = 0xffffffff - 32;
-    uint32_t lastPlayerId = 0xffffffff;
+    constexpr static uint32_t firstPlayerId = 0xffffffff - 32;
+    constexpr static uint32_t lastPlayerId = 0xffffffff;
 };
 
 } // namespace OpenGTA

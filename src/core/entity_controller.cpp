@@ -105,6 +105,11 @@ bool PedController::getRunning()
     return dataSet.get_item(7);
 }
 
+void PedController::toggleRunning()
+{
+    dataSet.set_item(7, !dataSet.get_item(7));
+}
+
 unsigned char PedController::getActiveWeapon()
 {
     // 0 .. k

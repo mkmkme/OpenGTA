@@ -70,6 +70,7 @@ public:
 
     void setRunning(bool yes = true);
     bool getRunning();
+    void toggleRunning();
 
     // weapons, equip, shoot
 };

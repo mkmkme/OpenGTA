@@ -657,10 +657,7 @@ void toggle_player_run(OpenGTA::LocalPlayer &player)
         WARN("no player yet!");
         return;
     }
-    if (!pc->getRunning())
-        pc->setRunning(true);
-    else
-        pc->setRunning(false);
+    pc->toggleRunning();
 }
 
 void OpenGTAViewer::showGammaConfig()

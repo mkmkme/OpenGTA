@@ -94,11 +94,7 @@ SpriteManager::SpriteManager()
     registerAnimation(99, SpriteObject::Animation(0, 12));
     registerAnimation(100, SpriteObject::Animation(12, 12));
 }
-SpriteManager::~SpriteManager()
-{
-    clear();
-    animations.clear();
-}
+SpriteManager::~SpriteManager() = default;
 
 Pedestrian &SpriteManager::add(const Pedestrian &ped)
 {

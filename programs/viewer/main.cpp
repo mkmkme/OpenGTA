@@ -203,14 +203,10 @@ void create_ingame_gui(GUI::Manager &gm, OpenGL::Screen &screen)
         r.x = screen.width() / 2 - 50;
         r.y = screen.height() - r.h;
         r.w = 100;
-        SDL_Rect rs;
-        rs.x = rs.y = 0;
-        rs.w = rs.h = 16;
+        SDL_Rect rs { .x = 0, .y = 0, .w = 16, .h = 16 };
         gm.cacheStyleArrowSprite(16, -1);
         gm.cacheStyleArrowSprite(17, -1);
-        std::vector<uint16_t> anim2frames(2);
-        anim2frames[0] = 16;
-        anim2frames[1] = 17;
+        std::vector<uint16_t> anim2frames { 16, 17 };
         gm.createAnimation(anim2frames, 10, 2);
         wantedLevel = new GUI::AnimStatusDisplay(GUI::WANTED_LEVEL_ID, r, rs, 2);
         /*
@@ -289,21 +285,23 @@ void parse_args(int argc, char *argv[])
         if (result.count("l")) {
             auto log_level = result["l"].as<int>();
             switch (log_level) {
+                using enum Util::LogLevel;
+                using Util::Log;
                 case 0:
-                    Util::Log::setOutputLevel(Util::LogLevel::error);
+                    Log::setOutputLevel(error);
                     break;
                 case 1:
-                    Util::Log::setOutputLevel(Util::LogLevel::warn);
+                    Log::setOutputLevel(warn);
                     break;
                 case 2:
-                    Util::Log::setOutputLevel(Util::LogLevel::info);
+                    Log::setOutputLevel(info);
                     break;
                 case 3:
-                    Util::Log::setOutputLevel(Util::LogLevel::debug);
+                    Log::setOutputLevel(debug);
                     break;
                 default:
                     fmt::print(stderr, "Invalid log level, falling back to info");
-                    Util::Log::setOutputLevel(Util::LogLevel::info);
+                    Log::setOutputLevel(info);
                     break;
             }
         }
@@ -311,7 +309,7 @@ void parse_args(int argc, char *argv[])
             city_num = result["city"].as<int>();
         }
     } catch (const cxxopts::exceptions::exception &e) {
-        fmt::print(stderr, "Error parsing options: {}\n", e.what());
+        fmt::println(stderr, "Error parsing options: {}", e.what());
         exit(1);
     }
 }
@@ -490,9 +488,7 @@ void OpenGTAViewer::init(std::string_view progname)
     OpenGL::SpriteCache::Instance().setScale2x(config_scale2x);
 
     // FIXME: basic gui setup; should not be here
-    SDL_Rect rect;
-    rect.x = 5;
-    rect.y = 50;
+    SDL_Rect rect { .x = 5, .y = 50 };
     fps_label = new GUI::Label(rect, "", "F_MTEXT.FON", 1);
     // fps_label->borderColor.r = fps_label->borderColor.unused = 200;
     guiManager_.add(fps_label, 5);
@@ -546,7 +542,7 @@ void handleKeyUp(SDL_Keysym *keysym, OpenGTA::LocalPlayer &player)
 
 void OpenGTAViewer::createPedAt(const Vector3D &v)
 {
-    OpenGTA::Pedestrian p(Vector3D(0.2f, 0.5f, 0.2f), v, 0xffffffff);
+    OpenGTA::Pedestrian p({ 0.2f, 0.5f, 0.2f }, v, 0xffffffff);
     p.remap = OpenGTA::ActiveStyle::Instance().get().getRandomPedRemapNumber();
     INFO("using remap: {}", p.remap);
     OpenGTA::Pedestrian &pr = OpenGTA::SpriteManager::Instance().add(p);
@@ -647,12 +643,12 @@ void toggle_player_run(OpenGTA::LocalPlayer &player)
 void OpenGTAViewer::showGammaConfig()
 {
     if (gamma_slide) {
-        SDL_Rect r;
-
-        r.x = screen_.width() / 2;
-        r.y = screen_.height() / 2;
-        r.w = 200;
-        r.h = 30;
+        SDL_Rect r {
+            .x = static_cast<int>(screen_.width() / 2),
+            .y = static_cast<int>(screen_.height() / 2),
+            .w = 200,
+            .h = 30
+        };
 
         auto *sb = new GUI::ScrollBar(GUI::GAMMA_SCROLLBAR_ID, r);
         sb->color.r = sb->color.g = sb->color.b = 180;
@@ -722,19 +718,19 @@ void OpenGTAViewer::handleKeyPress(SDL_Keysym *keysym)
             break;
         case SDLK_LEFT:
             mapPos[0] -= 1.0f;
-            camera_.translateBy(Vector3D(-1, 0, 0));
+            camera_.translateBy({ -1, 0, 0 });
             break;
         case SDLK_RIGHT:
             mapPos[0] += 1.0f;
-            camera_.translateBy(Vector3D(1, 0, 0));
+            camera_.translateBy({ 1, 0, 0 });
             break;
         case SDLK_UP:
             mapPos[2] -= 1.0f;
-            camera_.translateBy(Vector3D(0, 0, -1));
+            camera_.translateBy({ 0, 0, -1 });
             break;
         case SDLK_DOWN:
             mapPos[2] += 1.0f;
-            camera_.translateBy(Vector3D(0, 0, 1));
+            camera_.translateBy({ 0, 0, 1 });
             break;
         case SDLK_SPACE:
             camera_.setSpeed(0.0f);
@@ -755,9 +751,9 @@ void OpenGTAViewer::handleKeyPress(SDL_Keysym *keysym)
                 Vector3D p(camera_.getEye());
                 createPedAt(p);
                 camera_.setVectors(
-                    Vector3D(p.x, 10, p.z),
-                    Vector3D(p.x, 9.0f, p.z),
-                    Vector3D(0, 0, -1)
+                    { p.x, 10, p.z },
+                    { p.x, 9.0f, p.z },
+                    { 0, 0, -1 }
                 );
                 camera_.setFollowMode(OpenGTA::SpriteManager::Instance().getPed(0xffffffff).pos);
                 camera_.setCamGravity(true);

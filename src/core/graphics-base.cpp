@@ -14,50 +14,35 @@ using namespace Util;
 PHYSFS_uint16 GraphicsBase::SpriteNumbers::countByType(const SpriteTypes &t) const
 {
     switch (t) {
-        case ARROW:
-            return GTA_SPRITE_ARROW;
-        case DIGIT:
-            return GTA_SPRITE_DIGITS;
-        case BOAT:
-            return GTA_SPRITE_BOAT;
-        case BOX:
-            return GTA_SPRITE_BOX;
-        case BUS:
-            return GTA_SPRITE_BUS;
-        case CAR:
-            return GTA_SPRITE_CAR;
-        case OBJECT:
-            return GTA_SPRITE_OBJECT;
-        case PED:
-            return GTA_SPRITE_PED;
-        case SPEEDO:
-            return GTA_SPRITE_SPEEDO;
-        case TANK:
-            return GTA_SPRITE_TANK;
-        case TRAFFIC_LIGHT:
-            return GTA_SPRITE_TRAFFIC_LIGHTS;
-        case TRAIN:
-            return GTA_SPRITE_TRAIN;
-        case TRDOOR:
-            return GTA_SPRITE_TRDOORS;
-        case BIKE:
-            return GTA_SPRITE_BIKE;
-        case TRAM:
-            return GTA_SPRITE_TRAM;
-        case WBUS:
-            return GTA_SPRITE_WBUS;
-        case WCAR:
-            return GTA_SPRITE_WCAR;
-        case EX:
-            return GTA_SPRITE_EX;
-        case TUMCAR:
-            return GTA_SPRITE_TUMCAR;
-        case TUMTRUCK:
-            return GTA_SPRITE_TUMTRUCK;
-        case FERRY:
-            return GTA_SPRITE_FERRY;
-        default:
-            break;
+#define CASE_COUNT(_enum, _value) \
+    case _enum:                   \
+        return _value
+#define CASE_COUNT_TRIVIAL(_enum) CASE_COUNT(_enum, GTA_SPRITE_##_enum);
+
+        CASE_COUNT_TRIVIAL(ARROW);
+        CASE_COUNT(DIGIT, GTA_SPRITE_DIGITS);
+        CASE_COUNT_TRIVIAL(BOAT);
+        CASE_COUNT_TRIVIAL(BOX);
+        CASE_COUNT_TRIVIAL(BUS);
+        CASE_COUNT_TRIVIAL(CAR);
+        CASE_COUNT_TRIVIAL(OBJECT);
+        CASE_COUNT_TRIVIAL(PED);
+        CASE_COUNT_TRIVIAL(SPEEDO);
+        CASE_COUNT_TRIVIAL(TANK);
+        CASE_COUNT(TRAFFIC_LIGHT, GTA_SPRITE_TRAFFIC_LIGHTS);
+        CASE_COUNT_TRIVIAL(TRAIN);
+        CASE_COUNT(TRDOOR, GTA_SPRITE_TRDOORS);
+        CASE_COUNT_TRIVIAL(BIKE);
+        CASE_COUNT_TRIVIAL(TRAM);
+        CASE_COUNT_TRIVIAL(WBUS);
+        CASE_COUNT_TRIVIAL(WCAR);
+        CASE_COUNT_TRIVIAL(EX);
+        CASE_COUNT_TRIVIAL(TUMCAR);
+        CASE_COUNT_TRIVIAL(TUMTRUCK);
+        CASE_COUNT_TRIVIAL(FERRY);
+
+#undef CASE_COUNT
+#undef CASE_COUNT_TRIVIAL
     }
     ERROR("UPS: {}", static_cast<int>(t));
     assert(0);
@@ -153,83 +138,38 @@ uint8_t GraphicsBase::getFormat()
 
 PHYSFS_uint16 GraphicsBase::SpriteNumbers::reIndex(const PHYSFS_uint16 &id, const SpriteTypes &t) const
 {
+    PHYSFS_uint16 ret = id;
     switch (t) {
+#define CASE_ACCUMULATE(_enum, _val) \
+    case _enum:                      \
+        ret += _val;                 \
+        [[fallthrough]]
+
+        CASE_ACCUMULATE(FERRY, GTA_SPRITE_TUMTRUCK);
+        CASE_ACCUMULATE(TUMTRUCK, GTA_SPRITE_TUMCAR);
+        CASE_ACCUMULATE(TUMCAR, GTA_SPRITE_EX);
+        CASE_ACCUMULATE(EX, GTA_SPRITE_WCAR);
+        CASE_ACCUMULATE(WCAR, GTA_SPRITE_WBUS);
+        CASE_ACCUMULATE(WBUS, GTA_SPRITE_TRAM);
+        CASE_ACCUMULATE(TRAM, GTA_SPRITE_BIKE);
+        CASE_ACCUMULATE(BIKE, GTA_SPRITE_TRDOORS);
+        CASE_ACCUMULATE(TRDOOR, GTA_SPRITE_TRAIN);
+        CASE_ACCUMULATE(TRAIN, GTA_SPRITE_TRAFFIC_LIGHTS);
+        CASE_ACCUMULATE(TRAFFIC_LIGHT, GTA_SPRITE_TANK);
+        CASE_ACCUMULATE(TANK, GTA_SPRITE_SPEEDO);
+        CASE_ACCUMULATE(SPEEDO, GTA_SPRITE_PED);
+        CASE_ACCUMULATE(PED, GTA_SPRITE_OBJECT);
+        CASE_ACCUMULATE(OBJECT, GTA_SPRITE_CAR);
+        CASE_ACCUMULATE(CAR, GTA_SPRITE_BUS);
+        CASE_ACCUMULATE(BUS, GTA_SPRITE_BOX);
+        CASE_ACCUMULATE(BOX, GTA_SPRITE_BOAT);
+        CASE_ACCUMULATE(BOAT, GTA_SPRITE_DIGITS);
+        CASE_ACCUMULATE(DIGIT, GTA_SPRITE_ARROW);
         case ARROW:
-            return id;
-        case DIGIT:
-            return GTA_SPRITE_ARROW + id;
-        case BOAT:
-            return GTA_SPRITE_ARROW + GTA_SPRITE_DIGITS + id;
-        case BOX:
-            return GTA_SPRITE_ARROW + GTA_SPRITE_DIGITS + GTA_SPRITE_BOAT + id;
-        case BUS:
-            return GTA_SPRITE_ARROW + GTA_SPRITE_DIGITS + GTA_SPRITE_BOAT + GTA_SPRITE_BOX + id;
-        case CAR:
-            return GTA_SPRITE_ARROW + GTA_SPRITE_DIGITS + GTA_SPRITE_BOAT + GTA_SPRITE_BOX + GTA_SPRITE_BUS + id;
-        case OBJECT:
-            return GTA_SPRITE_ARROW + GTA_SPRITE_DIGITS + GTA_SPRITE_BOAT + GTA_SPRITE_BOX + GTA_SPRITE_BUS +
-                GTA_SPRITE_CAR + id;
-        case PED:
-            return GTA_SPRITE_ARROW + GTA_SPRITE_DIGITS + GTA_SPRITE_BOAT + GTA_SPRITE_BOX + GTA_SPRITE_BUS +
-                GTA_SPRITE_CAR + GTA_SPRITE_OBJECT + id;
-        case SPEEDO:
-            return GTA_SPRITE_ARROW + GTA_SPRITE_DIGITS + GTA_SPRITE_BOAT + GTA_SPRITE_BOX + GTA_SPRITE_BUS +
-                GTA_SPRITE_CAR + GTA_SPRITE_OBJECT + GTA_SPRITE_PED + id;
-        case TANK:
-            return GTA_SPRITE_ARROW + GTA_SPRITE_DIGITS + GTA_SPRITE_BOAT + GTA_SPRITE_BOX + GTA_SPRITE_BUS +
-                GTA_SPRITE_CAR + GTA_SPRITE_OBJECT + GTA_SPRITE_PED + GTA_SPRITE_SPEEDO + id;
-        case TRAFFIC_LIGHT:
-            return GTA_SPRITE_ARROW + GTA_SPRITE_DIGITS + GTA_SPRITE_BOAT + GTA_SPRITE_BOX + GTA_SPRITE_BUS +
-                GTA_SPRITE_CAR + GTA_SPRITE_OBJECT + GTA_SPRITE_PED + GTA_SPRITE_SPEEDO + GTA_SPRITE_TANK + id;
-        case TRAIN:
-            return GTA_SPRITE_ARROW + GTA_SPRITE_DIGITS + GTA_SPRITE_BOAT + GTA_SPRITE_BOX + GTA_SPRITE_BUS +
-                GTA_SPRITE_CAR + GTA_SPRITE_OBJECT + GTA_SPRITE_PED + GTA_SPRITE_SPEEDO + GTA_SPRITE_TANK +
-                +GTA_SPRITE_TRAFFIC_LIGHTS + id;
-        case TRDOOR:
-            return GTA_SPRITE_ARROW + GTA_SPRITE_DIGITS + GTA_SPRITE_BOAT + GTA_SPRITE_BOX + GTA_SPRITE_BUS +
-                GTA_SPRITE_CAR + GTA_SPRITE_OBJECT + GTA_SPRITE_PED + GTA_SPRITE_SPEEDO + GTA_SPRITE_TANK +
-                +GTA_SPRITE_TRAFFIC_LIGHTS + GTA_SPRITE_TRAIN + id;
-        case BIKE:
-            return GTA_SPRITE_ARROW + GTA_SPRITE_DIGITS + GTA_SPRITE_BOAT + GTA_SPRITE_BOX + GTA_SPRITE_BUS +
-                GTA_SPRITE_CAR + GTA_SPRITE_OBJECT + GTA_SPRITE_PED + GTA_SPRITE_SPEEDO + GTA_SPRITE_TANK +
-                +GTA_SPRITE_TRAFFIC_LIGHTS + GTA_SPRITE_TRAIN + GTA_SPRITE_TRDOORS + id;
-        case TRAM:
-            return GTA_SPRITE_ARROW + GTA_SPRITE_DIGITS + GTA_SPRITE_BOAT + GTA_SPRITE_BOX + GTA_SPRITE_BUS +
-                GTA_SPRITE_CAR + GTA_SPRITE_OBJECT + GTA_SPRITE_PED + GTA_SPRITE_SPEEDO + GTA_SPRITE_TANK +
-                +GTA_SPRITE_TRAFFIC_LIGHTS + GTA_SPRITE_TRAIN + GTA_SPRITE_TRDOORS + GTA_SPRITE_BIKE + id;
-        case WBUS:
-            return GTA_SPRITE_ARROW + GTA_SPRITE_DIGITS + GTA_SPRITE_BOAT + GTA_SPRITE_BOX + GTA_SPRITE_BUS +
-                GTA_SPRITE_CAR + GTA_SPRITE_OBJECT + GTA_SPRITE_PED + GTA_SPRITE_SPEEDO + GTA_SPRITE_TANK +
-                +GTA_SPRITE_TRAFFIC_LIGHTS + GTA_SPRITE_TRAIN + GTA_SPRITE_TRDOORS + GTA_SPRITE_BIKE + GTA_SPRITE_TRAM +
-                id;
-        case WCAR:
-            return GTA_SPRITE_ARROW + GTA_SPRITE_DIGITS + GTA_SPRITE_BOAT + GTA_SPRITE_BOX + GTA_SPRITE_BUS +
-                GTA_SPRITE_CAR + GTA_SPRITE_OBJECT + GTA_SPRITE_PED + GTA_SPRITE_SPEEDO + GTA_SPRITE_TANK +
-                +GTA_SPRITE_TRAFFIC_LIGHTS + GTA_SPRITE_TRAIN + GTA_SPRITE_TRDOORS + GTA_SPRITE_BIKE + GTA_SPRITE_TRAM +
-                GTA_SPRITE_WBUS + id;
-        case EX:
-            return GTA_SPRITE_ARROW + GTA_SPRITE_DIGITS + GTA_SPRITE_BOAT + GTA_SPRITE_BOX + GTA_SPRITE_BUS +
-                GTA_SPRITE_CAR + GTA_SPRITE_OBJECT + GTA_SPRITE_PED + GTA_SPRITE_SPEEDO + GTA_SPRITE_TANK +
-                +GTA_SPRITE_TRAFFIC_LIGHTS + GTA_SPRITE_TRAIN + GTA_SPRITE_TRDOORS + GTA_SPRITE_BIKE + GTA_SPRITE_TRAM +
-                GTA_SPRITE_WBUS + GTA_SPRITE_WCAR + id;
-        case TUMCAR:
-            return GTA_SPRITE_ARROW + GTA_SPRITE_DIGITS + GTA_SPRITE_BOAT + GTA_SPRITE_BOX + GTA_SPRITE_BUS +
-                GTA_SPRITE_CAR + GTA_SPRITE_OBJECT + GTA_SPRITE_PED + GTA_SPRITE_SPEEDO + GTA_SPRITE_TANK +
-                +GTA_SPRITE_TRAFFIC_LIGHTS + GTA_SPRITE_TRAIN + GTA_SPRITE_TRDOORS + GTA_SPRITE_BIKE + GTA_SPRITE_TRAM +
-                GTA_SPRITE_WBUS + GTA_SPRITE_WCAR + GTA_SPRITE_TUMCAR + id;
-        case TUMTRUCK:
-            return GTA_SPRITE_ARROW + GTA_SPRITE_DIGITS + GTA_SPRITE_BOAT + GTA_SPRITE_BOX + GTA_SPRITE_BUS +
-                GTA_SPRITE_CAR + GTA_SPRITE_OBJECT + GTA_SPRITE_PED + GTA_SPRITE_SPEEDO + GTA_SPRITE_TANK +
-                +GTA_SPRITE_TRAFFIC_LIGHTS + GTA_SPRITE_TRAIN + GTA_SPRITE_TRDOORS + GTA_SPRITE_BIKE + GTA_SPRITE_TRAM +
-                GTA_SPRITE_WBUS + GTA_SPRITE_WCAR + GTA_SPRITE_TUMCAR + GTA_SPRITE_TUMCAR + id;
-        case FERRY:
-            return GTA_SPRITE_ARROW + GTA_SPRITE_DIGITS + GTA_SPRITE_BOAT + GTA_SPRITE_BOX + GTA_SPRITE_BUS +
-                GTA_SPRITE_CAR + GTA_SPRITE_OBJECT + GTA_SPRITE_PED + GTA_SPRITE_SPEEDO + GTA_SPRITE_TANK +
-                +GTA_SPRITE_TRAFFIC_LIGHTS + GTA_SPRITE_TRAIN + GTA_SPRITE_TRDOORS + GTA_SPRITE_BIKE + GTA_SPRITE_TRAM +
-                GTA_SPRITE_WBUS + GTA_SPRITE_WCAR + GTA_SPRITE_TUMCAR + GTA_SPRITE_TUMCAR + GTA_SPRITE_TUMTRUCK + id;
+            break;
+#undef CASE_ACCUMULATE
     }
-    assert(0); // should never be reached
-    return 0;
+    return ret;
 }
 
 void GraphicsBase::loadAnim()

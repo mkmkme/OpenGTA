@@ -22,11 +22,11 @@
  ************************************************************************/
 
 // Prevent SDL from overriding main().
+#include <fmt/core.h>
 #define SDL_MAIN_HANDLED
 
 #include <array>
 #include <filesystem>
-#include <iomanip>
 #include <iostream>
 #include <string_view>
 
@@ -143,69 +143,53 @@ void OpenGTAViewer::quit()
     delete city;
     // XXX: This is a hack to avoid a crash on exit
     //  PHYSFS_deinit();
-    std::cout << "Goodbye" << std::endl;
+    fmt::println("Goodbye");
 }
 
 void print_version_info()
 {
-#define PRINT_FORMATED(spaces) std::setw(spaces) << std::left <<
-#define PRINT_OFFSET           PRINT_FORMATED(19)
-    std::cout << PRINT_OFFSET "OpenGTA version:" << OGTA_VERSION_INFO << std::endl
-              << PRINT_OFFSET "Lua version:" << LUA_RELEASE << std::endl
-              << PRINT_OFFSET "sound support:"
-              <<
-#ifdef WITH_SOUND
-        "yes" <<
-#else
-        "no" <<
-#endif
-        std::endl
-              << PRINT_OFFSET "SDL_image support:"
-              <<
-#ifdef WITH_SDL_IMAGE
-        "yes" <<
-#else
-        "no" <<
-#endif
-        std::endl
-              <<
+#define PRINT_FORMATTED(name, value) fmt::println("{:<19}{}", name, value)
 
-        PRINT_OFFSET "vsync support:"
-              <<
+    PRINT_FORMATTED("OpenGTA version:", OGTA_VERSION_INFO);
+    PRINT_FORMATTED("Lua version:", LUA_RELEASE);
+
+#ifdef WITH_SOUND
+    PRINT_FORMATTED("sound support:", "yes");
+#else
+    PRINT_FORMATTED("sound support:", "no");
+#endif
+
+#ifdef WITH_SDL_IMAGE
+    PRINT_FORMATTED("SDL_image support:", "yes");
+#else
+    PRINT_FORMATTED("SDL_image support:", "no");
+#endif
+
 #ifdef HAVE_SDL_VSYNC
-        "yes" <<
+    PRINT_FORMATTED("vsync support:", "yes");
 #else
-        "no" <<
+    PRINT_FORMATTED("vsync support:", "no");
 #endif
-        std::endl
-              << PRINT_OFFSET "scale2x support:"
-              <<
+
 #ifdef DO_SCALE2X
-        "yes" <<
+    PRINT_FORMATTED("scale2x support:", "yes");
 #else
-        "no" <<
+    PRINT_FORMATTED("scale2x support:", "no");
 #endif
-        std::endl
-              <<
 
 #ifdef OGTA_DEFAULT_DATA_PATH
-        PRINT_OFFSET "data-path:"
-              << "[" OGTA_DEFAULT_DATA_PATH "]" << std::endl
-              <<
+    PRINT_FORMATTED("data-path", "[" OGTA_DEFAULT_DATA_PATH "]");
 #endif
+
 #ifdef OGTA_DEFAULT_MOD_PATH
-        PRINT_OFFSET "mod-path:"
-              << "[" OGTA_DEFAULT_MOD_PATH "]" << std::endl
-              <<
+    PRINT_FORMATTED("mod-path", "[" OGTA_DEFAULT_MOD_PATH "]");
 #endif
-        PRINT_OFFSET "default graphics:"
-              <<
+
 #ifdef OGTA_DEFAULT_GRAPHICS_G24
-        "G24 - 24 bit" <<
+    PRINT_FORMATTED("default graphics:", "G24 - 24 bit");
 #else
-        "GRY - 8 bit" <<
+    PRINT_FORMATTED("default graphics:", "GRY - 8 bit");
 #endif
-        std::endl;
 }
 
 namespace {
@@ -520,18 +504,18 @@ void print_position(OpenGL::Camera &camera)
     Vector3D &e = camera.getEye();
     Vector3D &u = camera.getUp();
     if (!city->getViewMode()) {
-        std::cout << cities[city_num] << ": " << city->getCurrentSector()->getFullName() << std::endl
-                  << "camera.setCenter(" << v.x << ", " << v.y << ", " << v.z << ")" << std::endl
-                  << "camera.setEye(" << e.x << ", " << e.y << ", " << e.z << ")" << std::endl
-                  << "camera.setUp(" << u.x << ", " << u.y << ", " << u.z << ")" << std::endl
-                  << "city_view:setVisibleRange(" << city->getVisibleRange() << ")" << std::endl
-                  << "city_view:setTopDownView( false )" << std::endl;
+        fmt::println("{}: {}", cities[city_num], city->getCurrentSector()->getFullName());
+        fmt::println("camera.setCenter({}, {}, {})", v.x, v.y, v.z);
+        fmt::println("camera.setEye({}, {}, {})", e.x, e.y, e.z);
+        fmt::println("camera.setUp({}, {}, {})", u.x, u.y, u.z);
+        fmt::println("city_view:setVisibleRange({})", city->getVisibleRange());
+        fmt::println("city_view:setTopDownView( false )");
     } else {
         const auto cp = city->getCamPos();
-        std::cout << cities[city_num] << ": " << city->getCurrentSector()->getFullName() << std::endl
-                  << "city_view:setCamPosition(" << cp[0] << ", " << cp[1] << ", " << cp[2] << ")" << std::endl
-                  << "city_view:setVisibleRange(" << city->getVisibleRange() << ")" << std::endl
-                  << "city_view:setTopDownView( true )" << std::endl;
+        fmt::println("{}: {}", cities[city_num], city->getCurrentSector()->getFullName());
+        fmt::println("city_view:setCamPosition({}, {}, {})", cp[0], cp[1], cp[2]);
+        fmt::println("city_view:setVisibleRange({})", city->getVisibleRange());
+        fmt::println("city_view:setTopDownView( true )");
     }
 }
 
@@ -712,12 +696,12 @@ void car_toggle(OpenGTA::LocalPlayer &player)
     }
     assert(j != cars.end());
     auto &car = j->second;
-    std::cout << car.id() << " " << car.pos.x << ", " << car.pos.y << ", " << car.pos.z << std::endl;
+    fmt::println("{} {} {}, {}", car.id(), car.pos.x, car.pos.y, car.pos.z);
     Vector3D p_door(car.carInfo.door[0].rpx / 64.0f, 0, car.carInfo.door[0].rpy / 64.0f);
 
     Vector3D p_door_global = Transform(p_door, car.m_M);
     p_door_global.y += 0.2f;
-    std::cout << p_door_global.x << ", " << p_door_global.y << ", " << p_door_global.z << std::endl;
+    fmt::println("{}, {}, {}", p_door_global.x, p_door_global.y, p_door_global.z);
     test_dot = p_door_global;
     // pped.aiMode = 1;
     // pped.aiData.pos1 = p_door_global;
@@ -1026,7 +1010,7 @@ void draw_mapmode(OpenGL::Screen &screen)
                     done_map = true;
                     break;
                 case SDL_MOUSEMOTION:
-                    std::cout << "Mouse move: x " << event.motion.x << " y " << event.motion.y << std::endl;
+                    INFO("Mouse move: x {} y {}", event.motion.x, event.motion.y);
                     break;
                 default:
                     break;
@@ -1169,10 +1153,6 @@ void OpenGTAViewer::run()
                     break;
                 case SDL_QUIT:
                     global_Done = 1;
-                    break;
-                case SDL_MOUSEMOTION:
-                    // std::cout << "Mouse move: x " << float(event.motion.x)/screen->w << " y " <<
-                    // float(event.motion.y)/screen->h << std::endl;
                     break;
                 case SDL_MOUSEBUTTONDOWN:
                     guiManager_.receive(event.button, screen_.height());

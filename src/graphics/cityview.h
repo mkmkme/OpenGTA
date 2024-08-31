@@ -23,6 +23,8 @@
 #ifndef GL_CITYVIEW_H
 #define GL_CITYVIEW_H
 
+#include <span>
+
 #include <SDL2/SDL.h>
 #include <core/map.h>
 #include <core/navdata.h>
@@ -51,10 +53,10 @@ public:
     // void setCamVector(const GLfloat & x, const GLfloat & y, const GLfloat & z);
     void setZoom(const GLfloat zoom);
     void setViewMode(bool topDown);
-    bool getViewMode() { return topDownView; }
-    void setDrawHeadingArrows(bool yes) { drawHeadingMarkers = yes; }
-    void setTexFlipTest(int v) { texFlipTest = v; }
-    GLfloat *getCamPos() { return (GLfloat *) &camPos; }
+    inline bool getViewMode() const noexcept { return topDownView; }
+    inline void setDrawHeadingArrows(bool yes) noexcept { drawHeadingMarkers = yes; }
+    inline void setTexFlipTest(int v) noexcept { texFlipTest = v; }
+    inline std::span<const GLfloat> getCamPos() const noexcept { return { camPos, 3 }; }
     void setVisibleRange(int);
     int getVisibleRange() const;
     void getTerrainHeight(GLfloat &x, GLfloat &y, GLfloat &z);

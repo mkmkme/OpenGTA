@@ -527,7 +527,7 @@ void print_position(OpenGL::Camera &camera)
                   << "city_view:setVisibleRange(" << city->getVisibleRange() << ")" << std::endl
                   << "city_view:setTopDownView( false )" << std::endl;
     } else {
-        GLfloat *cp = city->getCamPos();
+        const auto cp = city->getCamPos();
         std::cout << cities[city_num] << ": " << city->getCurrentSector()->getFullName() << std::endl
                   << "city_view:setCamPosition(" << cp[0] << ", " << cp[1] << ", " << cp[2] << ")" << std::endl
                   << "city_view:setVisibleRange(" << city->getVisibleRange() << ")" << std::endl
@@ -731,7 +731,7 @@ void draw_mapmode(OpenGL::Screen &);
 
 void OpenGTAViewer::handleKeyPress(SDL_Keysym *keysym)
 {
-    GLfloat *cp = city->getCamPos();
+    const auto cp = city->getCamPos();
     mapPos[0] = cp[0];
     mapPos[1] = cp[1];
     mapPos[2] = cp[2];

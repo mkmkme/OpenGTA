@@ -1,6 +1,7 @@
 add_library(ogta_util_ OBJECT
     animation.cpp
     cell_iterator.cpp
+    file-manager.cpp
     file_helper.cpp
     gui.cpp
     image_loader.cpp

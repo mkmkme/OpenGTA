@@ -1,93 +1,94 @@
 #include <core/car-info.h>
 
+#include <util/file-manager.h>
 #include <util/log.h>
 
-OpenGTA::CarInfo::CarInfo(PHYSFS_file *fd)
+OpenGTA::CarInfo::CarInfo(Util::PhysFSFile &file)
 {
-    PHYSFS_readSLE16(fd, &width);
-    PHYSFS_readSLE16(fd, &height);
-    PHYSFS_readSLE16(fd, &depth);
-    PHYSFS_readSLE16(fd, &sprNum);
-    PHYSFS_readSLE16(fd, &weightDescriptor);
-    PHYSFS_readSLE16(fd, &maxSpeed);
-    PHYSFS_readSLE16(fd, &minSpeed);
-    PHYSFS_readSLE16(fd, &acceleration);
-    PHYSFS_readSLE16(fd, &braking);
-    PHYSFS_readSLE16(fd, &grip);
-    PHYSFS_readSLE16(fd, &handling);
+    file.read(width);
+    file.read(height);
+    file.read(depth);
+    file.read(sprNum);
+    file.read(weightDescriptor);
+    file.read(maxSpeed);
+    file.read(minSpeed);
+    file.read(acceleration);
+    file.read(braking);
+    file.read(grip);
+    file.read(handling);
     bytes_read_ += 2 * 11;
 
     for (auto &i : remap24) {
-        PHYSFS_readSLE16(fd, &i.h);
-        PHYSFS_readSLE16(fd, &i.l);
-        PHYSFS_readSLE16(fd, &i.s);
+        file.read(i.h);
+        file.read(i.l);
+        file.read(i.s);
     }
     bytes_read_ += 12 * 3 * 2;
     for (unsigned char &i : remap8)
-        PHYSFS_readBytes(fd, static_cast<void *>(&i), 1);
+        file.read(i);
     bytes_read_ += 12;
 
-    PHYSFS_readBytes(fd, static_cast<void *>(&vtype), 1);
-    PHYSFS_readBytes(fd, static_cast<void *>(&model), 1);
-    PHYSFS_readBytes(fd, static_cast<void *>(&turning), 1);
-    PHYSFS_readBytes(fd, static_cast<void *>(&damagable), 1);
+    file.read(vtype);
+    file.read(model);
+    file.read(turning);
+    file.read(damagable);
     bytes_read_ += 4;
 
     for (unsigned short &i : value)
-        PHYSFS_readULE16(fd, &i);
+        file.read(i);
     bytes_read_ += 4 * 2;
 
-    PHYSFS_readBytes(fd, static_cast<void *>(&cx), 1);
-    PHYSFS_readBytes(fd, static_cast<void *>(&cy), 1);
-    PHYSFS_readULE32(fd, &moment);
+    file.read(cx);
+    file.read(cy);
+    file.read(moment);
     bytes_read_ += 2 + 4;
 
     PHYSFS_uint32 fixed_tmp;
-    PHYSFS_readULE32(fd, &fixed_tmp);
+    file.read(fixed_tmp);
     // rbpMass = fixed_tmp / 65536
 
-    PHYSFS_readULE32(fd, &fixed_tmp);
+    file.read(fixed_tmp);
     // g1_Thrust = fixed_tmp / 65536
 
-    PHYSFS_readULE32(fd, &fixed_tmp);
+    file.read(fixed_tmp);
     // tyreAdhesionX = fixed_tmp / 65536
 
-    PHYSFS_readULE32(fd, &fixed_tmp);
+    file.read(fixed_tmp);
     // tyreAdhesionY = fixed_tmp / 65536
 
-    PHYSFS_readULE32(fd, &fixed_tmp);
+    file.read(fixed_tmp);
     // handBrakeFriction = fixed_tmp / 65536
 
-    PHYSFS_readULE32(fd, &fixed_tmp);
+    file.read(fixed_tmp);
     // footBrakeFriction = fixed_tmp / 65536
 
-    PHYSFS_readULE32(fd, &fixed_tmp);
+    file.read(fixed_tmp);
     // fronBrakeBias = fixed_tmp / 65536
 
     bytes_read_ += 7 * 4;
 
-    PHYSFS_readSLE16(fd, &turnRatio);
-    PHYSFS_readSLE16(fd, &driveWheelOffset);
-    PHYSFS_readSLE16(fd, &steeringWheelOffset);
+    file.read(turnRatio);
+    file.read(driveWheelOffset);
+    file.read(steeringWheelOffset);
     bytes_read_ += 3 * 2;
 
-    PHYSFS_readULE32(fd, &fixed_tmp);
+    file.read(fixed_tmp);
     // backEndSlideValue = fixed_tmp / 65536
 
-    PHYSFS_readULE32(fd, &fixed_tmp);
+    file.read(fixed_tmp);
     // handBrakeSlideValue = fixed_tmp / 65536
 
     bytes_read_ += 2 * 4;
 
-    PHYSFS_readBytes(fd, static_cast<void *>(&convertible), 1);
-    PHYSFS_readBytes(fd, static_cast<void *>(&engine), 1);
-    PHYSFS_readBytes(fd, static_cast<void *>(&radio), 1);
-    PHYSFS_readBytes(fd, static_cast<void *>(&horn), 1);
-    PHYSFS_readBytes(fd, static_cast<void *>(&soundFunction), 1);
-    PHYSFS_readBytes(fd, static_cast<void *>(&fastChangeFlag), 1);
+    file.read(convertible);
+    file.read(engine);
+    file.read(radio);
+    file.read(horn);
+    file.read(soundFunction);
+    file.read(fastChangeFlag);
     bytes_read_ += 6;
 
-    PHYSFS_readSLE16(fd, &numDoors);
+    file.read(numDoors);
     bytes_read_ += 2;
     if (numDoors > 2) {
         WARN("num-doors: {} > 2 ???", numDoors);
@@ -95,10 +96,10 @@ OpenGTA::CarInfo::CarInfo(PHYSFS_file *fd)
     }
 
     for (int i = 0; i < numDoors; i++) {
-        PHYSFS_readSLE16(fd, &door[i].rpy);
-        PHYSFS_readSLE16(fd, &door[i].rpx);
-        PHYSFS_readSLE16(fd, &door[i].object);
-        PHYSFS_readSLE16(fd, &door[i].delta);
+        file.read(door[i].rpy);
+        file.read(door[i].rpx);
+        file.read(door[i].object);
+        file.read(door[i].delta);
         bytes_read_ += 4 * 2;
     }
 

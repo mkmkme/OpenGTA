@@ -22,10 +22,8 @@ namespace OpenGTA {
 #define GTA_GRAPHICS_G24 336
 
 Graphics24Bit::Graphics24Bit(const std::string &style)
-    : GraphicsBase()
+    : GraphicsBase(style)
 {
-    fd = PHYSFS_openRead(style.c_str());
-    assert(fd != nullptr);
     _topHeaderSize = 64;
     rawClut = nullptr;
     palIndex = nullptr;
@@ -51,32 +49,31 @@ Graphics24Bit::~Graphics24Bit()
 {
     delete[] rawClut;
     delete[] palIndex;
-    PHYSFS_close(fd);
 }
 
 void Graphics24Bit::loadHeader()
 {
     PHYSFS_uint32 vc;
-    PHYSFS_readULE32(fd, &vc);
+    styleFile.read(vc);
     if (vc != GTA_GRAPHICS_G24) {
         ERROR("graphics file specifies version {} (should be {})", vc, GTA_GRAPHICS_G24);
         return;
     }
-    PHYSFS_readULE32(fd, &sideSize);
-    PHYSFS_readULE32(fd, &lidSize);
-    PHYSFS_readULE32(fd, &auxSize);
-    PHYSFS_readULE32(fd, &animSize);
-    PHYSFS_readULE32(fd, &clutSize);
-    PHYSFS_readULE32(fd, &tileclutSize);
-    PHYSFS_readULE32(fd, &spriteclutSize);
-    PHYSFS_readULE32(fd, &newcarclutSize);
-    PHYSFS_readULE32(fd, &fontclutSize);
-    PHYSFS_readULE32(fd, &paletteIndexSize);
-    PHYSFS_readULE32(fd, &objectInfoSize);
-    PHYSFS_readULE32(fd, &carInfoSize);
-    PHYSFS_readULE32(fd, &spriteInfoSize);
-    PHYSFS_readULE32(fd, &spriteGraphicsSize);
-    PHYSFS_readULE32(fd, &spriteNumberSize);
+    styleFile.read(sideSize);
+    styleFile.read(lidSize);
+    styleFile.read(auxSize);
+    styleFile.read(animSize);
+    styleFile.read(clutSize);
+    styleFile.read(tileclutSize);
+    styleFile.read(spriteclutSize);
+    styleFile.read(newcarclutSize);
+    styleFile.read(fontclutSize);
+    styleFile.read(paletteIndexSize);
+    styleFile.read(objectInfoSize);
+    styleFile.read(carInfoSize);
+    styleFile.read(spriteInfoSize);
+    styleFile.read(spriteGraphicsSize);
+    styleFile.read(spriteNumberSize);
 
     /*
         INFO << "Version: " << vc << std::endl << " Block textures: S " << sideSize / 4096 << " L " <<
@@ -141,25 +138,25 @@ void Graphics24Bit::loadClut()
 {
     PHYSFS_uint64 st =
         static_cast<PHYSFS_uint64>(_topHeaderSize) + sideSize + lidSize + auxSize + auxBlockTrailSize + animSize;
-    PHYSFS_seek(fd, st);
+    styleFile.ensurePosition(st);
     pagedClutSize = clutSize;
     if (clutSize % 65536 != 0)
         pagedClutSize += (65536 - (clutSize % 65536));
     rawClut = new unsigned char[pagedClutSize];
     assert(rawClut);
-    PHYSFS_readBytes(fd, rawClut, pagedClutSize);
+    styleFile.read(rawClut, pagedClutSize);
 }
 
 void Graphics24Bit::loadPalIndex()
 {
     PHYSFS_uint64 st = static_cast<PHYSFS_uint64>(_topHeaderSize) + sideSize + lidSize + auxSize + auxBlockTrailSize +
         animSize + pagedClutSize;
-    PHYSFS_seek(fd, st);
+    styleFile.ensurePosition(st);
     PHYSFS_uint16 pal_index_count = paletteIndexSize / 2;
     assert(paletteIndexSize % 2 == 0);
     palIndex = new PHYSFS_uint16[pal_index_count];
     for (PHYSFS_uint16 i = 0; i < pal_index_count; i++) {
-        PHYSFS_readULE16(fd, &palIndex[i]);
+        styleFile.read(palIndex[i]);
     }
 }
 
@@ -175,23 +172,23 @@ void Graphics24Bit::loadSpriteInfo()
 {
     PHYSFS_uint64 st = static_cast<PHYSFS_uint64>(_topHeaderSize) + sideSize + lidSize + auxSize + auxBlockTrailSize +
         animSize + pagedClutSize + paletteIndexSize + objectInfoSize + carInfoSize;
-    PHYSFS_seek(fd, st);
+    styleFile.ensurePosition(st);
 
     PHYSFS_uint8 v;
     PHYSFS_uint32 w;
     PHYSFS_uint32 _bytes_read = 0;
     while (_bytes_read < spriteInfoSize) {
         auto *si = new SpriteInfo();
-        PHYSFS_readBytes(fd, static_cast<void *>(&si->w), 1);
-        PHYSFS_readBytes(fd, static_cast<void *>(&si->h), 1);
-        PHYSFS_readBytes(fd, static_cast<void *>(&si->deltaCount), 1);
-        PHYSFS_readBytes(fd, static_cast<void *>(&v), 1);
-        PHYSFS_readULE16(fd, &si->size);
+        styleFile.read(si->w);
+        styleFile.read(si->h);
+        styleFile.read(si->deltaCount);
+        styleFile.read(v);
+        styleFile.read(si->size);
         _bytes_read += 6;
-        PHYSFS_readULE16(fd, &si->clut);
-        PHYSFS_readBytes(fd, static_cast<void *>(&si->xoffset), 1);
-        PHYSFS_readBytes(fd, static_cast<void *>(&si->yoffset), 1);
-        PHYSFS_readULE16(fd, &si->page);
+        styleFile.read(si->clut);
+        styleFile.read(si->xoffset);
+        styleFile.read(si->yoffset);
+        styleFile.read(si->page);
         _bytes_read += 6;
         /*
         std::cout << "sprite: " << int(si->w) << "x" << int(si->h) << " deltas: " << int(si->deltaCount)
@@ -213,8 +210,8 @@ void Graphics24Bit::loadSpriteInfo()
             si->delta[j].size = 0;
             si->delta[j].ptr = nullptr;
             if (si->deltaCount && (j < si->deltaCount)) {
-                PHYSFS_readULE16(fd, &si->delta[j].size);
-                PHYSFS_readULE32(fd, &w);
+                styleFile.read(si->delta[j].size);
+                styleFile.read(w);
                 _bytes_read += 6;
                 si->delta[j].ptr = reinterpret_cast<unsigned char *>(w);
             }
@@ -223,7 +220,7 @@ void Graphics24Bit::loadSpriteInfo()
     }
     st = static_cast<PHYSFS_uint64>(_topHeaderSize) + sideSize + lidSize + auxSize + auxBlockTrailSize + animSize +
         pagedClutSize + paletteIndexSize + objectInfoSize + carInfoSize + spriteInfoSize;
-    assert(PHYSFS_tell(fd) == PHYSFS_sint64(st));
+    styleFile.ensurePosition(st);
 }
 
 void Graphics24Bit::loadSpriteNumbers()
@@ -238,10 +235,10 @@ void Graphics24Bit::loadSpriteGraphics()
 {
     PHYSFS_uint64 st = static_cast<PHYSFS_uint64>(_topHeaderSize) + sideSize + lidSize + auxSize + auxBlockTrailSize +
         animSize + pagedClutSize + paletteIndexSize + objectInfoSize + carInfoSize + spriteInfoSize;
-    PHYSFS_seek(fd, st);
+    styleFile.ensurePosition(st);
 
     rawSprites = new unsigned char[spriteGraphicsSize];
-    PHYSFS_readBytes(fd, static_cast<void *>(rawSprites), spriteGraphicsSize);
+    styleFile.read(rawSprites, spriteGraphicsSize);
 
     auto i = spriteInfos.cbegin();
     auto end = spriteInfos.cend();

@@ -6,9 +6,11 @@
 #include <string>
 #include <vector>
 
-#include <physfs.h>
-
 #include <core/graphics-8bit.h>
+
+namespace Util {
+class PhysFSFile;
+}
 
 namespace OpenGTA {
 
@@ -16,7 +18,7 @@ class Font {
 public:
     class Character {
     public:
-        Character(PHYSFS_file *, uint8_t);
+        Character(Util::PhysFSFile &, uint8_t);
         ~Character();
         uint8_t width {};
         uint8_t *rawData;
@@ -34,7 +36,7 @@ public:
 
 private:
     void loadMapping(const std::string &name);
-    void readHeader(PHYSFS_file *);
+    void readHeader(Util::PhysFSFile &fd);
     uint8_t charHeight {};
     uint8_t numChars {};
     std::vector<Character *> chars;

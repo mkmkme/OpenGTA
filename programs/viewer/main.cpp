@@ -23,10 +23,10 @@
 
 // Prevent SDL from overriding main().
 #include <fmt/core.h>
+
 #define SDL_MAIN_HANDLED
 
 #include <array>
-#include <filesystem>
 #include <iostream>
 #include <string_view>
 
@@ -53,6 +53,7 @@
 #include <lua-addon/stackguard.h>
 #include <lua-addon/vm.h>
 #include <util/errors.h>
+#include <util/file-manager.h>
 #include <util/file_helper.h>
 #include <util/gui.h>
 #include <util/log.h>
@@ -108,9 +109,8 @@ Vector3D test_dot(-1, -1, -1);
 
 class OpenGTAViewer {
 public:
-    OpenGTAViewer();
+    explicit OpenGTAViewer(std::string_view progname);
 
-    void init(std::string_view progname);
     void run();
     void quit();
 
@@ -121,6 +121,7 @@ private:
     void createPedAt(const Vector3D &v);
     void showGammaConfig();
 
+    Util::PhysFSContext physfs_context_;
     GUI::Manager guiManager_;
     OpenGL::Screen screen_;
     OpenGL::Camera camera_;
@@ -128,21 +129,10 @@ private:
     OpenGTA::LocalPlayer localPlayer_;
 };
 
-OpenGTAViewer::OpenGTAViewer()
-    : guiManager_ {}
-    , screen_ {}
-    , camera_ {}
-    , luaVM_ { screen_, camera_ }
-    , localPlayer_ {}
-{
-}
-
 void OpenGTAViewer::quit()
 {
     SDL_Quit();
     delete city;
-    // XXX: This is a hack to avoid a crash on exit
-    //  PHYSFS_deinit();
     fmt::println("Goodbye");
 }
 
@@ -356,26 +346,21 @@ void OpenGTAViewer::screenGammaCallback(float v)
     }*/
 }
 
-void OpenGTAViewer::init(std::string_view progname)
+OpenGTAViewer::OpenGTAViewer(std::string_view progname)
+    : guiManager_ {}
+    , screen_ {}
+    , camera_ {}
+    , luaVM_ { screen_, camera_ }
+    , localPlayer_ {}
+    , physfs_context_ { progname.data() }
 {
-    // physfs
-    PHYSFS_init(progname.data());
-
-    // physfs-ogta
     const auto &data_path = Util::FileHelper::BaseDataPath();
-    if (std::filesystem::exists(data_path))
-        PHYSFS_mount(data_path.c_str(), nullptr, 1);
-    else
-        WARN("Could not load data-source: {}", data_path);
-
-    PHYSFS_mount(PHYSFS_getBaseDir(), nullptr, 1);
-
-    const auto &mod_path = Util::FileHelper::ModDataPath();
-    if (std::filesystem::exists(mod_path))
-        PHYSFS_mount(mod_path.c_str(), nullptr, 0);
+    physfs_context_.tryMount(data_path.c_str());
+    physfs_context_.mountBaseDir();
+    physfs_context_.tryMount(Util::FileHelper::ModDataPath().c_str(), false);
 
     // check for a configfile
-    if (PHYSFS_exists("config")) {
+    if (physfs_context_.exists("config")) {
         const auto config_as_string = Util::FileHelper::BufferFromVFS(
             Util::FileHelper::OpenReadVFS("config")
         );
@@ -1204,9 +1189,7 @@ int main(int argc, char *argv[])
     if (argc > 1)
         parse_args(argc, argv);
 
-    OpenGTAViewer app;
-
-    app.init(argv[0]);
+    OpenGTAViewer app { argv[0] };
     app.run();
     app.quit();
 

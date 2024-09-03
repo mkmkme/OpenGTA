@@ -4,6 +4,10 @@
 
 #include <core/graphics-base.h>
 
+namespace Util {
+class PhysFSFile;
+}
+
 namespace OpenGTA {
 
 class CityView;
@@ -39,11 +43,11 @@ public:
         /** Formerly private member, now exposed for Font class; take care.
          * @param fd PHYSFS_file* handle.
          */
-        int loadFromFile(PHYSFS_file *fd);
+        int loadFromFile(Util::PhysFSFile &styleFile);
         /** Constructor from PHYFS_file.
          * @param fd PHYSFS_file* handle
          */
-        RGBPalette(PHYSFS_file *fd);
+        RGBPalette(Util::PhysFSFile &styleFile);
         /** Constructor from filename.
          * @param filename a palette file name
          */

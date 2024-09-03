@@ -15,6 +15,7 @@
 #include <core/sprite-info.h>
 
 #include <util/errors.h>
+#include <util/file-manager.h>
 #include <util/file_helper.h>
 #include <util/log.h>
 
@@ -26,9 +27,8 @@ namespace OpenGTA {
 #define GTA_GRAPHICS_G24 336
 
 Graphics8Bit::Graphics8Bit(const std::string &style)
-    : GraphicsBase()
+    : GraphicsBase(style)
 {
-    fd = Util::FileHelper::OpenReadVFS(style);
     _topHeaderSize = 52;
     rawTiles = nullptr;
     rawSprites = nullptr;
@@ -75,23 +75,23 @@ void Graphics8Bit::dump()
 void Graphics8Bit::loadHeader()
 {
     PHYSFS_uint32 vc;
-    PHYSFS_readULE32(fd, &vc);
+    styleFile.read(vc);
     if (vc != GTA_GRAPHICS_GRY) {
         ERROR("graphics file specifies version {} instead of {}", vc, GTA_GRAPHICS_GRY);
         throw Util::InvalidFormat("8-bit loader failed");
     }
-    PHYSFS_readULE32(fd, &sideSize);
-    PHYSFS_readULE32(fd, &lidSize);
-    PHYSFS_readULE32(fd, &auxSize);
-    PHYSFS_readULE32(fd, &animSize);
-    PHYSFS_readULE32(fd, &paletteSize);
-    PHYSFS_readULE32(fd, &remapSize);
-    PHYSFS_readULE32(fd, &remapIndexSize);
-    PHYSFS_readULE32(fd, &objectInfoSize);
-    PHYSFS_readULE32(fd, &carInfoSize);
-    PHYSFS_readULE32(fd, &spriteInfoSize);
-    PHYSFS_readULE32(fd, &spriteGraphicsSize);
-    PHYSFS_readULE32(fd, &spriteNumberSize);
+    styleFile.read(sideSize);
+    styleFile.read(lidSize);
+    styleFile.read(auxSize);
+    styleFile.read(animSize);
+    styleFile.read(paletteSize);
+    styleFile.read(remapSize);
+    styleFile.read(remapIndexSize);
+    styleFile.read(objectInfoSize);
+    styleFile.read(carInfoSize);
+    styleFile.read(spriteInfoSize);
+    styleFile.read(spriteGraphicsSize);
+    styleFile.read(spriteNumberSize);
 
     INFO("Block textures: S {} L {} A {}", sideSize / 4096, lidSize / 4096, auxSize / 4096);
     if (sideSize % 4096 != 0) {
@@ -150,16 +150,16 @@ void Graphics8Bit::loadPalette()
 {
     PHYSFS_uint64 st =
         static_cast<PHYSFS_uint64>(_topHeaderSize) + sideSize + lidSize + auxSize + auxBlockTrailSize + animSize;
-    PHYSFS_seek(fd, st);
-    masterRGB_ = std::make_unique<RGBPalette>(fd);
+    styleFile.ensurePosition(st);
+    masterRGB_ = std::make_unique<RGBPalette>(styleFile);
 }
 
 void Graphics8Bit::loadRemapTables()
 {
     PHYSFS_uint64 st = static_cast<PHYSFS_uint64>(_topHeaderSize) + sideSize + lidSize + auxSize + auxBlockTrailSize +
         animSize + paletteSize;
-    PHYSFS_seek(fd, st);
-    PHYSFS_readBytes(fd, static_cast<void *>(remapTables), sizeof(remapTables));
+    styleFile.ensurePosition(st);
+    styleFile.read(remapTables, sizeof(remapTables));
     /*
     for (int i=0; i < 256; i++) {
       for (int j = 0; j < 256; j++) {
@@ -173,8 +173,8 @@ void Graphics8Bit::loadRemapIndex()
 {
     PHYSFS_uint64 st = static_cast<PHYSFS_uint64>(_topHeaderSize) + sideSize + lidSize + auxSize + auxBlockTrailSize +
         animSize + paletteSize + remapSize;
-    PHYSFS_seek(fd, st);
-    PHYSFS_readBytes(fd, static_cast<void *>(remapIndex), sizeof(remapIndex));
+    styleFile.ensurePosition(st);
+    styleFile.read(remapIndex, sizeof(remapIndex));
     /*
     std::cout << "LID remap tables" << std::endl;
     for (int i=0; i<256; ++i) {
@@ -201,19 +201,19 @@ void Graphics8Bit::loadSpriteInfo()
 {
     PHYSFS_uint64 st = static_cast<PHYSFS_uint64>(_topHeaderSize) + sideSize + lidSize + auxSize + auxBlockTrailSize +
         animSize + paletteSize + remapSize + remapIndexSize + objectInfoSize + carInfoSize;
-    PHYSFS_seek(fd, st);
+    styleFile.ensurePosition(st);
 
     PHYSFS_uint8 compressionFlag;
     PHYSFS_uint32 w;
     PHYSFS_uint32 _bytes_read = 0;
     while (_bytes_read < spriteInfoSize) {
         auto *si = new SpriteInfo();
-        PHYSFS_readBytes(fd, static_cast<void *>(&si->w), 1);
-        PHYSFS_readBytes(fd, static_cast<void *>(&si->h), 1);
-        PHYSFS_readBytes(fd, static_cast<void *>(&si->deltaCount), 1);
-        PHYSFS_readBytes(fd, static_cast<void *>(&compressionFlag), 1);
-        PHYSFS_readULE16(fd, &si->size);
-        PHYSFS_readULE32(fd, &w);
+        styleFile.read(si->w);
+        styleFile.read(si->h);
+        styleFile.read(si->deltaCount);
+        styleFile.read(compressionFlag);
+        styleFile.read(si->size);
+        styleFile.read(w);
         _bytes_read += 10;
         // si->ptr = reinterpret_cast<unsigned char*>(w);
         si->page = w / 65536;
@@ -237,8 +237,8 @@ void Graphics8Bit::loadSpriteInfo()
             si->delta[j].ptr = nullptr;
             if (si->deltaCount && (j < si->deltaCount)) {
                 // std::cout << "reading " << int(j) << std::endl;
-                PHYSFS_readULE16(fd, &si->delta[j].size);
-                PHYSFS_readULE32(fd, &w);
+                styleFile.read(si->delta[j].size);
+                styleFile.read(w);
                 _bytes_read += 6;
                 si->delta[j].ptr = reinterpret_cast<unsigned char *>(w);
             }
@@ -247,17 +247,17 @@ void Graphics8Bit::loadSpriteInfo()
     }
     st = static_cast<PHYSFS_uint64>(_topHeaderSize) + sideSize + lidSize + auxSize + auxBlockTrailSize + animSize +
         paletteSize + remapSize + remapIndexSize + objectInfoSize + carInfoSize + spriteInfoSize;
-    assert(PHYSFS_tell(fd) == PHYSFS_sint64(st));
+    styleFile.ensurePosition(st);
 }
 
 void Graphics8Bit::loadSpriteGraphics()
 {
     PHYSFS_uint64 st = static_cast<PHYSFS_uint64>(_topHeaderSize) + sideSize + lidSize + auxSize + auxBlockTrailSize +
         animSize + paletteSize + remapSize + remapIndexSize + objectInfoSize + carInfoSize + spriteInfoSize;
-    PHYSFS_seek(fd, st);
+    styleFile.ensurePosition(st);
     rawSprites = new unsigned char[spriteGraphicsSize];
     assert(rawSprites != nullptr);
-    PHYSFS_readBytes(fd, static_cast<void *>(rawSprites), spriteGraphicsSize);
+    styleFile.read(rawSprites, spriteGraphicsSize);
 
     if (spriteInfos.empty()) {
         INFO("No SpriteInfo post-loading work done - structure is empty");
@@ -399,25 +399,18 @@ Graphics8Bit::RGBPalette::RGBPalette() = default;
 
 Graphics8Bit::RGBPalette::RGBPalette(const std::string &palette)
 {
-    PHYSFS_file *fd = Util::FileHelper::OpenReadVFS(palette);
-    loadFromFile(fd);
+    Util::PhysFSFile styleFile { palette };
+    loadFromFile(styleFile);
 }
 
-Graphics8Bit::RGBPalette::RGBPalette(PHYSFS_file *fd)
+Graphics8Bit::RGBPalette::RGBPalette(Util::PhysFSFile &styleFile)
 {
-    loadFromFile(fd);
+    loadFromFile(styleFile);
 }
 
-int Graphics8Bit::RGBPalette::loadFromFile(PHYSFS_file *fd)
+int Graphics8Bit::RGBPalette::loadFromFile(Util::PhysFSFile &styleFile)
 {
-    PHYSFS_readBytes(fd, static_cast<void *>(data), sizeof(data));
-    /*
-    int max_sum = 0;
-    for (int i = 1; i < 256; i+=3) {
-      int sum = int(data[i]) + int(data[i+1]) + int(data[i+2]);
-      if (sum > max_sum)
-        max_sum = sum;
-    }*/
+    styleFile.read(data, sizeof(data));
     return 0;
 }
 

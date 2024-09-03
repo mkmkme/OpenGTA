@@ -2,17 +2,21 @@
 
 #include <vector>
 
-#include <physfs.h>
+#include <core/numeric-types.h>
+
+namespace Util {
+class PhysFSFile;
+}
 
 namespace OpenGTA {
 
 struct LoadedAnim {
-    explicit LoadedAnim(PHYSFS_file *fd);
-    PHYSFS_uint8 block {};
-    PHYSFS_uint8 which {};
-    PHYSFS_uint8 speed {};
-    PHYSFS_uint8 frameCount {};
-    std::vector<PHYSFS_uint8> frame;
+    explicit LoadedAnim(Util::PhysFSFile &file);
+    UInt8 block {};
+    UInt8 which {};
+    UInt8 speed {};
+    UInt8 frameCount {};
+    std::vector<UInt8> frame;
 };
 
 } // namespace OpenGTA

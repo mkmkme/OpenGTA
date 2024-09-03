@@ -31,13 +31,12 @@
 #include <map>
 #include <string>
 
-#include <physfs.h>
+#include <util/file-manager.h>
 
 namespace OpenGTA {
 class SoundsDB {
 public:
-    SoundsDB();
-    SoundsDB(const std::string &sdt_file);
+    explicit SoundsDB(const std::string &sdt_file);
     ~SoundsDB();
     void load(const std::string &sdt_file);
     struct Entry {
@@ -51,10 +50,9 @@ public:
     unsigned char *getBuffered(KeyType key);
 
 private:
-    void clear();
     typedef std::map<KeyType, Entry> MapType;
     MapType knownEntries;
-    PHYSFS_file *dataFile;
+    Util::PhysFSFile dataFile;
 };
 } // namespace OpenGTA
 

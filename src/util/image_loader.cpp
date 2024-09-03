@@ -25,6 +25,7 @@
 #include <SDL2/SDL_surface.h> // WITH_SDL_IMAGE
 #include <core/graphics-8bit.h>
 
+#include "util/file-manager.h"
 #include <util/errors.h>
 #include <util/file_helper.h>
 #include <util/image_loader.h>
@@ -123,22 +124,19 @@ OpenGL::PagedTexture loadImageRAW(const std::string &name)
 OpenGL::PagedTexture loadImageRATWithPalette(const std::string &name, const std::string &palette_file)
 {
 
-    PHYSFS_file *fd = Util::FileHelper::OpenReadVFS(name);
-    uint32_t nbytes = PHYSFS_fileLength(fd);
+    Util::PhysFSFile pf { name };
+    const auto nbytes = pf.length();
 
-    WidthHeightPair whp = lookupImageSize(name, nbytes);
+    const auto whp = lookupImageSize(name, nbytes);
     if (whp.first == 0 || whp.second == 0) {
-        PHYSFS_close(fd);
         WARN("aborting image load");
         throw Util::UnknownKey(name + " - RAT file size unknown");
     }
     auto lb1 = std::make_unique<uint8_t[]>(nbytes);
-    PHYSFS_readBytes(fd, lb1.get(), nbytes);
-    PHYSFS_close(fd);
+    pf.read(lb1.get(), nbytes);
 
-    fd = Util::FileHelper::OpenReadVFS(palette_file);
-    OpenGTA::Graphics8Bit::RGBPalette rgb(fd);
-    PHYSFS_close(fd);
+    pf = Util::PhysFSFile { palette_file };
+    OpenGTA::Graphics8Bit::RGBPalette rgb { pf };
 
     auto lb2 = std::make_unique<uint8_t[]>(nbytes * 3);
     rgb.apply(nbytes, lb1.get(), lb2.get(), false);

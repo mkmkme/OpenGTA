@@ -48,8 +48,9 @@ PHYSFS_uint16 GraphicsBase::SpriteNumbers::countByType(const SpriteTypes &t) con
     assert(0);
 }
 
-GraphicsBase::GraphicsBase()
+GraphicsBase::GraphicsBase(const std::string &style)
     : sideTexBlockMove(256)
+    , styleFile { style }
 {
     rawTiles = nullptr;
     rawSprites = nullptr;
@@ -91,8 +92,6 @@ void GraphicsBase::setDeltaHandling(bool delta_as_set)
 
 GraphicsBase::~GraphicsBase()
 {
-    if (fd)
-        PHYSFS_close(fd);
     for (auto &spriteInfo : spriteInfos)
         delete spriteInfo;
     spriteInfos.clear();
@@ -175,30 +174,30 @@ PHYSFS_uint16 GraphicsBase::SpriteNumbers::reIndex(const PHYSFS_uint16 &id, cons
 void GraphicsBase::loadAnim()
 {
     PHYSFS_uint64 st = static_cast<PHYSFS_uint64>(_topHeaderSize) + sideSize + lidSize + auxSize + auxBlockTrailSize;
-    PHYSFS_seek(fd, st);
+    styleFile.seek(st);
     PHYSFS_uint8 numAnim;
-    PHYSFS_readBytes(fd, static_cast<void *>(&numAnim), 1);
+    styleFile.read(numAnim);
     for (int i = 0; i < numAnim; i++)
-        animations.emplace_back(fd);
+        animations.emplace_back(styleFile);
 }
 
 void GraphicsBase::loadObjectInfo_shared(PHYSFS_uint64 offset)
 {
-    PHYSFS_seek(fd, offset);
+    styleFile.ensurePosition(offset);
     assert(objectInfoSize % 20 == 0);
     int c = objectInfoSize / 20;
 
     for (int i = 0; i < c; i++)
-        objectInfos.emplace_back(fd);
+        objectInfos.emplace_back(styleFile);
 }
 
 void GraphicsBase::loadCarInfo_shared(PHYSFS_uint64 offset)
 {
-    PHYSFS_seek(fd, offset);
+    styleFile.ensurePosition(offset);
 
     PHYSFS_uint32 bytes_read = 0;
     while (bytes_read < carInfoSize) {
-        CarInfo car { fd };
+        CarInfo car { styleFile };
         bytes_read += car.bytes_read();
         carInfos.emplace_back(std::move(car));
     }
@@ -208,45 +207,38 @@ void GraphicsBase::loadCarInfo_shared(PHYSFS_uint64 offset)
 void GraphicsBase::loadSpriteNumbers_shared(PHYSFS_uint64 offset)
 {
 
-    PHYSFS_seek(fd, offset);
+    styleFile.ensurePosition(offset);
 
-    PHYSFS_readULE16(fd, &spriteNumbers.GTA_SPRITE_ARROW);
-    PHYSFS_readULE16(fd, &spriteNumbers.GTA_SPRITE_DIGITS);
-    PHYSFS_readULE16(fd, &spriteNumbers.GTA_SPRITE_BOAT);
-    PHYSFS_readULE16(fd, &spriteNumbers.GTA_SPRITE_BOX);
-    PHYSFS_readULE16(fd, &spriteNumbers.GTA_SPRITE_BUS);
-    PHYSFS_readULE16(fd, &spriteNumbers.GTA_SPRITE_CAR);
-    PHYSFS_readULE16(fd, &spriteNumbers.GTA_SPRITE_OBJECT);
-    PHYSFS_readULE16(fd, &spriteNumbers.GTA_SPRITE_PED);
-    PHYSFS_readULE16(fd, &spriteNumbers.GTA_SPRITE_SPEEDO);
-    PHYSFS_readULE16(fd, &spriteNumbers.GTA_SPRITE_TANK);
-    PHYSFS_readULE16(fd, &spriteNumbers.GTA_SPRITE_TRAFFIC_LIGHTS);
-    PHYSFS_readULE16(fd, &spriteNumbers.GTA_SPRITE_TRAIN);
-    PHYSFS_readULE16(fd, &spriteNumbers.GTA_SPRITE_TRDOORS);
-    PHYSFS_readULE16(fd, &spriteNumbers.GTA_SPRITE_BIKE);
-    PHYSFS_readULE16(fd, &spriteNumbers.GTA_SPRITE_TRAM);
-    PHYSFS_readULE16(fd, &spriteNumbers.GTA_SPRITE_WBUS);
-    PHYSFS_readULE16(fd, &spriteNumbers.GTA_SPRITE_WCAR);
-    PHYSFS_readULE16(fd, &spriteNumbers.GTA_SPRITE_EX);
-    PHYSFS_readULE16(fd, &spriteNumbers.GTA_SPRITE_TUMCAR);
-    PHYSFS_readULE16(fd, &spriteNumbers.GTA_SPRITE_TUMTRUCK);
-    PHYSFS_readULE16(fd, &spriteNumbers.GTA_SPRITE_FERRY);
+    styleFile.read(spriteNumbers.GTA_SPRITE_ARROW);
+    styleFile.read(spriteNumbers.GTA_SPRITE_DIGITS);
+    styleFile.read(spriteNumbers.GTA_SPRITE_BOAT);
+    styleFile.read(spriteNumbers.GTA_SPRITE_BOX);
+    styleFile.read(spriteNumbers.GTA_SPRITE_BUS);
+    styleFile.read(spriteNumbers.GTA_SPRITE_CAR);
+    styleFile.read(spriteNumbers.GTA_SPRITE_OBJECT);
+    styleFile.read(spriteNumbers.GTA_SPRITE_PED);
+    styleFile.read(spriteNumbers.GTA_SPRITE_SPEEDO);
+    styleFile.read(spriteNumbers.GTA_SPRITE_TANK);
+    styleFile.read(spriteNumbers.GTA_SPRITE_TRAFFIC_LIGHTS);
+    styleFile.read(spriteNumbers.GTA_SPRITE_TRAIN);
+    styleFile.read(spriteNumbers.GTA_SPRITE_TRDOORS);
+    styleFile.read(spriteNumbers.GTA_SPRITE_BIKE);
+    styleFile.read(spriteNumbers.GTA_SPRITE_TRAM);
+    styleFile.read(spriteNumbers.GTA_SPRITE_WBUS);
+    styleFile.read(spriteNumbers.GTA_SPRITE_WCAR);
+    styleFile.read(spriteNumbers.GTA_SPRITE_EX);
+    styleFile.read(spriteNumbers.GTA_SPRITE_TUMCAR);
+    styleFile.read(spriteNumbers.GTA_SPRITE_TUMTRUCK);
+    styleFile.read(spriteNumbers.GTA_SPRITE_FERRY);
 }
 
 void GraphicsBase::loadTileTextures()
 {
-    PHYSFS_seek(fd, static_cast<PHYSFS_uint64>(_topHeaderSize));
+    styleFile.ensurePosition(_topHeaderSize);
 
     PHYSFS_uint64 ts = sideSize + lidSize + auxSize;
     rawTiles = new unsigned char[ts];
-    int r = PHYSFS_readBytes(fd, static_cast<void *>(rawTiles), ts);
-    if (PHYSFS_uint64(r) == ts)
-        return;
-    else if (r == -1) {
-        ERROR("Could not read texture raw data");
-        return;
-    } else
-        ERROR("This message should never be displayed!");
+    styleFile.read(rawTiles, ts);
 }
 
 void GraphicsBase::handleDeltas(const SpriteInfo &info, unsigned char *buffer, uint32_t delta)

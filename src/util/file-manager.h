@@ -1,0 +1,50 @@
+#pragma once
+
+#include <cstddef>
+#include <span>
+#include <string>
+
+#include <core/numeric-types.h>
+
+namespace Util {
+
+class PhysFSContext {
+public:
+    explicit PhysFSContext(const char *argv0);
+    ~PhysFSContext();
+
+    void tryMount(const char *path, bool append_to_path = true) noexcept;
+    PhysFSContext &withTryMount(const char *path, bool append_to_path = true) noexcept;
+
+    void mountBaseDir() noexcept;
+
+    bool exists(const char *filename) const noexcept;
+};
+
+class PhysFSFile {
+public:
+    explicit PhysFSFile(const std::string &filename);
+    ~PhysFSFile();
+
+    UInt32 length() const noexcept;
+
+    void seek(UInt64 pos) noexcept;
+
+    void ensurePosition(UInt64 pos);
+
+    template <BuiltinNumber T>
+    void read(T &data) noexcept;
+
+    template <BuiltinNumber T>
+    T read() noexcept;
+
+    template <typename T, size_t N>
+    void read(std::span<T, N> &data) noexcept;
+
+    void read(void *buf, UInt64 len) noexcept;
+
+private:
+    PHYSFS_File *file;
+};
+
+} // namespace Util

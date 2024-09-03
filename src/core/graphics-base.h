@@ -19,6 +19,7 @@
 #include <core/car-info.h>
 #include <core/object-info.h>
 
+#include "util/file-manager.h"
 #include <util/set.h>
 
 namespace OpenGTA {
@@ -32,7 +33,7 @@ struct SpriteInfo;
  */
 class GraphicsBase {
 public:
-    GraphicsBase();
+    explicit GraphicsBase(const std::string &style);
     virtual ~GraphicsBase();
     uint8_t getFormat();
 
@@ -137,7 +138,7 @@ protected:
         bool mirror = false
     );
 
-    PHYSFS_file *fd {};
+    Util::PhysFSFile styleFile;
     unsigned char *rawTiles;
     unsigned char *rawSprites;
 

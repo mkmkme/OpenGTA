@@ -26,6 +26,7 @@
 
 #include <core/fx_sdt.h>
 
+#include "util/file-manager.h"
 #include <util/errors.h>
 #include <util/file_helper.h>
 
@@ -40,50 +41,31 @@ SoundsDB::Entry::Entry(PHYSFS_uint32 r1, PHYSFS_uint32 r2, PHYSFS_uint32 sr)
     sampleRate = sr;
 }
 
-SoundsDB::SoundsDB()
-{
-    dataFile = nullptr;
-}
-
 SoundsDB::SoundsDB(const std::string &sdt_file)
+    : dataFile { sdt_file }
 {
-    dataFile = Util::FileHelper::OpenReadVFS(sdt_file);
-    PHYSFS_uint32 num_e = PHYSFS_fileLength(dataFile);
+    PHYSFS_uint32 num_e = dataFile.length();
     if (num_e % 12) {
         throw Util::InvalidFormat("SDT filesize " + std::to_string(uint32_t(num_e)) + " % 12 != 0");
     }
     num_e /= 12;
     PHYSFS_uint32 r1, r2, sr;
     for (PHYSFS_uint16 i = 0; i < num_e; i++) {
-        PHYSFS_readULE32(dataFile, &r1);
-        PHYSFS_readULE32(dataFile, &r2);
-        PHYSFS_readULE32(dataFile, &sr);
+        dataFile.read(r1);
+        dataFile.read(r2);
+        dataFile.read(sr);
 #ifdef SOUND_DUMPER
         std::cout << i << " " << r1 << " " << r2 << " " << sr << std::endl;
 #endif
         knownEntries.insert(std::make_pair(i, Entry(r1, r2, sr)));
     }
-    PHYSFS_close(dataFile);
 
     std::string raw_file(sdt_file);
     raw_file.replace(raw_file.size() - 3, 3, "RAW");
-    dataFile = Util::FileHelper::OpenReadVFS(raw_file);
+    dataFile = Util::PhysFSFile(raw_file);
 }
 
-SoundsDB::~SoundsDB()
-{
-    clear();
-    if (dataFile)
-        PHYSFS_close(dataFile);
-}
-
-void SoundsDB::clear()
-{
-    knownEntries.clear();
-    if (dataFile)
-        PHYSFS_close(dataFile);
-    dataFile = 0;
-}
+SoundsDB::~SoundsDB() = default;
 
 SoundsDB::Entry &SoundsDB::getEntry(KeyType key)
 {
@@ -101,8 +83,8 @@ unsigned char *SoundsDB::getBuffered(KeyType key)
     unsigned int t_len = e.rawSize; // + 36 + 8;
     auto *buf = new unsigned char[t_len];
     memset(buf, 0, t_len);
-    PHYSFS_seek(dataFile, e.rawStart);
-    PHYSFS_readBytes(dataFile, buf, e.rawSize);
+    dataFile.seek(e.rawStart);
+    dataFile.read(buf, e.rawSize);
     return buf;
 }
 

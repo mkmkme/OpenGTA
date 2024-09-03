@@ -10,6 +10,7 @@
  ************************************************************************/
 #include <core/font.h>
 
+#include <util/file-manager.h>
 #include <util/file_helper.h>
 #include <util/log.h>
 #include <util/string_helpers.h>
@@ -17,20 +18,19 @@
 namespace OpenGTA {
 Font::Font(const std::string &file)
 {
-    PHYSFS_file *fd = Util::FileHelper::OpenReadVFS(file);
-    readHeader(fd);
+    Util::PhysFSFile pf { file };
+    readHeader(pf);
     int ww = 0;
     int lw = 0;
     for (uint8_t i = 0; i < numChars; i++) {
-        auto *ch = new Character(fd, charHeight);
+        auto *ch = new Character(pf, charHeight);
         ww += ch->width;
         if (ch->width > lw)
             lw = ch->width;
         chars.push_back(ch);
     }
     INFO("total width {} largest width {}", ww, lw);
-    palette.loadFromFile(fd);
-    PHYSFS_close(fd);
+    palette.loadFromFile(pf);
     size_t ih = charHeight;
     while (ww > 1024) {
         ih *= 2;
@@ -45,10 +45,10 @@ Font::~Font()
         delete c;
     delete[] workBuffer;
 }
-void Font::readHeader(PHYSFS_file *fd)
+void Font::readHeader(Util::PhysFSFile &pf)
 {
-    PHYSFS_readBytes(fd, static_cast<void *>(&numChars), 1);
-    PHYSFS_readBytes(fd, static_cast<void *>(&charHeight), 1);
+    pf.read(numChars);
+    pf.read(charHeight);
     INFO("Font contains {} characters of height {}", numChars, charHeight);
 }
 void Font::addMapping(char c, size_t num)
@@ -95,13 +95,13 @@ unsigned char *Font::getCharacterBitmap(size_t num, unsigned int *width, unsigne
     */
 }
 
-Font::Character::Character(PHYSFS_file *fd, uint8_t height)
+Font::Character::Character(Util::PhysFSFile &pf, uint8_t height)
 {
-    PHYSFS_readBytes(fd, static_cast<void *>(&width), 1);
+    pf.read(width);
     size_t c = size_t(width) * size_t(height);
     // std::cout <<"width " << int(width) << " going to read " << c << " bytes" << std::endl;
     rawData = new uint8_t[c];
-    PHYSFS_readBytes(fd, static_cast<void *>(rawData), c);
+    pf.read(rawData, c);
 }
 Font::Character::~Character()
 {

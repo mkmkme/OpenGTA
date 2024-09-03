@@ -1207,12 +1207,7 @@ int main(int argc, char *argv[])
     OpenGTAViewer app;
 
     app.init(argv[0]);
-    try {
-        app.run();
-    } catch (const std::exception &e) {
-        ERROR("Exception occurred: {}", e.what());
-        throw;
-    }
+    app.run();
     app.quit();
 
     return 0;

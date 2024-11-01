@@ -1,6 +1,6 @@
 #pragma once
 
-#include <physfs.h>
+#include <core/numeric-types.h>
 
 namespace OpenGTA {
 
@@ -19,19 +19,19 @@ namespace OpenGTA {
  */
 
 struct DeltaInfo {
-    PHYSFS_uint16 size;
+    UInt16 size;
     unsigned char *ptr;
 };
 
 struct SpriteInfo {
-    PHYSFS_uint8 w;
-    PHYSFS_uint8 h;
-    PHYSFS_uint8 deltaCount;
-    PHYSFS_uint16 size;
-    PHYSFS_uint16 clut;
-    PHYSFS_uint8 xoffset;
-    PHYSFS_uint8 yoffset;
-    PHYSFS_uint16 page;
+    UInt8 w;
+    UInt8 h;
+    UInt8 deltaCount;
+    UInt16 size;
+    UInt16 clut;
+    UInt8 xoffset;
+    UInt8 yoffset;
+    UInt16 page;
     // unsigned char* ptr;
     DeltaInfo delta[33]; // FIXME: GTA_SPRITE_MAX_DELTAS
 };

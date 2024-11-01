@@ -13,7 +13,11 @@
 #include <map>
 #include <string>
 
-#include <physfs.h>
+#include <core/numeric-types.h>
+
+namespace Util {
+class PhysFSFile;
+}
 
 namespace OpenGTA {
 
@@ -34,16 +38,18 @@ public:
      * @param y
      * @note If the point is inside 'lastSubLocation' is updated before returning.
      */
-    bool isInside(PHYSFS_uint8, PHYSFS_uint8);
+    bool isInside(UInt8, UInt8);
     /** Calculate north/south/east/west/central of point (which has to be inside).
      * @param x
      * @param y
      * @return uint8 bitfield
      */
-    PHYSFS_uint8 subLocation(PHYSFS_uint8, PHYSFS_uint8) const;
-    PHYSFS_uint16 getSize() const noexcept;
-    PHYSFS_uint8 x, y;
-    PHYSFS_uint8 w, h;
+    [[nodiscard]] UInt8 subLocation(UInt8, UInt8) const;
+    [[nodiscard]] UInt16 getSize() const noexcept;
+
+protected:
+    UInt8 x, y;
+    UInt8 w, h;
     /** Last sub-area location.
      * 0 = central
      * 1 = north
@@ -52,7 +58,7 @@ public:
      * 8 = west
      * ... valid combinations of the last four
      */
-    PHYSFS_uint8 lastSubLocation {};
+    UInt8 lastSubLocation {};
 };
 
 /** Container of all named sectors.
@@ -65,13 +71,13 @@ public:
     struct Sector : public Rect2D {
         /** Constructor from valid PHYSFS handle.
          */
-        Sector(PHYSFS_file *);
+        Sector(Util::PhysFSFile &pf);
         Sector();
         /** Sample number.
          * 1) see $LANGUAGE.FXT file for actual name
          * 2) probably sound?
          */
-        PHYSFS_uint8 sam {}; // sample number
+        UInt8 sam {}; // sample number
         // char         name2[30]; // FIXME: should not be used
         std::string name;
         /** Returns the name prefixed with sub-area location.
@@ -81,14 +87,14 @@ public:
     private:
         bool isADummy {};
     };
-    NavData(PHYSFS_uint32 size, PHYSFS_file *fd, const size_t level_num);
+    NavData(UInt32 size, Util::PhysFSFile &pf, const size_t level_num);
     ~NavData();
-    Sector *getSectorAt(PHYSFS_uint8, PHYSFS_uint8);
+    Sector *getSectorAt(UInt8, UInt8);
     static std::string _c, _n, _s, _w, _e, _nw, _ne, _sw, _se;
 
 private:
     void clear();
-    typedef std::multimap<PHYSFS_uint16, Sector *> SectorMapType;
+    using SectorMapType = std::multimap<UInt16, Sector *>;
     SectorMapType areas;
 };
 } // namespace OpenGTA

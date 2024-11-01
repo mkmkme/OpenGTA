@@ -20,8 +20,8 @@
 
 namespace {
 
-constexpr PHYSFS_uint8 topHeaderSize = 28;
-constexpr PHYSFS_uint64 baseSize = 262144;
+constexpr UInt8 topHeaderSize = 28;
+constexpr UInt64 baseSize = 262144;
 
 } // namespace
 
@@ -50,12 +50,9 @@ inline size_t mapFileName2Number(const std::string &file)
 } // namespace
 
 Map::Map(const std::string &filename)
+    : pf { filename }
 {
     nav = nullptr;
-    fd = Util::FileHelper::OpenReadVFS(filename);
-    if (!fd) {
-        throw Util::FileNotFound(filename);
-    }
     size_t level_as_num = mapFileName2Number(filename);
     loadHeader();
     loadBase();
@@ -77,26 +74,21 @@ Map::~Map()
         delete[] objects;
     if (nav)
         delete nav;
-    if (fd)
-        PHYSFS_close(fd);
 }
 int Map::loadHeader()
 {
-    PHYSFS_uint32 vc;
-    PHYSFS_readULE32(fd, &vc);
-    // INFO("Map version code: {}", vc);
-    PHYSFS_uint8 sn;
-    PHYSFS_readBytes(fd, static_cast<void *>(&styleNumber), 1);
-    // INFO("Style number: {}", int(styleNumber));
-    PHYSFS_readBytes(fd, static_cast<void *>(&sn), 1);
-    // INFO("Sample number: {}", int(n));
-    PHYSFS_uint16 reserved;
-    PHYSFS_readULE16(fd, &reserved);
-    PHYSFS_readULE32(fd, &routeSize);
-    PHYSFS_readULE32(fd, &objectPosSize);
-    PHYSFS_readULE32(fd, &columnSize);
-    PHYSFS_readULE32(fd, &blockSize);
-    PHYSFS_readULE32(fd, &navDataSize);
+    UInt32 vc;
+    pf.read(vc);
+    UInt8 sn;
+    pf.read(styleNumber);
+    pf.read(sn);
+    UInt16 reserved;
+    pf.read(reserved);
+    pf.read(routeSize);
+    pf.read(objectPosSize);
+    pf.read(columnSize);
+    pf.read(blockSize);
+    pf.read(navDataSize);
     /*
     INFO << "Route size: " << routeSize << std::endl;
     INFO << "Object size: " << objectPosSize << std::endl;
@@ -107,7 +99,7 @@ int Map::loadHeader()
     INFO << "Navdata size: " << navDataSize << std::endl;
     */
 
-    column = new PHYSFS_uint16[columnSize / 2];
+    column = new UInt16[columnSize / 2];
     block = new BlockInfo[blockSize / sizeof(BlockInfo)];
 
     objects = new ObjectPosition[objectPosSize / sizeof(ObjectPosition)];
@@ -116,61 +108,54 @@ int Map::loadHeader()
 }
 int Map::loadBase()
 {
-    PHYSFS_seek(fd, static_cast<PHYSFS_uint64>(topHeaderSize));
+    pf.seek(topHeaderSize);
     for (int y = 0; y < GTA_MAP_MAXDIMENSION; y++) {
         for (int x = 0; x < GTA_MAP_MAXDIMENSION; x++) {
-            PHYSFS_readULE32(fd, &base[x][y]);
-            // std::cout << x << "," << y << " : " << base[x][y] << std::endl;
+            pf.read(base[x][y]);
         }
     }
     return 0;
 }
 int Map::loadColumn()
 {
-    if (!PHYSFS_seek(fd, baseSize + topHeaderSize)) {
-        // throw std::string("IO Error while seeking in mapfile");
-        throw Util::IOError(PHYSFS_getErrorByCode(PHYSFS_getLastErrorCode()));
-    }
-    // PHYSFS_uint16 v;
     for (unsigned int i = 0; i < columnSize / 2; i++) {
-        PHYSFS_readULE16(fd, &column[i]);
-        // std::cout << i << ": " << v << std::endl;
+        pf.read(column[i]);
     }
     return 0;
 }
 int Map::loadBlock()
 {
-    PHYSFS_seek(fd, baseSize + columnSize + topHeaderSize);
+    pf.seek(baseSize + columnSize + topHeaderSize);
     int i, max;
     max = blockSize / sizeof(BlockInfo);
     // uint8_t tmp;
     for (i = 0; i < max; i++) {
-        PHYSFS_readULE16(fd, &block[i].typeMap);
-        PHYSFS_readBytes(fd, static_cast<void *>(&block[i].typeMapExt), 1);
-        PHYSFS_readBytes(fd, static_cast<void *>(&block[i].left), 1);
-        PHYSFS_readBytes(fd, static_cast<void *>(&block[i].right), 1);
-        PHYSFS_readBytes(fd, static_cast<void *>(&block[i].top), 1);
-        PHYSFS_readBytes(fd, static_cast<void *>(&block[i].bottom), 1);
-        PHYSFS_readBytes(fd, static_cast<void *>(&block[i].lid), 1);
+        pf.read(block[i].typeMap);
+        pf.read(block[i].typeMapExt);
+        pf.read(block[i].left);
+        pf.read(block[i].right);
+        pf.read(block[i].top);
+        pf.read(block[i].bottom);
+        pf.read(block[i].lid);
         // block[i].animMode = 0;
     }
     return 0;
 }
 void Map::loadObjects()
 {
-    PHYSFS_seek(fd, baseSize + columnSize + topHeaderSize + blockSize);
+    pf.seek(baseSize + columnSize + topHeaderSize + blockSize);
     int c = objectPosSize / sizeof(ObjectPosition);
     numObjects = c;
     assert(objectPosSize % sizeof(ObjectPosition) == 0);
     for (int i = 0; i < c; i++) {
-        PHYSFS_readULE16(fd, &objects[i].x);
-        PHYSFS_readULE16(fd, &objects[i].y);
-        PHYSFS_readULE16(fd, &objects[i].z);
-        PHYSFS_readBytes(fd, static_cast<void *>(&objects[i].type), 1);
-        PHYSFS_readBytes(fd, static_cast<void *>(&objects[i].remap), 1);
-        PHYSFS_readULE16(fd, &objects[i].rotation);
-        PHYSFS_readULE16(fd, &objects[i].pitch);
-        PHYSFS_readULE16(fd, &objects[i].roll);
+        pf.read(objects[i].x);
+        pf.read(objects[i].y);
+        pf.read(objects[i].z);
+        pf.read(objects[i].type);
+        pf.read(objects[i].remap);
+        pf.read(objects[i].rotation);
+        pf.read(objects[i].pitch);
+        pf.read(objects[i].roll);
 
         // shift every coord? or just if any > 255
         /*
@@ -187,20 +172,20 @@ void Map::loadObjects()
 void Map::loadRoutes()
 {
     // FIXME: missing
-    PHYSFS_uint32 _si = baseSize + columnSize + topHeaderSize + objectPosSize + blockSize;
-    PHYSFS_seek(fd, _si);
-    PHYSFS_uint32 _counted = 0;
+    UInt32 _si = baseSize + columnSize + topHeaderSize + objectPosSize + blockSize;
+    pf.seek(_si);
+    UInt32 _counted = 0;
     while (_counted < routeSize) {
-        PHYSFS_uint8 num_vertices = 0;
-        PHYSFS_uint8 route_type = 0;
-        PHYSFS_readBytes(fd, static_cast<void *>(&num_vertices), 1);
-        PHYSFS_readBytes(fd, static_cast<void *>(&route_type), 1);
+        UInt8 num_vertices = 0;
+        UInt8 route_type = 0;
+        pf.read(num_vertices);
+        pf.read(route_type);
         // INFO << "route-t " << int(route_type) << " with " << int(num_vertices) << " vertices" << std::endl;
-        PHYSFS_uint8 x, y, z;
+        UInt8 x, y, z;
         for (int i = 0; i < num_vertices; i++) {
-            PHYSFS_readBytes(fd, static_cast<void *>(&x), 1);
-            PHYSFS_readBytes(fd, static_cast<void *>(&y), 1);
-            PHYSFS_readBytes(fd, static_cast<void *>(&z), 1);
+            pf.read(x);
+            pf.read(y);
+            pf.read(z);
             // INFO << int(x) << "," << int(y) << "," << int(z) << std::endl;
             _counted += 3;
         }
@@ -211,20 +196,20 @@ void Map::loadRoutes()
 void Map::loadLocations()
 {
     // FIXME: missing
-    PHYSFS_uint32 _si = baseSize + columnSize + topHeaderSize + objectPosSize + routeSize + blockSize;
-    PHYSFS_seek(fd, _si);
+    UInt32 _si = baseSize + columnSize + topHeaderSize + objectPosSize + routeSize + blockSize;
+    pf.seek(_si);
     // police
     // hospital
     // unused
     // unused
     // fire
     // unused
-    PHYSFS_uint8 loc_type = 0;
+    UInt8 loc_type = 0;
     for (int i = 0; i < 36; ++i) {
         Location loc;
-        PHYSFS_readBytes(fd, static_cast<void *>(&loc.x), 1);
-        PHYSFS_readBytes(fd, static_cast<void *>(&loc.y), 1);
-        PHYSFS_readBytes(fd, static_cast<void *>(&loc.z), 1);
+        pf.read(loc.x);
+        pf.read(loc.y);
+        pf.read(loc.z);
         // skip dummy entries at 0,0,0
         if ((loc.x == 0) && (loc.y == 0) && (loc.z == 0))
             continue;
@@ -242,27 +227,27 @@ void Map::loadLocations()
 }
 void Map::loadNavData(const size_t levelNum)
 {
-    PHYSFS_uint32 _si = baseSize + columnSize + topHeaderSize + objectPosSize + routeSize + 3 * 6 * 6 + blockSize;
-    PHYSFS_seek(fd, _si);
-    nav = new NavData(navDataSize, fd, levelNum);
+    UInt32 _si = baseSize + columnSize + topHeaderSize + objectPosSize + routeSize + 3 * 6 * 6 + blockSize;
+    pf.seek(_si);
+    nav = new NavData(navDataSize, pf, levelNum);
     assert(nav);
 }
-PHYSFS_uint16 Map::getNumBlocksAt(PHYSFS_uint8 x, PHYSFS_uint8 y)
+UInt16 Map::getNumBlocksAt(UInt8 x, UInt8 y)
 {
     return column[base[x][y] / 2];
 }
-PHYSFS_uint16 Map::getNumBlocksAtNew(PHYSFS_uint8 x, PHYSFS_uint8 y)
+UInt16 Map::getNumBlocksAtNew(UInt8 x, UInt8 y)
 {
     return 6 - column[base[x][y] / 2];
 }
-Map::BlockInfo *Map::getBlockAt(PHYSFS_uint8 x, PHYSFS_uint8 y, PHYSFS_uint8 z)
+Map::BlockInfo *Map::getBlockAt(UInt8 x, UInt8 y, UInt8 z)
 {
-    PHYSFS_uint16 v = column[base[x][y] / 2 + z];
+    UInt16 v = column[base[x][y] / 2 + z];
     return &block[v];
 }
-Map::BlockInfo *Map::getBlockAtNew(PHYSFS_uint8 x, PHYSFS_uint8 y, PHYSFS_uint8 z)
+Map::BlockInfo *Map::getBlockAtNew(UInt8 x, UInt8 y, UInt8 z)
 {
-    PHYSFS_uint16 idx0 = 6 - column[base[x][y] / 2];
+    UInt16 idx0 = 6 - column[base[x][y] / 2];
     if (idx0 > z)
         idx0 -= z;
     else
@@ -270,11 +255,11 @@ Map::BlockInfo *Map::getBlockAtNew(PHYSFS_uint8 x, PHYSFS_uint8 y, PHYSFS_uint8 
     idx0 = column[base[x][y] / 2 + idx0];
     return &block[idx0];
 }
-PHYSFS_uint16 Map::getInternalIdAt(PHYSFS_uint8 x, PHYSFS_uint8 y, PHYSFS_uint8 z)
+UInt16 Map::getInternalIdAt(UInt8 x, UInt8 y, UInt8 z)
 {
     return column[base[x][y] / 2 + z];
 }
-Map::BlockInfo *Map::getBlockByInternalId(PHYSFS_uint16 id)
+Map::BlockInfo *Map::getBlockByInternalId(UInt16 id)
 {
     return &block[id];
 }
@@ -283,7 +268,7 @@ void Map::dump()
     for (int y = 0; y < GTA_MAP_MAXDIMENSION; y++) {
         for (int x = 0; x < GTA_MAP_MAXDIMENSION; x++) {
             std::cout << x << "," << y << ":" << column[base[x][y] / 2] << "||";
-            PHYSFS_uint16 ts = column[base[x][y] / 2];
+            UInt16 ts = column[base[x][y] / 2];
             std::cout << "(";
             for (int t = 1; t <= (6 - ts); t++) {
                 BlockInfo *info = &block[column[base[x][y] / 2 + t]];

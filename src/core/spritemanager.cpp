@@ -278,7 +278,7 @@ void SpriteManager::draw(Car &car)
     GL_OBJ_COMMON(car);
     GraphicsBase &style = ActiveStyle::Instance().get();
     OpenGL::PagedTexture t;
-    PHYSFS_uint16 sprNum = style.spriteNumbers.reIndex(car.sprNum, car.sprType);
+    const auto sprNum = style.spriteNumbers.reIndex(car.sprNum, car.sprType);
     //+ car.anim.firstFrameOffset + car.anim.currentFrame, car.sprType);
 
     SpriteInfo *info = style.getSprite(sprNum);
@@ -360,7 +360,7 @@ void SpriteManager::draw(SpriteObject &obj)
     GL_OBJ_COMMON(obj);
     GraphicsBase &style = ActiveStyle::Instance().get();
     OpenGL::PagedTexture t;
-    PHYSFS_uint16 sprNum =
+    UInt16 sprNum =
         style.spriteNumbers.reIndex(obj.sprNum + obj.anim.firstFrameOffset + obj.anim.currentFrame, obj.sprType);
 
     SpriteInfo *info = style.getSprite(sprNum);
@@ -400,7 +400,7 @@ void SpriteManager::draw(Pedestrian &ped)
 
     GraphicsBase &style = ActiveStyle::Instance().get();
     OpenGL::PagedTexture t;
-    PHYSFS_uint16 sprNum =
+    UInt16 sprNum =
         style.spriteNumbers.reIndex(ped.sprNum + ped.anim.firstFrameOffset + ped.anim.currentFrame, ped.sprType);
 
     SpriteInfo *info = style.getSprite(sprNum);
@@ -449,7 +449,7 @@ void SpriteManager::drawExplosion(SpriteObject &obj)
 
     GraphicsBase &style = ActiveStyle::Instance().get();
 
-    PHYSFS_uint16 sprNum =
+    UInt16 sprNum =
         style.spriteNumbers.reIndex(obj.sprNum + obj.anim.firstFrameOffset + obj.anim.currentFrame, obj.sprType);
 
     SpriteInfo *info = style.getSprite(sprNum);
@@ -577,7 +577,7 @@ void SpriteManager::drawExplosion(SpriteObject &obj)
    GraphicsBase & style = ActiveStyle::Instance().get();
 
    OpenGL::PagedTexture t;
-   PHYSFS_uint16 sprNum = style.spriteNumbers.reIndex(train.sprNum,
+   UInt16 sprNum = style.spriteNumbers.reIndex(train.sprNum,
    train.sprType);
 
    GraphicsBase::SpriteInfo * info = style.getSprite(sprNum);

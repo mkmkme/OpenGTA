@@ -9,6 +9,7 @@
  * This notice may not be removed or altered.                            *
  ************************************************************************/
 #include <cassert>
+#include <cstddef>
 #include <memory>
 
 #include <core/graphics-8bit.h>
@@ -74,7 +75,7 @@ void Graphics8Bit::dump()
 
 void Graphics8Bit::loadHeader()
 {
-    PHYSFS_uint32 vc;
+    UInt32 vc;
     styleFile.read(vc);
     if (vc != GTA_GRAPHICS_GRY) {
         ERROR("graphics file specifies version {} instead of {}", vc, GTA_GRAPHICS_GRY);
@@ -107,7 +108,7 @@ void Graphics8Bit::loadHeader()
         return;
     }
 
-    PHYSFS_uint32 tmp = sideSize / 4096 + lidSize / 4096 + auxSize / 4096;
+    UInt32 tmp = sideSize / 4096 + lidSize / 4096 + auxSize / 4096;
     tmp = tmp % 4;
     if (tmp) {
         auxBlockTrailSize = (4 - tmp) * 4096;
@@ -148,15 +149,15 @@ void Graphics8Bit::loadHeader()
 
 void Graphics8Bit::loadPalette()
 {
-    PHYSFS_uint64 st =
-        static_cast<PHYSFS_uint64>(_topHeaderSize) + sideSize + lidSize + auxSize + auxBlockTrailSize + animSize;
+    UInt64 st =
+        static_cast<UInt64>(_topHeaderSize) + sideSize + lidSize + auxSize + auxBlockTrailSize + animSize;
     styleFile.ensurePosition(st);
     masterRGB_ = std::make_unique<RGBPalette>(styleFile);
 }
 
 void Graphics8Bit::loadRemapTables()
 {
-    PHYSFS_uint64 st = static_cast<PHYSFS_uint64>(_topHeaderSize) + sideSize + lidSize + auxSize + auxBlockTrailSize +
+    UInt64 st = static_cast<UInt64>(_topHeaderSize) + sideSize + lidSize + auxSize + auxBlockTrailSize +
         animSize + paletteSize;
     styleFile.ensurePosition(st);
     styleFile.read(remapTables, sizeof(remapTables));
@@ -171,7 +172,7 @@ void Graphics8Bit::loadRemapTables()
 
 void Graphics8Bit::loadRemapIndex()
 {
-    PHYSFS_uint64 st = static_cast<PHYSFS_uint64>(_topHeaderSize) + sideSize + lidSize + auxSize + auxBlockTrailSize +
+    UInt64 st = static_cast<UInt64>(_topHeaderSize) + sideSize + lidSize + auxSize + auxBlockTrailSize +
         animSize + paletteSize + remapSize;
     styleFile.ensurePosition(st);
     styleFile.read(remapIndex, sizeof(remapIndex));
@@ -185,27 +186,27 @@ void Graphics8Bit::loadRemapIndex()
 
 void Graphics8Bit::loadObjectInfo()
 {
-    PHYSFS_uint64 st = static_cast<PHYSFS_uint64>(_topHeaderSize) + sideSize + lidSize + auxSize + auxBlockTrailSize +
+    UInt64 st = static_cast<UInt64>(_topHeaderSize) + sideSize + lidSize + auxSize + auxBlockTrailSize +
         animSize + paletteSize + remapSize + remapIndexSize;
     loadObjectInfo_shared(st);
 }
 
 void Graphics8Bit::loadCarInfo()
 {
-    PHYSFS_uint64 st = static_cast<PHYSFS_uint64>(_topHeaderSize) + sideSize + lidSize + auxSize + auxBlockTrailSize +
+    UInt64 st = static_cast<UInt64>(_topHeaderSize) + sideSize + lidSize + auxSize + auxBlockTrailSize +
         animSize + paletteSize + remapSize + remapIndexSize + objectInfoSize;
     loadCarInfo_shared(st);
 }
 
 void Graphics8Bit::loadSpriteInfo()
 {
-    PHYSFS_uint64 st = static_cast<PHYSFS_uint64>(_topHeaderSize) + sideSize + lidSize + auxSize + auxBlockTrailSize +
+    UInt64 st = static_cast<UInt64>(_topHeaderSize) + sideSize + lidSize + auxSize + auxBlockTrailSize +
         animSize + paletteSize + remapSize + remapIndexSize + objectInfoSize + carInfoSize;
     styleFile.ensurePosition(st);
 
-    PHYSFS_uint8 compressionFlag;
-    PHYSFS_uint32 w;
-    PHYSFS_uint32 _bytes_read = 0;
+    UInt8 compressionFlag;
+    UInt32 w;
+    UInt32 _bytes_read = 0;
     while (_bytes_read < spriteInfoSize) {
         auto *si = new SpriteInfo();
         styleFile.read(si->w);
@@ -232,7 +233,7 @@ void Graphics8Bit::loadSpriteInfo()
             ERROR("Delta count of sprite is {} (should be <= 32)", si->deltaCount);
             return;
         }
-        for (PHYSFS_uint8 j = 0; j < 33; ++j) {
+        for (UInt8 j = 0; j < 33; ++j) {
             si->delta[j].size = 0;
             si->delta[j].ptr = nullptr;
             if (si->deltaCount && (j < si->deltaCount)) {
@@ -245,14 +246,14 @@ void Graphics8Bit::loadSpriteInfo()
         }
         spriteInfos.push_back(si);
     }
-    st = static_cast<PHYSFS_uint64>(_topHeaderSize) + sideSize + lidSize + auxSize + auxBlockTrailSize + animSize +
+    st = static_cast<UInt64>(_topHeaderSize) + sideSize + lidSize + auxSize + auxBlockTrailSize + animSize +
         paletteSize + remapSize + remapIndexSize + objectInfoSize + carInfoSize + spriteInfoSize;
     styleFile.ensurePosition(st);
 }
 
 void Graphics8Bit::loadSpriteGraphics()
 {
-    PHYSFS_uint64 st = static_cast<PHYSFS_uint64>(_topHeaderSize) + sideSize + lidSize + auxSize + auxBlockTrailSize +
+    UInt64 st = static_cast<UInt64>(_topHeaderSize) + sideSize + lidSize + auxSize + auxBlockTrailSize +
         animSize + paletteSize + remapSize + remapIndexSize + objectInfoSize + carInfoSize + spriteInfoSize;
     styleFile.ensurePosition(st);
     rawSprites = new unsigned char[spriteGraphicsSize];
@@ -265,21 +266,21 @@ void Graphics8Bit::loadSpriteGraphics()
     }
     auto i = spriteInfos.cbegin();
     auto end = spriteInfos.cend();
-    PHYSFS_uint32 _pagewise = 256 * 256;
+    UInt32 _pagewise = 256 * 256;
     while (i != end) {
         SpriteInfo *info = *i;
         /*
-        PHYSFS_uint32 offset = reinterpret_cast<PHYSFS_uint32>(info->ptr);
-        PHYSFS_uint32 page = offset / 65536;
-        PHYSFS_uint32 y = (offset % 65536) / 256;
-        PHYSFS_uint32 x = (offset % 65536) % 256;
+        UInt32 offset = reinterpret_cast<UInt32>(info->ptr);
+        UInt32 page = offset / 65536;
+        UInt32 y = (offset % 65536) / 256;
+        UInt32 x = (offset % 65536) % 256;
         */
         // std::cout << int(info->w) << "x" << int(info->h) << " " << int(info->deltaCount) << " deltas" << std::endl;
         // std::cout << offset << " page " << page << " x,y " << x <<","<<y<< std::endl;
         // info->ptr = rawSprites + page * _pagewise + 256 * y + x;
         for (uint8_t k = 0; k < info->deltaCount; ++k) {
             const auto tmp = reinterpret_cast<uintptr_t>(info->delta[k].ptr);
-            const auto offset = static_cast<PHYSFS_uint32>(tmp);
+            const auto offset = static_cast<UInt32>(tmp);
             const auto page = offset / 65536;
             const auto y = (offset % 65536) / 256;
             const auto x = (offset % 65536) % 256;
@@ -291,7 +292,7 @@ void Graphics8Bit::loadSpriteGraphics()
 
 void Graphics8Bit::loadSpriteNumbers()
 {
-    PHYSFS_uint64 st = static_cast<PHYSFS_uint64>(_topHeaderSize) + sideSize + lidSize + auxSize + auxBlockTrailSize +
+    UInt64 st = static_cast<UInt64>(_topHeaderSize) + sideSize + lidSize + auxSize + auxBlockTrailSize +
         animSize + paletteSize + remapSize + remapIndexSize + objectInfoSize + carInfoSize + spriteInfoSize +
         spriteGraphicsSize;
     loadSpriteNumbers_shared(st);
@@ -301,13 +302,13 @@ std::unique_ptr<unsigned char[]> Graphics8Bit::getSpriteBitmap(size_t id, int re
 {
     SpriteInfo *info = spriteInfos[id];
     assert(info != nullptr);
-    // PHYSFS_uint32 offset = reinterpret_cast<PHYSFS_uint32>(info->ptr);
-    // const PHYSFS_uint32 page = offset / 65536;
-    const PHYSFS_uint32 y = info->yoffset; // (offset % 65536) / 256;
-    const PHYSFS_uint32 x = info->xoffset; // (offset % 65536) % 256;
-    const PHYSFS_uint32 page_size = 256 * 256;
+    // UInt32 offset = reinterpret_cast<UInt32>(info->ptr);
+    // const UInt32 page = offset / 65536;
+    const UInt32 y = info->yoffset; // (offset % 65536) / 256;
+    const UInt32 x = info->xoffset; // (offset % 65536) % 256;
+    constexpr UInt32 page_size = 256 * 256;
 
-    unsigned char *page_start = rawSprites + info->page * page_size; // + 256 * y + x;
+    unsigned char *page_start = rawSprites + static_cast<size_t>(info->page * page_size); // + 256 * y + x;
     assert(page_start != nullptr);
 
     auto dest = std::make_unique<unsigned char[]>(page_size);
@@ -328,7 +329,7 @@ std::unique_ptr<unsigned char[]> Graphics8Bit::getSpriteBitmap(size_t id, int re
     auto bigbuf = bigbuf_smart.get();
 
     masterRGB_->apply(page_size, result, bigbuf, true);
-    assert(page_size > PHYSFS_uint32(info->w * info->h * 4));
+    assert(page_size > UInt32(info->w * info->h * 4));
     for (uint16_t i = 0; i < info->h; i++) {
         memcpy(result, bigbuf + (256 * y + x) * 4, info->w * 4);
         result += info->w * 4;

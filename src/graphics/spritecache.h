@@ -39,11 +39,11 @@ namespace OpenGL {
 
 struct SpriteIdentifier;
 struct SpriteIdentifier {
-    PHYSFS_uint16 sprNum = 0;
-    PHYSFS_sint16 remap = -1;
-    PHYSFS_uint32 delta = 0;
+    UInt16 sprNum = 0;
+    Int16 remap = -1;
+    UInt32 delta = 0;
     SpriteIdentifier() = default;
-    SpriteIdentifier(PHYSFS_uint16, PHYSFS_sint16, PHYSFS_uint32);
+    SpriteIdentifier(UInt16, Int16, UInt32);
     SpriteIdentifier(const SpriteIdentifier &other);
     auto operator<=>(const SpriteIdentifier &) const = default;
 };
@@ -64,33 +64,33 @@ public:
     }
 
     void clearAll();
-    bool getScale2x() const;
+    [[nodiscard]] bool getScale2x() const;
     void setScale2x(bool enabled);
-    bool has(PHYSFS_uint16 sprNum);
-    bool has(PHYSFS_uint16 sprNum, PHYSFS_sint16 remap);
+    bool has(UInt16 sprNum);
+    bool has(UInt16 sprNum, Int16 remap);
     bool has(const SpriteIdentifier &si);
-    PagedTexture &get(PHYSFS_uint16 sprNum);
-    PagedTexture &get(PHYSFS_uint16 sprNum, PHYSFS_sint16 remap);
+    PagedTexture &get(UInt16 sprNum);
+    PagedTexture &get(UInt16 sprNum, Int16 remap);
     PagedTexture &get(const SpriteIdentifier &si);
-    void add(PHYSFS_uint16 sprNum, PagedTexture &t);
-    void add(PHYSFS_uint16 sprNum, PHYSFS_sint16 remap, PagedTexture &t);
+    void add(UInt16 sprNum, PagedTexture &t);
+    void add(UInt16 sprNum, Int16 remap, PagedTexture &t);
     void add(const SpriteIdentifier &si, PagedTexture &t);
     PagedTexture create(
-        PHYSFS_uint16 sprNum,
+        UInt16 sprNum,
         OpenGTA::GraphicsBase::SpriteNumbers::SpriteTypes,
-        PHYSFS_sint16 remap
+        Int16 remap
     );
     PagedTexture create(
-        PHYSFS_uint16 sprNum,
+        UInt16 sprNum,
         OpenGTA::GraphicsBase::SpriteNumbers::SpriteTypes,
-        PHYSFS_sint16 remap,
-        PHYSFS_uint32 delta
+        Int16 remap,
+        UInt32 delta
     );
 
     OpenGL::PagedTexture createSprite(
         size_t sprite_num,
-        PHYSFS_sint16 remap,
-        PHYSFS_uint32 delta,
+        Int16 remap,
+        UInt32 delta,
         OpenGTA::SpriteInfo *info
     ) const;
 

@@ -31,7 +31,7 @@ void IniScriptBridge::reset()
     lua_settop(L, 0);
 }
 
-void IniScriptBridge::loadLevel(PHYSFS_uint32 level)
+void IniScriptBridge::loadLevel(UInt32 level)
 {
     reset();
     ScriptParser::loadLevel(level);

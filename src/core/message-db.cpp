@@ -11,6 +11,7 @@
 #include <core/message-db.h>
 
 #include <util/errors.h>
+#include <util/file-manager.h>
 #include <util/file_helper.h>
 #include <util/log.h>
 
@@ -19,7 +20,7 @@ std::string format_map(const std::map<std::string, std::string> &m)
 {
     std::string ret = "{ ";
     for (const auto &[key, val] : m)
-        ret.append("{" + key + ": " + val + "}, ");
+        ret.append("{").append(key).append(": ").append(val).append("}, ");
     ret.append(" }");
     return ret;
 }
@@ -39,7 +40,7 @@ MessageDB::MessageDB(const std::string &file)
 void MessageDB::load(const std::string &file)
 {
     INFO("Trying to load file {}", file);
-    PHYSFS_file *f = Util::FileHelper::OpenReadVFS(file);
+    Util::PhysFSFile pf { file };
 
     messages.clear();
 
@@ -49,8 +50,8 @@ void MessageDB::load(const std::string &file)
     char buff[200];
     int i = 0;
     std::string tmp;
-    while (!PHYSFS_eof(f)) {
-        PHYSFS_readBytes(f, static_cast<void *>(&v), 1);
+    while (!pf.eof()) {
+        pf.read(v);
 
         /* thanks to: Michael Mendelsohn
          * http://gta.mendelsohn.de/
@@ -77,9 +78,9 @@ void MessageDB::load(const std::string &file)
                 buff[i] = 0x00;
                 if (tmp.length() > 0)
                     messages[tmp] = std::string(buff);
-                    // std::cout << tmp << " : " << buff << std::endl;
-                    /*else
-                      std::cout << "Skipping: " << tmp << ": " << buff << std::endl;*/
+                // std::cout << tmp << " : " << buff << std::endl;
+                /*else
+                  std::cout << "Skipping: " << tmp << ": " << buff << std::endl;*/
 #ifdef FXT_TEST
                 std::cout << tmp << " : " << buff << std::endl;
 #endif
@@ -91,7 +92,6 @@ void MessageDB::load(const std::string &file)
             }
         }
     }
-    PHYSFS_close(f);
 }
 
 const std::string &MessageDB::getText(const std::string &id)

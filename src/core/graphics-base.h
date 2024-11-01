@@ -38,27 +38,27 @@ public:
     uint8_t getFormat();
 
     struct SpriteNumbers {
-        PHYSFS_uint16 GTA_SPRITE_ARROW;
-        PHYSFS_uint16 GTA_SPRITE_DIGITS;
-        PHYSFS_uint16 GTA_SPRITE_BOAT;
-        PHYSFS_uint16 GTA_SPRITE_BOX;
-        PHYSFS_uint16 GTA_SPRITE_BUS;
-        PHYSFS_uint16 GTA_SPRITE_CAR;
-        PHYSFS_uint16 GTA_SPRITE_OBJECT;
-        PHYSFS_uint16 GTA_SPRITE_PED;
-        PHYSFS_uint16 GTA_SPRITE_SPEEDO;
-        PHYSFS_uint16 GTA_SPRITE_TANK;
-        PHYSFS_uint16 GTA_SPRITE_TRAFFIC_LIGHTS;
-        PHYSFS_uint16 GTA_SPRITE_TRAIN;
-        PHYSFS_uint16 GTA_SPRITE_TRDOORS;
-        PHYSFS_uint16 GTA_SPRITE_BIKE;
-        PHYSFS_uint16 GTA_SPRITE_TRAM;
-        PHYSFS_uint16 GTA_SPRITE_WBUS;
-        PHYSFS_uint16 GTA_SPRITE_WCAR;
-        PHYSFS_uint16 GTA_SPRITE_EX;
-        PHYSFS_uint16 GTA_SPRITE_TUMCAR;
-        PHYSFS_uint16 GTA_SPRITE_TUMTRUCK;
-        PHYSFS_uint16 GTA_SPRITE_FERRY;
+        UInt16 GTA_SPRITE_ARROW;
+        UInt16 GTA_SPRITE_DIGITS;
+        UInt16 GTA_SPRITE_BOAT;
+        UInt16 GTA_SPRITE_BOX;
+        UInt16 GTA_SPRITE_BUS;
+        UInt16 GTA_SPRITE_CAR;
+        UInt16 GTA_SPRITE_OBJECT;
+        UInt16 GTA_SPRITE_PED;
+        UInt16 GTA_SPRITE_SPEEDO;
+        UInt16 GTA_SPRITE_TANK;
+        UInt16 GTA_SPRITE_TRAFFIC_LIGHTS;
+        UInt16 GTA_SPRITE_TRAIN;
+        UInt16 GTA_SPRITE_TRDOORS;
+        UInt16 GTA_SPRITE_BIKE;
+        UInt16 GTA_SPRITE_TRAM;
+        UInt16 GTA_SPRITE_WBUS;
+        UInt16 GTA_SPRITE_WCAR;
+        UInt16 GTA_SPRITE_EX;
+        UInt16 GTA_SPRITE_TUMCAR;
+        UInt16 GTA_SPRITE_TUMTRUCK;
+        UInt16 GTA_SPRITE_FERRY;
 
         enum SpriteTypes {
             ARROW = 0,
@@ -84,8 +84,8 @@ public:
             FERRY
         };
 
-        PHYSFS_uint16 reIndex(const PHYSFS_uint16 &id, const enum SpriteTypes &st) const;
-        PHYSFS_uint16 countByType(const SpriteTypes &t) const;
+        UInt16 reIndex(const UInt16 &id, const enum SpriteTypes &st) const;
+        UInt16 countByType(const SpriteTypes &t) const;
     };
 
     bool isAnimatedBlock(uint8_t area_code, uint8_t id);
@@ -98,7 +98,7 @@ public:
 
     SpriteNumbers spriteNumbers {};
 
-    CarInfo &findCarByModel(PHYSFS_uint8);
+    CarInfo &findCarByModel(UInt8);
     [[maybe_unused]] [[nodiscard]] inline size_t getNumCarModels() const noexcept { return carInfos.size(); }
     unsigned char *getTmpBuffer(bool rgba);
     SpriteInfo *getSprite(size_t id) { return spriteInfos[id]; }
@@ -124,10 +124,10 @@ protected:
     void loadTileTextures();
     void loadAnim();
 
-    void loadObjectInfo_shared(PHYSFS_uint64 offset);
-    void loadSpriteNumbers_shared(PHYSFS_uint64 offset);
-    void loadCarInfo_shared(PHYSFS_uint64 offset);
-    // void loadSpriteInfo_shared(PHYSFS_uint64 offset);
+    void loadObjectInfo_shared(UInt64 offset);
+    void loadSpriteNumbers_shared(UInt64 offset);
+    void loadCarInfo_shared(UInt64 offset);
+    // void loadSpriteInfo_shared(UInt64 offset);
 
     void handleDeltas(const SpriteInfo &spriteinfo, unsigned char *buffer, uint32_t delta);
     void applyDelta(
@@ -142,30 +142,19 @@ protected:
     unsigned char *rawTiles;
     unsigned char *rawSprites;
 
-    PHYSFS_uint32 sideSize {};
-    PHYSFS_uint32 lidSize {};
-    PHYSFS_uint32 auxSize {};
-    PHYSFS_uint32 animSize {};
-    PHYSFS_uint32 objectInfoSize {};
-    PHYSFS_uint32 carInfoSize {};
-    PHYSFS_uint32 spriteInfoSize {};
-    PHYSFS_uint32 spriteGraphicsSize {};
-    PHYSFS_uint32 spriteNumberSize {};
+    UInt32 sideSize {};
+    UInt32 lidSize {};
+    UInt32 auxSize {};
+    UInt32 animSize {};
+    UInt32 objectInfoSize {};
+    UInt32 carInfoSize {};
+    UInt32 spriteInfoSize {};
+    UInt32 spriteGraphicsSize {};
+    UInt32 spriteNumberSize {};
 
-    PHYSFS_uint32 auxBlockTrailSize {};
+    UInt32 auxBlockTrailSize {};
 
-    /*
-    int loadSide();
-    int loadLid();
-    int loadAux();
-    int loadAnim();
-    int loadObject();
-    int loadCar();
-    int loadSpriteInfo();
-    int loadSpriteGraphics();
-    int loadSpriteNumbers();*/
-
-    PHYSFS_uint8 _topHeaderSize {};
+    UInt8 _topHeaderSize {};
 
     unsigned char tileTmp[4096] {};
     unsigned char tileTmpRGB[4096 * 3] {};

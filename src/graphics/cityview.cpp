@@ -239,8 +239,8 @@ void CityView::loadMap(const std::string &map, const std::string &style_f)
 
     // safeguard against double car entries (in nyc.cmp)
     Util::MapOfPair2Int d_car_map;
-    for (PHYSFS_uint16 oc = 0; oc < loadedMap->numObjects; oc++) {
-        OpenGTA::Map::ObjectPosition &op = loadedMap->objects[oc];
+    for (UInt16 oc = 0; oc < loadedMap->numObjects; oc++) {
+        const auto &op = loadedMap->objects[oc];
         if (op.remap >= 128) {
             if (Util::item_count(d_car_map, op.x, op.y) == 0)
                 Util::register_item1(d_car_map, op.x, op.y);
@@ -277,8 +277,8 @@ void CityView::setPosition(const GLfloat &x, const GLfloat &y, const GLfloat &z)
     scene_is_dirty = true;
     // INFO << "Position: " << x << ", " << z << " (" << y << ")" << std::endl;
     if (loadedMap) {
-        auto _x = PHYSFS_uint8((x >= 1.0f) ? ((x < 255.0f) ? x : 254) : 1); // FIXME: crashes on 0 or 255
-        auto _y = PHYSFS_uint8((z >= 1.0f) ? ((z < 255.0f) ? z : 254) : 1); // why???
+        auto _x = UInt8((x >= 1.0f) ? ((x < 255.0f) ? x : 254) : 1); // FIXME: crashes on 0 or 255
+        auto _y = UInt8((z >= 1.0f) ? ((z < 255.0f) ? z : 254) : 1); // why???
         NavData::Sector *in_sector = loadedMap->nav->getSectorAt(_x, _y);
         assert(in_sector);
         if (in_sector != current_sector) {
@@ -318,7 +318,7 @@ void CityView::getTerrainHeight(GLfloat &x, GLfloat &y, GLfloat &z)
     // int zi = int(z);
     float h = 0.5f;
     WARN("THIS FUNCTION SHOULD NOT BE USED!");
-    PHYSFS_uint16 emptycount = loadedMap->getNumBlocksAt(xi, yi);
+    const auto emptycount = loadedMap->getNumBlocksAt(xi, yi);
     for (int c = 6 - emptycount; c >= 1; c--) {
         OpenGTA::Map::BlockInfo *bi = loadedMap->getBlockAt(xi, yi, c);
         if (bi->blockType() == 0) {
@@ -389,7 +389,7 @@ OpenGL::PagedTexture CityView::renderMap2Texture()
         for (int j = 0; j <= 255; j++) {
             glPushMatrix();
             glTranslatef(1.0f * j, 0.0f, 1.0f * i);
-            PHYSFS_uint16 maxcount = loadedMap->getNumBlocksAtNew(j, i);
+            const auto maxcount = loadedMap->getNumBlocksAtNew(j, i);
             for (int c = 0; c < maxcount; ++c) {
                 glPushMatrix();
                 drawBlock(loadedMap->getBlockAtNew(j, i, c));
@@ -552,7 +552,7 @@ void CityView::draw(Uint32 ticks)
                 glPushMatrix();
                 glTranslatef(1.0f * j, 0.0f, 1.0f * i);
                 // PHYSFS_uint16 emptycount = loadedMap->getNumBlocksAt(j,i);
-                PHYSFS_uint16 maxcount = loadedMap->getNumBlocksAtNew(j, i);
+                const auto maxcount = loadedMap->getNumBlocksAtNew(j, i);
                 // for (int c=6-emptycount; c >= 1; c--) {
                 for (int c = 0; c < maxcount; ++c) {
                     ++scene_rendered_blocks;
@@ -635,7 +635,7 @@ void CityView::draw(Uint32 ticks)
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, glwidth, glheight, 0, GL_RGBA, GL_UNSIGNED_BYTE, dst);
-    return OpenGL::PagedTexture(texid, 0, 0, 
+    return OpenGL::PagedTexture(texid, 0, 0,
       float(info->w)/float(glwidth), float(info->h)/float(glheight));
   }
 #endif

@@ -10,10 +10,10 @@
 namespace OpenGTA::Script {
 class IniScriptBridge : public ScriptParser {
 public:
-    IniScriptBridge(const std::string &file);
-    ~IniScriptBridge();
+    explicit IniScriptBridge(const std::string &file);
+    ~IniScriptBridge() override;
     lua_State *L;
-    void loadLevel(PHYSFS_uint32 level);
+    void loadLevel(UInt32 level);
 
 protected:
     void reset();

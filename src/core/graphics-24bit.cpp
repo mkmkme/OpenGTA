@@ -53,7 +53,7 @@ Graphics24Bit::~Graphics24Bit()
 
 void Graphics24Bit::loadHeader()
 {
-    PHYSFS_uint32 vc;
+    UInt32 vc;
     styleFile.read(vc);
     if (vc != GTA_GRAPHICS_G24) {
         ERROR("graphics file specifies version {} (should be {})", vc, GTA_GRAPHICS_G24);
@@ -92,7 +92,7 @@ void Graphics24Bit::loadHeader()
         return;
     }
 
-    PHYSFS_uint32 tmp = sideSize / 4096 + lidSize / 4096 + auxSize / 4096;
+    UInt32 tmp = sideSize / 4096 + lidSize / 4096 + auxSize / 4096;
     tmp = tmp % 4;
     if (tmp) {
         auxBlockTrailSize = (4 - tmp) * 4096;
@@ -136,8 +136,8 @@ void Graphics24Bit::loadHeader()
 
 void Graphics24Bit::loadClut()
 {
-    PHYSFS_uint64 st =
-        static_cast<PHYSFS_uint64>(_topHeaderSize) + sideSize + lidSize + auxSize + auxBlockTrailSize + animSize;
+    UInt64 st =
+        static_cast<UInt64>(_topHeaderSize) + sideSize + lidSize + auxSize + auxBlockTrailSize + animSize;
     styleFile.ensurePosition(st);
     pagedClutSize = clutSize;
     if (clutSize % 65536 != 0)
@@ -149,20 +149,20 @@ void Graphics24Bit::loadClut()
 
 void Graphics24Bit::loadPalIndex()
 {
-    PHYSFS_uint64 st = static_cast<PHYSFS_uint64>(_topHeaderSize) + sideSize + lidSize + auxSize + auxBlockTrailSize +
+    UInt64 st = static_cast<UInt64>(_topHeaderSize) + sideSize + lidSize + auxSize + auxBlockTrailSize +
         animSize + pagedClutSize;
     styleFile.ensurePosition(st);
-    PHYSFS_uint16 pal_index_count = paletteIndexSize / 2;
+    UInt16 pal_index_count = paletteIndexSize / 2;
     assert(paletteIndexSize % 2 == 0);
-    palIndex = new PHYSFS_uint16[pal_index_count];
-    for (PHYSFS_uint16 i = 0; i < pal_index_count; i++) {
+    palIndex = new UInt16[pal_index_count];
+    for (UInt16 i = 0; i < pal_index_count; i++) {
         styleFile.read(palIndex[i]);
     }
 }
 
 void Graphics24Bit::loadCarInfo()
 {
-    PHYSFS_uint64 st = static_cast<PHYSFS_uint64>(_topHeaderSize) + sideSize + lidSize + auxSize + auxBlockTrailSize +
+    UInt64 st = static_cast<UInt64>(_topHeaderSize) + sideSize + lidSize + auxSize + auxBlockTrailSize +
         animSize + pagedClutSize + paletteIndexSize + objectInfoSize;
     // INFO("seek for {}", st);
     loadCarInfo_shared(st);
@@ -170,13 +170,13 @@ void Graphics24Bit::loadCarInfo()
 
 void Graphics24Bit::loadSpriteInfo()
 {
-    PHYSFS_uint64 st = static_cast<PHYSFS_uint64>(_topHeaderSize) + sideSize + lidSize + auxSize + auxBlockTrailSize +
+    UInt64 st = static_cast<UInt64>(_topHeaderSize) + sideSize + lidSize + auxSize + auxBlockTrailSize +
         animSize + pagedClutSize + paletteIndexSize + objectInfoSize + carInfoSize;
     styleFile.ensurePosition(st);
 
-    PHYSFS_uint8 v;
-    PHYSFS_uint32 w;
-    PHYSFS_uint32 _bytes_read = 0;
+    UInt8 v;
+    UInt32 w;
+    UInt32 _bytes_read = 0;
     while (_bytes_read < spriteInfoSize) {
         auto *si = new SpriteInfo();
         styleFile.read(si->w);
@@ -206,7 +206,7 @@ void Graphics24Bit::loadSpriteInfo()
             ERROR("Delta count of sprite is {}", si->deltaCount);
             return;
         }
-        for (PHYSFS_uint8 j = 0; j < si->deltaCount; j++) {
+        for (UInt8 j = 0; j < si->deltaCount; j++) {
             si->delta[j].size = 0;
             si->delta[j].ptr = nullptr;
             if (si->deltaCount && (j < si->deltaCount)) {
@@ -218,14 +218,14 @@ void Graphics24Bit::loadSpriteInfo()
         }
         spriteInfos.push_back(si);
     }
-    st = static_cast<PHYSFS_uint64>(_topHeaderSize) + sideSize + lidSize + auxSize + auxBlockTrailSize + animSize +
+    st = static_cast<UInt64>(_topHeaderSize) + sideSize + lidSize + auxSize + auxBlockTrailSize + animSize +
         pagedClutSize + paletteIndexSize + objectInfoSize + carInfoSize + spriteInfoSize;
     styleFile.ensurePosition(st);
 }
 
 void Graphics24Bit::loadSpriteNumbers()
 {
-    PHYSFS_uint64 st = static_cast<PHYSFS_uint64>(_topHeaderSize) + sideSize + lidSize + auxSize + auxBlockTrailSize +
+    UInt64 st = static_cast<UInt64>(_topHeaderSize) + sideSize + lidSize + auxSize + auxBlockTrailSize +
         animSize + pagedClutSize + paletteIndexSize + objectInfoSize + carInfoSize + spriteInfoSize +
         spriteGraphicsSize;
     loadSpriteNumbers_shared(st);
@@ -233,7 +233,7 @@ void Graphics24Bit::loadSpriteNumbers()
 
 void Graphics24Bit::loadSpriteGraphics()
 {
-    PHYSFS_uint64 st = static_cast<PHYSFS_uint64>(_topHeaderSize) + sideSize + lidSize + auxSize + auxBlockTrailSize +
+    UInt64 st = static_cast<UInt64>(_topHeaderSize) + sideSize + lidSize + auxSize + auxBlockTrailSize +
         animSize + pagedClutSize + paletteIndexSize + objectInfoSize + carInfoSize + spriteInfoSize;
     styleFile.ensurePosition(st);
 
@@ -242,7 +242,7 @@ void Graphics24Bit::loadSpriteGraphics()
 
     auto i = spriteInfos.cbegin();
     auto end = spriteInfos.cend();
-    PHYSFS_uint32 _pagewise = 256 * 256;
+    UInt32 _pagewise = 256 * 256;
     while (i != end) {
         SpriteInfo *info = *i;
         for (uint8_t k = 0; k < info->deltaCount; ++k) {
@@ -258,7 +258,7 @@ void Graphics24Bit::loadSpriteGraphics()
 
 void Graphics24Bit::loadObjectInfo()
 {
-    PHYSFS_uint64 st = static_cast<PHYSFS_uint64>(_topHeaderSize) + sideSize + lidSize + auxSize + auxBlockTrailSize +
+    UInt64 st = static_cast<UInt64>(_topHeaderSize) + sideSize + lidSize + auxSize + auxBlockTrailSize +
         animSize + pagedClutSize + paletteIndexSize;
     loadObjectInfo_shared(st);
 }
@@ -267,13 +267,13 @@ void Graphics24Bit::applyClut(
     unsigned char *src,
     unsigned char *dst,
     const size_t &len,
-    const PHYSFS_uint16 &clutIdx,
+    const UInt16 &clutIdx,
     bool rgba
 )
 {
-    PHYSFS_uint32 off = 65536 * (clutIdx / 64) + 4 * (clutIdx % 64);
+    UInt32 off = 65536 * (clutIdx / 64) + 4 * (clutIdx % 64);
     for (size_t i = 0; i < len; i++) {
-        PHYSFS_uint32 coff = PHYSFS_uint32(*src) * 256 + off;
+        UInt32 coff = UInt32(*src) * 256 + off;
         *dst = rawClut[coff + 2];
         ++dst;
         *dst = rawClut[coff + 1];
@@ -296,7 +296,7 @@ unsigned char *Graphics24Bit::getLid(unsigned int idx, unsigned int _not_used, b
     prepareLidTexture(idx - 1, reinterpret_cast<unsigned char *>(tileTmp));
     unsigned char *src = tileTmp;
     unsigned char *dst = (rgba) ? tileTmpRGBA : tileTmpRGB;
-    PHYSFS_uint16 clutIdx = palIndex[4 * (idx + sideSize / 4096)];
+    UInt16 clutIdx = palIndex[4 * (idx + sideSize / 4096)];
     applyClut(src, dst, 4096, clutIdx, rgba);
 
     return (rgba) ? tileTmpRGBA : tileTmpRGB;
@@ -307,7 +307,7 @@ unsigned char *Graphics24Bit::getSide(unsigned int idx, unsigned int _not_used, 
     prepareSideTexture(idx - 1, reinterpret_cast<unsigned char *>(tileTmp));
     unsigned char *src = tileTmp;
     unsigned char *dst = (rgba) ? tileTmpRGBA : tileTmpRGB;
-    PHYSFS_uint16 clutIdx = palIndex[idx * 4];
+    UInt16 clutIdx = palIndex[idx * 4];
     applyClut(src, dst, 4096, clutIdx, rgba);
 
     return (rgba) ? tileTmpRGBA : tileTmpRGB;
@@ -319,7 +319,7 @@ unsigned char *Graphics24Bit::getAux(unsigned int idx, unsigned int _not_used, b
 
     unsigned char *src = tileTmp;
     unsigned char *dst = (rgba) ? tileTmpRGBA : tileTmpRGB;
-    PHYSFS_uint16 clutIdx = palIndex[4 * (idx + sideSize / 4096 + lidSize / 4096)];
+    UInt16 clutIdx = palIndex[4 * (idx + sideSize / 4096 + lidSize / 4096)];
     applyClut(src, dst, 4096, clutIdx, rgba);
 
     return (rgba) ? tileTmpRGBA : tileTmpRGB;
@@ -329,9 +329,9 @@ std::unique_ptr<unsigned char[]> Graphics24Bit::getSpriteBitmap(size_t id, int r
 {
     const SpriteInfo *info = spriteInfos[id];
     assert(info != nullptr);
-    const PHYSFS_uint32 y = info->yoffset;
-    const PHYSFS_uint32 x = info->xoffset;
-    const PHYSFS_uint32 page_size = 256 * 256;
+    const UInt32 y = info->yoffset;
+    const UInt32 x = info->xoffset;
+    const UInt32 page_size = 256 * 256;
 
     unsigned char *page_start = rawSprites + info->page * page_size;
 
@@ -353,11 +353,11 @@ std::unique_ptr<unsigned char[]> Graphics24Bit::getSpriteBitmap(size_t id, int r
     if (remap > -1)
         skip_cluts = spriteclutSize / 1024 + remap + 1;
 
-    PHYSFS_uint16 clutIdx = palIndex[info->clut + tileclutSize / 1024] + skip_cluts;
-    //  PHYSFS_uint16 clutIdx = palIndex[info->clut + (spriteclutSize + tileclutSize) / 1024] + (remap > -1 ? remap+2 :
+    UInt16 clutIdx = palIndex[info->clut + tileclutSize / 1024] + skip_cluts;
+    //  UInt16 clutIdx = palIndex[info->clut + (spriteclutSize + tileclutSize) / 1024] + (remap > -1 ? remap+2 :
     //  0);
     applyClut(dest.get(), bigbuf, page_size, clutIdx, true);
-    assert(page_size > PHYSFS_uint32(info->w * info->h * 4));
+    assert(page_size > UInt32(info->w * info->h * 4));
     for (uint16_t i = 0; i < info->h; i++) {
         memcpy(result, bigbuf + (256 * y + x) * 4, info->w * 4);
         result += info->w * 4;

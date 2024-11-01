@@ -43,7 +43,7 @@ OpenGTA::CarInfo::CarInfo(Util::PhysFSFile &file)
     file.read(moment);
     bytes_read_ += 2 + 4;
 
-    PHYSFS_uint32 fixed_tmp;
+    UInt32 fixed_tmp;
     file.read(fixed_tmp);
     // rbpMass = fixed_tmp / 65536
 

@@ -40,17 +40,17 @@ public:
     ~SoundsDB();
     void load(const std::string &sdt_file);
     struct Entry {
-        Entry(PHYSFS_uint32, PHYSFS_uint32, PHYSFS_uint32);
-        PHYSFS_uint32 rawStart;
-        PHYSFS_uint32 rawSize;
-        PHYSFS_uint32 sampleRate;
+        Entry(UInt32, UInt32, UInt32);
+        UInt32 rawStart;
+        UInt32 rawSize;
+        UInt32 sampleRate;
     };
-    typedef PHYSFS_uint16 KeyType;
+    using KeyType = UInt16;
     Entry &getEntry(KeyType key);
     unsigned char *getBuffered(KeyType key);
 
 private:
-    typedef std::map<KeyType, Entry> MapType;
+    using MapType = std::map<KeyType, Entry>;
     MapType knownEntries;
     Util::PhysFSFile dataFile;
 };

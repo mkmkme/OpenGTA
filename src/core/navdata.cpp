@@ -15,6 +15,7 @@
 #include <fmt/format.h>
 
 #include <util/errors.h>
+#include <util/file-manager.h>
 #include <util/log.h>
 
 namespace OpenGTA {
@@ -23,30 +24,30 @@ Rect2D::Rect2D()
     x = y = w = h = 0;
 }
 
-bool Rect2D::isInside(PHYSFS_uint8 _x, PHYSFS_uint8 _y)
+bool Rect2D::isInside(UInt8 _x, UInt8 _y)
 {
     if ((_x >= x) && (_y >= y) &&
-        (PHYSFS_uint16(_x) <= PHYSFS_uint16(x) + w) &&
-        (PHYSFS_uint16(_y) <= PHYSFS_uint16(y) + h)) {
+        (UInt16(_x) <= UInt16(x) + w) &&
+        (UInt16(_y) <= UInt16(y) + h)) {
         lastSubLocation = subLocation(_x, _y);
         return true;
     }
     return false;
 }
 
-PHYSFS_uint16 Rect2D::getSize() const noexcept
+UInt16 Rect2D::getSize() const noexcept
 {
     return w * h;
 }
 
 // 0 = central, 1 = north, 2 = south, 4 = east, 8 = west
-PHYSFS_uint8 Rect2D::subLocation(PHYSFS_uint8 _x, PHYSFS_uint8 _y) const
+UInt8 Rect2D::subLocation(UInt8 _x, UInt8 _y) const
 {
-    PHYSFS_uint8 in_x = _x - x; // offset in rect; assume: x <= _x
-    PHYSFS_uint8 in_y = _y - y;
+    UInt8 in_x = _x - x; // offset in rect; assume: x <= _x
+    UInt8 in_y = _y - y;
     float rel_x = float(in_x) / w;
     float rel_y = float(in_y) / h;
-    PHYSFS_uint8 res = 0;
+    UInt8 res = 0;
     const float oneThird = 1.0f / 3.0f;
     const float twoThirds = 2.0f / 3.0f;
     if (rel_x <= oneThird)
@@ -64,20 +65,19 @@ PHYSFS_uint8 Rect2D::subLocation(PHYSFS_uint8 _x, PHYSFS_uint8 _y) const
     return res;
 }
 
-NavData::Sector::Sector(PHYSFS_file *fd)
+NavData::Sector::Sector(Util::PhysFSFile &pf)
     : Rect2D()
 {
-    assert(fd);
     // memset(name2, 0, 30);
-    PHYSFS_readBytes(fd, static_cast<void *>(&x), 1);
-    PHYSFS_readBytes(fd, static_cast<void *>(&y), 1);
-    PHYSFS_readBytes(fd, static_cast<void *>(&w), 1);
-    PHYSFS_readBytes(fd, static_cast<void *>(&h), 1);
-    PHYSFS_readBytes(fd, static_cast<void *>(&sam), 1);
+    pf.read(x);
+    pf.read(y);
+    pf.read(w);
+    pf.read(h);
+    pf.read(sam);
     // seek over the name embedded in the mapfile; use sample-num to
     // lookup in msg-db
     // PHYSFS_read(fd, static_cast<void*>(&name2), 30, 1);
-    PHYSFS_seek(fd, PHYSFS_tell(fd) + 30);
+    pf.seek(pf.tell() + 30);
 }
 
 NavData::Sector::Sector()
@@ -150,14 +150,13 @@ std::string NavData::_ne;
 std::string NavData::_sw;
 std::string NavData::_se;
 
-NavData::NavData(PHYSFS_uint32 size, PHYSFS_file *fd, const size_t level_num)
+NavData::NavData(UInt32 size, Util::PhysFSFile &pf, const size_t level_num)
 {
     if (size % 35) {
         throw Util::InvalidFormat("Navdata size: " + std::to_string(size) + " % 35 != 0");
         // throw std::string("Invalid NavData size in mapfile");
     }
-    PHYSFS_uint32 c = size / 35;
-    assert(fd);
+    UInt32 c = size / 35;
 
     MessageDB &msg = MainMsgLookup::Instance().get();
     _c = msg.getText("c");
@@ -169,8 +168,8 @@ NavData::NavData(PHYSFS_uint32 size, PHYSFS_file *fd, const size_t level_num)
     _ne = msg.getText("ne");
     _sw = msg.getText("sw");
     _se = msg.getText("se");
-    for (PHYSFS_uint32 i = 0; i < c; ++i) {
-        auto *sec = new Sector(fd);
+    for (UInt32 i = 0; i < c; ++i) {
+        auto *sec = new Sector(pf);
         if (sec->getSize() == 0) { // workaround for 'NYC.CMP' (empty sectors)
             delete sec;
             WARN("skipping zero size sector");
@@ -179,11 +178,11 @@ NavData::NavData(PHYSFS_uint32 size, PHYSFS_file *fd, const size_t level_num)
             // INFO << i << " " << sec->name2 << std::endl << os.str() << " : " << msg.getText(os.str()) << std::endl;
             sec->name = msg.getText(fmt::format("{:03}area{:03}", level_num, int(sec->sam)));
 
-            areas.insert(std::pair<PHYSFS_uint16, Sector *>(sec->getSize(), sec));
+            areas.insert(std::pair<UInt16, Sector *>(sec->getSize(), sec));
         }
     }
     // dummy catch-all sector for gta london maps
-    areas.insert(std::pair<PHYSFS_uint16, Sector *>(255 * 255, new Sector()));
+    areas.insert(std::pair<UInt16, Sector *>(255 * 255, new Sector()));
 
     /*
     std::cout << "map areas (by size)" << std::endl;
@@ -201,7 +200,7 @@ NavData::~NavData()
     clear();
 }
 
-NavData::Sector *NavData::getSectorAt(PHYSFS_uint8 x, PHYSFS_uint8 y)
+NavData::Sector *NavData::getSectorAt(UInt8 x, UInt8 y)
 {
     for (const auto &area : areas) {
         if (area.second->isInside(x, y))

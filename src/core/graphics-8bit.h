@@ -24,7 +24,7 @@ public:
     /** Constructor for graphics loader.
      * @param style a valid filename (maybe uppercase depending on your files)
      */
-    Graphics8Bit(const std::string &style);
+    explicit Graphics8Bit(const std::string &style);
 
     /** Helper to apply palettes to various raw bitmaps.
      * @see Graphics8Bit
@@ -41,17 +41,17 @@ public:
          */
         RGBPalette();
         /** Formerly private member, now exposed for Font class; take care.
-         * @param fd PHYSFS_file* handle.
+         * @param styileFile Util::PhysFSFile handle.
          */
         int loadFromFile(Util::PhysFSFile &styleFile);
         /** Constructor from PHYFS_file.
-         * @param fd PHYSFS_file* handle
+         * @param styleFile Util::PhysFSFile handle
          */
-        RGBPalette(Util::PhysFSFile &styleFile);
+        explicit RGBPalette(Util::PhysFSFile &styleFile);
         /** Constructor from filename.
          * @param filename a palette file name
          */
-        RGBPalette(const std::string &palette);
+        explicit RGBPalette(const std::string &palette);
         /** Transforms an input buffer using the palette stored in this
          * instance.
          * @param len length of the src buffer (in byte)
@@ -72,9 +72,9 @@ public:
     void dump();
 
 private:
-    PHYSFS_uint32 paletteSize {};
-    PHYSFS_uint32 remapSize {};
-    PHYSFS_uint32 remapIndexSize {};
+    UInt32 paletteSize {};
+    UInt32 remapSize {};
+    UInt32 remapIndexSize {};
 
 protected:
     void loadHeader();
@@ -88,8 +88,8 @@ protected:
     void loadSpriteNumbers();
     void applyRemap(unsigned int len, unsigned int which, unsigned char *buffer);
     std::unique_ptr<RGBPalette> masterRGB_;
-    PHYSFS_uint8 remapTables[256][256] {};
-    PHYSFS_uint8 remapIndex[256][4] {};
+    UInt8 remapTables[256][256] {};
+    UInt8 remapIndex[256][4] {};
 };
 
 } // namespace OpenGTA

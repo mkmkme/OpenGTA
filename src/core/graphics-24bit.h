@@ -31,21 +31,21 @@ protected:
         unsigned char *src,
         unsigned char *dst,
         const size_t &len,
-        const PHYSFS_uint16 &clutIdx,
+        const UInt16 &clutIdx,
         bool rgba
     );
 
 private:
-    PHYSFS_uint32 clutSize {};
-    PHYSFS_uint32 pagedClutSize {};
-    PHYSFS_uint32 tileclutSize {};
-    PHYSFS_uint32 spriteclutSize {};
-    PHYSFS_uint32 newcarclutSize {};
-    PHYSFS_uint32 fontclutSize {};
-    PHYSFS_uint32 paletteIndexSize {};
+    UInt32 clutSize {};
+    UInt32 pagedClutSize {};
+    UInt32 tileclutSize {};
+    UInt32 spriteclutSize {};
+    UInt32 newcarclutSize {};
+    UInt32 fontclutSize {};
+    UInt32 paletteIndexSize {};
 
     unsigned char *rawClut;
-    PHYSFS_uint16 *palIndex;
+    UInt16 *palIndex;
 };
 
 } // namespace OpenGTA

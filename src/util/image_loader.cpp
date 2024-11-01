@@ -101,22 +101,19 @@ WidthHeightPair lookupImageSize(const std::string &name, const uint32_t size)
 
 OpenGL::PagedTexture loadImageRAW(const std::string &name)
 {
+    Util::PhysFSFile pf { name };
 
-    PHYSFS_file *fd = Util::FileHelper::OpenReadVFS(name);
-
-    uint32_t nbytes = PHYSFS_fileLength(fd);
+    const auto nbytes = pf.length();
 
     WidthHeightPair whp = lookupImageSize(name, nbytes);
 
     if (whp.first == 0 || whp.second == 0) {
-        PHYSFS_close(fd);
         WARN("aborting image load");
         throw Util::UnknownKey(name + " - RAW file size unknown");
     }
 
     auto buffer = std::make_unique<uint8_t[]>(nbytes);
-    PHYSFS_readBytes(fd, buffer.get(), nbytes);
-    PHYSFS_close(fd);
+    pf.read(buffer.get(), nbytes);
 
     return createEmbeddedTexture(whp.first, whp.second, false, std::move(buffer));
 }

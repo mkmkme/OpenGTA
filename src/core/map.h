@@ -5,7 +5,10 @@
 
 #include <physfs.h>
 
+#include <core/numeric-types.h>
+
 #include <common/bitwise.h>
+#include <util/file-manager.h>
 
 namespace {
 constexpr std::size_t GTA_MAP_MAXDIMENSION = 256;
@@ -24,18 +27,18 @@ public:
     ~Map();
 
     struct BlockInfo {
-        PHYSFS_uint16 typeMap;
-        PHYSFS_uint8 typeMapExt;
-        PHYSFS_uint8 left, right, top, bottom, lid;
+        UInt16 typeMap;
+        UInt8 typeMapExt;
+        UInt8 left, right, top, bottom, lid;
 
-        inline bool upOk() const noexcept { return Util::getBit(typeMap, 1); }
-        inline bool downOk() const noexcept { return Util::getBit(typeMap, 2); }
-        inline bool leftOk() const noexcept { return Util::getBit(typeMap, 3); }
-        inline bool rightOk() const noexcept { return Util::getBit(typeMap, 4); }
-        inline uint8_t blockType() const noexcept { return Util::getRangeBit(typeMap, 5, 7); }
-        inline bool isFlat() const noexcept { return Util::getBit(typeMap, 8); }
-        inline uint8_t slopeType() const noexcept { return Util::getRangeBit(typeMap, 9, 14); }
-        inline uint8_t rotation() const noexcept { return Util::getRangeBit(typeMap, 15, 16); }
+        [[nodiscard]] inline bool upOk() const noexcept { return Util::getBit(typeMap, 1); }
+        [[nodiscard]] inline bool downOk() const noexcept { return Util::getBit(typeMap, 2); }
+        [[nodiscard]] inline bool leftOk() const noexcept { return Util::getBit(typeMap, 3); }
+        [[nodiscard]] inline bool rightOk() const noexcept { return Util::getBit(typeMap, 4); }
+        [[nodiscard]] inline uint8_t blockType() const noexcept { return Util::getRangeBit(typeMap, 5, 7); }
+        [[nodiscard]] inline bool isFlat() const noexcept { return Util::getBit(typeMap, 8); }
+        [[nodiscard]] inline uint8_t slopeType() const noexcept { return Util::getRangeBit(typeMap, 9, 14); }
+        [[nodiscard]] inline uint8_t rotation() const noexcept { return Util::getRangeBit(typeMap, 15, 16); }
         /* m1win seems to indicate:
          * 000 - Nothing
          * 001 - traffic lights
@@ -56,65 +59,65 @@ public:
         inline void setSlopeType(uint8_t v) noexcept { Util::copyRangeBit(&typeMap, 9, 14, v); }
         inline void setRotation(uint8_t v) noexcept { Util::copyRangeBit(&typeMap, 15, 16, v); }
 
-        inline bool trafficLights() const noexcept { return Util::getBit(typeMapExt, 1); }
-        inline bool railEndTurn() const noexcept { return Util::getBit(typeMapExt, 3); }
-        inline bool railStartTurn() const noexcept
+        [[nodiscard]] inline bool trafficLights() const noexcept { return Util::getBit(typeMapExt, 1); }
+        [[nodiscard]] inline bool railEndTurn() const noexcept { return Util::getBit(typeMapExt, 3); }
+        [[nodiscard]] inline bool railStartTurn() const noexcept
         {
             return Util::getBit(typeMapExt, 3) && Util::getBit(typeMapExt, 1);
         }
-        inline bool railStation() const noexcept { return Util::getBit(typeMapExt, 3) && Util::getBit(typeMapExt, 2); }
-        inline bool railStationTrain() const noexcept
+        [[nodiscard]] inline bool railStation() const noexcept { return Util::getBit(typeMapExt, 3) && Util::getBit(typeMapExt, 2); }
+        [[nodiscard]] inline bool railStationTrain() const noexcept
         {
             return Util::getBit(typeMapExt, 3) && Util::getBit(typeMapExt, 2) && Util::getBit(typeMapExt, 1);
         }
-        inline uint8_t remapIndex() const noexcept { return Util::getRangeBit(typeMapExt, 4, 5); }
-        inline bool flipTopBottom() const noexcept { return Util::getBit(typeMapExt, 6); }
-        inline bool flipLeftRight() const noexcept { return Util::getBit(typeMapExt, 7); }
-        inline bool railway() const noexcept { return Util::getBit(typeMapExt, 8); }
+        [[nodiscard]] inline uint8_t remapIndex() const noexcept { return Util::getRangeBit(typeMapExt, 4, 5); }
+        [[nodiscard]] inline bool flipTopBottom() const noexcept { return Util::getBit(typeMapExt, 6); }
+        [[nodiscard]] inline bool flipLeftRight() const noexcept { return Util::getBit(typeMapExt, 7); }
+        [[nodiscard]] inline bool railway() const noexcept { return Util::getBit(typeMapExt, 8); }
     };
     struct ObjectPosition {
-        PHYSFS_uint16 x, y, z;
-        PHYSFS_uint8 type;
-        PHYSFS_uint8 remap;
-        PHYSFS_uint16 rotation; // see: cds.doc
-        PHYSFS_uint16 pitch;
-        PHYSFS_uint16 roll;
+        UInt16 x, y, z;
+        UInt8 type;
+        UInt8 remap;
+        UInt16 rotation; // see: cds.doc
+        UInt16 pitch;
+        UInt16 roll;
     };
     struct Location {
-        PHYSFS_uint8 x = 0;
-        PHYSFS_uint8 y = 0;
-        PHYSFS_uint8 z = 0;
+        UInt8 x = 0;
+        UInt8 y = 0;
+        UInt8 z = 0;
     };
-    using LocationMap = std::multimap<PHYSFS_uint8, Location>;
+    using LocationMap = std::multimap<UInt8, Location>;
     //...
-    PHYSFS_uint16 getNumBlocksAt(PHYSFS_uint8 x, PHYSFS_uint8 y);
-    PHYSFS_uint16 getNumBlocksAtNew(PHYSFS_uint8 x, PHYSFS_uint8 y);
-    BlockInfo *getBlockAt(PHYSFS_uint8 x, PHYSFS_uint8 y, PHYSFS_uint8 z);
-    BlockInfo *getBlockAtNew(PHYSFS_uint8 x, PHYSFS_uint8 y, PHYSFS_uint8 z);
-    BlockInfo *getBlockByInternalId(PHYSFS_uint16 id);
-    PHYSFS_uint16 getInternalIdAt(PHYSFS_uint8 x, PHYSFS_uint8 y, PHYSFS_uint8 z);
+    UInt16 getNumBlocksAt(UInt8 x, UInt8 y);
+    UInt16 getNumBlocksAtNew(UInt8 x, UInt8 y);
+    BlockInfo *getBlockAt(UInt8 x, UInt8 y, UInt8 z);
+    BlockInfo *getBlockAtNew(UInt8 x, UInt8 y, UInt8 z);
+    BlockInfo *getBlockByInternalId(UInt16 id);
+    UInt16 getInternalIdAt(UInt8 x, UInt8 y, UInt8 z);
     void dump();
     NavData *nav;
     ObjectPosition *objects {};
-    PHYSFS_uint16 numObjects {};
+    UInt16 numObjects {};
     const Location &getNearestLocationByType(uint8_t t, uint8_t x, uint8_t y);
-    const LocationMap &getLocationMap() const noexcept { return locations; }
+    [[nodiscard]] const LocationMap &getLocationMap() const noexcept { return locations; }
 
 protected:
-    PHYSFS_uint32 base[GTA_MAP_MAXDIMENSION][GTA_MAP_MAXDIMENSION] {};
-    PHYSFS_uint16 *column {};
+    UInt32 base[GTA_MAP_MAXDIMENSION][GTA_MAP_MAXDIMENSION] {};
+    UInt16 *column {};
     BlockInfo *block {};
     LocationMap locations;
 
 private:
-    PHYSFS_file *fd;
+    Util::PhysFSFile pf;
 
-    PHYSFS_uint8 styleNumber {};
-    PHYSFS_uint32 routeSize {};
-    PHYSFS_uint32 objectPosSize {};
-    PHYSFS_uint32 columnSize {};
-    PHYSFS_uint32 blockSize {};
-    PHYSFS_uint32 navDataSize {};
+    UInt8 styleNumber {};
+    UInt32 routeSize {};
+    UInt32 objectPosSize {};
+    UInt32 columnSize {};
+    UInt32 blockSize {};
+    UInt32 navDataSize {};
 
     int loadHeader();
     int loadBase();

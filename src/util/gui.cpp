@@ -267,7 +267,7 @@ void Manager::cacheImageRAT(const std::string &file, const std::string &palette,
 ImageUtil::WidthHeightPair Manager::cacheStyleArrowSprite(const size_t id, int remap)
 {
     OpenGTA::GraphicsBase &graphics = OpenGTA::ActiveStyle::Instance().get();
-    PHYSFS_uint16 t = graphics.spriteNumbers.reIndex(id, OpenGTA::GraphicsBase::SpriteNumbers::ARROW);
+    const auto t = graphics.spriteNumbers.reIndex(id, OpenGTA::GraphicsBase::SpriteNumbers::ARROW);
     OpenGTA::SpriteInfo *info = graphics.getSprite(t);
     texCache.insert(
         std::make_pair(

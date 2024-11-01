@@ -98,11 +98,11 @@ void Camera::update(Uint32 ticks, OpenGL::Screen &screen)
     }
 
     OpenGTA::Map &map = OpenGTA::ActiveMap::Instance().get();
-    if (y < map.getNumBlocksAtNew(PHYSFS_uint8(x), PHYSFS_uint8(z)) && y > 0.0f) {
+    if (y < map.getNumBlocksAtNew(UInt8(x), UInt8(z)) && y > 0.0f) {
         OpenGTA::Map::BlockInfo *block = map.getBlockAtNew(
-            PHYSFS_uint8(x),
-            PHYSFS_uint8(z),
-            PHYSFS_uint8(y)
+            UInt8(x),
+            UInt8(z),
+            UInt8(y)
         );
         if (block->blockType() > 0 && block->blockType() <= 5) {
             float bz = slope_height_offset(block->slopeType(), eye.x - x, eye.z - z);
@@ -135,11 +135,11 @@ void Camera::update(Uint32 ticks, OpenGL::Screen &screen)
 #endif
     }
     y -= 1;
-    if (y < map.getNumBlocksAtNew(PHYSFS_uint8(x), PHYSFS_uint8(z)) && y > 0.0f) {
+    if (y < map.getNumBlocksAtNew(UInt8(x), UInt8(z)) && y > 0.0f) {
         OpenGTA::Map::BlockInfo *block = map.getBlockAtNew(
-            PHYSFS_uint8(x),
-            PHYSFS_uint8(z),
-            PHYSFS_uint8(y)
+            UInt8(x),
+            UInt8(z),
+            UInt8(y)
         );
         if (block->blockType() == 5 || block->blockType() == 6) {
             float bz = slope_height_offset(block->slopeType(), eye.x - x, eye.z - z);

@@ -11,7 +11,7 @@
 using namespace OpenGTA;
 using namespace Util;
 
-PHYSFS_uint16 GraphicsBase::SpriteNumbers::countByType(const SpriteTypes &t) const
+UInt16 GraphicsBase::SpriteNumbers::countByType(const SpriteTypes &t) const
 {
     switch (t) {
 #define CASE_COUNT(_enum, _value) \
@@ -106,7 +106,7 @@ bool GraphicsBase::isAnimatedBlock(uint8_t area_code, uint8_t id)
     });
 }
 
-CarInfo &GraphicsBase::findCarByModel(PHYSFS_uint8 model)
+CarInfo &GraphicsBase::findCarByModel(UInt8 model)
 {
     for (auto &car : carInfos) {
         if (car.model == model)
@@ -135,9 +135,9 @@ uint8_t GraphicsBase::getFormat()
     throw Util::InvalidFormat("graphics-base header size");
 }
 
-PHYSFS_uint16 GraphicsBase::SpriteNumbers::reIndex(const PHYSFS_uint16 &id, const SpriteTypes &t) const
+UInt16 GraphicsBase::SpriteNumbers::reIndex(const UInt16 &id, const SpriteTypes &t) const
 {
-    PHYSFS_uint16 ret = id;
+    UInt16 ret = id;
     switch (t) {
 #define CASE_ACCUMULATE(_enum, _val) \
     case _enum:                      \
@@ -173,15 +173,15 @@ PHYSFS_uint16 GraphicsBase::SpriteNumbers::reIndex(const PHYSFS_uint16 &id, cons
 
 void GraphicsBase::loadAnim()
 {
-    PHYSFS_uint64 st = static_cast<PHYSFS_uint64>(_topHeaderSize) + sideSize + lidSize + auxSize + auxBlockTrailSize;
+    UInt64 st = static_cast<UInt64>(_topHeaderSize) + sideSize + lidSize + auxSize + auxBlockTrailSize;
     styleFile.seek(st);
-    PHYSFS_uint8 numAnim;
+    UInt8 numAnim;
     styleFile.read(numAnim);
     for (int i = 0; i < numAnim; i++)
         animations.emplace_back(styleFile);
 }
 
-void GraphicsBase::loadObjectInfo_shared(PHYSFS_uint64 offset)
+void GraphicsBase::loadObjectInfo_shared(UInt64 offset)
 {
     styleFile.ensurePosition(offset);
     assert(objectInfoSize % 20 == 0);
@@ -191,11 +191,11 @@ void GraphicsBase::loadObjectInfo_shared(PHYSFS_uint64 offset)
         objectInfos.emplace_back(styleFile);
 }
 
-void GraphicsBase::loadCarInfo_shared(PHYSFS_uint64 offset)
+void GraphicsBase::loadCarInfo_shared(UInt64 offset)
 {
     styleFile.ensurePosition(offset);
 
-    PHYSFS_uint32 bytes_read = 0;
+    UInt32 bytes_read = 0;
     while (bytes_read < carInfoSize) {
         CarInfo car { styleFile };
         bytes_read += car.bytes_read();
@@ -204,7 +204,7 @@ void GraphicsBase::loadCarInfo_shared(PHYSFS_uint64 offset)
     assert(bytes_read == carInfoSize);
 }
 
-void GraphicsBase::loadSpriteNumbers_shared(PHYSFS_uint64 offset)
+void GraphicsBase::loadSpriteNumbers_shared(UInt64 offset)
 {
 
     styleFile.ensurePosition(offset);
@@ -236,7 +236,7 @@ void GraphicsBase::loadTileTextures()
 {
     styleFile.ensurePosition(_topHeaderSize);
 
-    PHYSFS_uint64 ts = sideSize + lidSize + auxSize;
+    UInt64 ts = sideSize + lidSize + auxSize;
     rawTiles = new unsigned char[ts];
     styleFile.read(rawTiles, ts);
 }
@@ -284,19 +284,19 @@ void GraphicsBase::applyDelta(
 {
     unsigned char *b = buffer + page_offset;
     unsigned char *delta = deltaInfo.ptr;
-    PHYSFS_sint32 length_to_go = deltaInfo.size;
+    Int32 length_to_go = deltaInfo.size;
 
     if (mirror) {
-        PHYSFS_uint32 doff = 0;
+        UInt32 doff = 0;
         while (length_to_go > 0) {
-            PHYSFS_uint16 *offset = (PHYSFS_uint16 *) delta;
+            UInt16 *offset = (UInt16 *) delta;
             doff += *offset;
             delta += 2;
             unsigned char this_length = *delta;
             ++delta;
-            PHYSFS_uint32 noff = page_offset + doff;
-            PHYSFS_uint32 _y = noff / 256 * 256;
-            PHYSFS_uint32 _x = doff % 256;
+            UInt32 noff = page_offset + doff;
+            UInt32 _y = noff / 256 * 256;
+            UInt32 _x = doff % 256;
             for (int i = 0; i < this_length; i++)
                 *(buffer + _y + spriteInfo.xoffset + spriteInfo.w - _x - i - 1) = *(delta + i);
             length_to_go -= (this_length + 3);
@@ -307,7 +307,7 @@ void GraphicsBase::applyDelta(
     }
 
     while (length_to_go > 0) {
-        PHYSFS_uint16 *offset = (PHYSFS_uint16 *) delta;
+        UInt16 *offset = (UInt16 *) delta;
         b += *offset;
         delta += 2;
         unsigned char this_length = *delta;

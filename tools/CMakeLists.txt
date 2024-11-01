@@ -84,8 +84,7 @@ target_link_libraries(minimap PRIVATE
     physfs
     fmt::fmt)
 
-# TODO: broken
-add_executable(car_dump EXCLUDE_FROM_ALL car_dump.cpp)
+add_executable(car_dump car_dump.cpp)
 target_link_libraries(car_dump PRIVATE
     ogta::core
     ogta::graphics

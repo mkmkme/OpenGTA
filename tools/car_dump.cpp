@@ -4,6 +4,8 @@
 #include <core/car-info.h>
 #include <core/dataholder.h>
 
+#include <util/file-manager.h>
+
 void print_car(OpenGTA::CarInfo &ci)
 {
     std::string model = "car" + std::to_string(int(ci.model));
@@ -15,10 +17,12 @@ void print_car(OpenGTA::CarInfo &ci)
               // remaps
               << PRINTC(vtype) << PRINTC(model) << PRINTC(turning) << PRINTC(damagable)
               << "model-name:" << OpenGTA::MainMsgLookup::Instance().get().getText(model) << "|" << PRINTC(cx)
-              << PRINTC(cy) << PRINT(moment) << PRINT(rbpMass) << PRINT(g1_Thrust) << PRINT(tyreAdhesionX)
-              << PRINT(tyreAdhesionY) << PRINT(handBrakeFriction) << PRINT(footBrakeFriction) << PRINT(frontBrakeBias)
-              << PRINT(turnRatio) << PRINT(driveWheelOffset) << PRINT(steeringWheelOffset) << PRINT(backEndSlideValue)
-              << PRINT(handBrakeSlideValue) << PRINTC(convertible) << PRINTC(engine) << PRINTC(radio) << PRINTC(horn)
+              << PRINTC(cy) << PRINT(moment)
+              //   << PRINT(rbpMass) << PRINT(g1_Thrust) << PRINT(tyreAdhesionX)
+              //   << PRINT(tyreAdhesionY) << PRINT(handBrakeFriction) << PRINT(footBrakeFriction) << PRINT(frontBrakeBias)
+              << PRINT(turnRatio) << PRINT(driveWheelOffset) << PRINT(steeringWheelOffset)
+              //   << PRINT(backEndSlideValue) << PRINT(handBrakeSlideValue)
+              << PRINTC(convertible) << PRINTC(engine) << PRINTC(radio) << PRINTC(horn)
               << PRINTC(soundFunction) << PRINTC(fastChangeFlag) << PRINT(numDoors);
 #undef PRINT
 #define PRINT(c) #c << ":" << ci.door[i].c << "|"
@@ -42,9 +46,7 @@ int main(int argc, char *argv[])
 
     const std::string style_file = argv[1];
 
-    PHYSFS_init("mapview");
-    PHYSFS_mount(PHYSFS_getBaseDir(), nullptr, 1);
-    PHYSFS_mount("gtadata.zip", nullptr, 1);
+    const Util::PhysFSContext pfs(argv[0]);
 
     OpenGTA::MainMsgLookup::Instance().load("ENGLISH.FXT");
     OpenGTA::ActiveStyle::Instance().load(style_file);
@@ -54,6 +56,5 @@ int main(int argc, char *argv[])
         print_car(cinfo);
     }
 
-    PHYSFS_deinit();
     return 0;
 }

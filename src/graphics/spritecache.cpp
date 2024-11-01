@@ -188,7 +188,7 @@ SpriteCache::createSprite(
 {
     INFO("creating new sprite: {} remap: {}", sprite_num, remap);
     auto src_smart = OpenGTA::ActiveStyle::Instance().get().getSpriteBitmap(sprite_num, remap, delta);
-    unsigned char *src = src_smart.get();
+    unsigned char *src = src_smart.data();
 #if 0
     if (sprite_num == 257) {
       info->w = 72;

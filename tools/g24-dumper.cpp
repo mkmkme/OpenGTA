@@ -136,7 +136,7 @@ int main(int argc, char *argv[])
     }
     auto *sinfo = graphics.getSprite(idx);
     auto sbm = graphics.getSpriteBitmap(idx, -1, 0);
-    SDL_Surface *image = get_image(sbm.get(), sinfo->w, sinfo->h);
+    SDL_Surface *image = get_image(sbm.data(), sinfo->w, sinfo->h);
     if (argc == 4)
         SDL_SaveBMP(image, argv[3]);
     else

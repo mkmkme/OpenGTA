@@ -17,6 +17,7 @@
 #include <physfs.h>
 
 #include <core/car-info.h>
+#include <core/numeric-types.h>
 #include <core/object-info.h>
 
 #include "util/file-manager.h"
@@ -107,7 +108,7 @@ public:
     virtual unsigned char *getLid(unsigned int idx, unsigned int palIdx, bool rgba) = 0;
     virtual unsigned char *getAux(unsigned int idx, unsigned int palIdx, bool rgba) = 0;
 
-    virtual std::unique_ptr<unsigned char[]> getSpriteBitmap(size_t id, int remap, uint32_t delta) = 0;
+    virtual std::vector<UInt8> getSpriteBitmap(size_t id, int remap, uint32_t delta) = 0;
 
     std::vector<LoadedAnim> animations;
     std::vector<SpriteInfo *> spriteInfos;

@@ -227,7 +227,7 @@ int main(int argc, char *argv[])
                 std::cout << "Sprite is " << int(sprite->w) << "x" << int(sprite->h) << " with "
                           << int(sprite->deltaCount) << " deltas" << std::endl;
                 auto sbitmap = graphics.getSpriteBitmap(idx, remap, delta);
-                image = get_image(sbitmap.get(), sprite->w, sprite->h);
+                image = get_image(sbitmap.data(), sprite->w, sprite->h);
 #ifdef DUMP_DELTA_DEBUG
                 if (delta && !delta_set) {
                     std::cout << "dumping delta" << std::endl;

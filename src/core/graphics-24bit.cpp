@@ -9,6 +9,7 @@
  * This notice may not be removed or altered.                            *
  ************************************************************************/
 #include <cassert>
+#include <cstddef>
 
 #include <core/graphics-24bit.h>
 #include <core/sprite-info.h>
@@ -325,7 +326,7 @@ unsigned char *Graphics24Bit::getAux(unsigned int idx, unsigned int _not_used, b
     return (rgba) ? tileTmpRGBA : tileTmpRGB;
 }
 
-std::unique_ptr<unsigned char[]> Graphics24Bit::getSpriteBitmap(size_t id, int remap, uint32_t delta)
+std::vector<UInt8> Graphics24Bit::getSpriteBitmap(size_t id, int remap, uint32_t delta)
 {
     const SpriteInfo *info = spriteInfos[id];
     assert(info != nullptr);
@@ -333,12 +334,12 @@ std::unique_ptr<unsigned char[]> Graphics24Bit::getSpriteBitmap(size_t id, int r
     const UInt32 x = info->xoffset;
     const UInt32 page_size = 256 * 256;
 
-    unsigned char *page_start = rawSprites + info->page * page_size;
+    auto *page_start = rawSprites + static_cast<size_t>(info->page * page_size);
 
-    auto dest = std::make_unique<unsigned char[]>(page_size);
-    memcpy(dest.get(), page_start, page_size);
+    std::vector<UInt8> result(page_size);
+    memcpy(result.data(), page_start, page_size);
     if (delta > 0) {
-        handleDeltas(*info, dest.get(), delta);
+        handleDeltas(*info, result.data(), delta);
         /*
         assert(delta < info->deltaCount);
         DeltaInfo & di = info->delta[delta];
@@ -346,9 +347,9 @@ std::unique_ptr<unsigned char[]> Graphics24Bit::getSpriteBitmap(size_t id, int r
         */
     }
 
-    auto bigbuf_smart = std::make_unique<unsigned char[]>(page_size * 4);
-    unsigned char *bigbuf = bigbuf_smart.get();
-    unsigned char *result = dest.get();
+    std::vector<UInt8> bigbuf(static_cast<size_t>(page_size) * 4);
+    auto *bigbuf_raw = bigbuf.data();
+    auto *result_raw = result.data();
     unsigned int skip_cluts = 0;
     if (remap > -1)
         skip_cluts = spriteclutSize / 1024 + remap + 1;
@@ -356,14 +357,14 @@ std::unique_ptr<unsigned char[]> Graphics24Bit::getSpriteBitmap(size_t id, int r
     UInt16 clutIdx = palIndex[info->clut + tileclutSize / 1024] + skip_cluts;
     //  UInt16 clutIdx = palIndex[info->clut + (spriteclutSize + tileclutSize) / 1024] + (remap > -1 ? remap+2 :
     //  0);
-    applyClut(dest.get(), bigbuf, page_size, clutIdx, true);
+    applyClut(result.data(), bigbuf_raw, page_size, clutIdx, true);
     assert(page_size > UInt32(info->w * info->h * 4));
     for (uint16_t i = 0; i < info->h; i++) {
-        memcpy(result, bigbuf + (256 * y + x) * 4, info->w * 4);
-        result += info->w * 4;
-        bigbuf += 256 * 4;
+        memcpy(result_raw, bigbuf_raw + static_cast<size_t>((256 * y + x) * 4), static_cast<size_t>(info->w * 4));
+        result_raw += static_cast<ptrdiff_t>(info->w * 4);
+        bigbuf_raw += static_cast<ptrdiff_t>(256 * 4);
     }
 
-    return dest;
+    return result;
 }
 } // namespace OpenGTA

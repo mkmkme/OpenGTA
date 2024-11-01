@@ -298,7 +298,7 @@ void Graphics8Bit::loadSpriteNumbers()
     loadSpriteNumbers_shared(st);
 }
 
-std::unique_ptr<unsigned char[]> Graphics8Bit::getSpriteBitmap(size_t id, int remap, uint32_t delta)
+std::vector<UInt8> Graphics8Bit::getSpriteBitmap(size_t id, int remap, uint32_t delta)
 {
     SpriteInfo *info = spriteInfos[id];
     assert(info != nullptr);
@@ -311,12 +311,12 @@ std::unique_ptr<unsigned char[]> Graphics8Bit::getSpriteBitmap(size_t id, int re
     unsigned char *page_start = rawSprites + static_cast<size_t>(info->page * page_size); // + 256 * y + x;
     assert(page_start != nullptr);
 
-    auto dest = std::make_unique<unsigned char[]>(page_size);
+    std::vector<UInt8> result(page_size);
 
-    unsigned char *result = dest.get();
-    memcpy(dest.get(), page_start, page_size);
+    unsigned char *result_raw = result.data();
+    memcpy(result_raw, page_start, page_size);
     if (delta > 0) {
-        handleDeltas(*info, result, delta);
+        handleDeltas(*info, result_raw, delta);
         /*
         assert(delta < info->deltaCount);
         DeltaInfo & di = info->delta[delta];
@@ -324,19 +324,19 @@ std::unique_ptr<unsigned char[]> Graphics8Bit::getSpriteBitmap(size_t id, int re
         */
     }
     if (remap > -1)
-        applyRemap(page_size, remap, result);
-    auto bigbuf_smart = std::make_unique<unsigned char[]>(page_size * 4);
-    auto bigbuf = bigbuf_smart.get();
+        applyRemap(page_size, remap, result_raw);
+    std::vector<UInt8> bigbuf(static_cast<size_t>(page_size * 4));
+    auto *bigbuf_raw = bigbuf.data();
 
-    masterRGB_->apply(page_size, result, bigbuf, true);
+    masterRGB_->apply(page_size, result_raw, bigbuf_raw, true);
     assert(page_size > UInt32(info->w * info->h * 4));
     for (uint16_t i = 0; i < info->h; i++) {
-        memcpy(result, bigbuf + (256 * y + x) * 4, info->w * 4);
-        result += info->w * 4;
-        bigbuf += 256 * 4;
+        memcpy(result_raw, bigbuf_raw + static_cast<size_t>((256 * y + x) * 4), static_cast<size_t>(info->w * 4));
+        result_raw += static_cast<ptrdiff_t>(info->w * 4);
+        bigbuf_raw += static_cast<ptrdiff_t>(256 * 4);
     }
 
-    return dest;
+    return result;
 }
 
 void Graphics8Bit::applyRemap(unsigned int len, unsigned int which, unsigned char *buffer)

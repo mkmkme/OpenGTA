@@ -67,7 +67,7 @@ public:
     unsigned char *getLid(unsigned int idx, unsigned int palIdx, bool rgba);
     unsigned char *getAux(unsigned int idx, unsigned int palIdx, bool rgba);
 
-    std::unique_ptr<unsigned char[]> getSpriteBitmap(size_t id, int remap, uint32_t delta) override;
+    std::vector<UInt8> getSpriteBitmap(size_t id, int remap, uint32_t delta) override;
 
     void dump();
 

@@ -60,7 +60,7 @@
 
 int global_Done;
 int global_Restart;
-GLfloat mapPos[3] = { 12.0f, 12.0f, 20.0f };
+std::array<GLfloat, 3> mapPos = { 12.0f, 12.0f, 20.0f };
 
 OpenGTA::CityView *city = nullptr;
 GUI::Label *fps_label = nullptr;
@@ -238,7 +238,7 @@ void remove_ingame_gui(GUI::Manager &gm)
 
 } // namespace
 
-void parse_args(int argc, char *argv[])
+void parse_args(int argc, char **argv)
 {
     cxxopts::Options options { "viewer", "Demo program for OpenGTA" };
     // clang-format off
@@ -307,13 +307,13 @@ void parse_args(int argc, char *argv[])
 namespace {
 void setGamma(SDL_Window *w, float v)
 {
-    Uint16 ramp[256];
+    std::array<Uint16, 256> ramp;
     for (int i = 0; i < 256; i++) {
         auto f = static_cast<float>(i) / 255.0f;
         f = pow(f, 1.0f / v);
         ramp[i] = Uint16(f) * 65535;
     }
-    SDL_SetWindowGammaRamp(w, ramp, ramp, ramp);
+    SDL_SetWindowGammaRamp(w, ramp.data(), ramp.data(), ramp.data());
 }
 } // namespace
 
@@ -336,8 +336,8 @@ void OpenGTAViewer::screenGammaCallback(float v)
     else
         luaVM_.setFloat("screen_gamma_gry", v);
     lua_settop(L, top);
-    GUI::Object *o = guiManager_.findObject(GUI::GAMMA_LABEL_ID);
-    if (auto l = dynamic_cast<GUI::Label *>(o))
+    auto *o = guiManager_.findObject(GUI::GAMMA_LABEL_ID);
+    if (auto *l = dynamic_cast<GUI::Label *>(o))
         l->text = "Gamma: " + std::to_string(v);
     /*
     Object * o2 = Manager::Instance().findObject(1001);
@@ -347,16 +347,9 @@ void OpenGTAViewer::screenGammaCallback(float v)
 }
 
 OpenGTAViewer::OpenGTAViewer(std::string_view progname)
-    : guiManager_ {}
-    , screen_ {}
-    , camera_ {}
-    , luaVM_ { screen_, camera_ }
-    , localPlayer_ {}
+    : luaVM_ { screen_, camera_ }
     , physfs_context_ { progname.data() }
 {
-    const auto &data_path = Util::FileHelper::BaseDataPath();
-    physfs_context_.tryMount(data_path.c_str());
-    physfs_context_.mountBaseDir();
     physfs_context_.tryMount(Util::FileHelper::ModDataPath().c_str(), false);
 
     // check for a configfile
@@ -578,7 +571,9 @@ void ai_step_fake(OpenGTA::Pedestrian *p)
                 p->m_control.setTurnRight(true);
         } else {
             p->m_control.setMoveForward(true);
-            int k = rand() % 5;
+            static thread_local std::mt19937 generator(std::random_device {}());
+            std::uniform_int_distribution<int> distribution(0, 4);
+            int k = distribution(generator);
             if (k == 0) {
                 p->m_control.setTurnLeft(false);
                 p->m_control.setTurnRight(false);
@@ -653,12 +648,12 @@ void OpenGTAViewer::showGammaConfig()
         );
         guiManager_.add(l, 80);
 
-        screen_.setSystemMouseCursor(true);
+        OpenGL::Screen::setSystemMouseCursor(true);
 
     } else {
         guiManager_.removeById(GUI::GAMMA_SCROLLBAR_ID);
         guiManager_.removeById(GUI::GAMMA_LABEL_ID);
-        screen_.setSystemMouseCursor(false);
+        OpenGL::Screen::setSystemMouseCursor(false);
     }
 }
 
@@ -689,7 +684,7 @@ void car_toggle(OpenGTA::LocalPlayer &player)
     OpenGTA::AI::Pedestrian::walk_pavement(&pped);
 }
 
-void draw_mapmode(OpenGL::Screen &);
+void draw_mapmode(OpenGL::Screen &screen);
 
 void OpenGTAViewer::handleKeyPress(SDL_Keysym *keysym)
 {
@@ -1045,7 +1040,7 @@ void draw_mapmode(OpenGL::Screen &screen)
         SDL_GL_SwapWindow(screen.get());
         SDL_Delay(20);
     }
-    screen.setSystemMouseCursor(false);
+    OpenGL::Screen::setSystemMouseCursor(false);
     glEnable(GL_DEPTH_TEST);
     glMatrixMode(GL_TEXTURE);
     glLoadIdentity();

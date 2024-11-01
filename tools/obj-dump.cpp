@@ -7,6 +7,8 @@
 #include <core/map.h>
 #include <core/sprite-info.h>
 
+#include <util/file-manager.h>
+
 void dump_in_map(const std::string &style_file, const std::string &map_file)
 {
     OpenGTA::Map map(map_file);
@@ -69,9 +71,7 @@ int main(int argc, char *argv[])
         map_file = argv[2];
     }
 
-    PHYSFS_init("mapview");
-    PHYSFS_mount(PHYSFS_getBaseDir(), nullptr, 1);
-    PHYSFS_mount("gtadata.zip", nullptr, 1);
+    Util::PhysFSContext pfs { argv[0] };
 
     if (!map_file.empty()) {
         dump_in_map(style_file, map_file);
@@ -79,6 +79,5 @@ int main(int argc, char *argv[])
         dump(style_file);
     }
 
-    PHYSFS_deinit();
     return 0;
 }

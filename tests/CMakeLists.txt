@@ -20,9 +20,17 @@ if(SDL2_image_FOUND)
         ${LUA_LIBRARIES})
 endif()
 
-# TODO: broken
-# add_executable(lua_map_test lua_map_test.cpp)
-# target_link_libraries(lua_map_test PRIVATE ogta::core ogta::lua-addon)
+add_executable(lua_map_test lua_map_test.cpp)
+target_link_libraries(lua_map_test PRIVATE
+    ogta::core
+    ogta::graphics
+    ogta::lua-addon
+    ogta::util
+    fmt::fmt
+    OpenGL::GLU
+    physfs
+    SDL2::SDL2
+    ${LUA_LIBRARIES})
 
 # broken due to missing tests/test_plane.cpp
 # add_executable(plane_test

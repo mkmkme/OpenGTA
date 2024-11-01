@@ -1,70 +1,41 @@
-#include <filesystem>
 #include <string>
 
 #include <core/dataholder.h>
+#include <fmt/core.h>
 
+#include <graphics/camera.h>
+#include <graphics/screen.h>
 #include <lua-addon/vm.h>
+#include <util/file-manager.h>
 #include <util/file_helper.h>
 #include <util/log.h>
 
 std::string map_filename;
 const char *script_file;
+int global_Done;
 
-void on_exit()
-{
-    SDL_Quit();
-    PHYSFS_deinit();
-}
-
-void parse_args(int argc, char *argv[])
+int main(int argc, char *argv[])
 {
     if (argc != 3) {
-        ERROR("invalid args");
-        exit(1);
+        fmt::print("Usage: {} <map_filename> <script_file>\n", argv[0]);
+        return 1;
     }
     map_filename = std::string(argv[1]);
     script_file = argv[2];
-}
 
-void run_init(const char *prg_name)
-{
-    PHYSFS_init(prg_name);
+    Util::PhysFSContext pfs(argv[0]);
+    OpenGL::Screen screen;
+    OpenGL::Camera camera;
 
-    const auto &data_path = Util::FileHelper::BaseDataPath();
-    if (std::filesystem::exists(data_path))
-        PHYSFS_mount(data_path.c_str(), nullptr, 1);
-    else
-        WARN("Could not load data-source: {}", data_path);
+    screen.activate(640, 480);
 
-    PHYSFS_mount(PHYSFS_getBaseDir(), nullptr, 1);
-}
-
-void run_main()
-{
-    OpenGTA::Script::LuaVM vm;
-
+    OpenGTA::Script::LuaVM vm { screen, camera };
     OpenGTA::MainMsgLookup::Instance().load("ENGLISH.FXT");
     OpenGTA::ActiveMap::Instance().load(map_filename);
     OpenGTA::Map &loadedMap = OpenGTA::ActiveMap::Instance().get();
     vm.setMap(loadedMap);
 
     vm.runFile(script_file);
-}
-
-int main(int argc, char *argv[])
-{
-    if (argc > 1)
-        parse_args(argc, argv);
-
-    atexit(on_exit);
-
-    run_init(argv[0]);
-    try {
-        run_main();
-    } catch (const std::exception &e) {
-        ERROR("Exception occured: {}", e.what());
-        throw;
-    }
 
     return 0;
 }

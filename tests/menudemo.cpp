@@ -6,17 +6,19 @@
 #include <physfs.h>
 #include <unistd.h>
 
-#include "dataholder.h"
-#include "gl_pagedtexture.h"
-#include "gl_screen.h"
-#include "gl_spritecache.h"
-#include "gui.h"
-#include "log.h"
-#include "m_exceptions.h"
-#include "physfsrwops.h"
-#include "timer.h"
+#include <core/dataholder.h>
+
+#include <graphics/pagedtexture.h>
+#include <graphics/screen.h>
+#include <graphics/spritecache.h>
+#include <util/errors.h>
+#include <util/gui.h>
+#include <util/log.h>
+#include <util/physfsrwops.h>
+#include <util/timer.h>
 
 GUI::Manager guiManager;
+int global_Done = 0;
 
 void on_exit()
 {
@@ -36,7 +38,7 @@ void font_play(float b)
 {
     // INFO << b << std::endl;
     GUI::Object *obj = guiManager.findObject(5);
-    obj->color.r = obj->color.g = obj->color.b = obj->color.unused = Uint8((1.0f - b) * 255);
+    obj->color.r = obj->color.g = obj->color.b = obj->color.a = Uint8((1.0f - b) * 255);
 }
 
 void run_init(OpenGL::Screen &screen)
@@ -46,14 +48,14 @@ void run_init(OpenGL::Screen &screen)
     PHYSFS_mount("gtadata.zip", nullptr, 1);
     if (getenv("OGTA_MOD"))
         PHYSFS_mount(getenv("OGTA_MOD"), nullptr, 0);
-    screen.activate(arg_screen_w, arg_screen_h);
+    screen.activate(640, 480);
     screen.setSystemMouseCursor(true);
     glEnable(GL_ALPHA_TEST);
     glAlphaFunc(GL_GREATER, 0);
 
     OpenGTA::ActiveStyle::Instance().load("STYLE001.G24");
 
-    SDL_EnableKeyRepeat(100, SDL_DEFAULT_REPEAT_INTERVAL);
+    // SDL_EnableKeyRepeat(100, SDL_DEFAULT_REPEAT_INTERVAL);
 
     std::vector<uint16_t> frame_nums(8);
     for (int i = 0; i < 8; ++i) {
@@ -106,7 +108,7 @@ void run_init(OpenGL::Screen &screen)
     */
 }
 
-void handleKeyPress(SDL_keysym *keysym)
+void handleKeyPress(SDL_Keysym *keysym)
 {
     switch (keysym->sym) {
         case SDLK_ESCAPE:
@@ -127,7 +129,7 @@ void draw_menu(OpenGL::Screen &screen)
 
     glEnable(GL_DEPTH_TEST);
 
-    SDL_GL_SwapBuffers();
+    SDL_GL_SwapWindow(screen.get());
 }
 
 void run_main(OpenGL::Screen &screen)
@@ -144,13 +146,15 @@ void run_main(OpenGL::Screen &screen)
                     handleKeyPress(&event.key.keysym);
                     break;
                 case SDL_MOUSEBUTTONDOWN:
-                    guiManager.receive(event.button);
+                    guiManager.receive(event.button, screen.height());
                     break;
                     /*case SDL_KEYUP:
                       handleKeyUp(&event.key.keysym);
                       break;*/
-                case SDL_VIDEORESIZE:
-                    screen.resize(event.resize.w, event.resize.h);
+                case SDL_WINDOWEVENT:
+                    if (event.window.event == SDL_WINDOWEVENT_RESIZED) {
+                        screen.resize(event.window.data1, event.window.data2);
+                    }
                     break;
                 case SDL_QUIT:
                     global_Done = 1;

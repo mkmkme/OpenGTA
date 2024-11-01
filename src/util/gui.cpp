@@ -344,8 +344,7 @@ void Manager::receive(SDL_MouseButtonEvent &mb_event, uint32_t height)
     auto l = guiLayers.rbegin();
     while (l != guiLayers.rend()) {
         GuiObjectList &list = l->second;
-        for (GuiObjectList::iterator i = list.begin(); i != list.end(); ++i) {
-            Object *obj = *i;
+        for (auto *obj : list) {
             if (isInside(*obj, mb_event.x, height - mb_event.y)) {
                 //    std::cout << "mouse inside obj id: " << obj->id << " at " << mb_event.x << "," << mb_event.y <<
                 //    std::endl;
@@ -359,8 +358,8 @@ void Manager::receive(SDL_MouseButtonEvent &mb_event, uint32_t height)
 
 void Manager::update(uint32_t nowticks)
 {
-    for (AnimationMap::iterator i = guiAnimations.begin(); i != guiAnimations.end(); ++i) {
-        i->second->update(nowticks);
+    for (auto &guiAnimation : guiAnimations) {
+        guiAnimation.second->update(nowticks);
     }
     for (const auto &[key, layer] : guiLayers) {
         for (const auto &obj : layer) {

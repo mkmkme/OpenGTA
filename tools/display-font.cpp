@@ -10,6 +10,7 @@
 #include <graphics/base.h>
 #include <graphics/font.h>
 #include <graphics/screen.h>
+#include <util/file-manager.h>
 #include <util/gui.h>
 #include <util/log.h>
 
@@ -108,9 +109,7 @@ void main_loop(GUI::Label *label, GUI::Manager &manager, OpenGL::Screen &screen)
 
 int main(int argc, char *argv[])
 {
-    PHYSFS_init("mapview");
-    PHYSFS_mount(PHYSFS_getBaseDir(), nullptr, 1);
-    PHYSFS_mount("gtadata.zip", nullptr, 1);
+    const Util::PhysFSContext pfs(argv[0]);
 
     OpenGL::Screen screen {};
     screen.activate(640, 480);
@@ -127,7 +126,6 @@ int main(int argc, char *argv[])
     main_loop(fps_label, gm, screen);
 
     SDL_Quit();
-    PHYSFS_deinit();
     std::cout << "Goodbye" << std::endl;
 
     return 0;

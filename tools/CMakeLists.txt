@@ -44,8 +44,7 @@ target_link_libraries(font-dump PRIVATE
     physfs
     fmt::fmt)
 
-# TODO: broken
-add_executable(display-font EXCLUDE_FROM_ALL display-font.cpp common_sdl_gl.cpp)
+add_executable(display-font display-font.cpp)
 target_link_libraries(display-font PRIVATE
     ogta::core
     ogta::graphics

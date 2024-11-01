@@ -1,7 +1,10 @@
 #include <cassert>
 
-#include "log.h"
-#include "navdata.h"
+#include <core/map.h>
+#include <core/navdata.h>
+
+#include <util/file-manager.h>
+#include <util/log.h>
 
 int main(int argc, char *argv[])
 {
@@ -13,15 +16,13 @@ int main(int argc, char *argv[])
         return 1;
     }
 
-    PHYSFS_init(argv[0]);
-    PHYSFS_mount(PHYSFS_getBaseDir(), nullptr, 1);
+    Util::PhysFSContext pfs(argv[0]);
 
-    std::string map_filename(argv[1]);
-    OpenGTA::Map map(map_filename);
+    OpenGTA::Map map(argv[1]);
 
     if (argc == 4) {
-        x = atoi(argv[2]);
-        y = atoi(argv[3]);
+        x = strtol(argv[2], nullptr, 10);
+        y = strtol(argv[3], nullptr, 10);
     }
     if (x < 0)
         x = 0;
@@ -31,14 +32,13 @@ int main(int argc, char *argv[])
 
     OpenGTA::NavData::Sector *sec = map.nav->getSectorAt(x, y);
 
-    INFO << "* " << sec->name << " *" << std::endl;
+    INFO("* {} *", sec->name);
 
-    PHYSFS_uint16 num_blocks = map.getNumBlocksAt(x, y);
-    OpenGTA::Map::BlockInfo *bi = NULL;
+    UInt16 num_blocks = map.getNumBlocksAt(x, y);
     INFO("{} empty blocks", num_blocks);
     for (int c = 6 - num_blocks; c >= 1; c--) {
         std::cout << "block " << c << std::endl;
-        bi = map.getBlockAt(x, y, c);
+        auto *bi = map.getBlockAt(x, y, c);
         assert(bi);
         std::cout << "moves: " << int(bi->upOk()) << ", " << int(bi->downOk()) << ", " << int(bi->leftOk()) << ", "
                   << int(bi->rightOk()) << std::endl;
@@ -70,6 +70,5 @@ int main(int argc, char *argv[])
         }
     }
 
-    PHYSFS_deinit();
     return 0;
 }

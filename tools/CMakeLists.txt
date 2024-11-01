@@ -65,6 +65,16 @@ target_link_libraries(obj-dump PRIVATE
     physfs
     fmt::fmt)
 
+add_executable(mapinfo mapinfo.cpp)
+target_link_libraries(mapinfo PRIVATE
+    ogta::core
+    ogta::graphics
+    ogta::util
+    SDL2::SDL2
+    OpenGL::GLU
+    physfs
+    fmt::fmt)
+
 
 # TODO: broken
 add_executable(car_dump EXCLUDE_FROM_ALL car_dump.cpp)

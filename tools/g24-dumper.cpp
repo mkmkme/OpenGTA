@@ -7,6 +7,8 @@
 #include <core/graphics-24bit.h>
 #include <core/sprite-info.h>
 
+#include <util/file-manager.h>
+
 SDL_Surface *get_image(unsigned char *rp, unsigned int w, unsigned int h)
 {
     assert(rp);
@@ -35,11 +37,11 @@ SDL_Surface *get_image(unsigned char *rp, unsigned int w, unsigned int h)
     return s;
 }
 
-void OpenGTA::dumpClut(OpenGTA::Graphics24Bit &g24, const char *fname)
+namespace OpenGTA {
+void dumpClut(OpenGTA::Graphics24Bit &g24, const char *fname)
 {
     assert(g24.pagedClutSize % 1024 == 0);
-    // PHYSFS_uint32 num_clut = pagedClutSize / 1024;
-    const PHYSFS_uint32 num_pal = g24.paletteIndexSize / 2;
+    const UInt32 num_pal = g24.paletteIndexSize / 2;
 #if SDL_BYTEORDER == SDL_BIG_ENDIAN
 #define rmask 0xff000000
 #define gmask 0x00ff0000
@@ -55,11 +57,11 @@ void OpenGTA::dumpClut(OpenGTA::Graphics24Bit &g24, const char *fname)
     SDL_LockSurface(s);
     unsigned char *dst = static_cast<unsigned char *>(s->pixels);
 
-    for (PHYSFS_uint32 color = 0; color < 256; color++) {
+    for (UInt32 color = 0; color < 256; color++) {
 
-        for (PHYSFS_uint32 pal_id = 0; pal_id < num_pal; pal_id++) {
-            PHYSFS_uint32 clut_id = g24.palIndex[pal_id];
-            PHYSFS_uint32 off = 65536 * (clut_id / 64) + 4 * (clut_id % 64);
+        for (UInt32 pal_id = 0; pal_id < num_pal; pal_id++) {
+            UInt32 clut_id = g24.palIndex[pal_id];
+            UInt32 off = 65536 * (clut_id / 64) + 4 * (clut_id % 64);
 
             *dst = g24.rawClut[off + color * 256];
             ++dst;
@@ -75,11 +77,12 @@ void OpenGTA::dumpClut(OpenGTA::Graphics24Bit &g24, const char *fname)
     SDL_SaveBMP(s, fname);
     SDL_FreeSurface(s);
 }
+} // namespace OpenGTA
 
 void main_loop()
 {
     SDL_Event event;
-    while (1) {
+    while (true) {
         while (SDL_PollEvent(&event)) {
             switch (event.type) {
                 case SDL_QUIT:
@@ -121,17 +124,16 @@ int main(int argc, char *argv[])
         return 1;
     }
 
-    PHYSFS_init(argv[0]);
+    const Util::PhysFSContext pfs(argv[0]);
+
     SDL_Init(SDL_INIT_VIDEO);
     int idx = 0;
 
-    PHYSFS_mount(PHYSFS_getBaseDir(), nullptr, 1);
-    PHYSFS_mount("gtadata.zip", nullptr, 1);
-
     OpenGTA::Graphics24Bit graphics(argv[1]);
     dumpClut(graphics, "foo.bmp");
-    if (argc > 2)
-        idx = atoi(argv[2]);
+    if (argc > 2) {
+        idx = strtol(argv[2], nullptr, 10);
+    }
     auto *sinfo = graphics.getSprite(idx);
     auto sbm = graphics.getSpriteBitmap(idx, -1, 0);
     SDL_Surface *image = get_image(sbm.get(), sinfo->w, sinfo->h);

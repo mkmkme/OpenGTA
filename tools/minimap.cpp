@@ -1,7 +1,11 @@
 #include <cassert>
 
-#include "dataholder.h"
-#include "log.h"
+#include <SDL.h>
+
+#include <core/dataholder.h>
+
+#include <util/file-manager.h>
+#include <util/log.h>
 
 uint32_t green = 0x00dd00ff;
 uint32_t red = 0xdd0000ff;
@@ -27,7 +31,7 @@ uint32_t map_color[] = {
 void save_map_level(OpenGTA::Map &map, size_t level, const char *out_prefix)
 {
     SDL_Surface *surface = SDL_CreateRGBSurface(
-        SDL_SWSURFACE | SDL_SRCALPHA,
+        SDL_SWSURFACE,
         256,
         256,
         32, // rmask, gmask, bmask, amask);
@@ -41,7 +45,7 @@ void save_map_level(OpenGTA::Map &map, size_t level, const char *out_prefix)
 
     for (int i = 0; i < 256; i++) {
         for (int j = 0; j < 256; j++) {
-            PHYSFS_uint16 emptycount = map.getNumBlocksAtNew(j, i);
+            const auto emptycount = map.getNumBlocksAtNew(j, i);
             if (level < emptycount) {
                 OpenGTA::Map::BlockInfo *bi = map.getBlockAtNew(j, i, level);
                 *dst = map_color[bi->blockType()];
@@ -66,9 +70,7 @@ int main(int argc, char *argv[])
         return 1;
     }
 
-    PHYSFS_init(argv[0]);
-    PHYSFS_mount(PHYSFS_getBaseDir(), nullptr, 1);
-    PHYSFS_mount("gtadata.zip", nullptr, 1);
+    Util::PhysFSContext pfs(argv[0]);
 
     std::string map_filename(argv[1]);
     OpenGTA::MainMsgLookup::Instance().load("ENGLISH.FXT");
@@ -90,9 +92,9 @@ int main(int argc, char *argv[])
 #define gmask 0x0000ff00
 #define bmask 0x00ff0000
 #define amask 0xff000000
-#endif 
+#endif
 
-  SDL_Surface* surface = SDL_CreateRGBSurface(SDL_SWSURFACE|SDL_SRCALPHA, 
+  SDL_Surface* surface = SDL_CreateRGBSurface(SDL_SWSURFACE|SDL_SRCALPHA,
       256, 256, 32,// rmask, gmask, bmask, amask);
   0xff000000, 0x00ff0000, 0x0000ff00, 0x000000ff);
   SDL_LockSurface(surface);
@@ -100,7 +102,7 @@ int main(int argc, char *argv[])
 
   for (int i = 0; i < 256; i++) {
     for (int j = 0; j < 256; j++) {
-      PHYSFS_uint16 emptycount = map.getNumBlocksAtNew(j,i);
+      UInt16 emptycount = map.getNumBlocksAtNew(j,i);
       int found_type = 0;
       //for (int c=6-emptycount; c > 0; c--) {
       for (int c = 0; c < emptycount ; ++c) {

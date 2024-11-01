@@ -75,6 +75,15 @@ target_link_libraries(mapinfo PRIVATE
     physfs
     fmt::fmt)
 
+add_executable(minimap minimap.cpp)
+target_link_libraries(minimap PRIVATE
+    ogta::core
+    ogta::graphics
+    ogta::util
+    SDL2::SDL2
+    OpenGL::GLU
+    physfs
+    fmt::fmt)
 
 # TODO: broken
 add_executable(car_dump EXCLUDE_FROM_ALL car_dump.cpp)

@@ -7,10 +7,7 @@
 #include <SDL2/SDL_surface.h>
 #include <core/font.h>
 
-void do_exit()
-{
-    PHYSFS_deinit();
-}
+#include <util/file-manager.h>
 
 void OpenGTA::dumpAs(OpenGTA::Font &font, const char *filename, size_t id)
 {
@@ -54,11 +51,7 @@ void OpenGTA::dumpAs(OpenGTA::Font &font, const char *filename, size_t id)
 
 int main(int argc, char *argv[])
 {
-    PHYSFS_init(argv[0]);
-    atexit(do_exit);
-    std::cout << "Physfs-Base: " << PHYSFS_getBaseDir() << std::endl;
-    PHYSFS_mount(PHYSFS_getBaseDir(), nullptr, 1);
-    PHYSFS_mount("gtadata.zip", nullptr, 1);
+    const Util::PhysFSContext pfs(argv[0]);
     std::cout << "Has: " << argv[1] << " : " << PHYSFS_exists(argv[1]) << std::endl;
     OpenGTA::Font a(argv[1]);
     dumpAs(a, "out.bmp", atoi(argv[2]));

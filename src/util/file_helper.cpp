@@ -34,7 +34,7 @@
 
 namespace {
 
-std::string getEnvSafe(const char *envname, std::string def_value = "")
+std::string getEnvSafe(const char *envname, std::string def_value)
 {
     const char *value = getenv(envname);
     return (value != nullptr) ? value : def_value;

@@ -34,6 +34,7 @@
 #include <graphics/font.h>
 #include <graphics/screen.h>
 #include <util/errors.h>
+#include <util/file-manager.h>
 #include <util/log.h>
 
 using namespace std::string_view_literals;
@@ -403,13 +404,11 @@ int main(int argc, char *argv[])
         }
         style_file = argv[1];
     }
+    Util::PhysFSContext pfs("mapview");
 
     OpenGL::Screen screen;
     OpenGL::Camera camera;
 
-    PHYSFS_init("mapview");
-    PHYSFS_mount(PHYSFS_getBaseDir(), nullptr, 1);
-    PHYSFS_mount("gtadata.zip", nullptr, 1);
     screen.activate(640, 480);
 
     OpenGTA::ActiveStyle::Instance().load(style_file);
@@ -436,7 +435,6 @@ int main(int argc, char *argv[])
 
     delete car;
     SDL_Quit();
-    PHYSFS_deinit();
 
     return 0;
 }

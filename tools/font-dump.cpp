@@ -6,10 +6,12 @@
 
 #include <SDL2/SDL_surface.h>
 #include <core/font.h>
+#include <fmt/core.h>
 
 #include <util/file-manager.h>
 
-void OpenGTA::dumpAs(OpenGTA::Font &font, const char *filename, size_t id)
+namespace OpenGTA {
+void dumpAs(OpenGTA::Font &font, const char *filename, size_t id)
 {
     unsigned int len = font.chars[id]->width;
     len *= font.charHeight;
@@ -48,12 +50,17 @@ void OpenGTA::dumpAs(OpenGTA::Font &font, const char *filename, size_t id)
     SDL_SaveBMP(s, filename);
     SDL_FreeSurface(s);
 }
+} // namespace OpenGTA
 
 int main(int argc, char *argv[])
 {
+    if (argc != 3) {
+        fmt::print(stderr, "USAGE: {} FONT_FILE CHAR_ID\n", argv[0]);
+        return 1;
+    }
     const Util::PhysFSContext pfs(argv[0]);
-    std::cout << "Has: " << argv[1] << " : " << PHYSFS_exists(argv[1]) << std::endl;
+    std::cout << "Has: " << argv[1] << " : " << pfs.exists(argv[1]) << std::endl;
     OpenGTA::Font a(argv[1]);
-    dumpAs(a, "out.bmp", atoi(argv[2]));
+    dumpAs(a, "out.bmp", strtol(argv[2], nullptr, 10));
     return 0;
 }

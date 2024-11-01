@@ -2,10 +2,12 @@
 
 #include <SDL_opengl.h>
 
-#include "dataholder.h"
-#include "gl_camera.h"
-#include "gl_screen.h"
-#include "log.h"
+#include <core/dataholder.h>
+
+#include <graphics/camera.h>
+#include <graphics/screen.h>
+#include <util/file-manager.h>
+#include <util/log.h>
 
 Uint32 arg_screen_w = 0;
 Uint32 arg_screen_h = 0;
@@ -23,17 +25,10 @@ const size_t numBlockTypes = 53;
 const size_t numFaces = 5;
 
 float slope_raw_data[numBlockTypes][numFaces][4][3] = {
-#include "slope2_data.h"
+#include <data/slope2_data.h>
 };
 
 #define SLOPE_RAW_DATA slope_raw_data
-
-void on_exit()
-{
-    SDL_Quit();
-    PHYSFS_deinit();
-    std::cout << "Goodbye" << std::endl;
-}
 
 void print_usage(const char *) {}
 
@@ -192,9 +187,6 @@ void drawScene(OpenGL::Screen &screen, OpenGL::Camera &camera)
 
 void run_init(const char *prg, OpenGL::Screen &screen, OpenGL::Camera &camera)
 {
-    PHYSFS_init("blockview");
-    PHYSFS_mount("gtadata.zip", nullptr, 1);
-    PHYSFS_mount(PHYSFS_getBaseDir(), nullptr, 1);
 
     screen.activate(arg_screen_w, arg_screen_h);
     SDL_EnableKeyRepeat(100, SDL_DEFAULT_REPEAT_INTERVAL);
@@ -210,8 +202,6 @@ void run_main(OpenGL::Screen &screen, OpenGL::Camera &camera)
     SDL_Event event;
     int paused = 0;
 
-    PHYSFS_init("blockview");
-    PHYSFS_mount(PHYSFS_getBaseDir(), nullptr, 1);
     glPolygonMode(GL_FRONT, GL_FILL);
     glEnable(GL_CULL_FACE);
 
@@ -248,7 +238,7 @@ int main(int argc, char *argv[])
     if (argc > 1)
         parse_args(argc, argv);
 
-    atexit(on_exit);
+    Util::PhysFSContext pfs("blockview");
 
     OpenGL::Screen screen {};
     OpenGL::Camera camera {};
@@ -260,6 +250,7 @@ int main(int argc, char *argv[])
         ERROR("Exception occured: {}", e.what());
         throw;
     }
-
+    SDL_Quit();
+    std::cout << "Goodbye" << std::endl;
     return 0;
 }

@@ -4,18 +4,23 @@
 
 #include <physfs.h>
 
+#include <core/numeric-types.h>
+#include <fmt/core.h>
 #include <fmt/format.h>
 
 #include <util/errors.h>
+#include <util/file_helper.h>
 #include <util/string_helpers.h>
-
-#include "core/numeric-types.h"
 
 namespace Util {
 
-PhysFSContext::PhysFSContext(const char *argv0)
+PhysFSContext::PhysFSContext(const char *argv0, bool mount_base_dir, bool mount_gtadata) noexcept
 {
     PHYSFS_init(argv0);
+    if (mount_base_dir)
+        mountBaseDir();
+    if (mount_gtadata)
+        tryMount(FileHelper::BaseDataPath().c_str());
 }
 
 PhysFSContext::~PhysFSContext()
@@ -30,8 +35,9 @@ void PhysFSContext::mountBaseDir() noexcept
 
 void PhysFSContext::tryMount(const char *path, bool append_to_path) noexcept
 {
-    if (std::filesystem::exists(path))
+    if (std::filesystem::exists(path)) {
         PHYSFS_mount(path, nullptr, append_to_path);
+    }
 }
 
 PhysFSContext &PhysFSContext::withTryMount(const char *path, bool append_to_path) noexcept
@@ -101,6 +107,16 @@ void PhysFSFile::read(void *buf, UInt64 len) noexcept
 UInt32 PhysFSFile::length() const noexcept
 {
     return PHYSFS_fileLength(file);
+}
+
+bool PhysFSFile::eof() const noexcept
+{
+    return PHYSFS_eof(file);
+}
+
+UInt64 PhysFSFile::tell() const noexcept
+{
+    return PHYSFS_tell(file);
 }
 
 void PhysFSFile::seek(UInt64 pos) noexcept

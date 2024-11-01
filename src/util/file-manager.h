@@ -10,7 +10,11 @@ namespace Util {
 
 class PhysFSContext {
 public:
-    explicit PhysFSContext(const char *argv0);
+    explicit PhysFSContext(
+        const char *argv0,
+        bool mount_base_dir = true,
+        bool mount_gtadata = true
+    ) noexcept;
     ~PhysFSContext();
 
     void tryMount(const char *path, bool append_to_path = true) noexcept;
@@ -26,7 +30,9 @@ public:
     explicit PhysFSFile(const std::string &filename);
     ~PhysFSFile();
 
-    UInt32 length() const noexcept;
+    [[nodiscard]] UInt32 length() const noexcept;
+    [[nodiscard]] UInt64 tell() const noexcept;
+    [[nodiscard]] bool eof() const noexcept;
 
     void seek(UInt64 pos) noexcept;
 

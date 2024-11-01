@@ -47,7 +47,7 @@ public:
     template <typename T, size_t N>
     void read(std::span<T, N> &data) noexcept;
 
-    void read(void *buf, UInt64 len) noexcept;
+    Int64 read(void *buf, UInt64 len) noexcept;
 
 private:
     PHYSFS_File *file;

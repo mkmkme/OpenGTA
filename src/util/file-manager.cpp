@@ -99,9 +99,9 @@ void PhysFSFile::read(std::span<T, N> &data) noexcept
     PHYSFS_readBytes(file, data.data(), N * sizeof(T));
 }
 
-void PhysFSFile::read(void *buf, UInt64 len) noexcept
+Int64 PhysFSFile::read(void *buf, UInt64 len) noexcept
 {
-    PHYSFS_readBytes(file, buf, len);
+    return PHYSFS_readBytes(file, buf, len);
 }
 
 UInt32 PhysFSFile::length() const noexcept

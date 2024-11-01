@@ -14,15 +14,6 @@ target_link_libraries(viewer PRIVATE
     ${LUA_LIBRARIES})
 
 
-# TODO: fix this
-# add_executable(gfxextract EXCLUDE_FROM_ALL
-    # gfx_extract.cpp
-    # graphics-24bit.cpp
-    # graphics-8bit.cpp
-    # map.cpp
-    # navdata.cpp
-    # dataholder.cpp)
-
 # TODO: refactor sources so this is not needed
 # target_link_options(gfxextract PRIVATE
 #     -Xlinker --unresolved-symbols
@@ -33,13 +24,17 @@ target_link_libraries(viewer PRIVATE
 #     SDL2::SDL2
 #     OpenGL::GLU
 #     physfs)
-add_executable(gfxextract EXCLUDE_FROM_ALL gfx_extract/main.cpp)
+add_executable(gfxextract gfx_extract/main.cpp)
 
 target_include_directories(gfxextract PRIVATE
     ${OpenGTA_SOURCE_DIR}/src
     ${OpenGTA_BINARY_DIR}/src)
 
 target_link_libraries(gfxextract PRIVATE
+    ogta::core
+    ogta::graphics
+    ogta::util
+    fmt::fmt
     SDL2::SDL2
     OpenGL::GLU
     physfs)

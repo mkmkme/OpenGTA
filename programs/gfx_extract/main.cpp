@@ -20,11 +20,12 @@
  * 3. This notice may not be removed or altered from any source          *
  * distribution.                                                         *
  ************************************************************************/
+#include <cstdlib>
 #include <iostream>
 
 #include <SDL.h>
+#include <SDL_video.h>
 #include <getopt.h>
-#include <stdlib.h>
 
 #ifdef DUMP_DELTA_DEBUG
 #include <fcntl.h>
@@ -35,27 +36,31 @@
 
 #include <core/dataholder.h>
 #include <core/graphics-base.h>
+#include <core/sprite-info.h>
 
 #include <util/errors.h>
+#include <util/file-manager.h>
 #include <util/set.h>
 
-SDL_Surface *image = NULL;
+SDL_Surface *image = nullptr;
 
 void at_exit()
 {
     if (image)
         SDL_FreeSurface(image);
-    PHYSFS_deinit();
     SDL_Quit();
 }
 
 void display_image(SDL_Surface *s)
 {
-    SDL_Surface *screen = SDL_SetVideoMode(640, 480, 32, SDL_DOUBLEBUF);
+    SDL_Window *window = SDL_CreateWindow("Display Image", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 640, 480, SDL_WINDOW_SHOWN);
+    SDL_Renderer *renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
+    SDL_Texture *texture = SDL_CreateTextureFromSurface(renderer, s);
+    SDL_RenderClear(renderer);
+    SDL_RenderCopy(renderer, texture, nullptr, nullptr);
+    SDL_RenderPresent(renderer);
     SDL_Event event;
-    SDL_BlitSurface(s, NULL, screen, NULL);
-    SDL_Flip(screen);
-    while (1) {
+    while (true) {
         while (SDL_PollEvent(&event)) {
             switch (event.type) {
                 case SDL_QUIT:
@@ -84,7 +89,7 @@ SDL_Surface *get_image(unsigned char *rp, unsigned int w, unsigned int h)
 #define bmask 0x00ff0000
 #define amask 0xff000000
 #endif
-    SDL_Surface *s = SDL_CreateRGBSurface(SDL_SWSURFACE | SDL_SRCALPHA, w, h, 32, rmask, gmask, bmask, amask);
+    SDL_Surface *s = SDL_CreateRGBSurface(SDL_SWSURFACE, w, h, 32, rmask, gmask, bmask, amask);
     SDL_LockSurface(s);
     unsigned char *dst = static_cast<unsigned char *>(s->pixels);
     for (unsigned int i = 0; i < w * h; i++) {
@@ -112,17 +117,13 @@ void usage(const char *a0)
     std::cout << "Where section 0 are 'side blocks', 1 'lid blocks', 2 'aux blocks' and 3 are 'sprites'" << std::endl;
     std::cout << "You can apply remaps (--remap N) and deltas (--delta N) but the relative indices are" << std::endl;
     std::cout << "not always correct (== experimental)." << std::endl;
-    return;
 }
 
 int main(int argc, char *argv[])
 {
     atexit(at_exit);
-    PHYSFS_init(argv[0]);
-    // add pwd to search path
-    PHYSFS_mount(PHYSFS_getBaseDir(), nullptr, 1);
-    PHYSFS_mount("gtadata.zip", nullptr, 1);
-    char *file = NULL;
+    const Util::PhysFSContext pfs(argv[0]);
+    char *file = nullptr;
     SDL_Init(SDL_INIT_VIDEO);
 
     int c = 0;
@@ -135,7 +136,7 @@ int main(int argc, char *argv[])
 
     unsigned int idx = 0;
     unsigned int section = 0;
-    while (1) {
+    while (true) {
         int option_index = 0;
         static struct option long_options[] = {
             { "info", 0, 0, 'i' },
@@ -167,20 +168,20 @@ int main(int argc, char *argv[])
                 file = optarg;
                 break;
             case 'x':
-                idx = atoi(optarg);
+                idx = strtol(optarg, nullptr, 10);
                 break;
             case 's':
-                section = atoi(optarg);
+                section = strtol(optarg, nullptr, 10);
                 break;
             case 'r':
-                remap = atoi(optarg);
+                remap = strtol(optarg, nullptr, 10);
                 break;
             case 'a':
-                delta = atoi(optarg);
+                delta = strtol(optarg, nullptr, 10);
                 break;
             case 'A':
                 delta_set = true;
-                delta_as_set.set_item(atoi(optarg), true);
+                delta_as_set.set_item(strtol(optarg, nullptr, 10), true);
                 break;
             case 'h':
             default:
@@ -194,7 +195,7 @@ int main(int argc, char *argv[])
         usage(argv[0]);
         return 1;
     }
-    if (!PHYSFS_exists(file)) {
+    if (!pfs.exists(file)) {
         std::cerr << "File does not exist in searchpath: " << file << std::endl;
         return 1;
     }
@@ -222,7 +223,7 @@ int main(int argc, char *argv[])
                 image = get_image(graphics.getTmpBuffer(rgba), 64, 64);
                 break;
             case 3:
-                OpenGTA::GraphicsBase::SpriteInfo *sprite = graphics.getSprite(idx);
+                auto *sprite = graphics.getSprite(idx);
                 std::cout << "Sprite is " << int(sprite->w) << "x" << int(sprite->h) << " with "
                           << int(sprite->deltaCount) << " deltas" << std::endl;
                 auto sbitmap = graphics.getSpriteBitmap(idx, remap, delta);
@@ -249,7 +250,7 @@ int main(int argc, char *argv[])
         if (mode & 2) {
             SDL_SaveBMP(image, "out.bmp");
         }
-    } catch (Exception &e) {
+    } catch (const Util::Exception &e) {
         std::cerr << "Exception occured: " << e.what() << std::endl;
         return 1;
     }

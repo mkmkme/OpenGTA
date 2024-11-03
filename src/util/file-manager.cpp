@@ -129,6 +129,14 @@ Int64 PhysFSFile::read(void *buf, UInt64 len) noexcept
     return PHYSFS_readBytes(file, buf, len);
 }
 
+std::string PhysFSFile::readAll() noexcept
+{
+    const auto len = length();
+    std::string buf(len, '\0');
+    read(buf.data(), len);
+    return buf;
+}
+
 UInt32 PhysFSFile::length() const noexcept
 {
     return PHYSFS_fileLength(file);

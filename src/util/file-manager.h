@@ -49,6 +49,8 @@ public:
 
     Int64 read(void *buf, UInt64 len) noexcept;
 
+    std::string readAll() noexcept;
+
 private:
     PHYSFS_File *file;
 };

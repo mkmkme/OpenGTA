@@ -354,9 +354,7 @@ OpenGTAViewer::OpenGTAViewer(std::string_view progname)
 
     // check for a configfile
     if (physfs_context_.exists("config")) {
-        const auto config_as_string = Util::FileHelper::BufferFromVFS(
-            Util::FileHelper::OpenReadVFS("config")
-        );
+        const auto config_as_string = Util::PhysFSFile("config").readAll();
 
         try {
             // vm.runString(config_as_string);

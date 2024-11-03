@@ -28,18 +28,13 @@
 
 #include <physfs.h>
 
-namespace Util {
-namespace FileHelper {
+namespace Util::FileHelper {
 
 const std::string &BaseDataPath();
 const std::string &ModDataPath();
 const std::string &UserHomeDir();
 std::string Lang2MsgFilename(std::string_view lang);
 
-PHYSFS_file *OpenReadVFS(const std::string &file);
-std::string BufferFromVFS(PHYSFS_file *file);
-
-} // namespace FileHelper
-} // namespace Util
+} // namespace Util::FileHelper
 
 #endif

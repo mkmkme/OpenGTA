@@ -42,8 +42,7 @@ std::string getEnvSafe(const char *envname, std::string def_value)
 
 } // namespace
 
-namespace Util {
-namespace FileHelper {
+namespace Util::FileHelper {
 
 const std::string &BaseDataPath()
 {
@@ -80,31 +79,4 @@ std::string Lang2MsgFilename(std::string_view l)
     return "ENGLISH.FXT";
 }
 
-PHYSFS_file *OpenReadVFS(const std::string &file)
-{
-    PHYSFS_file *fd = PHYSFS_openRead(file.c_str());
-    if (fd)
-        return fd;
-    // try lower case
-    std::string name2 { string_lower(file) };
-    fd = PHYSFS_openRead(name2.c_str());
-    if (!fd) // still no joy, give up
-        throw Util::FileNotFound(
-            file + " with error: " + PHYSFS_getErrorByCode(PHYSFS_getLastErrorCode())
-        );
-    // take this one instead
-    return fd;
-}
-
-std::string BufferFromVFS(PHYSFS_file *file)
-{
-    assert(file != nullptr);
-    unsigned int size = PHYSFS_fileLength(file);
-    std::string ret(size + 1, '\0');
-    size = PHYSFS_readBytes(file, ret.data(), size);
-    PHYSFS_close(file);
-    return ret;
-}
-
-} // namespace FileHelper
-} // namespace Util
+} // namespace Util::FileHelper

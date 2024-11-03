@@ -92,12 +92,12 @@ float GameObject_common::heightOverTerrain(const Vector3D &v)
     return 1.0f;
 }
 
-Sprite::Animation::Animation()
+Sprite::Animation::Animation() noexcept
     : Util::Animation(7, 7)
     , firstFrameOffset(0)
     , moveSpeed(0.0f) {}
 
-Sprite::Animation::Animation(const Animation &other)
+Sprite::Animation::Animation(const Animation &other) noexcept
     : // Util::Animation(other.numFrames, 1000 / other.delay),
     Util::Animation(other)
     , firstFrameOffset(other.firstFrameOffset)
@@ -108,14 +108,14 @@ Sprite::Animation::Animation(const Animation &other)
     set(other.get(), other.getDone());
 }
 
-Sprite::Animation::Animation(uint16_t foff, uint8_t num)
+Sprite::Animation::Animation(uint16_t foff, uint8_t num) noexcept
     : Util::Animation(num, 7)
     , firstFrameOffset(foff)
     , moveSpeed(0.0f)
 {
 }
 
-Sprite::Animation::Animation(uint16_t foff, uint8_t num, float speed)
+Sprite::Animation::Animation(uint16_t foff, uint8_t num, float speed) noexcept
     : Util::Animation(num, 7)
     , firstFrameOffset(foff)
     , moveSpeed(speed)
@@ -125,7 +125,6 @@ Sprite::Animation::Animation(uint16_t foff, uint8_t num, float speed)
 Sprite::Sprite()
     : sprNum(0)
     , remap(-1)
-    , anim()
     //, anim(SpriteManager::Instance().getAnimationById(0)),
     , animId()
     , sprType(GraphicsBase::SpriteNumbers::ARROW)
@@ -133,7 +132,7 @@ Sprite::Sprite()
 }
 
 Sprite::Sprite(uint16_t sprN, int16_t rem, GraphicsBase::SpriteNumbers::SpriteTypes sprT)
-    : sprNum(sprN), remap(rem), anim(), animId(), sprType(sprT)
+    : sprNum(sprN), remap(rem), animId(), sprType(sprT)
 {
 }
 
@@ -153,9 +152,7 @@ Pedestrian::Pedestrian(const Vector3D &e, const Vector3D &p, uint32_t id, int16_
     , OBox(TranslateMatrix3D(p), e * 0.5f)
     , m_control()
     , speedForces(0, 0, 0)
-    , inventory()
     , activeWeapon(0)
-    , aiData()
 {
     m_M = TranslateMatrix3D(p);
     m_M.RotZ(-rot);
@@ -259,10 +256,10 @@ void Pedestrian::update(uint32_t ticks)
             moveDelta.x -= sin(rot * pi / 180.0f) * anim.moveSpeed * delta;
             moveDelta.z -= cos(rot * pi / 180.0f) * anim.moveSpeed * delta;
             break;
-        case 1:
-            moveDelta.x += sin(rot * pi / 180.0f) * anim.moveSpeed * delta;
-            moveDelta.z += cos(rot * pi / 180.0f) * anim.moveSpeed * delta;
-            break;
+        case 1: // FIXME (mkmkme): seems to be identical with 2??
+                // moveDelta.x += sin(rot * pi / 180.0f) * anim.moveSpeed * delta;
+                // moveDelta.z += cos(rot * pi / 180.0f) * anim.moveSpeed * delta;
+                // break;
         case 2:
             moveDelta.x += sin(rot * pi / 180.0f) * anim.moveSpeed * delta;
             moveDelta.z += cos(rot * pi / 180.0f) * anim.moveSpeed * delta;
@@ -473,7 +470,6 @@ CarSprite::CarSprite()
     , sprType(GraphicsBase::SpriteNumbers::CAR)
     , delta(0)
     , deltaSet(sizeof(delta) * 8, (unsigned char *) &delta)
-    , animState()
 {
 }
 
@@ -493,7 +489,6 @@ CarSprite::CarSprite(uint16_t sprN, int16_t rem, GraphicsBase::SpriteNumbers::Sp
     , sprType(sprT)
     , delta(0)
     , deltaSet(sizeof(delta) * 8, (unsigned char *) &delta)
-    , animState()
 {
 }
 
@@ -537,11 +532,11 @@ void CarSprite::update(uint32_t ticks)
 #define DSI_1 15
 #define DSI_2 16
 
-#define D_A_THEN_B(d, a, b)   \
-    (d.get_item(a))           \
-    {                         \
-        d.set_item(a, false); \
-        d.set_item(b, true);  \
+#define D_A_THEN_B(d, a, b)     \
+    ((d).get_item(a))           \
+    {                           \
+        (d).set_item(a, false); \
+        (d).set_item(b, true);  \
     }
 
     // drive-anim
@@ -635,7 +630,6 @@ CarSprite::DoorDeltaAnimation::DoorDeltaAnimation(uint8_t dId, bool dOpen)
 Car::Car(Vector3D &_pos, float _rot, uint32_t id, uint8_t _type, int16_t _remap)
     : GameObject_common(_pos, _rot)
     , CarSprite(0, -1, GraphicsBase::SpriteNumbers::CAR)
-    , OBox()
     , carInfo(ActiveStyle::Instance().get().findCarByModel(_type))
 {
     type = _type;
@@ -667,7 +661,6 @@ void Car::fixSpriteType()
 Car::Car(OpenGTA::Map::ObjectPosition &op, uint32_t id)
     : GameObject_common(Vector3D(INT2FLOAT_WRLD(op.x), 6.05f - INT2FLOAT_WRLD(op.z), INT2FLOAT_WRLD(op.y)))
     , CarSprite(0, -1, GraphicsBase::SpriteNumbers::CAR)
-    , OBox()
     , carInfo(ActiveStyle::Instance().get().findCarByModel(op.type))
 {
     carId = id;
@@ -768,7 +761,6 @@ void Car::explode()
 SpriteObject::SpriteObject(OpenGTA::Map::ObjectPosition &op, uint32_t id)
     : GameObject_common(Vector3D(INT2FLOAT_WRLD(op.x), 6.05f - INT2FLOAT_WRLD(op.z), INT2FLOAT_WRLD(op.y)))
     , Sprite(0, -1, GraphicsBase::SpriteNumbers::OBJECT)
-    , OBox()
 {
     objId = id;
     GraphicsBase &style = ActiveStyle::Instance().get();
@@ -781,8 +773,8 @@ SpriteObject::SpriteObject(OpenGTA::Map::ObjectPosition &op, uint32_t id)
     isActive = true;
 }
 
-SpriteObject::SpriteObject(const Vector3D &pos, uint16_t sprNum, OpenGTA::GraphicsBase::SpriteNumbers::SpriteTypes sprT)
-    : GameObject_common(pos), Sprite(sprNum, -1, sprT), OBox()
+SpriteObject::SpriteObject(const Vector3D &pos, uint16_t spriteNum, OpenGTA::GraphicsBase::SpriteNumbers::SpriteTypes st)
+    : GameObject_common(pos), Sprite(spriteNum, -1, st)
 {
     isActive = true;
     m_M = TranslateMatrix3D(pos);

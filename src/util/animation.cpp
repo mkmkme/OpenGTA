@@ -25,8 +25,7 @@
 #include <util/log.h>
 
 namespace Util {
-Animation::Animation(uint16_t num, uint16_t fps)
-    : callback()
+Animation::Animation(uint16_t num, uint16_t fps) noexcept
 {
     status = STOPPED;
     numFrames = num;
@@ -35,7 +34,7 @@ Animation::Animation(uint16_t num, uint16_t fps)
     lastChangeTicks = 0;
 }
 
-Animation::Animation(const Animation &other)
+Animation::Animation(const Animation &other) noexcept
 {
     status = other.status;
     onDone = other.onDone;

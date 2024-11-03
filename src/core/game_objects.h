@@ -56,10 +56,10 @@ struct GameObject_common {
 class Sprite {
 public:
     struct Animation : public Util::Animation {
-        Animation();
-        Animation(const Animation &other);
-        Animation(uint16_t foff, uint8_t num);
-        Animation(uint16_t foff, uint8_t num, float speed);
+        Animation() noexcept;
+        Animation(const Animation &other) noexcept;
+        Animation(uint16_t foff, uint8_t num) noexcept;
+        Animation(uint16_t foff, uint8_t num, float speed) noexcept;
         uint16_t firstFrameOffset;
         // uint8_t  numFrames;
         float moveSpeed;
@@ -91,7 +91,7 @@ public:
     uint8_t isDead;
     void getShot(uint32_t shooterId, uint32_t dmg, bool front = true);
     void die();
-    typedef std::map<uint8_t, uint32_t> InventoryMap;
+    using InventoryMap = std::map<uint8_t, uint32_t>;
     InventoryMap inventory;
     uint8_t activeWeapon;
     uint32_t aiMode = 0;
@@ -124,11 +124,11 @@ public:
     void openDoor(uint8_t k);
     void closeDoor(uint8_t k);
     void setSirenAnim(bool on);
-    bool assertDeltaById(uint8_t k) const;
+    [[nodiscard]] bool assertDeltaById(uint8_t k) const;
     virtual void update(uint32_t ticks);
 
 private:
-    typedef std::list<DoorDeltaAnimation> DoorAnimList;
+    using DoorAnimList = std::list<DoorDeltaAnimation>;
     DoorAnimList doorAnims;
     uint32_t lt_siren {};
 };

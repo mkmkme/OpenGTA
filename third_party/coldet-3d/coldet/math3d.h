@@ -49,14 +49,14 @@ struct Vector3D
   float x,y,z;
   static const Vector3D Zero;
 
-  Vector3D() {}
-  Vector3D(float X, float Y, float Z) : x(X), y(Y), z(Z) {}
-  Vector3D(const Vector3D& v) : x(v.x), y(v.y), z(v.z) {}
+  Vector3D() = default;
+  Vector3D(float X, float Y, float Z) noexcept : x(X), y(Y), z(Z) {}
+  Vector3D(const Vector3D& v) = default;
 
   Vector3D& operator+=(const Vector3D& v) { x+=v.x; y+=v.y; z+=v.z; return *this; }
   Vector3D& operator*=(float s) { x*=s; y*=s; z*=s; return *this; }
   Vector3D& operator/=(float s) { return *this *= (1.0f/s); }
-  bool      operator==(const Vector3D& v) { return x==v.x && y==v.y && z==v.z; }
+  bool      operator==(const Vector3D& v) const { return x==v.x && y==v.y && z==v.z; }
 
   Vector3D operator-       () const { return Vector3D(-x,-y,-z); }
   float    SquareMagnitude () const { return x*x+y*y+z*z; }

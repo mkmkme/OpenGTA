@@ -10,7 +10,16 @@
 
 #include <util/errors.h>
 #include <util/file_helper.h>
+#include <util/log.h>
 #include <util/string_helpers.h>
+
+namespace {
+struct {
+    size_t fileCount = 0;
+    bool isInitialized = false;
+    bool lateDestroy = false;
+} global_context;
+} // namespace
 
 namespace Util {
 
@@ -21,11 +30,19 @@ PhysFSContext::PhysFSContext(const char *argv0, bool mount_base_dir, bool mount_
         mountBaseDir();
     if (mount_gtadata)
         tryMount(FileHelper::BaseDataPath().c_str());
+    global_context.isInitialized = true;
 }
 
 PhysFSContext::~PhysFSContext()
 {
-    PHYSFS_deinit();
+    if (global_context.fileCount > 0) {
+        WARN("There are still {} files open", global_context.fileCount);
+        global_context.lateDestroy = true;
+    } else {
+        INFO("All files closed, deinitializing PhysFS");
+        PHYSFS_deinit();
+        global_context.isInitialized = false;
+    }
 }
 
 void PhysFSContext::mountBaseDir() noexcept
@@ -54,6 +71,8 @@ bool PhysFSContext::exists(const char *filename) const noexcept
 PhysFSFile::PhysFSFile(const std::string &filename)
     : file { PHYSFS_openRead(filename.c_str()) }
 {
+    if (!global_context.isInitialized)
+        throw std::runtime_error("PhysFS not initialized");
     if (file == nullptr) {
         std::string filename_lower { string_lower(filename) };
         file = PHYSFS_openRead(filename_lower.c_str());
@@ -62,11 +81,17 @@ PhysFSFile::PhysFSFile(const std::string &filename)
                 filename + " with error: " + PHYSFS_getErrorByCode(PHYSFS_getLastErrorCode())
             );
     }
+    ++global_context.fileCount;
 }
 
 PhysFSFile::~PhysFSFile()
 {
     PHYSFS_close(file);
+    --global_context.fileCount;
+    if (global_context.lateDestroy && global_context.fileCount == 0) {
+        INFO("All files closed, late-deinitializing PhysFS");
+        PHYSFS_deinit();
+    }
 }
 
 template <BuiltinNumber T>

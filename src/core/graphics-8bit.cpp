@@ -31,8 +31,6 @@ Graphics8Bit::Graphics8Bit(const std::string &style)
     : GraphicsBase(style)
 {
     _topHeaderSize = 52;
-    rawTiles = nullptr;
-    rawSprites = nullptr;
     auxBlockTrailSize = 0;
     loadHeader();
     setupBlocking();
@@ -208,40 +206,40 @@ void Graphics8Bit::loadSpriteInfo()
     UInt32 w;
     UInt32 _bytes_read = 0;
     while (_bytes_read < spriteInfoSize) {
-        auto *si = new SpriteInfo();
-        styleFile.read(si->w);
-        styleFile.read(si->h);
-        styleFile.read(si->deltaCount);
+        SpriteInfo si;
+        styleFile.read(si.w);
+        styleFile.read(si.h);
+        styleFile.read(si.deltaCount);
         styleFile.read(compressionFlag);
-        styleFile.read(si->size);
+        styleFile.read(si.size);
         styleFile.read(w);
         _bytes_read += 10;
         // si->ptr = reinterpret_cast<unsigned char*>(w);
-        si->page = w / 65536;
-        si->xoffset = (w % 65536) % 256;
-        si->yoffset = (w % 65536) / 256;
-        si->clut = 0;
+        si.page = w / 65536;
+        si.xoffset = (w % 65536) % 256;
+        si.yoffset = (w % 65536) / 256;
+        si.clut = 0;
 
         // sanity check
         if (compressionFlag)
             WARN("Compression flag active in sprite!");
-        if (int(si->w) * int(si->h) != int(si->size)) {
-            ERROR("Sprite info size mismatch: {}x{} != {}", int(si->w), int(si->h), si->size);
+        if (int(si.w) * int(si.h) != int(si.size)) {
+            ERROR("Sprite info size mismatch: {}x{} != {}", int(si.w), int(si.h), si.size);
             return;
         }
-        if (si->deltaCount > 32) {
-            ERROR("Delta count of sprite is {} (should be <= 32)", si->deltaCount);
+        if (si.deltaCount > 32) {
+            ERROR("Delta count of sprite is {} (should be <= 32)", si.deltaCount);
             return;
         }
         for (UInt8 j = 0; j < 33; ++j) {
-            si->delta[j].size = 0;
-            si->delta[j].ptr = nullptr;
-            if (si->deltaCount && (j < si->deltaCount)) {
+            si.delta[j].size = 0;
+            si.delta[j].ptr = nullptr;
+            if (si.deltaCount && (j < si.deltaCount)) {
                 // std::cout << "reading " << int(j) << std::endl;
-                styleFile.read(si->delta[j].size);
+                styleFile.read(si.delta[j].size);
                 styleFile.read(w);
                 _bytes_read += 6;
-                si->delta[j].ptr = reinterpret_cast<unsigned char *>(w);
+                si.delta[j].ptr = reinterpret_cast<unsigned char *>(w);
             }
         }
         spriteInfos.push_back(si);
@@ -256,19 +254,18 @@ void Graphics8Bit::loadSpriteGraphics()
     UInt64 st = static_cast<UInt64>(_topHeaderSize) + sideSize + lidSize + auxSize + auxBlockTrailSize +
         animSize + paletteSize + remapSize + remapIndexSize + objectInfoSize + carInfoSize + spriteInfoSize;
     styleFile.ensurePosition(st);
-    rawSprites = new unsigned char[spriteGraphicsSize];
-    assert(rawSprites != nullptr);
-    styleFile.read(rawSprites, spriteGraphicsSize);
+    rawSprites.resize(spriteGraphicsSize);
+    styleFile.read(rawSprites.data(), rawSprites.size());
 
     if (spriteInfos.empty()) {
         INFO("No SpriteInfo post-loading work done - structure is empty");
         return;
     }
-    auto i = spriteInfos.cbegin();
-    auto end = spriteInfos.cend();
+    auto i = spriteInfos.begin();
+    auto end = spriteInfos.end();
     UInt32 _pagewise = 256 * 256;
     while (i != end) {
-        SpriteInfo *info = *i;
+        SpriteInfo &info = *i;
         /*
         UInt32 offset = reinterpret_cast<UInt32>(info->ptr);
         UInt32 page = offset / 65536;
@@ -278,13 +275,13 @@ void Graphics8Bit::loadSpriteGraphics()
         // std::cout << int(info->w) << "x" << int(info->h) << " " << int(info->deltaCount) << " deltas" << std::endl;
         // std::cout << offset << " page " << page << " x,y " << x <<","<<y<< std::endl;
         // info->ptr = rawSprites + page * _pagewise + 256 * y + x;
-        for (uint8_t k = 0; k < info->deltaCount; ++k) {
-            const auto tmp = reinterpret_cast<uintptr_t>(info->delta[k].ptr);
+        for (uint8_t k = 0; k < info.deltaCount; ++k) {
+            const auto tmp = reinterpret_cast<uintptr_t>(info.delta[k].ptr);
             const auto offset = static_cast<UInt32>(tmp);
             const auto page = offset / 65536;
             const auto y = (offset % 65536) / 256;
             const auto x = (offset % 65536) % 256;
-            info->delta[k].ptr = rawSprites + page * _pagewise + 256 * y + x;
+            info.delta[k].ptr = rawSprites.data() + page * _pagewise + 256 * y + x;
         }
         i++;
     }
@@ -298,17 +295,16 @@ void Graphics8Bit::loadSpriteNumbers()
     loadSpriteNumbers_shared(st);
 }
 
-std::vector<UInt8> Graphics8Bit::getSpriteBitmap(size_t id, int remap, uint32_t delta)
+std::vector<UInt8> Graphics8Bit::getSpriteBitmap(size_t id, int remap, UInt32 delta)
 {
-    SpriteInfo *info = spriteInfos[id];
-    assert(info != nullptr);
+    const SpriteInfo &info = spriteInfos[id];
     // UInt32 offset = reinterpret_cast<UInt32>(info->ptr);
     // const UInt32 page = offset / 65536;
-    const UInt32 y = info->yoffset; // (offset % 65536) / 256;
-    const UInt32 x = info->xoffset; // (offset % 65536) % 256;
+    const UInt32 y = info.yoffset; // (offset % 65536) / 256;
+    const UInt32 x = info.xoffset; // (offset % 65536) % 256;
     constexpr UInt32 page_size = 256 * 256;
 
-    unsigned char *page_start = rawSprites + static_cast<size_t>(info->page * page_size); // + 256 * y + x;
+    unsigned char *page_start = rawSprites.data() + static_cast<size_t>(info.page * page_size); // + 256 * y + x;
     assert(page_start != nullptr);
 
     std::vector<UInt8> result(page_size);
@@ -316,7 +312,7 @@ std::vector<UInt8> Graphics8Bit::getSpriteBitmap(size_t id, int remap, uint32_t 
     unsigned char *result_raw = result.data();
     memcpy(result_raw, page_start, page_size);
     if (delta > 0) {
-        handleDeltas(*info, result_raw, delta);
+        handleDeltas(info, result_raw, delta);
         /*
         assert(delta < info->deltaCount);
         DeltaInfo & di = info->delta[delta];
@@ -329,10 +325,10 @@ std::vector<UInt8> Graphics8Bit::getSpriteBitmap(size_t id, int remap, uint32_t 
     auto *bigbuf_raw = bigbuf.data();
 
     masterRGB_->apply(page_size, result_raw, bigbuf_raw, true);
-    assert(page_size > UInt32(info->w * info->h * 4));
-    for (uint16_t i = 0; i < info->h; i++) {
-        memcpy(result_raw, bigbuf_raw + static_cast<size_t>((256 * y + x) * 4), static_cast<size_t>(info->w * 4));
-        result_raw += static_cast<ptrdiff_t>(info->w * 4);
+    assert(page_size > UInt32(info.w * info.h * 4));
+    for (uint16_t i = 0; i < info.h; i++) {
+        memcpy(result_raw, bigbuf_raw + static_cast<size_t>((256 * y + x) * 4), static_cast<size_t>(info.w * 4));
+        result_raw += static_cast<ptrdiff_t>(info.w * 4);
         bigbuf_raw += static_cast<ptrdiff_t>(256 * 4);
     }
 
@@ -349,50 +345,40 @@ void Graphics8Bit::applyRemap(unsigned int len, unsigned int which, unsigned cha
     }
 }
 
-unsigned char *Graphics8Bit::getSide(unsigned int idx, unsigned int palIdx, bool rgba)
+std::span<const UInt8> Graphics8Bit::getSide(UInt8 idx, unsigned int /*palIdx*/, bool rgba)
 {
     prepareSideTexture(idx - 1, tileTmp);
-    unsigned char *res;
     if (rgba) {
-        masterRGB_->apply(4096, tileTmp, tileTmpRGBA, true);
-        res = tileTmpRGBA;
-    } else {
-        masterRGB_->apply(4096, tileTmp, tileTmpRGB, false);
-        res = tileTmpRGB;
+        masterRGB_->apply(4096, tileTmp.data(), tileTmpRGBA.data(), true);
+        return tileTmpRGBA;
     }
-    return res;
+    masterRGB_->apply(4096, tileTmp.data(), tileTmpRGB.data(), false);
+    return tileTmpRGB;
 }
 
-unsigned char *Graphics8Bit::getLid(unsigned int idx, unsigned int palIdx, bool rgba)
+std::span<const UInt8> Graphics8Bit::getLid(UInt8 idx, unsigned int palIdx, bool rgba)
 {
     prepareLidTexture(idx - 1, tileTmp);
     if (palIdx > 0)
-        applyRemap(4096, palIdx, tileTmp);
+        applyRemap(4096, palIdx, tileTmp.data());
 
-    unsigned char *res;
     if (rgba) {
-        masterRGB_->apply(4096, tileTmp, tileTmpRGBA, true);
-        res = tileTmpRGBA;
-    } else {
-        masterRGB_->apply(4096, tileTmp, tileTmpRGB, false);
-        res = tileTmpRGB;
+        masterRGB_->apply(4096, tileTmp.data(), tileTmpRGBA.data(), true);
+        return tileTmpRGBA;
     }
-    return res;
+    masterRGB_->apply(4096, tileTmp.data(), tileTmpRGB.data(), false);
+    return tileTmpRGB;
 }
 
-unsigned char *Graphics8Bit::getAux(unsigned int idx, unsigned int palIdx, bool rgba)
+std::span<const UInt8> Graphics8Bit::getAux(UInt8 idx, unsigned int /*palIdx*/, bool rgba)
 {
     prepareAuxTexture(idx - 1, tileTmp);
-    unsigned char *res;
     if (rgba) {
-
-        masterRGB_->apply(4096, tileTmp, tileTmpRGBA, true);
-        res = tileTmpRGBA;
-    } else {
-        masterRGB_->apply(4096, tileTmp, tileTmpRGB, false);
-        res = tileTmpRGB;
+        masterRGB_->apply(4096, tileTmp.data(), tileTmpRGBA.data(), true);
+        return tileTmpRGBA;
     }
-    return res;
+    masterRGB_->apply(4096, tileTmp.data(), tileTmpRGB.data(), false);
+    return tileTmpRGB;
 }
 
 /* RGBPalette */

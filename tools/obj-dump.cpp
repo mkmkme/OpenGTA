@@ -52,9 +52,9 @@ void dump(const std::string &style_file)
     }
     std::cout << "DUMP_OBJ_INFO END" << std::endl;
     for (size_t i = 0; i < style.spriteInfos.size(); ++i) {
-        std::cout << "sprite: " << i << "  width: " << int(style.spriteInfos[i]->w)
-                  << " height: " << int(style.spriteInfos[i]->h)
-                  << " delta-count: " << int(style.spriteInfos[i]->deltaCount) << std::endl;
+        std::cout << "sprite: " << i << "  width: " << int(style.spriteInfos[i].w)
+                  << " height: " << int(style.spriteInfos[i].h)
+                  << " delta-count: " << int(style.spriteInfos[i].deltaCount) << std::endl;
     }
 }
 

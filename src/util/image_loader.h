@@ -23,8 +23,11 @@
 #ifndef UTIL_IMAGE_LOADER_H
 #define UTIL_IMAGE_LOADER_H
 
-#include <memory>
+#include <span>
 #include <string>
+#include <vector>
+
+#include <core/numeric-types.h>
 
 #include <graphics/pagedtexture.h>
 
@@ -50,13 +53,13 @@ struct NextPowerOfTwo {
 
 /** Run scale2x on 32bit input image.
  */
-std::unique_ptr<uint8_t[]> scale2x_32bit(uint8_t *src, const int src_width, const int src_height);
+std::vector<UInt8> scale2x_32bit(std::span<const UInt8> src, int src_width, int src_height);
 
-std::unique_ptr<uint8_t[]> scale2x_24bit(uint8_t *src, const int src_width, const int src_height);
+std::vector<UInt8> scale2x_24bit(std::span<const UInt8> src, int src_width, int src_height);
 
-typedef std::pair<uint16_t, uint16_t> WidthHeightPair;
+using WidthHeightPair = std::pair<uint16_t, uint16_t>;
 // hardcoded data for known images
-WidthHeightPair lookupImageSize(const std::string &name, const uint32_t size);
+WidthHeightPair lookupImageSize(const std::string &name, uint32_t size);
 // load a rgb image
 OpenGL::PagedTexture loadImageRAW(const std::string &name);
 // load a palette image and guess the palette filename
@@ -71,7 +74,7 @@ extern bool mipmapTextures;
 extern GLfloat supportedMaxAnisoDegree;
 
 // plain simple garden-variety create-a-texture; needs to be 2^k
-GLuint createGLTexture(GLsizei w, GLsizei h, bool rgba, const void *pixels);
+GLuint createGLTexture(GLsizei w, GLsizei h, bool rgba, std::span<const UInt8> pixels);
 
 // blitting a buffer into another; no checks done!
 void copyImage2Image(
@@ -83,7 +86,7 @@ void copyImage2Image(
 );
 
 // texture-class instance from pixel data; does transform to 2^k if required
-OpenGL::PagedTexture createEmbeddedTexture(GLsizei w, GLsizei h, bool rgba, std::unique_ptr<uint8_t[]> pixels);
+OpenGL::PagedTexture createEmbeddedTexture(GLsizei w, GLsizei h, bool rgba, std::vector<UInt8> pixels);
 } // namespace ImageUtil
 
 #endif

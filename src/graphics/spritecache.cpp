@@ -169,8 +169,7 @@ PagedTexture SpriteCache::create(
     OpenGTA::GraphicsBase &style = OpenGTA::ActiveStyle::Instance().get();
     UInt16 real_num = style.spriteNumbers.reIndex(sprNum, st);
 
-    OpenGTA::SpriteInfo *info = style.getSprite(real_num);
-    assert(info);
+    OpenGTA::SpriteInfo &info = style.getSprite(real_num);
 
     OpenGL::PagedTexture t = createSprite(real_num, remap, delta, info);
     SpriteIdentifier si(real_num, remap, delta);
@@ -183,7 +182,7 @@ SpriteCache::createSprite(
     size_t sprite_num,
     Int16 remap,
     UInt32 delta,
-    OpenGTA::SpriteInfo *info
+    const OpenGTA::SpriteInfo &info
 ) const
 {
     INFO("creating new sprite: {} remap: {}", sprite_num, remap);
@@ -227,19 +226,19 @@ SpriteCache::createSprite(
       r += info->w * 4;
     }
 #endif
-    ImageUtil::NextPowerOfTwo npot(info->w, info->h);
-    auto dst = std::make_unique<uint8_t[]>(npot.w * npot.h * 4);
+    ImageUtil::NextPowerOfTwo npot(info.w, info.h);
+    std::vector<UInt8> dst(npot.w * npot.h * 4);
 
-    ImageUtil::copyImage2Image(dst.get(), src, info->w * 4, info->h, npot.w * 4);
+    ImageUtil::copyImage2Image(dst.data(), src, info.w * 4, info.h, npot.w * 4);
 
 #ifdef DO_SCALE2X
     if (doScale2x) {
-        dst = ImageUtil::scale2x_32bit(dst.get(), npot.w, npot.h);
+        dst = ImageUtil::scale2x_32bit(dst, npot.w, npot.h);
     }
 #endif
 
-    GLuint texid = (doScale2x) ? ImageUtil::createGLTexture(npot.w * 2, npot.h * 2, true, dst.get())
-                               : ImageUtil::createGLTexture(npot.w, npot.h, true, dst.get());
+    GLuint texid = (doScale2x) ? ImageUtil::createGLTexture(npot.w * 2, npot.h * 2, true, dst)
+                               : ImageUtil::createGLTexture(npot.w, npot.h, true, dst);
 #if 0
     glGenTextures(1, &texid);
     glBindTexture(GL_TEXTURE_2D, texid);
@@ -257,7 +256,7 @@ SpriteCache::createSprite(
 #endif
 
 #endif
-    return { texid, 0, 0, float(info->w) / float(npot.w), float(info->h) / float(npot.h) };
+    return { texid, 0, 0, float(info.w) / float(npot.w), float(info.h) / float(npot.h) };
 }
 
 } // namespace OpenGL

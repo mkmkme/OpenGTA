@@ -506,8 +506,8 @@ bool CarSprite::assertDeltaById(uint8_t k) const
 {
     GraphicsBase &style = ActiveStyle::Instance().get();
     const auto absNum = style.spriteNumbers.reIndex(sprNum, sprType);
-    SpriteInfo *info = style.getSprite(absNum);
-    return k < info->deltaCount;
+    const SpriteInfo &info = style.getSprite(absNum);
+    return k < info.deltaCount;
 }
 
 void CarSprite::openDoor(uint8_t k)

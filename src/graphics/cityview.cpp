@@ -415,14 +415,14 @@ OpenGL::PagedTexture CityView::renderMap2Texture()
         return OpenGL::PagedTexture(txtnumber, 0, 0, 1, 1);
     */
     uint32_t img_size = gl_h * gl_h * 3;
-    auto img_buf_smart = std::make_unique<uint8_t[]>(img_size);
-    uint8_t *img_buf = img_buf_smart.get();
+    std::vector<Uint8> img_buf(img_size);
+    uint8_t *img_buf_raw = img_buf.data();
 
     glReadBuffer(GL_BACK);
     // for (uint32_t i = 0; i < gl_h; i++) {
     //   glReadPixels(0, i, gl_h, 1, GL_RGB, GL_UNSIGNED_BYTE, (GLvoid*)(img_buf + gl_h * 3 * i));
     // }
-    glReadPixels(0, 0, gl_h, gl_h, GL_RGB, GL_UNSIGNED_BYTE, (GLvoid *) img_buf);
+    glReadPixels(0, 0, gl_h, gl_h, GL_RGB, GL_UNSIGNED_BYTE, img_buf_raw);
     GL_CHECKERROR;
 
     sideCache->sink();
@@ -436,13 +436,13 @@ OpenGL::PagedTexture CityView::renderMap2Texture()
 
     uint32_t y_off = 100;
     uint32_t x = 0;
-    while (*(img_buf + y_off * gl_h * 3 + x) == 0 && *(img_buf + y_off * gl_h * 3 + x + 1) == 0 &&
-           *(img_buf + y_off * gl_h * 3 + x + 2) == 0)
+    while (*(img_buf_raw + y_off * gl_h * 3 + x) == 0 && *(img_buf_raw + y_off * gl_h * 3 + x + 1) == 0 &&
+           *(img_buf_raw + y_off * gl_h * 3 + x + 2) == 0)
         x += 3;
     INFO("color after x = {}", x / 3);
     x = gl_h - 3;
-    while (*(img_buf + y_off * gl_h * 3 + x) == 0 && *(img_buf + y_off * gl_h * 3 + x + 1) == 0 &&
-           *(img_buf + y_off * gl_h * 3 + x + 2) == 0)
+    while (*(img_buf_raw + y_off * gl_h * 3 + x) == 0 && *(img_buf_raw + y_off * gl_h * 3 + x + 1) == 0 &&
+           *(img_buf_raw + y_off * gl_h * 3 + x + 2) == 0)
         x -= 3;
     INFO("color after x = {}", x / 3);
 
@@ -648,23 +648,21 @@ void CityView::drawObject(OpenGTA::Map::ObjectPosition *obj)
     float y = float(obj->y >> 6) + float(obj->y % 64) / 64.0f;
     float z = float(obj->z >> 6) + float(obj->z % 64) / 64.0f;
     size_t spriteNumAbs, sprNum;
-    SpriteInfo *info = nullptr;
     GraphicsBase::SpriteNumbers::SpriteTypes st;
     if (obj->remap >= 128) { // car
         CarInfo &cinfo = style->findCarByModel(obj->type);
         sprNum = cinfo.sprNum;
         spriteNumAbs = style->spriteNumbers.reIndex(cinfo.sprNum, GraphicsBase::SpriteNumbers::CAR);
-        info = style->getSprite(spriteNumAbs);
-        w = float(info->w) / 64.0f;
-        h = float(info->h) / 64.0f;
+        const SpriteInfo &info = style->getSprite(spriteNumAbs);
+        w = float(info.w) / 64.0f;
+        h = float(info.h) / 64.0f;
         st = GraphicsBase::SpriteNumbers::CAR;
     } else {
         sprNum = style->objectInfos[obj->type].sprNum;
         spriteNumAbs = style->spriteNumbers.reIndex(sprNum, GraphicsBase::SpriteNumbers::OBJECT);
-        info = style->getSprite(spriteNumAbs);
-        assert(info);
-        w = float(info->w) / 64.0f;
-        h = float(info->h) / 64.0f;
+        const SpriteInfo &info = style->getSprite(spriteNumAbs);
+        w = float(info.w) / 64.0f;
+        h = float(info.h) / 64.0f;
         st = GraphicsBase::SpriteNumbers::OBJECT;
     }
 
@@ -773,7 +771,7 @@ void CityView::drawBlock(OpenGTA::Map::BlockInfo *bi)
                     64,
                     64,
                     is_flat,
-                    style->getAux(static_cast<unsigned int>(aux_id), 0, is_flat)
+                    style->getAux(aux_id, 0, is_flat)
                 );
                 auxCache->addTexture(aux_id, lid_tex);
             } else
@@ -788,7 +786,7 @@ void CityView::drawBlock(OpenGTA::Map::BlockInfo *bi)
                     64,
                     64,
                     is_flat,
-                    style->getSide(static_cast<unsigned int>(bi->left), 0, is_flat)
+                    style->getSide(bi->left, 0, is_flat)
                 );
                 sideCache->addTexture(bi->left, left_tex);
             } else
@@ -801,7 +799,7 @@ void CityView::drawBlock(OpenGTA::Map::BlockInfo *bi)
                     64,
                     64,
                     is_flat,
-                    style->getAux(static_cast<unsigned int>(aux_id), 0, is_flat)
+                    style->getAux(aux_id, 0, is_flat)
                 );
                 auxCache->addTexture(aux_id, left_tex);
             } else

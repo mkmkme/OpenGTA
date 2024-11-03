@@ -31,6 +31,8 @@
 #include <util/log.h>
 #include <util/timer.h>
 
+#include "core/game_objects.h"
+
 namespace OpenGTA {
 
 SpriteManager::SpriteManager()
@@ -281,10 +283,9 @@ void SpriteManager::draw(Car &car)
     const auto sprNum = style.spriteNumbers.reIndex(car.sprNum, car.sprType);
     //+ car.anim.firstFrameOffset + car.anim.currentFrame, car.sprType);
 
-    SpriteInfo *info = style.getSprite(sprNum);
-    assert(info);
-    float w = float(info->w) / 64.0f;
-    float h = float(info->h) / 64.0f;
+    const SpriteInfo &info = style.getSprite(sprNum);
+    float w = float(info.w) / 64.0f;
+    float h = float(info.h) / 64.0f;
     OpenGL::SpriteIdentifier si(sprNum, car.remap, car.delta);
     if (OpenGL::SpriteCache::Instance().has(si))
         t = OpenGL::SpriteCache::Instance().get(si);
@@ -363,10 +364,9 @@ void SpriteManager::draw(SpriteObject &obj)
     UInt16 sprNum =
         style.spriteNumbers.reIndex(obj.sprNum + obj.anim.firstFrameOffset + obj.anim.currentFrame, obj.sprType);
 
-    SpriteInfo *info = style.getSprite(sprNum);
-    assert(info);
-    float w = float(info->w) / 64.0f;
-    float h = float(info->h) / 64.0f;
+    const SpriteInfo &info = style.getSprite(sprNum);
+    float w = float(info.w) / 64.0f;
+    float h = float(info.h) / 64.0f;
     if (OpenGL::SpriteCache::Instance().has(sprNum, obj.remap))
         t = OpenGL::SpriteCache::Instance().get(sprNum, obj.remap);
     else {
@@ -403,10 +403,9 @@ void SpriteManager::draw(Pedestrian &ped)
     UInt16 sprNum =
         style.spriteNumbers.reIndex(ped.sprNum + ped.anim.firstFrameOffset + ped.anim.currentFrame, ped.sprType);
 
-    SpriteInfo *info = style.getSprite(sprNum);
-    assert(info);
-    float w = float(info->w) / 64.0f;
-    float h = float(info->h) / 64.0f;
+    const SpriteInfo &info = style.getSprite(sprNum);
+    float w = float(info.w) / 64.0f;
+    float h = float(info.h) / 64.0f;
 
     if (OpenGL::SpriteCache::Instance().has(sprNum, ped.remap))
         t = OpenGL::SpriteCache::Instance().get(sprNum, ped.remap);
@@ -452,10 +451,12 @@ void SpriteManager::drawExplosion(SpriteObject &obj)
     UInt16 sprNum =
         style.spriteNumbers.reIndex(obj.sprNum + obj.anim.firstFrameOffset + obj.anim.currentFrame, obj.sprType);
 
-    SpriteInfo *info = style.getSprite(sprNum);
-    assert(info);
-    float w = float(info->w) / 64.0f;
-    float h = float(info->h) / 64.0f;
+    float w, h;
+    {
+        const SpriteInfo &info = style.getSprite(sprNum);
+        w = float(info.w) / 64.0f;
+        h = float(info.h) / 64.0f;
+    }
     OpenGL::PagedTexture t;
     if (OpenGL::SpriteCache::Instance().has(sprNum))
         t = OpenGL::SpriteCache::Instance().get(sprNum);
@@ -482,10 +483,11 @@ void SpriteManager::drawExplosion(SpriteObject &obj)
 
     sprNum =
         style.spriteNumbers.reIndex(obj.sprNum + obj.anim.firstFrameOffset + obj.anim.currentFrame + 12, obj.sprType);
-    info = style.getSprite(sprNum);
-    assert(info);
-    w = float(info->w) / 64.0f;
-    h = float(info->h) / 64.0f;
+    {
+        const SpriteInfo &info = style.getSprite(sprNum);
+        w = float(info.w) / 64.0f;
+        h = float(info.h) / 64.0f;
+    }
     if (OpenGL::SpriteCache::Instance().has(sprNum))
         t = OpenGL::SpriteCache::Instance().get(sprNum);
     else
@@ -511,10 +513,11 @@ void SpriteManager::drawExplosion(SpriteObject &obj)
 
     sprNum =
         style.spriteNumbers.reIndex(obj.sprNum + obj.anim.firstFrameOffset + obj.anim.currentFrame + 24, obj.sprType);
-    info = style.getSprite(sprNum);
-    assert(info);
-    w = float(info->w) / 64.0f;
-    h = float(info->h) / 64.0f;
+    {
+        const SpriteInfo &info = style.getSprite(sprNum);
+        w = float(info.w) / 64.0f;
+        h = float(info.h) / 64.0f;
+    }
     if (OpenGL::SpriteCache::Instance().has(sprNum))
         t = OpenGL::SpriteCache::Instance().get(sprNum);
     else
@@ -540,10 +543,11 @@ void SpriteManager::drawExplosion(SpriteObject &obj)
 
     sprNum =
         style.spriteNumbers.reIndex(obj.sprNum + obj.anim.firstFrameOffset + obj.anim.currentFrame + 36, obj.sprType);
-    info = style.getSprite(sprNum);
-    assert(info);
-    w = float(info->w) / 64.0f;
-    h = float(info->h) / 64.0f;
+    {
+        const SpriteInfo &info = style.getSprite(sprNum);
+        w = float(info.w) / 64.0f;
+        h = float(info.h) / 64.0f;
+    }
     if (OpenGL::SpriteCache::Instance().has(sprNum))
         t = OpenGL::SpriteCache::Instance().get(sprNum);
     else

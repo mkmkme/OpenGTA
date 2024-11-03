@@ -268,14 +268,14 @@ ImageUtil::WidthHeightPair Manager::cacheStyleArrowSprite(const size_t id, int r
 {
     OpenGTA::GraphicsBase &graphics = OpenGTA::ActiveStyle::Instance().get();
     const auto t = graphics.spriteNumbers.reIndex(id, OpenGTA::GraphicsBase::SpriteNumbers::ARROW);
-    OpenGTA::SpriteInfo *info = graphics.getSprite(t);
+    const OpenGTA::SpriteInfo &info = graphics.getSprite(t);
     texCache.insert(
         std::make_pair(
             id,
             OpenGL::SpriteCache::Instance().createSprite(size_t(t), remap, 0, info)
         )
     );
-    return ImageUtil::WidthHeightPair(info->w, info->h);
+    return ImageUtil::WidthHeightPair(info.w, info.h);
 }
 
 #ifdef WITH_SDL_IMAGE

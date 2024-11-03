@@ -24,6 +24,7 @@
 
 #include <SDL2/SDL_surface.h> // WITH_SDL_IMAGE
 #include <core/graphics-8bit.h>
+#include <core/numeric-types.h>
 
 #include "util/file-manager.h"
 #include <util/errors.h>
@@ -94,7 +95,7 @@ WidthHeightPair lookupImageSize(const std::string &name, const uint32_t size)
     if (iname.find(".RAT") == iname.length() - 4)
         bpp = 1;
 
-    if (!(bpp && bpp * width * height == size))
+    if (!bpp || bpp * width * height != size)
         ERROR("could not identify image: {} size: {}", name, size);
     return std::make_pair(width, height);
 }
@@ -112,8 +113,8 @@ OpenGL::PagedTexture loadImageRAW(const std::string &name)
         throw Util::UnknownKey(name + " - RAW file size unknown");
     }
 
-    auto buffer = std::make_unique<uint8_t[]>(nbytes);
-    pf.read(buffer.get(), nbytes);
+    std::vector<UInt8> buffer(nbytes);
+    pf.read(buffer.data(), buffer.size());
 
     return createEmbeddedTexture(whp.first, whp.second, false, std::move(buffer));
 }
@@ -129,14 +130,14 @@ OpenGL::PagedTexture loadImageRATWithPalette(const std::string &name, const std:
         WARN("aborting image load");
         throw Util::UnknownKey(name + " - RAT file size unknown");
     }
-    auto lb1 = std::make_unique<uint8_t[]>(nbytes);
-    pf.read(lb1.get(), nbytes);
+    std::vector<UInt8> lb1(nbytes);
+    pf.read(lb1.data(), lb1.size());
 
     pf = Util::PhysFSFile { palette_file };
     OpenGTA::Graphics8Bit::RGBPalette rgb { pf };
 
-    auto lb2 = std::make_unique<uint8_t[]>(nbytes * 3);
-    rgb.apply(nbytes, lb1.get(), lb2.get(), false);
+    std::vector<UInt8> lb2(nbytes * 3);
+    rgb.apply(nbytes, lb1.data(), lb2.data(), false);
 
     return createEmbeddedTexture(whp.first, whp.second, false, std::move(lb2));
 }
@@ -163,7 +164,7 @@ OpenGL::PagedTexture loadImageSDL(const std::string &name)
 }
 #endif
 
-GLuint createGLTexture(GLsizei w, GLsizei h, bool rgba, const void *pixels)
+GLuint createGLTexture(GLsizei w, GLsizei h, bool rgba, std::span<const UInt8> pixels)
 {
     GLuint tex;
     glGenTextures(1, &tex);
@@ -177,14 +178,14 @@ GLuint createGLTexture(GLsizei w, GLsizei h, bool rgba, const void *pixels)
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     if (rgba) {
         if (mipmapTextures)
-            gluBuild2DMipmaps(GL_TEXTURE_2D, 4, w, h, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
+            gluBuild2DMipmaps(GL_TEXTURE_2D, 4, w, h, GL_RGBA, GL_UNSIGNED_BYTE, pixels.data());
         else
-            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels.data());
     } else {
         if (mipmapTextures)
-            gluBuild2DMipmaps(GL_TEXTURE_2D, 3, w, h, GL_RGB, GL_UNSIGNED_BYTE, pixels);
+            gluBuild2DMipmaps(GL_TEXTURE_2D, 3, w, h, GL_RGB, GL_UNSIGNED_BYTE, pixels.data());
         else
-            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, w, h, 0, GL_RGB, GL_UNSIGNED_BYTE, pixels);
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, w, h, 0, GL_RGB, GL_UNSIGNED_BYTE, pixels.data());
     }
     if (supportedMaxAnisoDegree > 1.0f)
         glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, &supportedMaxAnisoDegree);
@@ -210,21 +211,21 @@ void copyImage2Image(
     }
 }
 
-OpenGL::PagedTexture createEmbeddedTexture(GLsizei w, GLsizei h, bool rgba, std::unique_ptr<uint8_t[]> pixels)
+OpenGL::PagedTexture createEmbeddedTexture(GLsizei w, GLsizei h, bool rgba, std::vector<UInt8> pixels)
 {
 
     NextPowerOfTwo npot(w, h);
-    auto buff = std::move(pixels);
+    std::vector<UInt8> buff;
 
-    if (!(npot.w == uint32_t(w) && npot.h == uint32_t(h))) {
-        uint32_t bpp = (rgba ? 4 : 3);
-        uint32_t bufSize = npot.w * npot.h * bpp;
-        auto tmp = std::make_unique<uint8_t[]>(bufSize);
-        copyImage2Image(tmp.get(), buff.get(), w * bpp, h, npot.w * bpp);
+    if (npot.w != UInt32(w) || npot.h != UInt32(h)) {
+        UInt32 bpp = (rgba ? 4 : 3);
+        UInt32 bufSize = npot.w * npot.h * bpp;
+        std::vector<UInt8> tmp(bufSize);
+        copyImage2Image(tmp.data(), pixels.data(), w * bpp, h, npot.w * bpp);
         buff = std::move(tmp);
     }
 
-    GLuint tex = createGLTexture(npot.w, npot.h, rgba, buff.get());
+    GLuint tex = createGLTexture(npot.w, npot.h, rgba, buff);
     return PagedTexture(tex, 0, 0, float(w) / npot.w, float(h) / npot.h);
 }
 
@@ -244,51 +245,53 @@ inline void writeInt24(uint8_t *x, int i) noexcept
 
 } // namespace
 
-std::unique_ptr<uint8_t[]> scale2x_24bit(uint8_t *src, const int src_width, const int src_height)
+std::vector<UInt8> scale2x_24bit(std::span<const UInt8> src, const int src_width, const int src_height)
 {
     const int srcpitch = src_width * 3;
     const int dstpitch = src_width * 6;
 
-    auto dstpix = std::make_unique<uint8_t[]>(src_width * src_height * 3 * 4);
-    auto *dst = dstpix.get();
+    std::vector<UInt8> dstpix(src_width * src_height * 3 * 4);
+    const auto *srcraw = src.data();
+    auto *dstpixraw = dstpix.data();
     int E0, E1, E2, E3, B, D, E, F, H;
     for (int looph = 0; looph < src_height; ++looph) {
         for (int loopw = 0; loopw < src_width; ++loopw) {
-            B = readInt24(src + (std::max(0, looph - 1) * srcpitch) + (3 * loopw));
-            D = readInt24(src + (looph * srcpitch) + (3 * std::max(0, loopw - 1)));
-            E = readInt24(src + (looph * srcpitch) + (3 * loopw));
-            F = readInt24(src + (looph * srcpitch) + (3 * std::min(src_width - 1, loopw + 1)));
-            H = readInt24(src + (std::min(src_height - 1, looph + 1) * srcpitch) + (3 * loopw));
+            B = readInt24(srcraw + (std::max(0, looph - 1) * srcpitch) + (3 * loopw));
+            D = readInt24(srcraw + (looph * srcpitch) + (3 * std::max(0, loopw - 1)));
+            E = readInt24(srcraw + (looph * srcpitch) + (3 * loopw));
+            F = readInt24(srcraw + (looph * srcpitch) + (3 * std::min(src_width - 1, loopw + 1)));
+            H = readInt24(srcraw + (std::min(src_height - 1, looph + 1) * srcpitch) + (3 * loopw));
 
             E0 = D == B && B != F && D != H ? D : E;
             E1 = B == F && B != D && F != H ? F : E;
             E2 = D == H && D != B && H != F ? D : E;
             E3 = H == F && D != H && B != F ? F : E;
 
-            writeInt24((dst + looph * 2 * dstpitch + loopw * 2 * 3), E0);
-            writeInt24((dst + looph * 2 * dstpitch + (loopw * 2 + 1) * 3), E1);
-            writeInt24((dst + (looph * 2 + 1) * dstpitch + loopw * 2 * 3), E2);
-            writeInt24((dst + (looph * 2 + 1) * dstpitch + (loopw * 2 + 1) * 3), E3);
+            writeInt24((dstpixraw + looph * 2 * dstpitch + loopw * 2 * 3), E0);
+            writeInt24((dstpixraw + looph * 2 * dstpitch + (loopw * 2 + 1) * 3), E1);
+            writeInt24((dstpixraw + (looph * 2 + 1) * dstpitch + loopw * 2 * 3), E2);
+            writeInt24((dstpixraw + (looph * 2 + 1) * dstpitch + (loopw * 2 + 1) * 3), E3);
         }
     }
     return dstpix;
 }
 
-std::unique_ptr<uint8_t[]> scale2x_32bit(uint8_t *src, const int src_width, const int src_height)
+std::vector<UInt8> scale2x_32bit(std::span<const UInt8> src, const int src_width, const int src_height)
 {
     const int srcpitch = src_width * 4;
     const int dstpitch = src_width * 8;
 
-    auto dstpix = std::make_unique<uint8_t[]>(src_width * src_height * 4 * 4);
-    auto *dstpixraw = dstpix.get();
+    std::vector<UInt8> dstpix(src_width * src_height * 4 * 4);
+    auto *dstpixraw = dstpix.data();
+    const auto *srcraw = src.data();
     uint32_t E0, E1, E2, E3, B, D, E, F, H;
     for (int looph = 0; looph < src_height; ++looph) {
         for (int loopw = 0; loopw < src_width; ++loopw) {
-            B = *(uint32_t *) (src + (std::max(0, looph - 1) * srcpitch) + (4 * loopw));
-            D = *(uint32_t *) (src + (looph * srcpitch) + (4 * std::max(0, loopw - 1)));
-            E = *(uint32_t *) (src + (looph * srcpitch) + (4 * loopw));
-            F = *(uint32_t *) (src + (looph * srcpitch) + (4 * std::min(src_width - 1, loopw + 1)));
-            H = *(uint32_t *) (src + (std::min(src_height - 1, looph + 1) * srcpitch) + (4 * loopw));
+            B = *(uint32_t *) (srcraw + (std::max(0, looph - 1) * srcpitch) + (4 * loopw));
+            D = *(uint32_t *) (srcraw + (looph * srcpitch) + (4 * std::max(0, loopw - 1)));
+            E = *(uint32_t *) (srcraw + (looph * srcpitch) + (4 * loopw));
+            F = *(uint32_t *) (srcraw + (looph * srcpitch) + (4 * std::min(src_width - 1, loopw + 1)));
+            H = *(uint32_t *) (srcraw + (std::min(src_height - 1, looph + 1) * srcpitch) + (4 * loopw));
 
             E0 = D == B && B != F && D != H ? D : E;
             E1 = B == F && B != D && F != H ? F : E;

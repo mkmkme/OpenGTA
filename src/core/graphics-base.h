@@ -11,7 +11,6 @@
 #ifndef OPENGTA_MAIN_H
 #define OPENGTA_MAIN_H
 
-#include <memory>
 #include <vector>
 
 #include <physfs.h>
@@ -19,8 +18,9 @@
 #include <core/car-info.h>
 #include <core/numeric-types.h>
 #include <core/object-info.h>
+#include <core/sprite-info.h>
 
-#include "util/file-manager.h"
+#include <util/file-manager.h>
 #include <util/set.h>
 
 namespace OpenGTA {
@@ -36,7 +36,7 @@ class GraphicsBase {
 public:
     explicit GraphicsBase(const std::string &style);
     virtual ~GraphicsBase();
-    uint8_t getFormat();
+    [[nodiscard]] UInt8 getFormat() const;
 
     struct SpriteNumbers {
         UInt16 GTA_SPRITE_ARROW;
@@ -85,40 +85,40 @@ public:
             FERRY
         };
 
-        UInt16 reIndex(const UInt16 &id, const enum SpriteTypes &st) const;
-        UInt16 countByType(const SpriteTypes &t) const;
+        [[nodiscard]] UInt16 reIndex(const UInt16 &id, const enum SpriteTypes &st) const;
+        [[nodiscard]] UInt16 countByType(const SpriteTypes &t) const;
     };
 
-    bool isAnimatedBlock(uint8_t area_code, uint8_t id);
+    bool isAnimatedBlock(UInt8 area_code, UInt8 id);
 
-    void prepareSideTexture(unsigned int idx, unsigned char *dst);
-    void prepareLidTexture(unsigned int idx, unsigned char *dst);
-    void prepareAuxTexture(unsigned int idx, unsigned char *dst);
-    unsigned int getRandomPedRemapNumber() const;
+    void prepareSideTexture(UInt32 idx, std::span<UInt8> dst);
+    void prepareLidTexture(UInt32 idx, std::span<UInt8> dst);
+    void prepareAuxTexture(UInt32 idx, std::span<UInt8> dst);
+    [[nodiscard]] unsigned int getRandomPedRemapNumber() const;
     unsigned int getPedRemapNumberType(unsigned int _type);
 
     SpriteNumbers spriteNumbers {};
 
     CarInfo &findCarByModel(UInt8);
-    [[maybe_unused]] [[nodiscard]] inline size_t getNumCarModels() const noexcept { return carInfos.size(); }
-    unsigned char *getTmpBuffer(bool rgba);
-    SpriteInfo *getSprite(size_t id) { return spriteInfos[id]; }
+    // [[nodiscard]] inline size_t getNumCarModels() const noexcept { return carInfos.size(); }
+    [[nodiscard]] std::span<const UInt8> getTmpBuffer(bool rgba) const;
+    SpriteInfo &getSprite(size_t id) { return spriteInfos[id]; }
 
-    virtual unsigned char *getSide(unsigned int idx, unsigned int palIdx, bool rgba) = 0;
-    virtual unsigned char *getLid(unsigned int idx, unsigned int palIdx, bool rgba) = 0;
-    virtual unsigned char *getAux(unsigned int idx, unsigned int palIdx, bool rgba) = 0;
+    virtual std::span<const UInt8> getSide(UInt8 idx, unsigned int palIdx, bool rgba) = 0;
+    virtual std::span<const UInt8> getLid(UInt8 idx, unsigned int palIdx, bool rgba) = 0;
+    virtual std::span<const UInt8> getAux(UInt8 idx, unsigned int palIdx, bool rgba) = 0;
 
-    virtual std::vector<UInt8> getSpriteBitmap(size_t id, int remap, uint32_t delta) = 0;
+    virtual std::vector<UInt8> getSpriteBitmap(size_t id, int remap, UInt32 delta) = 0;
 
     std::vector<LoadedAnim> animations;
-    std::vector<SpriteInfo *> spriteInfos;
+    std::vector<SpriteInfo> spriteInfos;
     std::vector<ObjectInfo> objectInfos;
     std::vector<CarInfo> carInfos;
 
-    bool getDeltaHandling();
+    [[nodiscard]] bool getDeltaHandling() const;
     void setDeltaHandling(bool delta_as_set);
 
-    bool isBlockingSide(uint8_t id);
+    [[nodiscard]] bool isBlockingSide(UInt8 id) const;
     void setupBlocking();
 
 protected:
@@ -130,18 +130,18 @@ protected:
     void loadCarInfo_shared(UInt64 offset);
     // void loadSpriteInfo_shared(UInt64 offset);
 
-    void handleDeltas(const SpriteInfo &spriteinfo, unsigned char *buffer, uint32_t delta);
+    void handleDeltas(const SpriteInfo &spriteinfo, unsigned char *buffer, UInt32 delta);
     void applyDelta(
         const SpriteInfo &spriteInfo,
         unsigned char *buffer,
-        uint32_t offset,
+        UInt32 offset,
         const DeltaInfo &deltaInfo,
         bool mirror = false
     );
 
     Util::PhysFSFile styleFile;
-    unsigned char *rawTiles;
-    unsigned char *rawSprites;
+    std::vector<UInt8> rawTiles;
+    std::vector<UInt8> rawSprites;
 
     UInt32 sideSize {};
     UInt32 lidSize {};
@@ -157,9 +157,9 @@ protected:
 
     UInt8 _topHeaderSize {};
 
-    unsigned char tileTmp[4096] {};
-    unsigned char tileTmpRGB[4096 * 3] {};
-    unsigned char tileTmpRGBA[4096 * 4] {};
+    std::array<UInt8, 4096> tileTmp {};
+    std::array<UInt8, 4096 * 3> tileTmpRGB {};
+    std::array<UInt8, 4096 * 4> tileTmpRGBA {};
 
     bool delta_is_a_set;
 

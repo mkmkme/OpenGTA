@@ -63,9 +63,9 @@ public:
         void apply(unsigned int len, const unsigned char *src, unsigned char *dst, bool rgba = false);
     };
 
-    unsigned char *getSide(unsigned int idx, unsigned int palIdx, bool rgba);
-    unsigned char *getLid(unsigned int idx, unsigned int palIdx, bool rgba);
-    unsigned char *getAux(unsigned int idx, unsigned int palIdx, bool rgba);
+    std::span<const UInt8> getSide(UInt8 idx, unsigned int palIdx, bool rgba) override;
+    std::span<const UInt8> getLid(UInt8 idx, unsigned int palIdx, bool rgba) override;
+    std::span<const UInt8> getAux(UInt8 idx, unsigned int palIdx, bool rgba) override;
 
     std::vector<UInt8> getSpriteBitmap(size_t id, int remap, uint32_t delta) override;
 

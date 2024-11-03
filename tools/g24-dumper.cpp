@@ -134,9 +134,9 @@ int main(int argc, char *argv[])
     if (argc > 2) {
         idx = strtol(argv[2], nullptr, 10);
     }
-    auto *sinfo = graphics.getSprite(idx);
+    const auto &sinfo = graphics.getSprite(idx);
     auto sbm = graphics.getSpriteBitmap(idx, -1, 0);
-    SDL_Surface *image = get_image(sbm.data(), sinfo->w, sinfo->h);
+    SDL_Surface *image = get_image(sbm.data(), sinfo.w, sinfo.h);
     if (argc == 4)
         SDL_SaveBMP(image, argv[3]);
     else

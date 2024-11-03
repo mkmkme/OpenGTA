@@ -4,16 +4,16 @@
 
 namespace OpenGTA {
 
-class Graphics24Bit : public GraphicsBase {
+class Graphics24Bit final : public GraphicsBase {
 public:
-    Graphics24Bit(const std::string &style);
-    ~Graphics24Bit();
+    explicit Graphics24Bit(const std::string &style);
+    ~Graphics24Bit() override;
 
-    unsigned char *getSide(unsigned int idx, unsigned int palIdx, bool rgba);
-    unsigned char *getLid(unsigned int idx, unsigned int palIdx, bool rgba);
-    unsigned char *getAux(unsigned int idx, unsigned int palIdx, bool rgba);
+    std::span<const UInt8> getSide(UInt8 idx, unsigned int palIdx, bool rgba) override;
+    std::span<const UInt8> getLid(UInt8 idx, unsigned int palIdx, bool rgba) override;
+    std::span<const UInt8> getAux(UInt8 idx, unsigned int palIdx, bool rgba) override;
 
-    std::vector<UInt8> getSpriteBitmap(size_t id, int remap, uint32_t delta) override;
+    std::vector<UInt8> getSpriteBitmap(size_t id, int remap, UInt32 delta) override;
 
     friend void dumpClut(Graphics24Bit &g24, const char *fname);
 

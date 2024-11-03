@@ -76,7 +76,7 @@ void display_image(SDL_Surface *s)
     }
 }
 
-SDL_Surface *get_image(unsigned char *rp, unsigned int w, unsigned int h)
+SDL_Surface *get_image(std::span<const UInt8> rp, unsigned int w, unsigned int h)
 {
 #if SDL_BYTEORDER == SDL_BIG_ENDIAN
 #define rmask 0xff000000
@@ -91,21 +91,14 @@ SDL_Surface *get_image(unsigned char *rp, unsigned int w, unsigned int h)
 #endif
     SDL_Surface *s = SDL_CreateRGBSurface(SDL_SWSURFACE, w, h, 32, rmask, gmask, bmask, amask);
     SDL_LockSurface(s);
-    unsigned char *dst = static_cast<unsigned char *>(s->pixels);
-    for (unsigned int i = 0; i < w * h; i++) {
-        *dst = *rp;
-        ++dst;
-        ++rp;
-        *dst = *rp;
-        ++dst;
-        ++rp;
-        *dst = *rp;
-        ++dst;
-        ++rp;
-        *dst = *rp;
-        ++dst;
-        ++rp;
-        //*dst = 0xff; ++dst;
+    const auto *src = rp.data();
+    auto *dst = static_cast<unsigned char *>(s->pixels);
+    for (int i = 0; i < w * h; i++) {
+        for (int j = 0; j < 4; ++j) {
+            *dst = *src;
+            ++dst;
+            ++src;
+        }
     }
     SDL_UnlockSurface(s);
     return s;
@@ -223,11 +216,11 @@ int main(int argc, char *argv[])
                 image = get_image(graphics.getTmpBuffer(rgba), 64, 64);
                 break;
             case 3:
-                auto *sprite = graphics.getSprite(idx);
-                std::cout << "Sprite is " << int(sprite->w) << "x" << int(sprite->h) << " with "
-                          << int(sprite->deltaCount) << " deltas" << std::endl;
+                const auto &sprite = graphics.getSprite(idx);
+                std::cout << "Sprite is " << int(sprite.w) << "x" << int(sprite.h) << " with "
+                          << int(sprite.deltaCount) << " deltas" << std::endl;
                 auto sbitmap = graphics.getSpriteBitmap(idx, remap, delta);
-                image = get_image(sbitmap.data(), sprite->w, sprite->h);
+                image = get_image(sbitmap, sprite.w, sprite.h);
 #ifdef DUMP_DELTA_DEBUG
                 if (delta && !delta_set) {
                     std::cout << "dumping delta" << std::endl;

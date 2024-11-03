@@ -179,17 +179,17 @@ void Graphics24Bit::loadSpriteInfo()
     UInt32 w;
     UInt32 _bytes_read = 0;
     while (_bytes_read < spriteInfoSize) {
-        auto *si = new SpriteInfo();
-        styleFile.read(si->w);
-        styleFile.read(si->h);
-        styleFile.read(si->deltaCount);
+        SpriteInfo si;
+        styleFile.read(si.w);
+        styleFile.read(si.h);
+        styleFile.read(si.deltaCount);
         styleFile.read(v);
-        styleFile.read(si->size);
+        styleFile.read(si.size);
         _bytes_read += 6;
-        styleFile.read(si->clut);
-        styleFile.read(si->xoffset);
-        styleFile.read(si->yoffset);
-        styleFile.read(si->page);
+        styleFile.read(si.clut);
+        styleFile.read(si.xoffset);
+        styleFile.read(si.yoffset);
+        styleFile.read(si.page);
         _bytes_read += 6;
         /*
         std::cout << "sprite: " << int(si->w) << "x" << int(si->h) << " deltas: " << int(si->deltaCount)
@@ -199,25 +199,25 @@ void Graphics24Bit::loadSpriteInfo()
         // sanity check
         if (v)
             WARN("Compression flag active in sprite!");
-        if (int(si->w) * int(si->h) != int(si->size)) {
-            ERROR("Sprite info size mismatch: {}x{} != {}", int(si->w), int(si->h), si->size);
+        if (int(si.w) * int(si.h) != int(si.size)) {
+            ERROR("Sprite info size mismatch: {}x{} != {}", int(si.w), int(si.h), si.size);
             return;
         }
-        if (si->deltaCount > 32) {
-            ERROR("Delta count of sprite is {}", si->deltaCount);
+        if (si.deltaCount > 32) {
+            ERROR("Delta count of sprite is {}", si.deltaCount);
             return;
         }
-        for (UInt8 j = 0; j < si->deltaCount; j++) {
-            si->delta[j].size = 0;
-            si->delta[j].ptr = nullptr;
-            if (si->deltaCount && (j < si->deltaCount)) {
-                styleFile.read(si->delta[j].size);
+        for (UInt8 j = 0; j < si.deltaCount; j++) {
+            si.delta[j].size = 0;
+            si.delta[j].ptr = nullptr;
+            if (si.deltaCount && (j < si.deltaCount)) {
+                styleFile.read(si.delta[j].size);
                 styleFile.read(w);
                 _bytes_read += 6;
-                si->delta[j].ptr = reinterpret_cast<unsigned char *>(w);
+                si.delta[j].ptr = reinterpret_cast<unsigned char *>(w);
             }
         }
-        spriteInfos.push_back(si);
+        spriteInfos.emplace_back(si);
     }
     st = static_cast<UInt64>(_topHeaderSize) + sideSize + lidSize + auxSize + auxBlockTrailSize + animSize +
         pagedClutSize + paletteIndexSize + objectInfoSize + carInfoSize + spriteInfoSize;
@@ -238,20 +238,20 @@ void Graphics24Bit::loadSpriteGraphics()
         animSize + pagedClutSize + paletteIndexSize + objectInfoSize + carInfoSize + spriteInfoSize;
     styleFile.ensurePosition(st);
 
-    rawSprites = new unsigned char[spriteGraphicsSize];
-    styleFile.read(rawSprites, spriteGraphicsSize);
+    rawSprites.resize(spriteGraphicsSize);
+    styleFile.read(rawSprites.data(), rawSprites.size());
 
-    auto i = spriteInfos.cbegin();
-    auto end = spriteInfos.cend();
+    auto i = spriteInfos.begin();
+    auto end = spriteInfos.end();
     UInt32 _pagewise = 256 * 256;
     while (i != end) {
-        SpriteInfo *info = *i;
-        for (uint8_t k = 0; k < info->deltaCount; ++k) {
-            const auto offset = reinterpret_cast<uintptr_t>(info->delta[k].ptr);
+        SpriteInfo &info = *i;
+        for (uint8_t k = 0; k < info.deltaCount; ++k) {
+            const auto offset = reinterpret_cast<uintptr_t>(info.delta[k].ptr);
             const auto page = offset / 65536;
             const auto y = (offset % 65536) / 256;
             const auto x = (offset % 65536) % 256;
-            info->delta[k].ptr = rawSprites + page * _pagewise + 256 * y + x;
+            info.delta[k].ptr = rawSprites.data() + page * _pagewise + 256 * y + x;
         }
         i++;
     }
@@ -292,54 +292,59 @@ void Graphics24Bit::applyClut(
     }
 }
 
-unsigned char *Graphics24Bit::getLid(unsigned int idx, unsigned int _not_used, bool rgba)
+std::span<const UInt8> Graphics24Bit::getLid(UInt8 idx, unsigned int /*not_used*/, bool rgba)
 {
-    prepareLidTexture(idx - 1, reinterpret_cast<unsigned char *>(tileTmp));
-    unsigned char *src = tileTmp;
-    unsigned char *dst = (rgba) ? tileTmpRGBA : tileTmpRGB;
-    UInt16 clutIdx = palIndex[4 * (idx + sideSize / 4096)];
+    prepareLidTexture(idx - 1, tileTmp);
+    unsigned char *src = tileTmp.data();
+    unsigned char *dst = (rgba) ? tileTmpRGBA.data() : tileTmpRGB.data();
+    UInt16 clutIdx = palIndex[static_cast<size_t>(4 * (idx + sideSize / 4096))];
     applyClut(src, dst, 4096, clutIdx, rgba);
 
-    return (rgba) ? tileTmpRGBA : tileTmpRGB;
+    if (rgba)
+        return tileTmpRGBA;
+    return tileTmpRGB;
 }
 
-unsigned char *Graphics24Bit::getSide(unsigned int idx, unsigned int _not_used, bool rgba)
+std::span<const UInt8> Graphics24Bit::getSide(UInt8 idx, unsigned int /*not_used*/, bool rgba)
 {
-    prepareSideTexture(idx - 1, reinterpret_cast<unsigned char *>(tileTmp));
-    unsigned char *src = tileTmp;
-    unsigned char *dst = (rgba) ? tileTmpRGBA : tileTmpRGB;
-    UInt16 clutIdx = palIndex[idx * 4];
+    prepareSideTexture(idx - 1, tileTmp);
+    unsigned char *src = tileTmp.data();
+    unsigned char *dst = (rgba) ? tileTmpRGBA.data() : tileTmpRGB.data();
+    UInt16 clutIdx = palIndex[static_cast<size_t>(idx * 4)];
     applyClut(src, dst, 4096, clutIdx, rgba);
 
-    return (rgba) ? tileTmpRGBA : tileTmpRGB;
+    if (rgba)
+        return tileTmpRGBA;
+    return tileTmpRGB;
 }
 
-unsigned char *Graphics24Bit::getAux(unsigned int idx, unsigned int _not_used, bool rgba)
+std::span<const UInt8> Graphics24Bit::getAux(UInt8 idx, unsigned int /*not_used*/, bool rgba)
 {
-    prepareAuxTexture(idx - 1, reinterpret_cast<unsigned char *>(tileTmp));
+    prepareAuxTexture(idx - 1, tileTmp);
 
-    unsigned char *src = tileTmp;
-    unsigned char *dst = (rgba) ? tileTmpRGBA : tileTmpRGB;
+    unsigned char *src = tileTmp.data();
+    unsigned char *dst = (rgba) ? tileTmpRGBA.data() : tileTmpRGB.data();
     UInt16 clutIdx = palIndex[4 * (idx + sideSize / 4096 + lidSize / 4096)];
     applyClut(src, dst, 4096, clutIdx, rgba);
 
-    return (rgba) ? tileTmpRGBA : tileTmpRGB;
+    if (rgba)
+        return tileTmpRGBA;
+    return tileTmpRGB;
 }
 
-std::vector<UInt8> Graphics24Bit::getSpriteBitmap(size_t id, int remap, uint32_t delta)
+std::vector<UInt8> Graphics24Bit::getSpriteBitmap(size_t id, int remap, UInt32 delta)
 {
-    const SpriteInfo *info = spriteInfos[id];
-    assert(info != nullptr);
-    const UInt32 y = info->yoffset;
-    const UInt32 x = info->xoffset;
+    const SpriteInfo &info = spriteInfos[id];
+    const UInt32 y = info.yoffset;
+    const UInt32 x = info.xoffset;
     const UInt32 page_size = 256 * 256;
 
-    auto *page_start = rawSprites + static_cast<size_t>(info->page * page_size);
+    auto *page_start = rawSprites.data() + static_cast<size_t>(info.page * page_size);
 
     std::vector<UInt8> result(page_size);
     memcpy(result.data(), page_start, page_size);
     if (delta > 0) {
-        handleDeltas(*info, result.data(), delta);
+        handleDeltas(info, result.data(), delta);
         /*
         assert(delta < info->deltaCount);
         DeltaInfo & di = info->delta[delta];
@@ -354,14 +359,14 @@ std::vector<UInt8> Graphics24Bit::getSpriteBitmap(size_t id, int remap, uint32_t
     if (remap > -1)
         skip_cluts = spriteclutSize / 1024 + remap + 1;
 
-    UInt16 clutIdx = palIndex[info->clut + tileclutSize / 1024] + skip_cluts;
+    UInt16 clutIdx = palIndex[info.clut + tileclutSize / 1024] + skip_cluts;
     //  UInt16 clutIdx = palIndex[info->clut + (spriteclutSize + tileclutSize) / 1024] + (remap > -1 ? remap+2 :
     //  0);
     applyClut(result.data(), bigbuf_raw, page_size, clutIdx, true);
-    assert(page_size > UInt32(info->w * info->h * 4));
-    for (uint16_t i = 0; i < info->h; i++) {
-        memcpy(result_raw, bigbuf_raw + static_cast<size_t>((256 * y + x) * 4), static_cast<size_t>(info->w * 4));
-        result_raw += static_cast<ptrdiff_t>(info->w * 4);
+    assert(page_size > UInt32(info.w * info.h * 4));
+    for (uint16_t i = 0; i < info.h; i++) {
+        memcpy(result_raw, bigbuf_raw + static_cast<size_t>((256 * y + x) * 4), static_cast<size_t>(info.w * 4));
+        result_raw += static_cast<ptrdiff_t>(info.w * 4);
         bigbuf_raw += static_cast<ptrdiff_t>(256 * 4);
     }
 

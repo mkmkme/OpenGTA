@@ -87,15 +87,15 @@ public:
         UInt32 delta
     );
 
-    OpenGL::PagedTexture createSprite(
+    [[nodiscard]] OpenGL::PagedTexture createSprite(
         size_t sprite_num,
         Int16 remap,
         UInt32 delta,
-        OpenGTA::SpriteInfo *info
+        const OpenGTA::SpriteInfo &info
     ) const;
 
 private:
-    typedef std::map<SpriteIdentifier, PagedTexture> SpriteMapType;
+    using SpriteMapType = std::map<SpriteIdentifier, PagedTexture>;
     SpriteMapType loadedSprites;
     bool doScale2x;
 };

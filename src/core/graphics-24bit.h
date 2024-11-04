@@ -15,7 +15,7 @@ public:
 
     std::vector<UInt8> getSpriteBitmap(size_t id, int remap, UInt32 delta) override;
 
-    friend void dumpClut(Graphics24Bit &g24, const char *fname);
+    friend void dumpClut(const Graphics24Bit &g24, const char *fname);
 
 protected:
     void loadHeader();
@@ -31,7 +31,7 @@ protected:
         unsigned char *src,
         unsigned char *dst,
         const size_t &len,
-        const UInt16 &clutIdx,
+        UInt16 clutIdx,
         bool rgba
     );
 

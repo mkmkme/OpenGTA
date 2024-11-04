@@ -62,7 +62,7 @@ public:
     void add(Object *obj, uint8_t onLevel);
     void remove(Object *obj);
     void removeById(size_t id);
-    Object *findObject(const size_t id);
+    Object *findObject(size_t id);
     void draw();
     void clearObjects();
     void clearCache();
@@ -71,7 +71,7 @@ public:
 #ifdef WITH_SDL_IMAGE
     void cacheImageSDL(const std::string &file, size_t id);
 #endif
-    ImageUtil::WidthHeightPair cacheStyleArrowSprite(const size_t id, int remap);
+    ImageUtil::WidthHeightPair cacheStyleArrowSprite(size_t id, int remap);
     const OpenGL::PagedTexture &getCachedImage(size_t id);
     void receive(SDL_MouseButtonEvent &mb_event, uint32_t height);
     Animation *findAnimation(uint16_t id);
@@ -81,9 +81,9 @@ public:
 private:
     bool isInside(Object &o, Uint16 x, Uint16 y) const;
 
-    typedef std::map<uint16_t, Animation *> AnimationMap;
+    using AnimationMap = std::map<uint16_t, Animation *>;
     AnimationMap guiAnimations;
-    typedef std::list<Object *> GuiObjectList;
+    using GuiObjectList = std::list<Object *>;
     std::map<uint8_t, GuiObjectList> guiLayers;
     std::map<size_t, OpenGL::PagedTexture> texCache;
 };
@@ -101,10 +101,10 @@ public:
 /** Base-object - Can be used to draw coloured area & border.
  */
 struct Object {
-    Object(const SDL_Rect &r);
-    Object(const size_t Id, const SDL_Rect &r);
-    Object(const size_t Id, const SDL_Rect &r, const SDL_Color &c);
-    virtual ~Object() {}
+    explicit Object(const SDL_Rect &r);
+    Object(size_t Id, const SDL_Rect &r);
+    Object(size_t Id, const SDL_Rect &r, const SDL_Color &c);
+    virtual ~Object() = default;
     size_t id;
     SDL_Rect rect;
     SDL_Color color;
@@ -115,7 +115,7 @@ struct Object {
     virtual void draw(Manager &manager);
     virtual void update(Uint32 ticks) {}
     virtual void receive(SDL_MouseButtonEvent &mb_event) {}
-    void draw_border();
+    void draw_border() const;
 };
 
 struct TexturedObject : public Object {
@@ -131,15 +131,13 @@ struct AnimatedTextureObject : public Object {
     AnimatedTextureObject(const SDL_Rect &r, const size_t animid)
         : Object(r), animId(animid)
     {
-        animation = NULL;
     }
     AnimatedTextureObject(size_t Id, const SDL_Rect &r, const size_t animid)
         : Object(Id, r), animId(animid)
     {
-        animation = NULL;
     }
     size_t animId;
-    Animation *animation;
+    Animation *animation = nullptr;
     void draw(Manager &manager) override;
 };
 
@@ -168,7 +166,7 @@ struct Pager : public Object {
 
     OpenGL::DrawableFont &font;
     size_t texId;
-    void update(Uint32 ticks);
+    void update(Uint32 ticks) override;
     void draw(Manager &manager) override;
     std::string lastMsg;
     int offset;
@@ -176,12 +174,12 @@ struct Pager : public Object {
 
 struct WeaponDisplay : public Object {
 public:
-    WeaponDisplay(const SDL_Rect &r);
-    void setWeapon(const size_t wt, Manager &manager);
+    explicit WeaponDisplay(const SDL_Rect &r);
+    void setWeapon(size_t wt, Manager &manager);
     void draw(Manager &manager) override;
 
 private:
-    size_t getWeaponIdx(const size_t wt);
+    size_t getWeaponIdx(size_t wt);
     TexturedObject img;
     Label label;
 };
@@ -193,7 +191,7 @@ struct ScrollBar : public Object {
         value = 0.5f;
     }
     void draw(Manager &manager) override;
-    void receive(SDL_MouseButtonEvent &mb_event);
+    void receive(SDL_MouseButtonEvent &mb_event) override;
     SDL_Color innerColor;
     float value;
     using SC_Functor = std::function<void(float)>;
@@ -203,18 +201,18 @@ struct ScrollBar : public Object {
 template <class Child_T, typename V>
 struct Number2Status : public Object {
     Number2Status(const size_t Id, const SDL_Rect &r, const SDL_Rect &ir, const size_t vId)
-        : Object(Id, r), item(r, vId), number(0), align(0), innerRect(ir)
+        : Object(Id, r), item(r, vId), number(0), innerRect(ir)
     {
     }
     Child_T item;
     V number;
-    uint8_t align;
+    uint8_t align {};
     SDL_Rect innerRect;
     void draw(Manager &manager) override;
 };
 
-typedef Number2Status<TexturedObject, int32_t> ImageStatusDisplay;
-typedef Number2Status<AnimatedTextureObject, int32_t> AnimStatusDisplay;
+using ImageStatusDisplay = Number2Status<TexturedObject, int32_t>;
+using AnimStatusDisplay = Number2Status<AnimatedTextureObject, int32_t>;
 
 static const uint32_t GAMMA_SCROLLBAR_ID = 100;
 static const uint32_t GAMMA_LABEL_ID = 101;

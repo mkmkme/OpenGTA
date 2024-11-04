@@ -29,14 +29,14 @@ public:
     size_t getIdByChar(char c);
     uint8_t getMoveWidth(char c);
 
-    void addMapping(char c, size_t num);
+    void addMapping(unsigned char c, size_t num);
 
     friend void dumpAs(Font &font, const char *filename, size_t id);
     unsigned char *getCharacterBitmap(size_t num, unsigned int *width, unsigned int *height);
 
 private:
     void loadMapping(const std::string &name);
-    void readHeader(Util::PhysFSFile &fd);
+    void readHeader(Util::PhysFSFile &pf);
     uint8_t charHeight {};
     uint8_t numChars {};
     std::vector<Character *> chars;

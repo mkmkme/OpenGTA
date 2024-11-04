@@ -22,7 +22,7 @@ IniScriptBridge::~IniScriptBridge()
     lua_close(L);
 }
 
-void IniScriptBridge::reset()
+void IniScriptBridge::reset() const
 {
     lua_settop(L, 0);
     GLOBAL_TABLE("commands");
@@ -42,7 +42,7 @@ void IniScriptBridge::acceptCommand(char *cmd)
     char *skip_idx = strchr(cmd, ' ');
     assert(skip_idx);
     *skip_idx = 0;
-    int idx = atoi(cmd);
+    int idx = strtol(cmd, nullptr, 10);
     ++skip_idx;
     // INFO << idx << " " << skip_idx << std::endl;
     lua_settop(L, 0);
@@ -60,7 +60,7 @@ void IniScriptBridge::acceptDefinition(char *def)
     char *skip_idx = strchr(def, ' ');
     assert(skip_idx);
     *skip_idx = 0;
-    int idx = atoi(def);
+    int idx = strtol(def, nullptr, 10);
     skip_idx++;
     if (*skip_idx == '1' && *(skip_idx + 1) == ' ')
         skip_idx += 2;

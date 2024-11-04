@@ -38,7 +38,7 @@ SDL_Surface *get_image(unsigned char *rp, unsigned int w, unsigned int h)
 }
 
 namespace OpenGTA {
-void dumpClut(OpenGTA::Graphics24Bit &g24, const char *fname)
+void dumpClut(const OpenGTA::Graphics24Bit &g24, const char *fname)
 {
     assert(g24.pagedClutSize % 1024 == 0);
     const UInt32 num_pal = g24.paletteIndexSize / 2;

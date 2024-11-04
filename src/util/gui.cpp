@@ -52,7 +52,7 @@ void Object::draw([[maybe_unused]] Manager &manager)
         draw_border();
     glDisable(GL_BLEND);
 }
-void Object::draw_border()
+void Object::draw_border() const
 {
     glColor4ub(borderColor.r, borderColor.g, borderColor.b, borderColor.a);
     glBegin(GL_LINE_LOOP);
@@ -194,7 +194,7 @@ void Pager::draw(Manager &manager)
         draw_border();
 }
 
-void Pager::update(Uint32 ticks)
+void Pager::update(Uint32 /*ticks*/)
 {
     offset -= 1;
 
@@ -225,8 +225,8 @@ void Manager::clearObjects()
     auto layer_it = guiLayers.begin();
     while (layer_it != guiLayers.end()) {
         GuiObjectList &list = layer_it->second;
-        for (GuiObjectList::iterator i = list.begin(); i != list.end(); ++i) {
-            delete *i;
+        for (auto &i : list) {
+            delete i;
         }
         list.clear();
         ++layer_it;
@@ -240,8 +240,8 @@ void Manager::clearCache()
     for (const auto &[key, value] : texCache)
         glDeleteTextures(1, &value.inPage);
     texCache.clear();
-    for (auto i = guiAnimations.begin(); i != guiAnimations.end(); ++i) {
-        delete i->second;
+    for (auto &guiAnimation : guiAnimations) {
+        delete guiAnimation.second;
     }
     guiAnimations.clear();
 }
@@ -254,14 +254,14 @@ const OpenGL::PagedTexture &Manager::getCachedImage(size_t Id)
     return i->second;
 }
 
-void Manager::cacheImageRAW(const std::string &file, size_t k)
+void Manager::cacheImageRAW(const std::string &file, size_t id)
 {
-    texCache.insert(std::make_pair(k, ImageUtil::loadImageRAW(file)));
+    texCache.insert(std::make_pair(id, ImageUtil::loadImageRAW(file)));
 }
 
-void Manager::cacheImageRAT(const std::string &file, const std::string &palette, size_t k)
+void Manager::cacheImageRAT(const std::string &file, const std::string &palette, size_t id)
 {
-    texCache.insert(std::make_pair(k, ImageUtil::loadImageRATWithPalette(file, palette)));
+    texCache.insert(std::make_pair(id, ImageUtil::loadImageRATWithPalette(file, palette)));
 }
 
 ImageUtil::WidthHeightPair Manager::cacheStyleArrowSprite(const size_t id, int remap)
@@ -300,8 +300,8 @@ void Manager::add(Object *obj, uint8_t onLevel)
 
 void Manager::remove(Object *obj)
 {
-    for (auto l = guiLayers.begin(); l != guiLayers.end(); ++l) {
-        GuiObjectList &list = l->second;
+    for (auto &guiLayer : guiLayers) {
+        GuiObjectList &list = guiLayer.second;
         for (GuiObjectList::iterator m = list.begin(); m != list.end(); ++m) {
             Object *o = *m;
             if (o == obj) {
@@ -373,10 +373,10 @@ Animation *Manager::findAnimation(uint16_t id)
     auto i = guiAnimations.find(id);
     return i->second;
 }
-void Manager::createAnimation(const std::vector<uint16_t> &indices, uint16_t fps, size_t k)
+void Manager::createAnimation(const std::vector<uint16_t> &indices, uint16_t fps, size_t id)
 {
     Animation *anim = new Animation(indices, fps);
-    guiAnimations.insert(std::make_pair(k, anim));
+    guiAnimations.insert(std::make_pair(id, anim));
     anim->set(Util::Animation::PLAY_FORWARD, Util::Animation::LOOP);
 }
 
@@ -387,7 +387,7 @@ uint16_t Animation::getCurrentFrame()
 
 const int WEAPON_DISPLAY_ID = 100;
 
-const SDL_Rect sdl_rect(size_t a, size_t b, size_t c, size_t d)
+SDL_Rect sdl_rect(size_t a, size_t b, size_t c, size_t d)
 {
     SDL_Rect rect;
     rect.x = a;

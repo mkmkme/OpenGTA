@@ -8,6 +8,8 @@
  *                                                                       *
  * This notice may not be removed or altered.                            *
  ************************************************************************/
+#include <set>
+
 #include <core/font.h>
 
 #include <util/file-manager.h>
@@ -51,7 +53,7 @@ void Font::readHeader(Util::PhysFSFile &pf)
     pf.read(charHeight);
     INFO("Font contains {} characters of height {}", numChars, charHeight);
 }
-void Font::addMapping(char c, size_t num)
+void Font::addMapping(unsigned char c, size_t num)
 {
     mapping[c] = num;
 }
@@ -60,8 +62,7 @@ size_t Font::getIdByChar(const char c)
     auto i = mapping.find(c);
     if (i == mapping.end())
         return 0;
-    else
-        return i->second;
+    return i->second;
 }
 uint8_t Font::getMoveWidth(const char c)
 {
@@ -112,7 +113,7 @@ void Font::loadMapping(const std::string &name)
 {
     std::string name2 { Util::string_lower(name) };
 #define chr(n) ((char) (n))
-    if (name2.find("big1.fon") != std::string::npos) {
+    if (name2 == "big1.fon") {
         INFO("found mapping: big1.fon - {}", name);
         addMapping('!', 0);
         addMapping('-', 12);
@@ -133,7 +134,7 @@ void Font::loadMapping(const std::string &name)
         for (int j = 217; j < 221; j++)
             addMapping(j, j - 104);
         addMapping(223, 117);
-    } else if ((name2.find("pager1.fon") != std::string::npos) || (name2.find("pager2.fon") != std::string::npos)) {
+    } else if (std::set<std::string> { "pager1.fon", "pager2.fon" }.contains(name2)) {
         addMapping('!', 0);
         addMapping('"', 1);
         addMapping('$', 3);
@@ -168,7 +169,7 @@ void Font::loadMapping(const std::string &name)
         for (int j = 217; j < 221; j++)
             addMapping(j, j - 104);
         addMapping(223, 117);
-    } else if (name2.find("street1.fon") != std::string::npos) {
+    } else if (name2 == "street1.fon") {
         INFO("found mapping: streen1.fon - {}", name);
         for (int j = 65; j < 91; j++) {
             addMapping(chr(j), j - 33);
@@ -180,7 +181,7 @@ void Font::loadMapping(const std::string &name)
             addMapping(chr(j), j - 33);
         }
         WARN("incomplete mapping");
-    } else if ((name2.find("m_mmiss.fon") != std::string::npos)) {
+    } else if (name2 == "m_mmiss.fon") {
         addMapping('!', 0);
         addMapping('"', 1);
         addMapping('#', 2);
@@ -216,7 +217,7 @@ void Font::loadMapping(const std::string &name)
             addMapping(chr(j), j - 97);
         }
         // incomplete
-    } else if ((name2.find("f_mtext.fon") != std::string::npos)) {
+    } else if (name2 == "f_mtext.fon") {
         addMapping('!', 0);
         addMapping('"', 1);
         addMapping('#', 2);
@@ -248,7 +249,7 @@ void Font::loadMapping(const std::string &name)
         }
         // incomplete
 
-    } else if ((name2.find("f_mhead.fon") != std::string::npos)) {
+    } else if (name2 == "f_mhead.fon") {
         addMapping('!', 0);
         addMapping('"', 1);
         addMapping('#', 2);
@@ -299,7 +300,7 @@ void Font::loadMapping(const std::string &name)
         for (int j = 249; j < 253; j++)
             addMapping(j, j - 113);
 
-    } else if ((name2.find("sub1.fon") != std::string::npos) || (name2.find("sub2.fon") != std::string::npos)) {
+    } else if (std::set<std::string> { "sub1.fon", "sub2.fon" }.contains(name2)) {
         addMapping('!', 0);
         addMapping('"', 1);
         addMapping('$', 3);
@@ -349,8 +350,7 @@ void Font::loadMapping(const std::string &name)
         addMapping(246, 135);
         for (int j = 249; j < 253; j++)
             addMapping(j, j - 113);
-    } else if ((name2.find("score1.fon") != std::string::npos) || (name2.find("score2.fon") != std::string::npos) ||
-               (name2.find("score8.fon") != std::string::npos)) {
+    } else if (std::set<std::string> { "score1.fon", "score2.fon", "score8.fon" }.contains(name2)) {
         for (int j = 48; j < 58; j++) {
             addMapping(chr(j), j - 48);
         }

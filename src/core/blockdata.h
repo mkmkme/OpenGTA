@@ -24,8 +24,7 @@
 #define OPENGTA_BLOCKDATA
 #include <cstddef>
 
-namespace OpenGTA {
-namespace BlockData {
+namespace OpenGTA::BlockData {
 
 constexpr size_t numBlockTypes = 45;
 constexpr size_t numFaces = 5;
@@ -33,8 +32,7 @@ constexpr size_t numFaces = 5;
 extern float slope_raw_data[numBlockTypes][numFaces][4][3];
 extern float slope_tex_data[numBlockTypes][numFaces - 1][4][2];
 extern float lid_normal_data[numBlockTypes][3];
-} // namespace BlockData
-} // namespace OpenGTA
+} // namespace OpenGTA::BlockData
 
 #define SLOPE_RAW_DATA  OpenGTA::BlockData::slope_raw_data
 #define SLOPE_TEX_DATA  OpenGTA::BlockData::slope_tex_data

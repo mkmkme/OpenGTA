@@ -16,9 +16,9 @@ public:
     void loadLevel(UInt32 level);
 
 protected:
-    void reset();
-    void acceptDefinition(char *);
-    void acceptCommand(char *);
+    void reset() const;
+    void acceptDefinition(char *def) override;
+    void acceptCommand(char *cmd) override;
 };
 } // namespace OpenGTA::Script
 

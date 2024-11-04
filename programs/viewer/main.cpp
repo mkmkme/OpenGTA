@@ -957,7 +957,7 @@ void draw_mapmode(OpenGL::Screen &screen)
     SDL_Event event;
     OpenGL::PagedTexture map_tex = city->renderMap2Texture();
     bool done_map = false;
-    screen.setSystemMouseCursor(true);
+    OpenGL::Screen::setSystemMouseCursor(true);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glDisable(GL_DEPTH_TEST);
     INFO("{}", map_tex.coords[1].u);

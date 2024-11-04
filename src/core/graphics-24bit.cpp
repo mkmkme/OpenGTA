@@ -268,7 +268,7 @@ void Graphics24Bit::applyClut(
     unsigned char *src,
     unsigned char *dst,
     const size_t &len,
-    const UInt16 &clutIdx,
+    UInt16 clutIdx,
     bool rgba
 )
 {

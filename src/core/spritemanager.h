@@ -66,8 +66,8 @@ public:
     inline void removeObject(uint32_t id) { _objects.erase(id); }
     inline std::map<uint32_t, SpriteObject> &getObjects() { return _objects; }
 
-    inline bool getDrawTexBorder() const { return (_drawMode & 2); }
-    inline bool getDrawBBox() const { return (_drawMode & 4); }
+    [[nodiscard]] inline bool getDrawTexBorder() const noexcept { return (_drawMode & 2); }
+    [[nodiscard]] inline bool getDrawBBox() const noexcept { return (_drawMode & 4); }
     void setDrawTexture(bool v);
     void setDrawTexBorder(bool v);
     void setDrawBBox(bool v);
@@ -86,10 +86,9 @@ public:
     SpriteObject::Animation &getAnimationById(const Uint32 &id);
     void registerAnimation(const Uint32 &id, const SpriteObject::Animation &anim);
 
-    void createExplosion(Vector3D center);
-    void createProjectile(uint8_t typeId, float, Vector3D p, Vector3D d, Uint32 &ticks, Uint32 &owner);
+    void createExplosion(const glm::vec3 &center);
+    void createProjectile(uint8_t typeId, float, const glm::vec3 &p, const glm::vec3 &d, Uint32 &ticks, Uint32 &owner);
 
-public:
     // TrainSystem   trainSystem;
     Util::SpriteCreationArea creationArea;
 

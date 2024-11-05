@@ -26,6 +26,8 @@
 #include <core/localplayer.h>
 #include <core/sprite-info.h>
 #include <core/spritemanager.h>
+#include <glm/ext/matrix_float4x4.hpp>
+#include <glm/ext/matrix_transform.hpp>
 #include <math/plane.h>
 
 #include <util/cell_iterator.h>
@@ -33,12 +35,19 @@
 #include <util/timer.h>
 
 #define INT2FLOAT_WRLD(c) (float(c >> 6) + float(c % 64) / 64.0f)
-#define INT2F_DIV128(v)   (float(v) / 128.0f)
 
 float slope_height_offset(unsigned char slope_type, float dx, float dz);
 
+namespace {
+glm::mat4 rotationMatrix(const glm::vec3 &p, float rot)
+{
+    const auto tmp = glm::translate(glm::mat4(1.0f), p);
+    return glm::rotate(tmp, glm::radians(rot), glm::vec3(0, 0, 1));
+}
+} // namespace
+
 namespace OpenGTA {
-float GameObject_common::heightOverTerrain(const Vector3D &v)
+float GameObject_common::heightOverTerrain(const glm::vec3 &v)
 {
     float x, y, z;
     x = floor(v.x);
@@ -146,16 +155,16 @@ void Sprite::switchToAnim(uint32_t newId)
     animId = newId;
 }
 
-Pedestrian::Pedestrian(const Vector3D &e, const Vector3D &p, uint32_t id, int16_t remapId)
+Pedestrian::Pedestrian(const glm::vec3 &e, const glm::vec3 &p, uint32_t id, int16_t remapId)
     : GameObject_common(p)
     , Sprite(0, remapId, GraphicsBase::SpriteNumbers::PED)
-    , OBox(TranslateMatrix3D(p), e * 0.5f)
+    , OBox(glm::translate(glm::mat4(1.0f), p), e * 0.5f)
     , m_control()
     , speedForces(0, 0, 0)
     , activeWeapon(0)
 {
-    m_M = TranslateMatrix3D(p);
-    m_M.RotZ(-rot);
+    transform_ = rotationMatrix(p, -rot);
+
     pedId = id;
     animId = 0;
     isDead = 0;
@@ -178,8 +187,7 @@ Pedestrian::Pedestrian(const Pedestrian &other)
     inGroundContact = other.inGroundContact;
     animId = other.animId;
     isDead = other.isDead;
-    m_M = TranslateMatrix3D(other.pos);
-    m_M.RotZ(-other.rot);
+    transform_ = rotationMatrix(other.pos, -other.rot);
 }
 
 extern void ai_step_fake(Pedestrian *);
@@ -233,7 +241,7 @@ void Pedestrian::update(uint32_t ticks)
     anim.update(ticks);
     auto delta = ticks - lastUpdateAt;
     // INFO << "delta = " << delta  << " t: " << ticks << " lt: " << lastUpdateAt << std::endl;
-    moveDelta = Vector3D(0, 0, 0);
+    moveDelta = glm::vec3();
     switch (m_control.getTurn()) {
         case -1:
             rot -= 0.2f * delta;
@@ -282,13 +290,10 @@ void Pedestrian::update(uint32_t ticks)
             DEBUG("impacting with speed: {}", speedForces.y);
         speedForces.y = 0.0f;
     }
-    m_M = TranslateMatrix3D(pos);
-    m_M.RotZ(rot);
+    transform_ = rotationMatrix(pos, rot);
     if (m_control.getFireWeapon() && ticks - lastWeaponTick > 400) {
-        Vector3D d1(
-            // Vector3D(-cos(rot * pi/180.0f), 0, sin(rot * pi/180.0f)).Normalized() * 0.05f
-            Vector3D(sin(rot * pi / 180.0f), 0, cos(rot * pi / 180.0f)).Normalized() * 0.01f
-        );
+        auto d1 =
+            glm::normalize(glm::vec3(sin(rot * pi / 180.0f), 0, cos(rot * pi / 180.0f))) * 0.01f;
         SpriteManager::Instance().createProjectile(0, rot, pos, d1, ticks, pedId);
         lastWeaponTick = ticks;
     }
@@ -302,7 +307,7 @@ void Pedestrian::update(uint32_t ticks)
     lastUpdateAt = ticks;
 }
 
-void Pedestrian::tryMove(Vector3D nPos)
+void Pedestrian::tryMove(glm::vec3 nPos)
 {
     float x, y, z;
     x = floor(nPos.x);
@@ -427,7 +432,7 @@ void Pedestrian::tryMove(Vector3D nPos)
     }
     bool obj_blocked = false;
     for (auto &[id, car] : SpriteManager::Instance().getCars()) {
-        if (isBoxInBox(car) && Util::distance(pos, car.pos) > Util::distance(nPos, car.pos)) {
+        if (isBoxInBox(car) && glm::distance(pos, car.pos) > glm::distance(nPos, car.pos)) {
             obj_blocked = true;
             break;
         }
@@ -627,7 +632,7 @@ CarSprite::DoorDeltaAnimation::DoorDeltaAnimation(uint8_t dId, bool dOpen)
     }
 }
 
-Car::Car(Vector3D &_pos, float _rot, uint32_t id, uint8_t _type, int16_t _remap)
+Car::Car(const glm::vec3 &_pos, float _rot, uint32_t id, uint8_t _type, int16_t _remap)
     : GameObject_common(_pos, _rot)
     , CarSprite(0, -1, GraphicsBase::SpriteNumbers::CAR)
     , carInfo(ActiveStyle::Instance().get().findCarByModel(_type))
@@ -638,13 +643,8 @@ Car::Car(Vector3D &_pos, float _rot, uint32_t id, uint8_t _type, int16_t _remap)
     if ((_remap > -1) && (ActiveStyle::Instance().get().getFormat() == 0))
         remap = carInfo.remap8[_remap];
     fixSpriteType();
-    m_Extent = Vector3D(
-        INT2F_DIV128(carInfo.width),
-        INT2F_DIV128(carInfo.depth),
-        INT2F_DIV128(carInfo.height)
-    );
-    m_M = TranslateMatrix3D(pos);
-    m_M.RotZ(-rot);
+    extent_ = glm::vec3(carInfo.width, carInfo.depth, carInfo.height) / 128.0f;
+    transform_ = rotationMatrix(pos, -rot);
     hitPoints = carInfo.damagable;
 }
 
@@ -659,7 +659,7 @@ void Car::fixSpriteType()
 }
 
 Car::Car(OpenGTA::Map::ObjectPosition &op, uint32_t id)
-    : GameObject_common(Vector3D(INT2FLOAT_WRLD(op.x), 6.05f - INT2FLOAT_WRLD(op.z), INT2FLOAT_WRLD(op.y)))
+    : GameObject_common(glm::vec3(INT2FLOAT_WRLD(op.x), 6.05f - INT2FLOAT_WRLD(op.z), INT2FLOAT_WRLD(op.y)))
     , CarSprite(0, -1, GraphicsBase::SpriteNumbers::CAR)
     , carInfo(ActiveStyle::Instance().get().findCarByModel(op.type))
 {
@@ -673,11 +673,10 @@ Car::Car(OpenGTA::Map::ObjectPosition &op, uint32_t id)
     }
     sprNum = carInfo.sprNum;
     fixSpriteType();
-    m_Extent = Vector3D(INT2F_DIV128(carInfo.width), INT2F_DIV128(carInfo.depth), INT2F_DIV128(carInfo.height));
-    m_M = TranslateMatrix3D(pos);
+    extent_ = glm::vec3(carInfo.width, carInfo.depth, carInfo.height) / 128.0f;
 
     rot = op.rotation * 360.f / 1024.f;
-    m_M.RotZ(-rot);
+    transform_ = rotationMatrix(pos, -rot);
     hitPoints = carInfo.damagable;
 }
 
@@ -688,8 +687,7 @@ Car::Car(const Car &other)
     , carInfo(ActiveStyle::Instance().get().findCarByModel(other.type))
 {
     type = other.type;
-    m_M = TranslateMatrix3D(pos);
-    m_M.RotZ(-rot);
+    transform_ = rotationMatrix(pos, -rot);
     hitPoints = other.hitPoints;
 
     carId = other.carId;
@@ -702,9 +700,9 @@ void Car::update(uint32_t ticks)
     CarSprite::update(ticks);
 }
 
-void Car::damageAt(const Vector3D &hit, uint32_t dmg)
+void Car::damageAt(const glm::vec3 &hit, uint32_t dmg)
 {
-    float angle = Util::xz_angle(Vector3D(0, 0, 0), hit);
+    float angle = Util::xz_angle(glm::vec3(), hit);
     INFO("hit angle: {}", angle);
 
     /*
@@ -749,7 +747,7 @@ void Car::explode()
 {
     // SpriteManager::Instance().removeCar(carId);
     // return;
-    Vector3D exp_pos(pos);
+    glm::vec3 exp_pos(pos);
     exp_pos.y += 0.1f;
     SpriteManager::Instance().createExplosion(exp_pos);
     sprNum = 0;
@@ -759,26 +757,24 @@ void Car::explode()
 }
 
 SpriteObject::SpriteObject(OpenGTA::Map::ObjectPosition &op, uint32_t id)
-    : GameObject_common(Vector3D(INT2FLOAT_WRLD(op.x), 6.05f - INT2FLOAT_WRLD(op.z), INT2FLOAT_WRLD(op.y)))
+    : GameObject_common(glm::vec3(INT2FLOAT_WRLD(op.x), 6.05f - INT2FLOAT_WRLD(op.z), INT2FLOAT_WRLD(op.y)))
     , Sprite(0, -1, GraphicsBase::SpriteNumbers::OBJECT)
 {
     objId = id;
     GraphicsBase &style = ActiveStyle::Instance().get();
     const auto &info = style.objectInfos[op.type];
     sprNum = info.sprNum;
-    m_Extent = Vector3D(INT2F_DIV128(info.width), INT2F_DIV128(info.depth), INT2F_DIV128(info.height));
-    m_M = TranslateMatrix3D(pos);
-    m_M.RotZ(-rot);
+    extent_ = glm::vec3(info.width, info.depth, info.height) / 128.0f;
+    transform_ = rotationMatrix(pos, -rot);
     rot = op.rotation * 360.f / 1024.f;
     isActive = true;
 }
 
-SpriteObject::SpriteObject(const Vector3D &pos, uint16_t spriteNum, OpenGTA::GraphicsBase::SpriteNumbers::SpriteTypes st)
+SpriteObject::SpriteObject(const glm::vec3 &pos, uint16_t spriteNum, OpenGTA::GraphicsBase::SpriteNumbers::SpriteTypes st)
     : GameObject_common(pos), Sprite(spriteNum, -1, st)
 {
     isActive = true;
-    m_M = TranslateMatrix3D(pos);
-    m_M.RotZ(-rot);
+    transform_ = rotationMatrix(pos, -rot);
 }
 
 SpriteObject::SpriteObject(const SpriteObject &other)
@@ -789,8 +785,7 @@ SpriteObject::SpriteObject(const SpriteObject &other)
 
     objId(other.objId)
 {
-    m_M = TranslateMatrix3D(pos);
-    m_M.RotZ(-rot);
+    transform_ = rotationMatrix(pos, -rot);
 
     isActive = other.isActive;
 }
@@ -800,7 +795,7 @@ void SpriteObject::update(uint32_t ticks)
     anim.update(ticks);
 }
 
-Projectile::Projectile(unsigned char t, float r, const Vector3D &p, const Vector3D &d, uint32_t ticks, uint32_t o)
+Projectile::Projectile(unsigned char t, float r, const glm::vec3 &p, const glm::vec3 &d, uint32_t ticks, uint32_t o)
     : GameObject_common(p, r), typeId(t), delta(d), endsAtTick(ticks), owner(o), lastUpdateAt(ticks)
 {
     endsAtTick = lastUpdateAt + 1000;
@@ -808,12 +803,12 @@ Projectile::Projectile(unsigned char t, float r, const Vector3D &p, const Vector
 
 Projectile::Projectile(const Projectile &other) = default;
 
-bool Projectile::testCollideBlock_flat(Util::CellIterator &ci, Vector3D &newp)
+bool Projectile::testCollideBlock_flat(Util::CellIterator &ci, glm::vec3 &newp)
 {
     Map::BlockInfo &bi = ci.getBlock();
     if (bi.top) {
-        Math::Plane plane(Vector3D(ci.x, ci.y, ci.z), Vector3D(0, 0, -1));
-        Vector3D hit_pos;
+        Math::Plane plane(glm::vec3(ci.x, ci.y, ci.z), glm::vec3(0, 0, -1));
+        glm::vec3 hit_pos;
         if (plane.segmentIntersect(pos, newp, hit_pos)) {
             INFO("intersect flat-t: {} {} {}", hit_pos.x, hit_pos.y, hit_pos.z);
             if (hit_pos.x >= ci.x && hit_pos.x <= ci.x + 1) {
@@ -823,8 +818,8 @@ bool Projectile::testCollideBlock_flat(Util::CellIterator &ci, Vector3D &newp)
         }
     }
     if (bi.left) {
-        Math::Plane plane(Vector3D(ci.x, ci.y, ci.z), Vector3D(-1, 0, 0));
-        Vector3D hit_pos;
+        Math::Plane plane(glm::vec3(ci.x, ci.y, ci.z), glm::vec3(-1, 0, 0));
+        glm::vec3 hit_pos;
         if (plane.segmentIntersect(pos, newp, hit_pos)) {
             INFO("intersect flat-l: {} {} {}", hit_pos.x, hit_pos.y, hit_pos.z);
             if (hit_pos.z >= ci.y && hit_pos.z <= ci.y + 1) {
@@ -836,15 +831,15 @@ bool Projectile::testCollideBlock_flat(Util::CellIterator &ci, Vector3D &newp)
     return false;
 }
 
-bool Projectile::testCollideBlock(Util::CellIterator &ci, Vector3D &newp)
+bool Projectile::testCollideBlock(Util::CellIterator &ci, glm::vec3 &newp)
 {
     Map::BlockInfo &bi = ci.getBlock();
     // INFO << "pos: " << ci.x << " " << ci.y << " " << ci.z << std::endl;
     // if (bi.isFlat())
     //   return false;
     if (bi.left) {
-        Math::Plane plane(Vector3D(ci.x, ci.y, ci.z), Vector3D(-1, 0, 0));
-        Vector3D hit_pos;
+        Math::Plane plane(glm::vec3(ci.x, ci.y, ci.z), glm::vec3(-1, 0, 0));
+        glm::vec3 hit_pos;
         if (plane.segmentIntersect(pos, newp, hit_pos)) {
             INFO("intersect left: {} {} {}", hit_pos.x, hit_pos.y, hit_pos.z);
             if (hit_pos.z >= ci.y && hit_pos.z <= ci.y + 1) {
@@ -854,8 +849,8 @@ bool Projectile::testCollideBlock(Util::CellIterator &ci, Vector3D &newp)
         }
     }
     if (bi.right && !bi.isFlat()) {
-        Math::Plane plane(Vector3D(ci.x + 1, ci.y, ci.z), Vector3D(1, 0, 0));
-        Vector3D hit_pos;
+        Math::Plane plane(glm::vec3(ci.x + 1, ci.y, ci.z), glm::vec3(1, 0, 0));
+        glm::vec3 hit_pos;
         if (plane.segmentIntersect(pos, newp, hit_pos)) {
             INFO("intersect right: {} {} {}", hit_pos.x, hit_pos.y, hit_pos.z);
             if (hit_pos.z >= ci.y && hit_pos.z <= ci.y + 1) {
@@ -865,8 +860,8 @@ bool Projectile::testCollideBlock(Util::CellIterator &ci, Vector3D &newp)
         }
     }
     if (bi.top) {
-        Math::Plane plane(Vector3D(ci.x, ci.y, ci.z), Vector3D(0, 0, -1));
-        Vector3D hit_pos;
+        Math::Plane plane(glm::vec3(ci.x, ci.y, ci.z), glm::vec3(0, 0, -1));
+        glm::vec3 hit_pos;
         if (plane.segmentIntersect(pos, newp, hit_pos)) {
             INFO("intersect top: {} {} {}", hit_pos.x, hit_pos.y, hit_pos.z);
             if (hit_pos.x >= ci.x && hit_pos.x <= ci.x + 1) {
@@ -876,8 +871,8 @@ bool Projectile::testCollideBlock(Util::CellIterator &ci, Vector3D &newp)
         }
     }
     if (bi.bottom && !bi.isFlat()) {
-        Math::Plane plane(Vector3D(ci.x, ci.z, ci.y + 1), Vector3D(0, 0, 1));
-        Vector3D hit_pos;
+        Math::Plane plane(glm::vec3(ci.x, ci.z, ci.y + 1), glm::vec3(0, 0, 1));
+        glm::vec3 hit_pos;
         if (plane.segmentIntersect(pos, newp, hit_pos)) {
             INFO("intersect bottom: {} {} {}", hit_pos.x, hit_pos.y, hit_pos.z);
             if (hit_pos.x >= ci.x && hit_pos.x <= ci.x + 1) {
@@ -892,7 +887,7 @@ bool Projectile::testCollideBlock(Util::CellIterator &ci, Vector3D &newp)
 void Projectile::update(uint32_t ticks, LocalPlayer &player)
 {
     auto dt = ticks - lastUpdateAt;
-    Vector3D new_pos(pos + delta * dt);
+    glm::vec3 new_pos(pos + delta * float(dt));
     /*INFO << "p-m " << pos.x << " " << pos.y << " " << pos.z <<
       " to " << new_pos.x << " " << new_pos.y << " " << new_pos.z << std::endl;
       */
@@ -901,9 +896,9 @@ void Projectile::update(uint32_t ticks, LocalPlayer &player)
             continue;
 
         if (ped.isLineInBox(pos, new_pos)) {
-            Vector3D p;
+            glm::vec3 p;
             ped.lineCrossBox(pos, new_pos, p);
-            float angle = Util::xz_angle(Vector3D(0, 0, 0), p);
+            float angle = Util::xz_angle(glm::vec3(), p);
             INFO("{}", angle);
             if (angle <= 90.0f || angle > 270.0f)
                 INFO("FRONT");
@@ -920,12 +915,11 @@ void Projectile::update(uint32_t ticks, LocalPlayer &player)
     for (auto &[id, car] : SpriteManager::Instance().getCars()) {
         if (car.isLineInBox(pos, new_pos)) {
             INFO("CAR HIT");
-            Vector3D p;
+            glm::vec3 p;
             car.lineCrossBox(pos, new_pos, p);
             car.damageAt(p, 5);
-            // INFO << Util::xz_angle(Vector3D(0,0,0), p) << std::endl;
-            delta = Vector3D(0, 0, 0);
-            p = Transform(p, car.m_M);
+            delta = glm::vec3();
+            p = car.transformCoords(p);
             new_pos.x = p.x;
             new_pos.z = p.z;
             new_pos.y += 0.1f;
@@ -953,7 +947,7 @@ void Projectile::update(uint32_t ticks, LocalPlayer &player)
             collided += testCollideBlock(ni, new_pos);
     }
     if (collided)
-        delta = Vector3D(0, 0, 0);
+        delta = glm::vec3(0, 0, 0);
     pos = new_pos;
 
     lastUpdateAt = ticks;

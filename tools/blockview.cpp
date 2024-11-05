@@ -12,9 +12,9 @@
 Uint32 arg_screen_w = 0;
 Uint32 arg_screen_h = 0;
 std::string map_file("NYC.CMP");
-Vector3D e(3, 3, 3);
-Vector3D c(0.5f, 0.5f, 0.5f);
-Vector3D u(0, 1, 0);
+glm::vec3 e(3, 3, 3);
+glm::vec3 c(0.5f, 0.5f, 0.5f);
+glm::vec3 u(0, 1, 0);
 uint8_t which = 0;
 float r = 0;
 bool wireframe = true;

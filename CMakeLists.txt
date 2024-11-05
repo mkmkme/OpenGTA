@@ -11,6 +11,7 @@ include(CompilerOptions.cmake)
 
 find_package(cxxopts REQUIRED)
 find_package(fmt REQUIRED)
+find_package(glm REQUIRED)
 find_package(SDL2 REQUIRED)
 find_package(SDL2_image)
 find_package(OpenGL REQUIRED)

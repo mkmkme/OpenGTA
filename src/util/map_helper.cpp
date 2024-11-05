@@ -28,7 +28,7 @@ void SpriteCreationArea::setRects(const SDL_Rect &allowed, const SDL_Rect &denie
     onScreen = denied;
 }
 
-bool SpriteCreationArea::isOnScreen(const Vector3D &p)
+bool SpriteCreationArea::isOnScreen(const glm::vec3 &p) const
 {
     /*    INFO << p.x << " " << p.y << " " << p.z << std::endl;
         INFO << onScreen.x <<", " << onScreen.y << " -> " <<
@@ -38,9 +38,9 @@ bool SpriteCreationArea::isOnScreen(const Vector3D &p)
         (p.z >= onScreen.y) && (p.z <= onScreen.y + onScreen.h);
 }
 
-bool SpriteCreationArea::isOffScreen(const Vector3D &p)
+bool SpriteCreationArea::isOffScreen(const glm::vec3 & /*p*/) const
 {
-    return false;
+    return false; // FIXME (mkmkme)
 }
 
 TupleOfUint8 SpriteCreationArea::getValidCoord()

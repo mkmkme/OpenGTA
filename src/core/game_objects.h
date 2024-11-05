@@ -23,7 +23,6 @@
 #ifndef GAME_OBJECTS_H
 #define GAME_OBJECTS_H
 
-#include <coldet/math3d.h>
 #include <core/entity_controller.h>
 #include <core/graphics-base.h>
 #include <math/obox.h>
@@ -41,16 +40,16 @@ class LocalPlayer;
 struct CarInfo;
 struct GameObject_common;
 struct GameObject_common {
-    Vector3D pos;
+    glm::vec3 pos;
     float rot;
     // uint8_t  activeState;
     GameObject_common()
         : pos(0, 0, 0), rot(0) {}
-    explicit GameObject_common(const Vector3D &p)
+    explicit GameObject_common(const glm::vec3 &p)
         : pos(p), rot(0) {}
-    GameObject_common(const Vector3D &p, float r)
+    GameObject_common(const glm::vec3 &p, float r)
         : pos(p), rot(r) {}
-    float heightOverTerrain(const Vector3D &);
+    float heightOverTerrain(const glm::vec3 &);
 };
 
 class Sprite {
@@ -77,7 +76,7 @@ public:
 
 class Pedestrian : public GameObject_common, public Sprite, public OBox {
 public:
-    Pedestrian(const Vector3D &, const Vector3D &, uint32_t id, int16_t remapId = -1);
+    Pedestrian(const glm::vec3 &, const glm::vec3 &, uint32_t id, int16_t remapId = -1);
     Pedestrian(const Pedestrian &o);
     uint32_t pedId;
     [[nodiscard]] inline uint32_t id() const { return pedId; }
@@ -85,9 +84,9 @@ public:
     void update(uint32_t ticks);
     uint32_t lastUpdateAt;
     uint32_t lastWeaponTick {};
-    Vector3D speedForces;
+    glm::vec3 speedForces;
     bool inGroundContact;
-    void tryMove(Vector3D nPos);
+    void tryMove(glm::vec3 nPos);
     uint8_t isDead;
     void getShot(uint32_t shooterId, uint32_t dmg, bool front = true);
     void die();
@@ -97,10 +96,10 @@ public:
     uint32_t aiMode = 0;
     struct AiData {
         AiData() = default;
-        Vector3D pos1;
+        glm::vec3 pos1;
     };
     AiData aiData;
-    Vector3D moveDelta;
+    glm::vec3 moveDelta;
 };
 
 class CarSprite {
@@ -137,13 +136,13 @@ class Car : public GameObject_common, public CarSprite, public OBox {
 public:
     Car(const Car &o);
     Car(OpenGTA::Map::ObjectPosition &, uint32_t id);
-    Car(Vector3D &_pos, float _rot, uint32_t id, uint8_t _type, int16_t _remap = -1);
+    Car(const glm::vec3 &_pos, float _rot, uint32_t id, uint8_t _type, int16_t _remap = -1);
     uint32_t carId;
     [[nodiscard]] inline uint32_t id() const { return carId; }
     CarInfo &carInfo;
     uint8_t type;
     void update(uint32_t ticks) override;
-    void damageAt(const Vector3D &hit, uint32_t dmg);
+    void damageAt(const glm::vec3 &hit, uint32_t dmg);
     void explode();
 
 private:
@@ -154,7 +153,7 @@ private:
 class SpriteObject : public GameObject_common, public Sprite, public OBox {
 public:
     SpriteObject(OpenGTA::Map::ObjectPosition &, uint32_t id);
-    SpriteObject(const Vector3D &pos, uint16_t spriteNum, GraphicsBase::SpriteNumbers::SpriteTypes st);
+    SpriteObject(const glm::vec3 &pos, uint16_t spriteNum, GraphicsBase::SpriteNumbers::SpriteTypes st);
     SpriteObject(const SpriteObject &o);
     uint32_t objId {};
     [[nodiscard]] inline uint32_t id() const { return objId; }
@@ -174,16 +173,16 @@ class TrainSegment : public GameObject_common, public OBox {
 
 class Projectile : public GameObject_common {
 public:
-    Projectile(uint8_t, float, const Vector3D &, const Vector3D &, uint32_t, uint32_t);
+    Projectile(uint8_t, float, const glm::vec3 &, const glm::vec3 &, uint32_t, uint32_t);
     Projectile(const Projectile &other);
     uint8_t typeId;
-    Vector3D delta;
+    glm::vec3 delta;
     uint32_t endsAtTick;
     uint32_t owner;
     void update(uint32_t ticks, LocalPlayer &player);
     uint32_t lastUpdateAt;
-    bool testCollideBlock(Util::CellIterator &, Vector3D &newp);
-    bool testCollideBlock_flat(Util::CellIterator &, Vector3D &newp);
+    bool testCollideBlock(Util::CellIterator &, glm::vec3 &newp);
+    bool testCollideBlock_flat(Util::CellIterator &, glm::vec3 &newp);
     static uint32_t damageByType(const uint8_t &k);
 };
 

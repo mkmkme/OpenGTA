@@ -1,6 +1,5 @@
 add_executable(viewer viewer/main.cpp)
 target_link_libraries(viewer PRIVATE
-    ogta::coldet-3d
     ogta::core
     ogta::graphics
     ogta::lua-addon

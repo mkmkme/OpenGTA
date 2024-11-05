@@ -9,7 +9,7 @@ class Camera;
 namespace OpenGTA::Script {
 class LuaCamera {
 public:
-    LuaCamera(OpenGL::Camera &c);
+    explicit LuaCamera(OpenGL::Camera &c);
     int registerFunctions(lua_State *L);
 
 private:

@@ -20,6 +20,8 @@
  * 3. This notice may not be removed or altered from any source          *
  * distribution.                                                         *
  ************************************************************************/
+#include <glm/geometric.hpp>
+
 #include <util/cell_iterator.h>
 #include <util/log.h>
 
@@ -28,16 +30,9 @@ constexpr double pi = 3.14159265358979323846;
 }
 
 namespace Util {
-float distance(const Vector3D &p1, const Vector3D &p2)
+float xz_angle(const glm::vec3 &from, const glm::vec3 &to)
 {
-    float dx = p1.x - p2.x;
-    float dy = p1.y - p2.y;
-    float dz = p1.z - p2.z;
-    return sqrt(dx * dx + dy * dy + dz * dz);
-}
-float xz_angle(const Vector3D &from, const Vector3D &to)
-{
-    Vector3D rel_to(to);
+    auto rel_to = to;
     rel_to = rel_to - from;
     double res = atan(rel_to.x / rel_to.z) * 180.0f / pi;
     if (rel_to.z < 0)
@@ -46,9 +41,9 @@ float xz_angle(const Vector3D &from, const Vector3D &to)
         return 360.0f + res;
     return res;
 }
-float xz_turn_angle(const Vector3D &from, const Vector3D &to)
+float xz_turn_angle(const glm::vec3 &from, const glm::vec3 &to)
 {
-    Vector3D rel_to(to);
+    auto rel_to = to;
     rel_to = rel_to - from;
     double res = atan(rel_to.x / rel_to.z) * 180.0f / pi;
     return res;
@@ -71,10 +66,9 @@ OpenGTA::Map::BlockInfo &CellIterator::getBlock() const
     return *mapRef.getBlockAtNew(x, y, z);
 }
 
-#define IABS(v) ((v > 0) ? v : -v)
 int CellIterator::distance(const CellIterator &o) const
 {
-    return (IABS(x - o.x) + IABS(y - o.y) + IABS(z - o.z));
+    return (abs(x - o.x) + abs(y - o.y) + abs(z - o.z));
 }
 
 bool CellIterator::isBlockType(uint8_t t) const
@@ -103,7 +97,7 @@ std::pair<bool, CellIterator> CellIterator::findTypeInCol(uint8_t t) const
     return std::make_pair(false, *this);
 }
 
-std::pair<bool, CellIterator> CellIterator::findNeighbourWithType(uint8_t t, float angle_hint)
+std::pair<bool, CellIterator> CellIterator::findNeighbourWithType(uint8_t t, float angle_hint) const
 {
     assert(isValid());
 

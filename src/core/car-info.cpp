@@ -1,4 +1,5 @@
 #include <core/car-info.h>
+#include <core/numeric-types.h>
 
 #include <util/file-manager.h>
 #include <util/log.h>
@@ -34,7 +35,7 @@ OpenGTA::CarInfo::CarInfo(Util::PhysFSFile &file)
     file.read(damagable);
     bytes_read_ += 4;
 
-    for (unsigned short &i : value)
+    for (UInt16 &i : value)
         file.read(i);
     bytes_read_ += 4 * 2;
 

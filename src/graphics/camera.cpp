@@ -1,4 +1,5 @@
 #include <core/dataholder.h>
+#include <glm/geometric.hpp>
 
 #include <graphics/camera.h>
 #include <graphics/screen.h>
@@ -38,7 +39,7 @@ Camera::Camera()
 
 void Camera::update_game()
 {
-    Vector3D delta(center - *followTarget);
+    glm::vec3 delta(center - *followTarget);
     // INFO << delta.x << ", " << delta.y << ", " << delta.z << std::endl;
     float height_dist = fabs(delta.y);
     delta.y = 0;
@@ -66,7 +67,7 @@ void Camera::update_game()
     );
 }
 
-void Camera::setFollowMode(const Vector3D &target)
+void Camera::setFollowMode(const glm::vec3 &target)
 {
     followTarget = &target;
     // INFO << "following " << target.x << ", " << target.y << ", " << target.z << std::endl;
@@ -115,7 +116,7 @@ void Camera::update(Uint32 ticks, OpenGL::Screen &screen)
                 react_delta = 0.0f;
             if (eye.y - y - bz < react_delta) {
                 // do_grav = 0;
-                Vector3D new_eye(eye);
+                glm::vec3 new_eye(eye);
                 new_eye.y = y + bz + react_delta;
                 delta_y = new_eye.y - eye.y;
                 center.y = center.y - eye.y + new_eye.y;
@@ -145,7 +146,7 @@ void Camera::update(Uint32 ticks, OpenGL::Screen &screen)
             float bz = slope_height_offset(block->slopeType(), eye.x - x, eye.z - z);
             // INFO << eye.y << ", " << y << " bz " << bz << std::endl;
             if (eye.y - y - bz < 0.4f) {
-                Vector3D new_eye(eye);
+                glm::vec3 new_eye(eye);
                 new_eye.y = y + bz + 0.4;
                 delta_y = new_eye.y - eye.y;
                 // INFO << "setting " << new_eye.y << std::endl;
@@ -169,7 +170,7 @@ void Camera::update(Uint32 ticks, OpenGL::Screen &screen)
 
     if (interpolateStart) {
         float as_one = float(interpolateStart - 1) / interpolateEnd;
-        Vector3D now = (1 - as_one) * interpolateFrom + as_one * interpolateTo;
+        glm::vec3 now = (1 - as_one) * interpolateFrom + as_one * interpolateTo;
         center = center - eye + now;
         eye = now;
 
@@ -180,17 +181,17 @@ void Camera::update(Uint32 ticks, OpenGL::Screen &screen)
 
         if (speed > 0.01f || speed < -0.01f) {
 
-            Vector3D v = center - eye;
+            glm::vec3 v = center - eye;
             if (camGravity)
                 v.y = delta_y;
-            v = v.Normalized();
+            v = glm::normalize(v);
             center += speed * ticks / 40.0f * v;
             eye += speed * ticks / 40.0f * v;
             // INFO << v.y << std::endl;
         }
 
         if (doRotate)
-            rotateAround(Vector3D(center.x, 0, center.z), 0, 0.01f, 0);
+            rotateAround(glm::vec3(center.x, 0, center.z), 0, 0.01f, 0);
     }
     gluLookAt(
         eye.x,
@@ -215,7 +216,7 @@ void Camera::setCamGravity(bool demo)
     camGravity = demo;
 }
 
-void Camera::setVectors(const Vector3D &e, const Vector3D &c, const Vector3D &u)
+void Camera::setVectors(const glm::vec3 &e, const glm::vec3 &c, const glm::vec3 &u)
 {
     eye = e;
     center = c;
@@ -227,21 +228,21 @@ void Camera::setSpeed(float new_speed)
     speed = new_speed;
 }
 
-void Camera::translateBy(const Vector3D &t)
+void Camera::translateBy(const glm::vec3 &t)
 {
     eye += t;
     center += t;
 }
 
-void Camera::translateTo(const Vector3D &e)
+void Camera::translateTo(const glm::vec3 &e)
 {
-    Vector3D rel = eye - e;
+    auto rel = eye - e;
     translateBy(rel);
 }
 
 void Camera::rotateView(float x, float y, float z)
 {
-    Vector3D v = center - eye;
+    auto v = center - eye;
     if (x) {
         center.z = eye.z + sin(x) * v.y + cos(x) * v.z;
         center.y = eye.y + cos(x) * v.y - sin(x) * v.z;
@@ -256,9 +257,9 @@ void Camera::rotateView(float x, float y, float z)
     }
 }
 
-void Camera::rotateAround(const Vector3D &lookAt, float x, float y, float z)
+void Camera::rotateAround(const glm::vec3 &lookAt, float x, float y, float z)
 {
-    Vector3D v = eye - lookAt;
+    glm::vec3 v = eye - lookAt;
     if (x) {
         eye.z = lookAt.z + sin(x) * v.y + cos(x) * v.z;
         eye.y = lookAt.y + cos(x) * v.y - sin(x) * v.z;
@@ -293,7 +294,7 @@ void Camera::moveByMouse(OpenGL::Screen &screen)
     rotateView(0, -rot_x, 0);
 }
 
-void Camera::interpolate(const Vector3D &to, const Uint32 &start, const Uint32 &end)
+void Camera::interpolate(const glm::vec3 &to, const Uint32 &start, const Uint32 &end)
 {
     interpolateFrom = eye;
     interpolateTo = to;

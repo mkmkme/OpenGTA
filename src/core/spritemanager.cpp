@@ -22,16 +22,16 @@
  ************************************************************************/
 #include <SDL2/SDL_opengl.h>
 #include <core/dataholder.h>
+#include <core/game_objects.h>
 #include <core/id_sys.h>
 #include <core/localplayer.h>
 #include <core/sprite-info.h>
 #include <core/spritemanager.h>
+#include <glm/gtc/type_ptr.hpp>
 
 #include <graphics/spritecache.h>
 #include <util/log.h>
 #include <util/timer.h>
-
-#include "core/game_objects.h"
 
 namespace OpenGTA {
 
@@ -197,10 +197,10 @@ void SpriteManager::update(Uint32 ticks, LocalPlayer &player)
 
             INFO("{} {} {}", tu8.first, tu8.second, k);
 
-            Vector3D pos(tu8.first + 0.5f, k + 1, tu8.second + 0.5f);
+            glm::vec3 pos(tu8.first + 0.5f, k + 1, tu8.second + 0.5f);
             int id = OpenGTA::TypeIdBlackBox::Instance().requestId();
             Sint16 remap = OpenGTA::ActiveStyle::Instance().get().getRandomPedRemapNumber();
-            OpenGTA::Pedestrian p(Vector3D(0.3f, 0.5f, 0.3f), pos, id, remap);
+            OpenGTA::Pedestrian p(glm::vec3(0.3f, 0.5f, 0.3f), pos, id, remap);
             p.rot = 360 * (rand() / (RAND_MAX + 1.0));
             Instance().add(p);
             break;
@@ -210,7 +210,7 @@ void SpriteManager::update(Uint32 ticks, LocalPlayer &player)
 
 namespace {
 
-inline bool isPositionInsideRect(const Vector3D &pos, const SDL_Rect &r)
+inline bool isPositionInsideRect(const glm::vec3 &pos, const SDL_Rect &r)
 {
     return (pos.x >= r.x) && (pos.x <= r.x + r.w) && (pos.z >= r.y) && (pos.z <= r.y + r.h);
 }
@@ -324,19 +324,20 @@ void SpriteManager::draw(Car &car)
 
 void SpriteManager::drawBBoxOutline(const OBox &box)
 {
+    const auto &extent = box.extent();
     glBegin(GL_LINE_STRIP);
-    glVertex3f(-box.m_Extent.x, 0.0f, box.m_Extent.z);
-    glVertex3f(box.m_Extent.x, 0.0f, box.m_Extent.z);
-    glVertex3f(box.m_Extent.x, 0.0f, -box.m_Extent.z);
-    glVertex3f(-box.m_Extent.x, 0.0f, -box.m_Extent.z);
-    glVertex3f(-box.m_Extent.x, 0.0f, box.m_Extent.z);
+    glVertex3f(-extent.x, 0.0f, extent.z);
+    glVertex3f(extent.x, 0.0f, extent.z);
+    glVertex3f(extent.x, 0.0f, -extent.z);
+    glVertex3f(-extent.x, 0.0f, -extent.z);
+    glVertex3f(-extent.x, 0.0f, extent.z);
     glEnd();
     glBegin(GL_LINE_STRIP);
-    glVertex3f(-box.m_Extent.x, box.m_Extent.y, box.m_Extent.z);
-    glVertex3f(box.m_Extent.x, box.m_Extent.y, box.m_Extent.z);
-    glVertex3f(box.m_Extent.x, box.m_Extent.y, -box.m_Extent.z);
-    glVertex3f(-box.m_Extent.x, box.m_Extent.y, -box.m_Extent.z);
-    glVertex3f(-box.m_Extent.x, box.m_Extent.y, box.m_Extent.z);
+    glVertex3f(-extent.x, extent.y, extent.z);
+    glVertex3f(extent.x, extent.y, extent.z);
+    glVertex3f(extent.x, extent.y, -extent.z);
+    glVertex3f(-extent.x, extent.y, -extent.z);
+    glVertex3f(-extent.x, extent.y, extent.z);
     glEnd();
 }
 
@@ -444,7 +445,7 @@ void SpriteManager::drawExplosion(SpriteObject &obj)
     glPushMatrix();
     glTranslatef(obj.pos.x, obj.pos.y, obj.pos.z);
     // glRotatef(obj.rot, 0, 1, 0);
-    glGetFloatv(GL_MODELVIEW_MATRIX, *obj.m_M.m);
+    glGetFloatv(GL_MODELVIEW_MATRIX, const_cast<GLfloat *>(glm::value_ptr(obj.transform())));
 
     GraphicsBase &style = ActiveStyle::Instance().get();
 
@@ -685,12 +686,12 @@ void SpriteManager::setDrawTexBorder(bool v)
 
 void SpriteManager::setDrawTexture(bool v) {}
 
-void SpriteManager::createProjectile(uint8_t typeId, float r, Vector3D p, Vector3D d, Uint32 &ticks, Uint32 &owner)
+void SpriteManager::createProjectile(uint8_t typeId, float r, const glm::vec3 &p, const glm::vec3 &d, Uint32 &ticks, Uint32 &owner)
 {
-    activeProjectiles.push_back(Projectile(typeId, r, p, d, ticks, owner));
+    activeProjectiles.emplace_back(typeId, r, p, d, ticks, owner);
 }
 
-void SpriteManager::createExplosion(Vector3D center)
+void SpriteManager::createExplosion(const glm::vec3 &center)
 {
     SpriteObject expl(center, 0, GraphicsBase::SpriteNumbers::EX);
     expl.anim = SpriteObject::Animation(getAnimationById(99));

@@ -1,26 +1,27 @@
 #ifndef MATH_PLANE_H
 #define MATH_PLANE_H
 
-#include <coldet/math3d.h>
+#include <glm/ext/vector_float3.hpp>
+#include <glm/geometric.hpp>
 
 namespace Math {
 
-  float intersection_segments(const Vector3D & s1, const Vector3D & s2,
-  const Vector3D & l1, const Vector3D & l2, Vector3D & hit);
+float intersection_segments(const glm::vec3 &s1, const glm::vec3 &s2, const glm::vec3 &l1, const glm::vec3 &l2, glm::vec3 &hit);
 
-  struct Plane {
-    Plane(const Vector3D & p, const Vector3D & n) :
-      pop(p), normal(n) {}
-    Plane(const Vector3D & p1, const Vector3D & p2, const Vector3D & p3) :
-      pop(p1), normal() {
-      const Vector3D pa(p2 - p1);
-      const Vector3D pb(p3 - p1);
-      normal = CrossProduct(pa, pb).Normalized();
+struct Plane {
+    Plane(const glm::vec3 &p, const glm::vec3 &n)
+        : pop(p), normal(n) {}
+    Plane(const glm::vec3 &p1, const glm::vec3 &p2, const glm::vec3 &p3)
+        : pop(p1), normal()
+    {
+        const glm::vec3 pa(p2 - p1);
+        const glm::vec3 pb(p3 - p1);
+        normal = glm::normalize(glm::cross(pa, pb));
     }
-    Vector3D pop;
-    Vector3D normal;
-    int segmentIntersect(const Vector3D & p1, const Vector3D & p2, Vector3D & p_p);
-    float distance(const Vector3D & p);
-  };
-}
+    glm::vec3 pop;
+    glm::vec3 normal;
+    int segmentIntersect(const glm::vec3 &p1, const glm::vec3 &p2, glm::vec3 &p_p) const;
+    [[nodiscard]] float distance(const glm::vec3 &p) const;
+};
+} // namespace Math
 #endif

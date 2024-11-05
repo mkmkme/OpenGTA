@@ -105,7 +105,7 @@ int paused = 0;
 bool gamma_slide = false;
 float screen_gamma = 1.0f;
 
-Vector3D test_dot(-1, -1, -1);
+glm::vec3 test_dot;
 
 class OpenGTAViewer {
 public:
@@ -118,7 +118,7 @@ public:
 
 private:
     void handleKeyPress(SDL_Keysym *keysym);
-    void createPedAt(const Vector3D &v);
+    void createPedAt(const glm::vec3 &v);
     void showGammaConfig();
 
     Util::PhysFSContext physfs_context_;
@@ -472,9 +472,9 @@ OpenGTAViewer::OpenGTAViewer(std::string_view progname)
 
 void print_position(OpenGL::Camera &camera)
 {
-    Vector3D &v = camera.getCenter();
-    Vector3D &e = camera.getEye();
-    Vector3D &u = camera.getUp();
+    const auto &v = camera.getCenter();
+    const auto &e = camera.getEye();
+    const auto &u = camera.getUp();
     if (!city->getViewMode()) {
         fmt::println("{}: {}", cities[city_num], city->getCurrentSector()->getFullName());
         fmt::println("camera.setCenter({}, {}, {})", v.x, v.y, v.z);
@@ -516,7 +516,7 @@ void handleKeyUp(SDL_Keysym *keysym, OpenGTA::LocalPlayer &player)
 
 // void draw_mapmode();
 
-void OpenGTAViewer::createPedAt(const Vector3D &v)
+void OpenGTAViewer::createPedAt(const glm::vec3 &v)
 {
     OpenGTA::Pedestrian p({ 0.2f, 0.5f, 0.2f }, v, 0xffffffff);
     p.remap = OpenGTA::ActiveStyle::Instance().get().getRandomPedRemapNumber();
@@ -531,7 +531,7 @@ void explode_ped()
 {
     try {
         OpenGTA::Pedestrian &ped = OpenGTA::SpriteManager::Instance().getPed(0xffffffff);
-        Vector3D p(ped.pos);
+        auto p = ped.pos;
         p.y += 0.2f;
         OpenGTA::SpriteManager::Instance().createExplosion(p);
     } catch (Util::UnknownKey &e) {
@@ -560,7 +560,7 @@ void ai_step_fake(OpenGTA::Pedestrian *p)
         // INFO << "dist " << Util::distance(p->pos, pr.pos) << std::endl;
         // INFO << "angle " << t_angle << std::endl;
         // INFO << "myrot: " << p->rot << std::endl;
-        if (Util::distance(p->pos, pr.pos) > 3) {
+        if (glm::distance(p->pos, pr.pos) > 3) {
             p->m_control.setTurnLeft(false);
             p->m_control.setTurnRight(false);
             if (t_angle > p->rot)
@@ -593,11 +593,11 @@ void add_auto_ped()
     try {
         OpenGTA::Pedestrian &pr = OpenGTA::SpriteManager::Instance().getPed(0xffffffff);
         int id = OpenGTA::TypeIdBlackBox::Instance().requestId();
-        Vector3D v(pr.pos);
+        auto v = pr.pos;
         v.y += 0.9f;
         // INFO << v.x << " " << v.y << " " << v.z << std::endl;
         Sint16 remap = OpenGTA::ActiveStyle::Instance().get().getRandomPedRemapNumber();
-        OpenGTA::Pedestrian p(Vector3D(0.2f, 0.5f, 0.2f), v, id, remap);
+        OpenGTA::Pedestrian p(glm::vec3(0.2f, 0.5f, 0.2f), v, id, remap);
         OpenGTA::Pedestrian &pr2 = OpenGTA::SpriteManager::Instance().add(p);
         pr2.switchToAnim(1);
         INFO("now {} peds", OpenGTA::SpriteManager::Instance().getPeds().size());
@@ -658,12 +658,12 @@ void OpenGTAViewer::showGammaConfig()
 void car_toggle(OpenGTA::LocalPlayer &player)
 {
     OpenGTA::Pedestrian &pped = player.getPed();
-    Vector3D pos = pped.pos;
+    auto pos = pped.pos;
     auto &cars = OpenGTA::SpriteManager::Instance().getCars();
     float min_dist = 360;
     auto j = cars.end();
     for (auto it = cars.begin(); it != cars.end(); ++it) {
-        if (float tmp_dist = Util::distance(pos, it->second.pos); tmp_dist < min_dist) {
+        if (float tmp_dist = glm::distance(pos, it->second.pos); tmp_dist < min_dist) {
             j = it;
             min_dist = tmp_dist;
         }
@@ -671,9 +671,9 @@ void car_toggle(OpenGTA::LocalPlayer &player)
     assert(j != cars.end());
     auto &car = j->second;
     fmt::println("{} {} {}, {}", car.id(), car.pos.x, car.pos.y, car.pos.z);
-    Vector3D p_door(car.carInfo.door[0].rpx / 64.0f, 0, car.carInfo.door[0].rpy / 64.0f);
+    glm::vec3 p_door(car.carInfo.door[0].rpx / 64.0f, 0, car.carInfo.door[0].rpy / 64.0f);
 
-    Vector3D p_door_global = Transform(p_door, car.m_M);
+    auto p_door_global = car.transformCoords(p_door);
     p_door_global.y += 0.2f;
     fmt::println("{}, {}, {}", p_door_global.x, p_door_global.y, p_door_global.z);
     test_dot = p_door_global;
@@ -726,7 +726,7 @@ void OpenGTAViewer::handleKeyPress(SDL_Keysym *keysym)
             if (follow_toggle) {
                 // SDL_EnableKeyRepeat( 0, SDL_DEFAULT_REPEAT_INTERVAL );
                 city->setViewMode(false);
-                Vector3D p(camera_.getEye());
+                auto p = camera_.getEye();
                 createPedAt(p);
                 camera_.setVectors(
                     { p.x, 10, p.z },
@@ -739,8 +739,8 @@ void OpenGTAViewer::handleKeyPress(SDL_Keysym *keysym)
                 // SDL_EnableKeyRepeat( 100, SDL_DEFAULT_REPEAT_INTERVAL );
                 camera_.setVectors(
                     camera_.getEye(),
-                    Vector3D(camera_.getEye() + Vector3D(1, -1, 1)),
-                    Vector3D(0, 1, 0)
+                    camera_.getEye() + glm::vec3(1, -1, 1),
+                    glm::vec3(0, 1, 0)
                 );
                 camera_.setCamGravity(false);
                 camera_.releaseFollowMode();
@@ -880,11 +880,11 @@ void OpenGTAViewer::handleKeyPress(SDL_Keysym *keysym)
             break;
         case '+':
             mapPos[1] += 1.0f;
-            camera_.translateBy(Vector3D(0, 1, 0));
+            camera_.translateBy(glm::vec3(0, 1, 0));
             break;
         case '-':
             mapPos[1] -= 1.0f;
-            camera_.translateBy(Vector3D(0, -1, 0));
+            camera_.translateBy(glm::vec3(0, -1, 0));
             break;
         case 'x':
             city->setViewMode(false);
@@ -1048,6 +1048,7 @@ void draw_mapmode(OpenGL::Screen &screen)
 
 void OpenGTAViewer::run()
 {
+    test_dot = glm::vec3(-1, -1, -1);
     SDL_Event event;
     const char *lang = getenv("OGTA_LANG");
     if (!lang)
@@ -1082,11 +1083,10 @@ void OpenGTAViewer::run()
         city->setVisibleRange(city_blocks_area);
     city->setPosition(mapPos[0], mapPos[1], mapPos[2]);
 
-    // cam.setVectors( Vector3D(4, 10, 4), Vector3D(4, 0.0f, 4.0f), Vector3D(0, 0, -1) );
     camera_.setVectors(
-        Vector3D(12, 20, 12),
-        Vector3D(13.0f, 19.0f, 13.0f),
-        Vector3D(0, 1, 0)
+        glm::vec3(12, 20, 12),
+        glm::vec3(13.0f, 19.0f, 13.0f),
+        glm::vec3(0, 1, 0)
     );
 
 #ifdef TIMER_OPENSTEER_CLOCK

@@ -23,18 +23,18 @@
 #ifndef UTIL_CELLITERATOR_H
 #define UTIL_CELLITERATOR_H
 #include <cassert>
+#include <cmath>
 
-#include <coldet/math3d.h>
 #include <core/dataholder.h>
+#include <glm/ext/vector_float3.hpp>
 
 namespace Util {
-float distance(const Vector3D &p1, const Vector3D &p2);
-float xz_angle(const Vector3D &from, const Vector3D &to);
-float xz_turn_angle(const Vector3D &from, const Vector3D &to);
+float xz_angle(const glm::vec3 &from, const glm::vec3 &to);
+float xz_turn_angle(const glm::vec3 &from, const glm::vec3 &to);
 
 class CellIterator {
 public:
-    explicit CellIterator(const Vector3D &p)
+    explicit CellIterator(const glm::vec3 &p)
         : x(int(floor(p.x)))
         , y(int(floor(p.z)))
         , z(int(floor(p.y)))
@@ -47,13 +47,16 @@ public:
 
     CellIterator(const CellIterator &o) = default;
 
-    bool isValid() const;
-    int distance(const CellIterator &o) const;
+    [[nodiscard]] bool isValid() const;
+    [[nodiscard]] int distance(const CellIterator &o) const;
 
     bool operator==(const CellIterator &o) const { return x == o.x && y == o.y && z == o.z; }
 
-    CellIterator operator=(const CellIterator &o)
+    CellIterator &operator=(const CellIterator &o)
     {
+        if (this == &o)
+            return *this;
+
         mapRef = o.mapRef;
         x = o.x;
         y = o.y;
@@ -61,47 +64,47 @@ public:
         return *this;
     }
 
-    CellIterator left() const
+    [[nodiscard]] CellIterator left() const
     {
         CellIterator p(*this);
         p.x -= 1;
         return p;
     }
-    CellIterator right() const
+    [[nodiscard]] CellIterator right() const
     {
         CellIterator p(*this);
         p.x += 1;
         return p;
     }
-    CellIterator top() const
+    [[nodiscard]] CellIterator top() const
     {
         CellIterator p(*this);
         p.y += 1;
         return p;
     }
-    CellIterator bottom() const
+    [[nodiscard]] CellIterator bottom() const
     {
         CellIterator p(*this);
         p.y -= 1;
         return p;
     }
-    CellIterator up() const
+    [[nodiscard]] CellIterator up() const
     {
         CellIterator p(*this);
         p.z += 1;
         return p;
     }
-    CellIterator down() const
+    [[nodiscard]] CellIterator down() const
     {
         CellIterator p(*this);
         p.z -= 1;
         return p;
     }
-    bool isBlockType(uint8_t t) const;
-    std::pair<bool, CellIterator> findTypeInCol(uint8_t t) const;
-    std::pair<bool, CellIterator> findNeighbourWithType(uint8_t t, float angle_hint);
+    [[nodiscard]] bool isBlockType(uint8_t t) const;
+    [[nodiscard]] std::pair<bool, CellIterator> findTypeInCol(uint8_t t) const;
+    [[nodiscard]] std::pair<bool, CellIterator> findNeighbourWithType(uint8_t t, float angle_hint) const;
     int x, y, z;
-    OpenGTA::Map::BlockInfo &getBlock() const;
+    [[nodiscard]] OpenGTA::Map::BlockInfo &getBlock() const;
 
 private:
     OpenGTA::Map &mapRef;

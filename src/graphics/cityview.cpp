@@ -23,7 +23,6 @@
 #include <cassert>
 #include <cmath>
 
-#include <coldet/math3d.h>
 #include <core/blockanim.h>
 #include <core/blockdata.h>
 #include <core/car-info.h>
@@ -346,7 +345,7 @@ OpenGL::PagedTexture CityView::renderMap2Texture()
 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glFinish();
-    Vector3D v_off(0, 0, 0);
+    glm::vec3 v_off;
     int persp_find_done = 0;
     int break_loop_safe = 500;
     while (persp_find_done != 3) {
@@ -355,13 +354,13 @@ OpenGL::PagedTexture CityView::renderMap2Texture()
 
         gluLookAt(128 + v_off.x, 230, 128 + v_off.y, 128 + v_off.x, 0, 128 + v_off.y, 0.0f, 0.0f, 1.0f);
 
-        GLint viewport[4];
-        GLdouble mvmatrix[16], projmatrix[16];
+        std::array<GLint, 4> viewport;
+        std::array<GLdouble, 16> mvmatrix, projmatrix;
         GLdouble winx, winy, winz;
-        glGetIntegerv(GL_VIEWPORT, viewport);
-        glGetDoublev(GL_MODELVIEW_MATRIX, mvmatrix);
-        glGetDoublev(GL_PROJECTION_MATRIX, projmatrix);
-        gluProject(0, 0, 0, mvmatrix, projmatrix, viewport, &winx, &winy, &winz);
+        glGetIntegerv(GL_VIEWPORT, viewport.data());
+        glGetDoublev(GL_MODELVIEW_MATRIX, mvmatrix.data());
+        glGetDoublev(GL_PROJECTION_MATRIX, projmatrix.data());
+        gluProject(0, 0, 0, mvmatrix.data(), projmatrix.data(), viewport.data(), &winx, &winy, &winz);
         if (winx > 0.5f)
             v_off.x += 0.2f;
         else if (winx < -0.5f)
@@ -369,7 +368,7 @@ OpenGL::PagedTexture CityView::renderMap2Texture()
         else
             persp_find_done |= 1;
         INFO("{} {}", winx, winy);
-        gluProject(256, 0, 256, mvmatrix, projmatrix, viewport, &winx, &winy, &winz);
+        gluProject(256, 0, 256, mvmatrix.data(), projmatrix.data(), viewport.data(), &winx, &winy, &winz);
         if (winy < -0.5f)
             v_off.y += 0.2f;
         else if (winy > 0.5f)
@@ -478,7 +477,7 @@ void CityView::draw(Uint32 ticks)
     } else {
         // gluLookAt(camPos[0], camPos[1], camPos[2], camPos[0]+5, 0, (camPos[2])+5, camVec[0], camVec[1], camVec[2]);
         camera_.update(ticks, screen_);
-        Vector3D &e = camera_.getEye();
+        const auto &e = camera_.getEye();
         // INFO << "eye: " << e.x << ", " << e.y << ", " << e.z << std::endl;
         setPosition(e.x, e.y, e.z);
         x1 = int(e.x) - visibleRange;
@@ -711,9 +710,9 @@ void CityView::drawBlock(OpenGTA::Map::BlockInfo *bi)
     float nz = LID_NORMAL_DATA[which][2];
 
     int jj = 0;
-    GLfloat lidTex[8] = { 0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f };
+    std::array<GLfloat, 8> lidTex = { 0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f };
     // GLfloat sideTex1_bak[8] = {1.0f, 0.0f,  0.0f, 0.0f,  0.0f, 1.0f,  1.0f, 1.0f};
-    GLfloat sideTex1[8] = { 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f };
+    std::array<GLfloat, 8> sideTex1 = { 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f };
 
 #ifdef MSWAP
 #undef MSWAP
@@ -725,7 +724,7 @@ void CityView::drawBlock(OpenGTA::Map::BlockInfo *bi)
         sideTex1[b] = tmp;         \
     }
 
-#define SLOPE_TEX_CP(k) memcpy(sideTex1, SLOPE_TEX_DATA[which][k], 8 * sizeof(GLfloat))
+#define SLOPE_TEX_CP(k) memcpy(sideTex1.data(), SLOPE_TEX_DATA[which][k], 8 * sizeof(GLfloat))
 #ifdef GLTEX_HELPER
 #undef GLTEX_HELPER
 #endif

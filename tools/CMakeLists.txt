@@ -1,7 +1,6 @@
 add_executable(spriteplayer spriteplayer.cpp)
 target_include_directories(spriteplayer PRIVATE ${OpenGTA_SOURCE_DIR}/src)
 target_link_libraries(spriteplayer PRIVATE
-    ogta::coldet-3d
     ogta::core
     ogta::math
     ogta::graphics

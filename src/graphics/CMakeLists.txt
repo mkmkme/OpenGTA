@@ -7,7 +7,7 @@ add_library(graphics_ OBJECT
     screen.cpp
     spritecache.cpp
     texturecache.cpp)
-target_link_libraries(graphics_ PUBLIC ogta::coldet-3d ogta::math)
+target_link_libraries(graphics_ PUBLIC ogta::math)
 target_include_directories(graphics_ PRIVATE
     ${OpenGTA_SOURCE_DIR}/src
     ${OpenGTA_BINARY_DIR}/src)

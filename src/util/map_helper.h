@@ -6,12 +6,12 @@
 #include <random>
 
 #include <SDL2/SDL_video.h>
-#include <coldet/math3d.h>
+#include <glm/ext/vector_float3.hpp>
 
 namespace Util {
-typedef std::pair<SDL_Rect, SDL_Rect> TupleOfRects;
-typedef std::pair<uint8_t, uint8_t> TupleOfUint8;
-typedef std::list<TupleOfRects> ListOfTupleOfRects;
+using TupleOfRects = std::pair<SDL_Rect, SDL_Rect>;
+using TupleOfUint8 = std::pair<uint8_t, uint8_t>;
+using ListOfTupleOfRects = std::list<TupleOfRects>;
 
 class SpriteCreationArea {
 public:
@@ -20,8 +20,8 @@ public:
     TupleOfRects validRects;
     void setRects(const SDL_Rect &allowed, const SDL_Rect &denied);
     TupleOfUint8 getValidCoord();
-    bool isOnScreen(const Vector3D &p);
-    bool isOffScreen(const Vector3D &p);
+    [[nodiscard]] bool isOnScreen(const glm::vec3 &p) const;
+    [[nodiscard]] bool isOffScreen(const glm::vec3 &p) const;
 
 private:
     SDL_Rect onScreen;
@@ -42,9 +42,9 @@ struct lt_pair {
     }
 };
 
-typedef std::pair<int, int> Pair2Int;
-typedef lt_pair<std::pair<int, int>> cmp_Pair2Int;
-typedef std::map<Pair2Int, int, cmp_Pair2Int> MapOfPair2Int;
+using Pair2Int = std::pair<int, int>;
+using cmp_Pair2Int = lt_pair<std::pair<int, int>>;
+using MapOfPair2Int = std::map<Pair2Int, int, cmp_Pair2Int>;
 
 /** count of Pair2Int(a,b) in the map.
  * @return 0 if no entry at that \e position

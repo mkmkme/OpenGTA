@@ -19,7 +19,7 @@ void walk_pavement(OpenGTA::Pedestrian *ped)
     std::pair<bool, Util::CellIterator> f = ci.findNeighbourWithType(3, ped->rot);
     if (f.first) {
         // INFO << "next: " << f.second.x << " " << f.second.y << std::endl;
-        ped->aiData.pos1 = Vector3D(f.second.x + 0.5f, ped->pos.y, f.second.y + 0.5f);
+        ped->aiData.pos1 = glm::vec3(f.second.x + 0.5f, ped->pos.y, f.second.y + 0.5f);
         ped->aiMode = 1;
     }
 }
@@ -27,7 +27,7 @@ void walk_pavement(OpenGTA::Pedestrian *ped)
 void moveto_shortrange(OpenGTA::Pedestrian *ped)
 {
     assert(ped);
-    float d = Util::distance(ped->pos, ped->aiData.pos1);
+    float d = glm::distance(ped->pos, ped->aiData.pos1);
     // INFO << "dist: " << d << std::endl;
     float a = Util::xz_turn_angle(ped->pos, ped->aiData.pos1);
     float da = Util::xz_angle(ped->pos, ped->aiData.pos1);

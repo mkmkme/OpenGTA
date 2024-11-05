@@ -21,7 +21,7 @@ int setRotating(lua_State *L)
 int getEye(lua_State *L)
 {
     auto *c = static_cast<OpenGL::Camera *>(lua_touserdata(L, lua_upvalueindex(1)));
-    Vector3D &e = c->getEye();
+    const auto &e = c->getEye();
     lua_pushnumber(L, e.x);
     lua_pushnumber(L, e.y);
     lua_pushnumber(L, e.z);
@@ -31,7 +31,7 @@ int getEye(lua_State *L)
 int setEye(lua_State *L)
 {
     auto *c = static_cast<OpenGL::Camera *>(lua_touserdata(L, lua_upvalueindex(1)));
-    Vector3D &e = c->getEye();
+    auto &e = c->getEye();
     e.x = luaL_checknumber(L, 1);
     e.y = luaL_checknumber(L, 2);
     e.z = luaL_checknumber(L, 3);
@@ -41,7 +41,7 @@ int setEye(lua_State *L)
 int getCenter(lua_State *L)
 {
     auto *c = static_cast<OpenGL::Camera *>(lua_touserdata(L, lua_upvalueindex(1)));
-    Vector3D &e = c->getCenter();
+    const auto &e = c->getCenter();
     lua_pushnumber(L, e.x);
     lua_pushnumber(L, e.y);
     lua_pushnumber(L, e.z);
@@ -51,7 +51,7 @@ int getCenter(lua_State *L)
 int setCenter(lua_State *L)
 {
     auto *c = static_cast<OpenGL::Camera *>(lua_touserdata(L, lua_upvalueindex(1)));
-    Vector3D &e = c->getCenter();
+    auto &e = c->getCenter();
     e.x = luaL_checknumber(L, 1);
     e.y = luaL_checknumber(L, 2);
     e.z = luaL_checknumber(L, 3);
@@ -61,7 +61,7 @@ int setCenter(lua_State *L)
 int getUp(lua_State *L)
 {
     auto *c = static_cast<OpenGL::Camera *>(lua_touserdata(L, lua_upvalueindex(1)));
-    Vector3D &e = c->getUp();
+    const auto &e = c->getUp();
     lua_pushnumber(L, e.x);
     lua_pushnumber(L, e.y);
     lua_pushnumber(L, e.z);
@@ -71,7 +71,7 @@ int getUp(lua_State *L)
 int setUp(lua_State *L)
 {
     auto *c = static_cast<OpenGL::Camera *>(lua_touserdata(L, lua_upvalueindex(1)));
-    Vector3D &e = c->getUp();
+    auto &e = c->getUp();
     e.x = luaL_checknumber(L, 1);
     e.y = luaL_checknumber(L, 2);
     e.z = luaL_checknumber(L, 3);
@@ -93,7 +93,7 @@ int interpolateToPosition(lua_State *L)
     auto y = float(luaL_checknumber(L, 2));
     auto z = float(luaL_checknumber(L, 3));
     Uint32 msecInterval = Uint32(luaL_checkinteger(L, 4));
-    c->interpolate(Vector3D(x, y, z), 1, msecInterval);
+    c->interpolate(glm::vec3(x, y, z), 1, msecInterval);
     return 0;
 }
 

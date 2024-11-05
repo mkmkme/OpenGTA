@@ -1,5 +1,7 @@
 #pragma once
 
+#include <array>
+
 #include <core/numeric-types.h>
 
 namespace Util {
@@ -28,13 +30,13 @@ struct CarInfo {
     Int16 acceleration {}, braking {};
     Int16 grip {}, handling {};
     // ... remaps
-    HlsInfo remap24[12] {};
-    UInt8 remap8[12] {};
+    std::array<HlsInfo, 12> remap24 {};
+    std::array<UInt8, 12> remap8 {};
     UInt8 vtype {};
     UInt8 model {};
     UInt8 turning {};
     UInt8 damagable {};
-    UInt16 value[4] {};
+    std::array<UInt16, 4> value {};
     Int8 cx {}, cy {};
     UInt32 moment {};
     Int16 turnRatio {};
@@ -47,7 +49,7 @@ struct CarInfo {
     UInt8 soundFunction {};
     UInt8 fastChangeFlag {};
     Int16 numDoors;
-    DoorInfo door[4] {}; // FIXME: MAX_DOORS
+    std::array<DoorInfo, 4> door {}; // FIXME: MAX_DOORS
 
 private:
     UInt32 bytes_read_ = 0;

@@ -42,8 +42,8 @@ using namespace std::string_view_literals;
 bool done = false;
 
 OpenGTA::Car *car = nullptr;
-Vector3D _p(4, 0.01f, 4);
-OpenGTA::Pedestrian ped(Vector3D(0.5f, 0.5f, 0.5f), Vector3D(4, 0.01f, 4), 0xffffffff);
+glm::vec3 _p(4, 0.01f, 4);
+OpenGTA::Pedestrian ped(glm::vec3(0.5f, 0.5f, 0.5f), glm::vec3(4, 0.01f, 4), 0xffffffff);
 OpenGTA::SpriteObject::Animation pedAnim(0, 0);
 
 OpenGL::DrawableFont m_font;
@@ -206,10 +206,10 @@ void handleKeyPress(SDL_Keysym *keysym, OpenGL::Camera &camera)
             }
             break;
         case '=':
-            camera.translateBy(Vector3D(0, -0.5f, 0));
+            camera.translateBy(glm::vec3(0, -0.5f, 0));
             break;
         case '-':
-            camera.translateBy(Vector3D(0, 0.5f, 0));
+            camera.translateBy(glm::vec3(0, 0.5f, 0));
             break;
         case '1':
             if (playWithCar) {

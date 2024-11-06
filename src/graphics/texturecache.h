@@ -125,7 +125,7 @@ protected:
         bool hasAlpha;
         bool isAnimated;
     };
-    typedef std::map<key_type, texTuple *> CacheMapType;
+    using CacheMapType = std::map<key_type, texTuple *>;
     CacheMapType cached;
     std::string m_name;
     static unsigned int instance_count;

@@ -23,6 +23,7 @@
 #ifndef M_OPENGL_FONT_H
 #define M_OPENGL_FONT_H
 #include <map>
+#include <memory>
 #include <string>
 
 #include <graphics/base.h>
@@ -47,11 +48,11 @@ public:
 private:
     void cleanup();
     void clearCached();
-    FontQuad *createDrawableCharacter(char c);
-    OpenGTA::Font *fontSource;
+    FontQuad createDrawableCharacter(char c);
+    std::unique_ptr<OpenGTA::Font> fontSource;
     std::string srcName;
-    TextureCache<char> *texCache;
-    std::map<char, FontQuad *> drawables;
+    std::unique_ptr<TextureCache<char>> texCache;
+    std::map<char, FontQuad> drawables;
     unsigned int scale;
 };
 } // namespace OpenGL

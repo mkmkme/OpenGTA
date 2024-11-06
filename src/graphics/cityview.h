@@ -51,29 +51,29 @@ public:
     void setPosition(const GLfloat &x, const GLfloat &y, const GLfloat &z);
     void setTopDownView(const GLfloat &height);
     // void setCamVector(const GLfloat & x, const GLfloat & y, const GLfloat & z);
-    void setZoom(const GLfloat zoom);
+    void setZoom(GLfloat zoom);
     void setViewMode(bool topDown);
-    inline bool getViewMode() const noexcept { return topDownView; }
+    [[nodiscard]] inline bool getViewMode() const noexcept { return topDownView; }
     inline void setDrawHeadingArrows(bool yes) noexcept { drawHeadingMarkers = yes; }
     inline void setTexFlipTest(int v) noexcept { texFlipTest = v; }
-    inline std::span<const GLfloat> getCamPos() const noexcept { return { camPos, 3 }; }
+    [[nodiscard]] inline std::span<const GLfloat> getCamPos() const noexcept { return camPos; }
     void setVisibleRange(int);
-    int getVisibleRange() const;
+    [[nodiscard]] int getVisibleRange() const;
     void getTerrainHeight(GLfloat &x, GLfloat &y, GLfloat &z);
     void draw(Uint32 ticks);
     NavData::Sector *getCurrentSector();
     OpenGL::PagedTexture renderMap2Texture();
 
-    bool getDrawTextured() const;
-    bool getDrawLines() const;
-    bool getDrawLinesBlockColor() const;
+    [[nodiscard]] bool getDrawTextured() const;
+    [[nodiscard]] bool getDrawLines() const;
+    [[nodiscard]] bool getDrawLinesBlockColor() const;
     void setDrawTextured(bool v);
     void setDrawLines(bool v);
     void setDrawLinesBlockColor(bool v);
 
     void resetTextures();
-    const SDL_Rect &getActiveRect() { return activeRect; }
-    const SDL_Rect &getOnScreenRect() { return drawnRect; }
+    [[nodiscard]] const SDL_Rect &getActiveRect() const noexcept { return activeRect; }
+    [[nodiscard]] const SDL_Rect &getOnScreenRect() const noexcept { return drawnRect; }
     BlockAnimCtrl *blockAnims {};
 
 protected:
@@ -89,8 +89,8 @@ protected:
     Map *loadedMap {};
     OpenGTA::GraphicsBase *style {};
     GLfloat zoomLevel {};
-    GLfloat camPos[3] {};
-    GLfloat camVec[3] {};
+    std::array<GLfloat, 3> camPos {};
+    std::array<GLfloat, 3> camVec {};
     int visibleRange {};
     bool topDownView {};
     bool drawTextured {};

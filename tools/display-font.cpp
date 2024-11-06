@@ -115,9 +115,7 @@ int main(int /*argc*/, char *argv[])
     screen.activate(640, 480);
 
     GUI::Manager gm {};
-    SDL_Rect rect;
-    rect.x = 5;
-    rect.y = 50;
+    SDL_Rect rect { .x = 5, .y = 50 };
     // STREET1.FON
     // FIXME: pass the string as an argument. Maybe even be fancy and validate it before passing to Label
     auto *fps_label = new GUI::Label(rect, "", "F_MTEXT.FON", 1);

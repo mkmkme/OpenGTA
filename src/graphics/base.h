@@ -60,9 +60,9 @@ struct TexturedQuad
     : public Quad<vertex_type, entries_per_vertex>,
       public QuadTexCoords<texcoord_type, num_coords> {};
 
-typedef Quad<GLint, 2> Quad2Int;
-typedef ColoredQuad<GLint, 2, GLfloat, 3> ColoredQuad2Int;
-typedef TexturedQuad<GLint, 2, GLfloat, 2> FontQuad;
+using Quad2Int = Quad<GLint, 2>;
+using ColoredQuad2Int = ColoredQuad<GLint, 2, GLfloat, 3>;
+using FontQuad = TexturedQuad<GLint, 2, GLfloat, 2>;
 
 template <class T>
 class ImmediateRenderer {

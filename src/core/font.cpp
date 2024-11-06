@@ -67,7 +67,7 @@ uint8_t Font::getMoveWidth(const char c)
     return chars[i->second].width;
 }
 
-unsigned char *Font::getCharacterBitmap(size_t num, unsigned int *width, unsigned int *height)
+std::span<const UInt8> Font::getCharacterBitmap(size_t num, unsigned int *width, unsigned int *height)
 {
     unsigned int len = chars[num].width;
     len *= charHeight;
@@ -76,18 +76,7 @@ unsigned char *Font::getCharacterBitmap(size_t num, unsigned int *width, unsigne
         *width = chars[num].width;
     if (height != nullptr)
         *height = charHeight;
-    return workBuffer.data();
-    /*
-    unsigned int glwidth = 1;
-    unsigned int glheight = 1;
-
-    while(glwidth < chars[num]->width)
-      glwidth <<= 1;
-
-    while(glheight < charHeight)
-      glheight <<= 1;
-    unsigned char *res = new unsigned char[glwidth*glheight*4];
-    */
+    return workBuffer;
 }
 
 Font::Character::Character(Util::PhysFSFile &pf, uint8_t height)

@@ -83,7 +83,7 @@ namespace OpenGTA {
   }
 */
 struct GLColor {
-    GLfloat rgb[3] {}; // TODO: std::array
+    std::array<GLfloat, 3> rgb {};
     GLColor() { rgb[0] = rgb[1] = rgb[2] = 0; }
     explicit GLColor(GLfloat i) { rgb[0] = rgb[1] = rgb[2] = i; }
     GLColor(GLfloat r, GLfloat g, GLfloat b)
@@ -94,7 +94,7 @@ struct GLColor {
     }
 };
 
-GLColor block_colors[8] = {
+std::array block_colors = {
     GLColor(1),       // air
     GLColor(0, 0, 1), // water
     GLColor(0, 1, 1), // road
@@ -105,7 +105,7 @@ GLColor block_colors[8] = {
     GLColor(1)        // unused
 };
 
-GLfloat *map_block_type_color(uint8_t k)
+std::array<GLfloat, 3> map_block_type_color(uint8_t k)
 {
     // k = 6  now used to fix pavement cols
     if (k == 7)
@@ -895,12 +895,12 @@ void CityView::drawBlock(OpenGTA::Map::BlockInfo *bi)
 #define COLOR_OFF           \
     if (drawLinesBlockType) \
     glColor3f(1, 1, 1)
-#define COLOR_ON                                                \
-    do {                                                        \
-        if (drawLinesBlockType) {                               \
-            GLfloat *_c = map_block_type_color(aboveBlockType); \
-            glColor3f(_c[0], _c[1], _c[2]);                     \
-        }                                                       \
+#define COLOR_ON                                                              \
+    do {                                                                      \
+        if (drawLinesBlockType) {                                             \
+            std::array<GLfloat, 3> _c = map_block_type_color(aboveBlockType); \
+            glColor3f(_c[0], _c[1], _c[2]);                                   \
+        }                                                                     \
     } while (false)
 
     if (drawLinesBlockType)

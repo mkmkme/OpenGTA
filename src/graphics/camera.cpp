@@ -25,10 +25,7 @@ namespace OpenGL {
  */
 
 Camera::Camera()
-    : eye()
-    , center()
-    , up()
-    , doRotate(false)
+    : doRotate(false)
     , camGravity(false)
     , gameCamMode(false)
     , followTarget(&center)

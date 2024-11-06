@@ -31,7 +31,7 @@ public:
     void addMapping(unsigned char c, size_t num);
 
     friend void dumpAs(Font &font, const char *filename, size_t id);
-    unsigned char *getCharacterBitmap(size_t num, unsigned int *width, unsigned int *height);
+    std::span<const UInt8> getCharacterBitmap(size_t num, unsigned int *width, unsigned int *height);
 
 private:
     void loadMapping(const std::string &name);

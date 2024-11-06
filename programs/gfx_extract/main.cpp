@@ -93,13 +93,7 @@ SDL_Surface *get_image(std::span<const UInt8> rp, unsigned int w, unsigned int h
     SDL_LockSurface(s);
     const auto *src = rp.data();
     auto *dst = static_cast<unsigned char *>(s->pixels);
-    for (int i = 0; i < w * h; i++) {
-        for (int j = 0; j < 4; ++j) {
-            *dst = *src;
-            ++dst;
-            ++src;
-        }
-    }
+    memcpy(dst, src, w * h * 4);
     SDL_UnlockSurface(s);
     return s;
 }

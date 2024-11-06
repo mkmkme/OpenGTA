@@ -25,11 +25,10 @@ Font::Font(const std::string &file)
     int ww = 0;
     int lw = 0;
     for (uint8_t i = 0; i < numChars; i++) {
-        auto *ch = new Character(pf, charHeight);
-        ww += ch->width;
-        if (ch->width > lw)
-            lw = ch->width;
-        chars.push_back(ch);
+        const auto &ch = chars.emplace_back(pf, charHeight);
+        ww += ch.width;
+        if (ch.width > lw)
+            lw = ch.width;
     }
     INFO("total width {} largest width {}", ww, lw);
     palette.loadFromFile(pf);
@@ -38,15 +37,10 @@ Font::Font(const std::string &file)
         ih *= 2;
         ww /= 2;
     }
-    workBuffer = new unsigned char[lw * charHeight * 4];
+    workBuffer = std::vector<UInt8>(lw * charHeight * 4);
     loadMapping(file);
 }
-Font::~Font()
-{
-    for (auto &c : chars)
-        delete c;
-    delete[] workBuffer;
-}
+
 void Font::readHeader(Util::PhysFSFile &pf)
 {
     pf.read(numChars);
@@ -68,21 +62,21 @@ uint8_t Font::getMoveWidth(const char c)
 {
     auto i = mapping.find(c);
     if (i == mapping.end()) {
-        return chars[0]->width;
+        return chars[0].width;
     }
-    return chars[i->second]->width;
+    return chars[i->second].width;
 }
 
 unsigned char *Font::getCharacterBitmap(size_t num, unsigned int *width, unsigned int *height)
 {
-    unsigned int len = chars[num]->width;
+    unsigned int len = chars[num].width;
     len *= charHeight;
-    palette.apply(len, chars[num]->rawData, workBuffer, true);
+    palette.apply(len, chars[num].rawData.data(), workBuffer.data(), true);
     if (width != nullptr)
-        *width = chars[num]->width;
+        *width = chars[num].width;
     if (height != nullptr)
         *height = charHeight;
-    return workBuffer;
+    return workBuffer.data();
     /*
     unsigned int glwidth = 1;
     unsigned int glheight = 1;
@@ -101,12 +95,8 @@ Font::Character::Character(Util::PhysFSFile &pf, uint8_t height)
     pf.read(width);
     size_t c = size_t(width) * size_t(height);
     // std::cout <<"width " << int(width) << " going to read " << c << " bytes" << std::endl;
-    rawData = new uint8_t[c];
-    pf.read(rawData, c);
-}
-Font::Character::~Character()
-{
-    delete[] rawData;
+    rawData = std::vector<UInt8>(c);
+    pf.read(rawData.data(), c);
 }
 
 void Font::loadMapping(const std::string &name)

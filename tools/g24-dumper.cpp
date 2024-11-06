@@ -26,13 +26,7 @@ SDL_Surface *get_image(unsigned char *rp, unsigned int w, unsigned int h)
     SDL_Surface *s = SDL_CreateRGBSurface(0, w, h, 32, rmask, gmask, bmask, amask);
     SDL_LockSurface(s);
     auto *dst = static_cast<unsigned char *>(s->pixels);
-    for (auto i = 0u; i < w * h; ++i) {
-        for (int j = 0; j < 4; ++j) {
-            *dst = *rp;
-            ++dst;
-            ++rp;
-        }
-    }
+    memcpy(dst, rp, w * h * 4);
     SDL_UnlockSurface(s);
     return s;
 }

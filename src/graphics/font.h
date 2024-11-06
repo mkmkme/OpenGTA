@@ -47,7 +47,7 @@ public:
 private:
     void cleanup();
     void clearCached();
-    FontQuad *createDrawableCharacter(const char &c);
+    FontQuad *createDrawableCharacter(char c);
     OpenGTA::Font *fontSource;
     std::string srcName;
     TextureCache<char> *texCache;

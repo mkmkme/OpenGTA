@@ -133,7 +133,7 @@ uint16_t DrawableFont::getHeight()
     return scale * fontSource->getCharHeight();
 }
 
-FontQuad *DrawableFont::createDrawableCharacter(const char &c)
+FontQuad *DrawableFont::createDrawableCharacter(char c)
 {
     GLuint texid;
     unsigned int w;
@@ -151,8 +151,8 @@ FontQuad *DrawableFont::createDrawableCharacter(const char &c)
     while (glheight < h)
         glheight <<= 1;
 
-    auto dst = std::make_unique<unsigned char[]>(glwidth * glheight * 4);
-    unsigned char *t = dst.get();
+    std::vector<UInt8> dst(glwidth * glheight * 4);
+    unsigned char *t = dst.data();
     unsigned char *r = src;
     for (unsigned int i = 0; i < h; i++) {
         memcpy(t, r, w * 4);
@@ -165,7 +165,7 @@ FontQuad *DrawableFont::createDrawableCharacter(const char &c)
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, glwidth, glheight, 0, GL_RGBA, GL_UNSIGNED_BYTE, dst.get());
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, glwidth, glheight, 0, GL_RGBA, GL_UNSIGNED_BYTE, dst.data());
     texCache->addTexture(c, texid);
 
     auto *res = new FontQuad();

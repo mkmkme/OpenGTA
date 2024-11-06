@@ -7,6 +7,7 @@
 #include <vector>
 
 #include <core/graphics-8bit.h>
+#include <core/numeric-types.h>
 
 namespace Util {
 class PhysFSFile;
@@ -19,12 +20,10 @@ public:
     class Character {
     public:
         Character(Util::PhysFSFile &, uint8_t);
-        ~Character();
         uint8_t width {};
-        uint8_t *rawData;
+        std::vector<UInt8> rawData;
     };
     explicit Font(const std::string &file);
-    ~Font();
     [[nodiscard]] uint8_t getCharHeight() const noexcept { return charHeight; }
     size_t getIdByChar(char c);
     uint8_t getMoveWidth(char c);
@@ -39,10 +38,10 @@ private:
     void readHeader(Util::PhysFSFile &pf);
     uint8_t charHeight {};
     uint8_t numChars {};
-    std::vector<Character *> chars;
+    std::vector<Character> chars;
     std::map<char, size_t> mapping;
     Graphics8Bit::RGBPalette palette;
-    unsigned char *workBuffer;
+    std::vector<UInt8> workBuffer;
 };
 
 } // namespace OpenGTA

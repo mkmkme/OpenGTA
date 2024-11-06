@@ -404,12 +404,11 @@ int Graphics8Bit::RGBPalette::loadFromFile(Util::PhysFSFile &styleFile)
 void Graphics8Bit::RGBPalette::apply(unsigned int len, const unsigned char *src, unsigned char *dst, bool rgba)
 {
     for (unsigned int i = 0; i < len; i++) {
-        *dst = data[*src * 3];
-        ++dst;
-        *dst = data[*src * 3 + 1];
-        ++dst;
-        *dst = data[*src * 3 + 2];
-        ++dst;
+        const auto tmp = *src * 3;
+        for (int j = 0; j < 3; j++) {
+            *dst = data[tmp + j];
+            ++dst;
+        }
         if (rgba) {
             if (*src == 0)
                 *dst = 0x00;

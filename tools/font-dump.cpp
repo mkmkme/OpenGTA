@@ -1,5 +1,6 @@
 // #include <stdlib.h>
 
+#include <cstring>
 #include <iostream>
 
 #include <physfs.h>
@@ -13,9 +14,9 @@
 namespace OpenGTA {
 void dumpAs(OpenGTA::Font &font, const char *filename, size_t id)
 {
-    unsigned int len = font.chars[id]->width;
+    unsigned int len = font.chars[id].width;
     len *= font.charHeight;
-    font.palette.apply(len, font.chars[id]->rawData, font.workBuffer, true);
+    font.palette.apply(len, font.chars[id].rawData.data(), font.workBuffer.data(), true);
 #if SDL_BYTEORDER == SDL_BIG_ENDIAN
 #define rmask 0xff000000
 #define gmask 0x00ff0000
@@ -27,25 +28,11 @@ void dumpAs(OpenGTA::Font &font, const char *filename, size_t id)
 #define bmask 0x00ff0000
 #define amask 0xff000000
 #endif
-    SDL_Surface *s = SDL_CreateRGBSurface(0, font.chars[id]->width, font.charHeight, 32, rmask, gmask, bmask, amask);
+    SDL_Surface *s = SDL_CreateRGBSurface(0, font.chars[id].width, font.charHeight, 32, rmask, gmask, bmask, amask);
     SDL_LockSurface(s);
     unsigned char *dst = static_cast<unsigned char *>(s->pixels);
-    unsigned char *rp = font.workBuffer;
-    for (unsigned int i = 0; i < len; i++) {
-        *dst = *rp;
-        ++dst;
-        ++rp;
-        *dst = *rp;
-        ++dst;
-        ++rp;
-        *dst = *rp;
-        ++dst;
-        ++rp;
-        //*dst = 0xff; ++dst;
-        *dst = *rp;
-        ++dst;
-        ++rp;
-    }
+    unsigned char *rp = font.workBuffer.data();
+    memcpy(dst, rp, len * 4);
     SDL_UnlockSurface(s);
     SDL_SaveBMP(s, filename);
     SDL_FreeSurface(s);

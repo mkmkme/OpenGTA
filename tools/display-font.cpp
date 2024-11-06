@@ -107,7 +107,7 @@ void main_loop(GUI::Label *label, GUI::Manager &manager, OpenGL::Screen &screen)
     }
 }
 
-int main(int argc, char *argv[])
+int main(int /*argc*/, char *argv[])
 {
     const Util::PhysFSContext pfs(argv[0]);
 

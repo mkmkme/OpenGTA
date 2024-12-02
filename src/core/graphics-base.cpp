@@ -47,7 +47,7 @@ UInt16 GraphicsBase::SpriteNumbers::countByType(const SpriteTypes &t) const
 #undef CASE_COUNT_TRIVIAL
     }
     ERROR("UPS: {}", static_cast<int>(t));
-    assert(0);
+    throw std::runtime_error("UPS");
 }
 
 GraphicsBase::GraphicsBase(const std::string &style)

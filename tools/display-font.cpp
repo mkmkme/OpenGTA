@@ -1,7 +1,5 @@
 #include <iostream>
 
-#include <physfs.h>
-
 #include <GL/gl.h>
 #include <SDL2/SDL_events.h>
 #include <SDL2/SDL_keycode.h>
@@ -13,8 +11,6 @@
 #include <util/file-manager.h>
 #include <util/gui.h>
 #include <util/log.h>
-
-#include "common_sdl_gl.h"
 
 // FIXME: gui.cpp needs that
 float screen_gamma = 1.0f;

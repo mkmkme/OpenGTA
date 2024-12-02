@@ -53,6 +53,28 @@ target_link_libraries(display-font PRIVATE
     physfs
     fmt::fmt)
 
+add_executable(shaders-test shaders-test.cpp)
+target_link_libraries(shaders-test PRIVATE
+    ogta::core
+    ogta::graphics
+    ogta::util
+    SDL2::SDL2
+    ogta::glad
+    OpenGL::GLU
+    physfs
+    fmt::fmt)
+
+add_executable(display-font-shader display-font-shader.cpp)
+target_link_libraries(display-font-shader PRIVATE
+    ogta::core
+    ogta::graphics
+    ogta::util
+    SDL2::SDL2
+    ogta::glad
+    OpenGL::GLU
+    physfs
+    fmt::fmt)
+
 add_executable(obj-dump obj-dump.cpp)
 target_link_libraries(obj-dump PRIVATE
     ogta::core

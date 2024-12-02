@@ -10,10 +10,12 @@
 #include <fmt/core.h>
 
 #include <util/file-manager.h>
+#include <util/log.h>
 
 namespace OpenGTA {
 void dumpAs(OpenGTA::Font &font, const char *filename, size_t id)
 {
+    INFO("Dumping font character {} to {}", id, filename);
     unsigned int len = font.chars[id].width;
     len *= font.charHeight;
     font.palette.apply(len, font.chars[id].rawData.data(), font.workBuffer.data(), true);

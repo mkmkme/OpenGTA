@@ -15,7 +15,6 @@
 
 #include <SDL2/SDL.h>
 #include <core/font.h>
-#include <fmt/base.h>
 #include <fmt/format.h>
 #include <glad/gl.h>
 
@@ -108,7 +107,7 @@ void glVerifyShader_(int shader, std::string_view name, std::string_view file, i
         std::string infoLog(512, '\0');
         glGetShaderInfoLog(shader, infoLog.size(), nullptr, infoLog.data());
         auto message = fmt::format("ERROR ({}:{}): {} shader compilation failed!\n{}", name, file, line, infoLog);
-        fmt::println(stderr, "{}", message);
+        fmt::print(stderr, "{}\n", message);
         throw std::runtime_error(message);
     }
 }
@@ -122,7 +121,7 @@ void glVerifyProgram_(int program, std::string_view file, int line)
         std::string infoLog(512, '\0');
         glGetProgramInfoLog(program, infoLog.size(), nullptr, infoLog.data());
         auto message = fmt::format("ERROR ({}:{}): shader program linking failed!\n{}", file, line, infoLog);
-        fmt::println(stderr, "{}", message);
+        fmt::print(stderr, "{}\n", message);
         throw std::runtime_error(message);
     }
 }
@@ -166,7 +165,7 @@ int main(int /*argc*/, char **argv)
     auto *context = SDL_GL_CreateContext(window);
 
     if (!gladLoadGL((GLADloadfunc) SDL_GL_GetProcAddress)) {
-        fmt::println(stderr, "Failed to initialize GLAD");
+        fmt::print(stderr, "Failed to initialize GLAD\n");
         return 1;
     }
 

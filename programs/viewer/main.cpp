@@ -133,12 +133,12 @@ void OpenGTAViewer::quit()
 {
     SDL_Quit();
     delete city;
-    fmt::println("Goodbye");
+    fmt::print("Goodbye\n");
 }
 
 void print_version_info()
 {
-#define PRINT_FORMATTED(name, value) fmt::println("{:<19}{}", name, value)
+#define PRINT_FORMATTED(name, value) fmt::print("{:<19}{}\n", name, value)
 
     PRINT_FORMATTED("OpenGTA version:", OGTA_VERSION_INFO);
     PRINT_FORMATTED("Lua version:", LUA_RELEASE);
@@ -299,7 +299,7 @@ void parse_args(int argc, char **argv)
             city_num = result["city"].as<int>();
         }
     } catch (const cxxopts::exceptions::exception &e) {
-        fmt::println(stderr, "Error parsing options: {}", e.what());
+        fmt::print(stderr, "Error parsing options: {}\n", e.what());
         exit(1);
     }
 }
@@ -476,18 +476,18 @@ void print_position(OpenGL::Camera &camera)
     const auto &e = camera.getEye();
     const auto &u = camera.getUp();
     if (!city->getViewMode()) {
-        fmt::println("{}: {}", cities[city_num], city->getCurrentSector()->getFullName());
-        fmt::println("camera.setCenter({}, {}, {})", v.x, v.y, v.z);
-        fmt::println("camera.setEye({}, {}, {})", e.x, e.y, e.z);
-        fmt::println("camera.setUp({}, {}, {})", u.x, u.y, u.z);
-        fmt::println("city_view:setVisibleRange({})", city->getVisibleRange());
-        fmt::println("city_view:setTopDownView( false )");
+        fmt::print("{}: {}\n", cities[city_num], city->getCurrentSector()->getFullName());
+        fmt::print("camera.setCenter({}, {}, {})\n", v.x, v.y, v.z);
+        fmt::print("camera.setEye({}, {}, {})\n", e.x, e.y, e.z);
+        fmt::print("camera.setUp({}, {}, {})\n", u.x, u.y, u.z);
+        fmt::print("city_view:setVisibleRange({})\n", city->getVisibleRange());
+        fmt::print("city_view:setTopDownView( false )\n");
     } else {
         const auto cp = city->getCamPos();
-        fmt::println("{}: {}", cities[city_num], city->getCurrentSector()->getFullName());
-        fmt::println("city_view:setCamPosition({}, {}, {})", cp[0], cp[1], cp[2]);
-        fmt::println("city_view:setVisibleRange({})", city->getVisibleRange());
-        fmt::println("city_view:setTopDownView( true )");
+        fmt::print("{}: {}\n", cities[city_num], city->getCurrentSector()->getFullName());
+        fmt::print("city_view:setCamPosition({}, {}, {})\n", cp[0], cp[1], cp[2]);
+        fmt::print("city_view:setVisibleRange({})\n", city->getVisibleRange());
+        fmt::print("city_view:setTopDownView( true )\n");
     }
 }
 
@@ -670,12 +670,12 @@ void car_toggle(OpenGTA::LocalPlayer &player)
     }
     assert(j != cars.end());
     auto &car = j->second;
-    fmt::println("{} {} {}, {}", car.id(), car.pos.x, car.pos.y, car.pos.z);
+    fmt::print("{} {} {}, {}\n", car.id(), car.pos.x, car.pos.y, car.pos.z);
     glm::vec3 p_door(car.carInfo.door[0].rpx / 64.0f, 0, car.carInfo.door[0].rpy / 64.0f);
 
     auto p_door_global = car.transformCoords(p_door);
     p_door_global.y += 0.2f;
-    fmt::println("{}, {}, {}", p_door_global.x, p_door_global.y, p_door_global.z);
+    fmt::print("{}, {}, {}\n", p_door_global.x, p_door_global.y, p_door_global.z);
     test_dot = p_door_global;
     // pped.aiMode = 1;
     // pped.aiData.pos1 = p_door_global;

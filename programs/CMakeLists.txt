@@ -9,8 +9,7 @@ target_link_libraries(viewer PRIVATE
     ogta::util
     fmt::fmt
     OpenGL::GLU
-    ${PHYSFS_LIBRARY}
-    ${LUA_LIBRARIES})
+    ${PHYSFS_LIBRARY})
 
 
 # TODO: refactor sources so this is not needed
@@ -35,6 +34,5 @@ target_link_libraries(gfxextract PRIVATE
     ogta::graphics
     ogta::util
     fmt::fmt
-    SDL2::SDL2
     OpenGL::GLU
     ${PHYSFS_LIBRARY})

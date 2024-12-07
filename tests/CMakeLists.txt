@@ -15,7 +15,6 @@ if(SDL2_image_FOUND)
         ogta::util
         fmt::fmt
         OpenGL::GLU
-        SDL2::SDL2
         SDL2_image::SDL2_image
         ${PHYSFS_LIBRARY}
         ${LUA_LIBRARIES})
@@ -30,9 +29,7 @@ target_link_libraries(lua_map_test PRIVATE
     ogta::util
     fmt::fmt
     OpenGL::GLU
-    SDL2::SDL2
-    ${PHYSFS_LIBRARY}
-    ${LUA_LIBRARIES})
+    ${PHYSFS_LIBRARY})
 
 # broken due to missing tests/test_plane.cpp
 # add_executable(plane_test

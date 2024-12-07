@@ -4,10 +4,8 @@ target_include_directories(spriteplayer PRIVATE
     ${PHYSFS_INCLUDE_DIR})
 target_link_libraries(spriteplayer PRIVATE
     ogta::core
-    ogta::math
     ogta::graphics
     ogta::util
-    SDL2::SDL2
     OpenGL::GLU
     fmt::fmt
     ${PHYSFS_LIBRARY})
@@ -30,7 +28,6 @@ target_link_libraries(g24-dumper PRIVATE
     ogta::core
     ogta::graphics
     ogta::util
-    SDL2::SDL2
     OpenGL::GLU
     fmt::fmt
     ${PHYSFS_LIBRARY})
@@ -42,7 +39,6 @@ target_link_libraries(font-dump PRIVATE
     ogta::core
     ogta::graphics
     ogta::util
-    SDL2::SDL2
     OpenGL::GLU
     fmt::fmt
     ${PHYSFS_LIBRARY})
@@ -53,7 +49,6 @@ target_link_libraries(display-font PRIVATE
     ogta::core
     ogta::graphics
     ogta::util
-    SDL2::SDL2
     OpenGL::GLU
     fmt::fmt
     ${PHYSFS_LIBRARY})
@@ -64,7 +59,6 @@ target_link_libraries(shaders-test PRIVATE
     ogta::core
     ogta::graphics
     ogta::util
-    SDL2::SDL2
     ogta::glad
     OpenGL::GLU
     fmt::fmt
@@ -76,7 +70,6 @@ target_link_libraries(display-font-shader PRIVATE
     ogta::core
     ogta::graphics
     ogta::util
-    SDL2::SDL2
     ogta::glad
     OpenGL::GLU
     fmt::fmt
@@ -88,7 +81,6 @@ target_link_libraries(obj-dump PRIVATE
     ogta::core
     ogta::graphics
     ogta::util
-    SDL2::SDL2
     OpenGL::GLU
     fmt::fmt
     ${PHYSFS_LIBRARY})
@@ -99,7 +91,6 @@ target_link_libraries(mapinfo PRIVATE
     ogta::core
     ogta::graphics
     ogta::util
-    SDL2::SDL2
     OpenGL::GLU
     fmt::fmt
     ${PHYSFS_LIBRARY})
@@ -110,7 +101,6 @@ target_link_libraries(minimap PRIVATE
     ogta::core
     ogta::graphics
     ogta::util
-    SDL2::SDL2
     OpenGL::GLU
     fmt::fmt
     ${PHYSFS_LIBRARY})
@@ -121,7 +111,6 @@ target_link_libraries(car_dump PRIVATE
     ogta::core
     ogta::graphics
     ogta::util
-    SDL2::SDL2
     OpenGL::GLU
     fmt::fmt
     ${PHYSFS_LIBRARY})

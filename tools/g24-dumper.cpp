@@ -1,6 +1,10 @@
 #include <cassert>
 #include <iostream>
 
+#ifdef _MSC_VER
+#define SDL_MAIN_HANDLED
+#endif
+
 #include <physfs.h>
 
 #include <SDL2/SDL.h>

@@ -1,11 +1,15 @@
 #include <cassert>
 
-#include <SDL.h>
+#ifdef _MSC_VER
+#define SDL_MAIN_HANDLED
+#endif
 
+#include <SDL2/SDL.h>
 #include <core/dataholder.h>
 
 #include <util/file-manager.h>
 #include <util/log.h>
+
 
 uint32_t green = 0x00dd00ff;
 uint32_t red = 0xdd0000ff;

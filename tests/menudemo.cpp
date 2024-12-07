@@ -1,10 +1,12 @@
 #include <iostream>
-#include <memory>
+
+#ifdef _MSC_VER
+#define SDL_MAIN_HANDLED
+#endif
 
 #include <SDL_image.h>
 #include <SDL_opengl.h>
 #include <physfs.h>
-#include <unistd.h>
 
 #include <core/dataholder.h>
 
@@ -19,13 +21,6 @@
 
 GUI::Manager guiManager;
 int global_Done = 0;
-
-void on_exit()
-{
-    SDL_Quit();
-    PHYSFS_deinit();
-    std::cout << "Goodbye" << std::endl;
-}
 
 void turn_anim_off(float)
 {
@@ -175,11 +170,15 @@ void run_main(OpenGL::Screen &screen)
     Timer::Instance().clearAllEvents();
 }
 
-int main(int argc, char *argv[])
+int main()
 {
-    atexit(on_exit);
     OpenGL::Screen screen {};
     run_init(screen);
     run_main(screen);
+
+    SDL_Quit();
+    PHYSFS_deinit();
+    std::cout << "Goodbye" << std::endl;
+
     return 0;
 }

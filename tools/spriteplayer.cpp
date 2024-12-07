@@ -23,7 +23,10 @@
  ************************************************************************/
 #include <array>
 #include <iostream>
-#include <string_view>
+
+#ifdef _MSC_VER
+#define SDL_MAIN_HANDLED
+#endif
 
 #include <SDL2/SDL_opengl.h>
 #include <core/dataholder.h>

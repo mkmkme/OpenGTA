@@ -1,5 +1,9 @@
 #include <string>
 
+#ifdef _MSC_VER
+#define SDL_MAIN_HANDLED
+#endif
+
 #include <core/dataholder.h>
 #include <fmt/core.h>
 

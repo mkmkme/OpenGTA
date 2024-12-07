@@ -1,10 +1,13 @@
 #include <iostream>
-#include <vector>
+
+#ifdef _MSC_VER
+#define SDL_MAIN_HANDLED
+#endif
 
 #include <SDL2/SDL.h>
 #include <glad/gl.h>
 
-int main(int argc, char *argv[])
+int main()
 {
     if (SDL_Init(SDL_INIT_VIDEO) < 0) {
         std::cerr << "Failed to initialize SDL: " << SDL_GetError() << std::endl;

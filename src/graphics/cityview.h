@@ -23,6 +23,7 @@
 #ifndef GL_CITYVIEW_H
 #define GL_CITYVIEW_H
 
+#include <array>
 #include <span>
 
 #include <SDL2/SDL.h>

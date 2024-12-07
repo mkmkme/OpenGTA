@@ -28,5 +28,5 @@ add_library(ogta_core_ OBJECT
 target_include_directories(ogta_core_ PUBLIC
     ${OpenGTA_SOURCE_DIR}/src
     ${OpenGTA_BINARY_DIR}/src)
-target_link_libraries(ogta_core_ PUBLIC ogta::opensteer ogta::math)
+target_link_libraries(ogta_core_ PUBLIC ogta::opensteer ogta::math SDL2::SDL2)
 add_library(ogta::core ALIAS ogta_core_)

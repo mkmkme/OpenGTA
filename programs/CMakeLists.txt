@@ -8,7 +8,6 @@ target_link_libraries(viewer PRIVATE
     ogta::opensteer
     ogta::util
     fmt::fmt
-    SDL2::SDL2
     OpenGL::GLU
     ${PHYSFS_LIBRARY}
     ${LUA_LIBRARIES})

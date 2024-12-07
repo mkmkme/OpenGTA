@@ -9,6 +9,7 @@
  * This notice may not be removed or altered.                            *
  ************************************************************************/
 #include <cstring>
+#include <array>
 
 #include <core/read_ini.h>
 

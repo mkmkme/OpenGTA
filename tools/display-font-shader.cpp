@@ -1,4 +1,3 @@
-#include <array>
 #include <cstdio>
 #include <iostream>
 #include <stdexcept>
@@ -9,6 +8,11 @@
 
 // #include <GL/gl.h>
 // #include <GL/glext.h>
+
+#ifdef _MSC_VER
+#define SDL_MAIN_HANDLED
+#endif
+
 #include <SDL2/SDL.h>
 #include <core/font.h>
 #include <fmt/base.h>

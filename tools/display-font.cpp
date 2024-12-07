@@ -1,3 +1,8 @@
+#ifdef _WIN32
+#define SDL_MAIN_HANDLED
+#include <windows.h>
+#endif
+
 #include <iostream>
 
 #include <GL/gl.h>

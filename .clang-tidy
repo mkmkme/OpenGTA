@@ -38,6 +38,7 @@ Checks: [
   '-hicpp-member-init',
   '-hicpp-multiway-paths-covered',
   '-hicpp-named-parameter',
+  '-hicpp-no-array-decay',
   '-hicpp-no-assembler',
   '-hicpp-no-malloc',
   '-hicpp-signed-bitwise',

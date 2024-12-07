@@ -1,0 +1,12 @@
+{
+  "dependencies": [
+    "cxxopts",
+    "fmt",
+    "glm",
+    "lua",
+    "physfs",
+    "sdl2",
+    "sdl2-image",
+    "gtest"
+  ]
+}

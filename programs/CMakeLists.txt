@@ -1,4 +1,5 @@
 add_executable(viewer viewer/main.cpp)
+target_include_directories(viewer PRIVATE ${PHYSFS_INCLUDE_DIR})
 target_link_libraries(viewer PRIVATE
     ogta::core
     ogta::graphics
@@ -7,9 +8,9 @@ target_link_libraries(viewer PRIVATE
     ogta::opensteer
     ogta::util
     fmt::fmt
-    physfs
     SDL2::SDL2
     OpenGL::GLU
+    ${PHYSFS_LIBRARY}
     ${LUA_LIBRARIES})
 
 
@@ -26,6 +27,7 @@ target_link_libraries(viewer PRIVATE
 add_executable(gfxextract gfx_extract/main.cpp)
 
 target_include_directories(gfxextract PRIVATE
+    ${PHYSFS_INCLUDE_DIR}
     ${OpenGTA_SOURCE_DIR}/src
     ${OpenGTA_BINARY_DIR}/src)
 
@@ -36,4 +38,4 @@ target_link_libraries(gfxextract PRIVATE
     fmt::fmt
     SDL2::SDL2
     OpenGL::GLU
-    physfs)
+    ${PHYSFS_LIBRARY})

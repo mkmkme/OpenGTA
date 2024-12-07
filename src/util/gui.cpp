@@ -4,7 +4,6 @@
 
 #include <graphics/screen.h>
 #include <graphics/spritecache.h>
-#include <lua-addon/vm.h>
 #include <util/errors.h>
 #include <util/gui.h>
 #include <util/log.h>

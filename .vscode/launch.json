@@ -3,11 +3,11 @@
         {
             "name": "Objdump",
             "request": "launch",
-            "program": "${workspaceRoot}/build/clang/Debug/obj-dump",
+            "program": "${workspaceRoot}/build/tools/obj-dump",
             "type": "cppdbg",
             "windows": {
                 "type": "cppvsdbg",
-                "program": "${workspaceRoot}/build/msvc/Debug/obj-dump.exe",
+                "program": "${workspaceRoot}/build/tools/obj-dump.exe",
             },
             "args": [
                 "STYLE001.GRY",
@@ -20,10 +20,10 @@
             "name": "Spriteplayer",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/build/clang/Debug/spriteplayer",
+            "program": "${workspaceFolder}/build/tools/spriteplayer",
             "windows": {
                 "type": "cppvsdbg",
-                "program": "${workspaceFolder}/build/msvc/Debug/spriteplayer.exe",
+                "program": "${workspaceFolder}/build/tools/spriteplayer.exe",
             },
             "cwd": "${workspaceRoot}",
             "console": "integratedTerminal"
@@ -32,10 +32,10 @@
             "name": "LuaMapTest",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceRoot}/build/clang/Debug/lua_map_test",
+            "program": "${workspaceRoot}/build/tests/lua_map_test",
             "windows": {
                 "type": "cppvsdbg",
-                "program": "${workspaceRoot}/build/msvc/Debug/lua_map_test.exe",
+                "program": "${workspaceRoot}/build/tests/lua_map_test.exe",
             },
             "args": [
                 "NYC.CMP",
@@ -48,10 +48,10 @@
             "name": "Viewer",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceRoot}/build/clang/Debug/viewer",
+            "program": "${workspaceRoot}/build/programs/viewer",
             "windows": {
                 "type": "cppvsdbg",
-                "program": "${workspaceRoot}/build/msvc/Debug/viewer.exe",
+                "program": "${workspaceRoot}/build/programs/viewer.exe",
             },
             "args": [
                 "-c"
@@ -63,10 +63,10 @@
             "name": "LuaViewer",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceRoot}/build/clang/Debug/viewer",
+            "program": "${workspaceRoot}/build/programs/viewer",
             "windows": {
                 "type": "cppvsdbg",
-                "program": "${workspaceRoot}/build/msvc/Debug/viewer.exe",
+                "program": "${workspaceRoot}/build/programs/viewer.exe",
             },
             "args": [
                 "-c",
@@ -76,17 +76,6 @@
             "cwd": "${workspaceRoot}",
             "console": "integratedTerminal"
         },
-     {
-         "name": "Tests",
-         "type": "cppdbg",
-         "request": "launch",
-         "program": "${workspaceRoot}/build/msvc/tests/Debug/tests",
-         "windows": {
-             "type": "cppvsdbg",
-             "program": "${workspaceRoot}/build/msvc/tests/Debug/tests.exe",
-         },
-         "console": "integratedTerminal"
-     },
     ],
     "version": "2.0.0"
 }

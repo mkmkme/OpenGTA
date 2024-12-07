@@ -2,7 +2,7 @@ enable_testing()
 include(GoogleTest)
 add_executable(tests bitwise-test.cpp)
 target_include_directories(tests PRIVATE ${OpenGTA_SOURCE_DIR}/src)
-target_link_libraries(tests gtest_main gtest)
+target_link_libraries(tests GTest::gtest_main GTest::gtest)
 gtest_discover_tests(tests)
 
 if(SDL2_image_FOUND)

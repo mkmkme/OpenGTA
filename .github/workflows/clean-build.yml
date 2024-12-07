@@ -15,6 +15,7 @@ jobs:
             libglm-dev \
             libglu1-mesa-dev \
             libsdl2-dev \
+            libsdl2-image-dev \
             libphysfs-dev \
             liblua5.4-dev \
             libgtest-dev
@@ -22,8 +23,8 @@ jobs:
         uses: actions/checkout@v3
       - name: ⚒️ Build OpenGTA 🐧
         run: |
-          cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=RelWithDebInfo
-          cmake --build build -j $(nproc)
+          cmake --preset default
+          cmake --build --preset default-relwithdebinfo -j $(nproc)
   # Windows-Build:
   #   runs-on: windows-latest
   #   steps:

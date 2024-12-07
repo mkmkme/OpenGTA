@@ -1,0 +1,122 @@
+HeaderFilterRegex: '^.*/(src|third_party)/.*(h|hpp)$'
+
+Checks: [
+  '*',
+
+  '-abseil-*',
+
+  '-altera-*',
+
+  '-android-*',
+
+  # '-bugprone-assignment-in-if-condition',
+  # '-bugprone-branch-clone',
+  '-bugprone-easily-swappable-parameters',
+  # '-bugprone-exception-escape',
+  # '-bugprone-forward-declaration-namespace',
+  '-bugprone-implicit-widening-of-multiplication-result',
+  # '-bugprone-multi-level-implicit-pointer-conversion',
+  '-bugprone-narrowing-conversions',
+  # '-bugprone-not-null-terminated-result',
+  # '-bugprone-reserved-identifier', # useful but too slow, TODO retry when https://reviews.llvm.org/rG1c282052624f9d0bd273bde0b47b30c96699c6c7 is merged
+  '-bugprone-unchecked-optional-access',
+  '-bugprone-crtp-constructor-accessibility',
+  '-bugprone-suspicious-stringview-data-usage',
+
+  '-cert-dcl16-c',
+  '-cert-msc32-c',
+
+  '-cppcoreguidelines-*',
+
+  '-darwin-*',
+
+  '-fuchsia-*',
+
+  '-google-build-using-namespace',
+  '-google-readability-braces-around-statements',
+  '-google-readability-casting',
+  '-google-readability-function-size',
+  # '-google-readability-namespace-comments',
+  '-google-readability-todo',
+
+  '-hicpp-avoid-c-arrays',
+  # '-hicpp-avoid-goto',
+  '-hicpp-braces-around-statements',
+  '-hicpp-explicit-conversions',
+  '-hicpp-function-size',
+  '-hicpp-member-init',
+  # '-hicpp-move-const-arg',
+  '-hicpp-multiway-paths-covered',
+  '-hicpp-named-parameter',
+  # '-hicpp-no-array-decay',
+  '-hicpp-no-assembler',
+  '-hicpp-no-malloc',
+  '-hicpp-signed-bitwise',
+  '-hicpp-special-member-functions',
+  '-hicpp-uppercase-literal-suffix',
+  '-hicpp-use-auto',
+  '-hicpp-use-emplace',
+  '-hicpp-vararg',
+
+  '-linuxkernel-*',
+
+  '-llvm-*',
+
+  '-llvmlibc-*',
+
+  '-openmp-*',
+
+  '-misc-no-recursion',
+  '-misc-non-private-member-variables-in-classes',
+
+  '-modernize-return-braced-init-list',
+  '-modernize-use-auto',
+  '-modernize-use-trailing-return-type',
+
+  '-performance-unnecessary-value-param',
+
+  '-portability-simd-intrinsics',
+
+  '-readability-avoid-nested-conditional-operator',
+  '-readability-avoid-unconditional-preprocessor-if',
+  '-readability-braces-around-statements',
+  '-readability-convert-member-functions-to-static',
+  '-readability-function-cognitive-complexity',
+  '-readability-function-size',
+  '-readability-identifier-length',
+  '-readability-identifier-naming', # useful but too slow
+  '-readability-implicit-bool-conversion',
+  '-readability-isolate-declaration',
+  '-readability-magic-numbers',
+  '-readability-suspicious-call-argument',
+  '-readability-uppercase-literal-suffix',
+
+  '-zircon-*'
+]
+
+WarningsAsErrors: '*'
+
+CheckOptions:
+  readability-identifier-naming.ClassCase: CamelCase
+  readability-identifier-naming.EnumCase: CamelCase
+  readability-identifier-naming.LocalVariableCase: lower_case
+  readability-identifier-naming.StaticConstantCase: aNy_CasE
+  readability-identifier-naming.MemberCase: lower_case
+  readability-identifier-naming.PrivateMemberPrefix: ''
+  readability-identifier-naming.ProtectedMemberPrefix: ''
+  readability-identifier-naming.PublicMemberCase: lower_case
+  readability-identifier-naming.MethodCase: camelBack
+  readability-identifier-naming.PrivateMethodPrefix: ''
+  readability-identifier-naming.ProtectedMethodPrefix: ''
+  readability-identifier-naming.ParameterPackCase: lower_case
+  readability-identifier-naming.StructCase: CamelCase
+  readability-identifier-naming.TemplateTemplateParameterCase: CamelCase
+  readability-identifier-naming.TemplateParameterCase: lower_case
+  readability-identifier-naming.TypeTemplateParameterCase: CamelCase
+  readability-identifier-naming.TypedefCase: CamelCase
+  readability-identifier-naming.UnionCase: CamelCase
+  modernize-loop-convert.UseCxx20ReverseRanges: false
+  performance-move-const-arg.CheckTriviallyCopyableMove: false
+  # Workaround clang-tidy bug: https://github.com/llvm/llvm-project/issues/46097
+  readability-identifier-naming.TypeTemplateParameterIgnoredRegexp: expr-type
+  cppcoreguidelines-avoid-do-while.IgnoreMacros: true

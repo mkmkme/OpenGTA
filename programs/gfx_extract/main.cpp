@@ -20,12 +20,18 @@
  * 3. This notice may not be removed or altered from any source          *
  * distribution.                                                         *
  ************************************************************************/
-#include <cstdlib>
 #include <iostream>
+
+#ifdef _MSC_VER
+#define SDL_MAIN_HANDLED
+#endif
 
 #include <SDL.h>
 #include <SDL_video.h>
-#include <getopt.h>
+
+#include <fmt/format.h>
+
+#include <cxxopts.hpp>
 
 #ifdef DUMP_DELTA_DEBUG
 #include <fcntl.h>
@@ -43,13 +49,6 @@
 #include <util/set.h>
 
 SDL_Surface *image = nullptr;
-
-void at_exit()
-{
-    if (image)
-        SDL_FreeSurface(image);
-    SDL_Quit();
-}
 
 void display_image(SDL_Surface *s)
 {
@@ -98,19 +97,10 @@ SDL_Surface *get_image(std::span<const UInt8> rp, unsigned int w, unsigned int h
     return s;
 }
 
-void usage(const char *a0)
-{
-    std::cout << "USAGE: " << a0 << " --file $STYLE --extract|--display [--section N] --index N" << std::endl;
-    std::cout << "Where section 0 are 'side blocks', 1 'lid blocks', 2 'aux blocks' and 3 are 'sprites'" << std::endl;
-    std::cout << "You can apply remaps (--remap N) and deltas (--delta N) but the relative indices are" << std::endl;
-    std::cout << "not always correct (== experimental)." << std::endl;
-}
-
 int main(int argc, char *argv[])
 {
-    atexit(at_exit);
     const Util::PhysFSContext pfs(argv[0]);
-    char *file = nullptr;
+    std::string file;
     SDL_Init(SDL_INIT_VIDEO);
 
     int c = 0;
@@ -121,68 +111,57 @@ int main(int argc, char *argv[])
     bool delta_set = false;
     bool rgba = true;
 
-    unsigned int idx = 0;
-    unsigned int section = 0;
-    while (true) {
-        int option_index = 0;
-        static struct option long_options[] = {
-            { "info", 0, 0, 'i' },
-            { "display", 0, 0, 'd' },
-            { "extract", 0, 0, 'e' },
-            { "section", 1, 0, 's' },
-            { "index", 1, 0, 'x' },
-            { "file", 1, 0, 'f' },
-            { "remap", 1, 0, 'r' },
-            { "delta", 1, 0, 'a' },
-            { "delta-set", 1, 0, 'A' },
-            { 0, 0, 0, 0 },
-        };
+    int idx = 0;
+    int section = 0;
 
-        c = getopt_long(argc, argv, "h", long_options, &option_index);
-        if (c == -1)
-            break;
-        switch (c) {
-            case 'i':
-                mode = 0;
-                break;
-            case 'd':
-                mode |= 1;
-                break;
-            case 'e':
-                mode |= 2;
-                break;
-            case 'f':
-                file = optarg;
-                break;
-            case 'x':
-                idx = strtol(optarg, nullptr, 10);
-                break;
-            case 's':
-                section = strtol(optarg, nullptr, 10);
-                break;
-            case 'r':
-                remap = strtol(optarg, nullptr, 10);
-                break;
-            case 'a':
-                delta = strtol(optarg, nullptr, 10);
-                break;
-            case 'A':
-                delta_set = true;
-                delta_as_set.set_item(strtol(optarg, nullptr, 10), true);
-                break;
-            case 'h':
-            default:
-                usage(argv[0]);
-                return 0;
+    cxxopts::Options options { "gfx_extract", "Extract and display graphics from OpenGTA style files" };
+    // clang-format off
+    options.add_options()
+        ("i,info", "Display information about the style file")
+        ("d,display", "Display the image")
+        ("e,extract", "Extract the image to out.bmp")
+        ("s,section", "Section to extract (0=side, 1=lid, 2=aux, 3=sprite)", cxxopts::value<int>(section))
+        ("x,index", "Index of the block to extract", cxxopts::value<int>(idx))
+        ("f,file", "Style file to load", cxxopts::value<std::string>(file))
+        ("r,remap", "Remap index to use", cxxopts::value<int>(remap))
+        ("a,delta", "Delta index to use", cxxopts::value<int>(delta))
+        ("A,delta-set", "Delta set to use", cxxopts::value<int>())
+        ("help", "Print help and exit");
+    // clang-format on
+
+    try {
+        auto result = options.parse(argc, argv);
+        if (result.count("help")) {
+            fmt::print("{}\n", options.help());
+            fmt::print("Where section 0 are 'side blocks', 1 'lid blocks', 2 'aux blocks' and 3 are 'sprites'\n");
+            fmt::print("You can apply remaps (--remap N) and deltas (--delta N) but the relative indices are\n");
+            fmt::print("not always correct (== experimental).\n");
+            return 0;
         }
-    }
-
-    if (!file) {
-        std::cerr << "Error: no data file selected" << std::endl;
-        usage(argv[0]);
+        if (result.count("info")) {
+            mode = 0;
+        }
+        if (result.count("display")) {
+            mode |= 1;
+        }
+        if (result.count("extract")) {
+            mode |= 2;
+        }
+        if (result.count("delta-set")) {
+            delta_set = true;
+            auto dset = result["delta-set"].as<int>();
+            delta_as_set.set_item(dset, true);
+        }
+    } catch (const cxxopts::exceptions::exception &e) {
+        fmt::print(stderr, "Error parsing options: {}\n", e.what());
         return 1;
     }
-    if (!pfs.exists(file)) {
+
+    if (file.empty()) {
+        std::cerr << "Error: no data file selected" << std::endl;
+        return 1;
+    }
+    if (!pfs.exists(file.data())) {
         std::cerr << "File does not exist in searchpath: " << file << std::endl;
         return 1;
     }
@@ -241,6 +220,10 @@ int main(int argc, char *argv[])
         std::cerr << "Exception occured: " << e.what() << std::endl;
         return 1;
     }
+
+    if (image)
+        SDL_FreeSurface(image);
+    SDL_Quit();
 
     return 0;
 }

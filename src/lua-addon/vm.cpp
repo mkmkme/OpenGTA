@@ -32,7 +32,6 @@ LuaVM::~LuaVM()
 {
     if (L != nullptr)
         lua_close(L);
-    L = nullptr;
 }
 
 int vm_quit([[maybe_unused]] lua_State *L)

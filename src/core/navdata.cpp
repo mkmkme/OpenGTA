@@ -10,7 +10,7 @@
  ************************************************************************/
 #include <cassert>
 
-#include <core/dataholder.h>
+#include <core/main-msg-lookup.h>
 #include <core/navdata.h>
 #include <fmt/format.h>
 
@@ -19,10 +19,6 @@
 #include <util/log.h>
 
 namespace OpenGTA {
-Rect2D::Rect2D()
-{
-    x = y = w = h = 0;
-}
 
 bool Rect2D::isInside(UInt8 _x, UInt8 _y)
 {
@@ -66,7 +62,6 @@ UInt8 Rect2D::subLocation(UInt8 _x, UInt8 _y) const
 }
 
 NavData::Sector::Sector(Util::PhysFSFile &pf)
-    : Rect2D()
 {
     // memset(name2, 0, 30);
     pf.read(x);
@@ -81,7 +76,6 @@ NavData::Sector::Sector(Util::PhysFSFile &pf)
 }
 
 NavData::Sector::Sector()
-    : Rect2D()
 {
     x = 0;
     y = 0;
@@ -150,7 +144,7 @@ std::string NavData::_ne;
 std::string NavData::_sw;
 std::string NavData::_se;
 
-NavData::NavData(UInt32 size, Util::PhysFSFile &pf, const size_t level_num)
+NavData::NavData(UInt32 size, Util::PhysFSFile &pf, size_t level_num)
 {
     if (size % 35) {
         throw Util::InvalidFormat("Navdata size: " + std::to_string(size) + " % 35 != 0");
@@ -174,12 +168,11 @@ NavData::NavData(UInt32 size, Util::PhysFSFile &pf, const size_t level_num)
             delete sec;
             WARN("skipping zero size sector");
             continue;
-        } else {
-            // INFO << i << " " << sec->name2 << std::endl << os.str() << " : " << msg.getText(os.str()) << std::endl;
-            sec->name = msg.getText(fmt::format("{:03}area{:03}", level_num, int(sec->sam)));
-
-            areas.insert(std::pair<UInt16, Sector *>(sec->getSize(), sec));
         }
+        // INFO << i << " " << sec->name2 << std::endl << os.str() << " : " << msg.getText(os.str()) << std::endl;
+        sec->name = msg.getText(fmt::format("{:03}area{:03}", level_num, int(sec->sam)));
+
+        areas.insert(std::pair<UInt16, Sector *>(sec->getSize(), sec));
     }
     // dummy catch-all sector for gta london maps
     areas.insert(std::pair<UInt16, Sector *>(255 * 255, new Sector()));

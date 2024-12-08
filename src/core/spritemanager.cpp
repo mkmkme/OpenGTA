@@ -21,7 +21,8 @@
  * distribution.                                                         *
  ************************************************************************/
 #include <SDL2/SDL_opengl.h>
-#include <core/dataholder.h>
+#include <core/active-map.h>
+#include <core/active-style.h>
 #include <core/game_objects.h>
 #include <core/id_sys.h>
 #include <core/localplayer.h>

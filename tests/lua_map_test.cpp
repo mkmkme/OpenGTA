@@ -4,7 +4,8 @@
 #define SDL_MAIN_HANDLED
 #endif
 
-#include <core/dataholder.h>
+#include <core/active-map.h>
+#include <core/main-msg-lookup.h>
 #include <fmt/core.h>
 
 #include <graphics/camera.h>

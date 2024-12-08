@@ -21,12 +21,12 @@
  * distribution.                                                         *
  ************************************************************************/
 #include <cassert>
-#include <cmath>
 
+#include <core/active-map.h>
+#include <core/active-style.h>
 #include <core/blockanim.h>
 #include <core/blockdata.h>
 #include <core/car-info.h>
-#include <core/dataholder.h>
 #include <core/graphics-base.h>
 #include <core/localplayer.h>
 #include <core/sprite-info.h>
@@ -39,6 +39,7 @@
 #include <util/image_loader.h>
 #include <util/log.h>
 #include <util/map_helper.h>
+
 
 #ifdef __APPLE__
 #include <OpenGL/glu.h>
@@ -84,9 +85,9 @@ namespace OpenGTA {
 */
 struct GLColor {
     std::array<GLfloat, 3> rgb {};
-    GLColor() { rgb[0] = rgb[1] = rgb[2] = 0; }
-    explicit GLColor(GLfloat i) { rgb[0] = rgb[1] = rgb[2] = i; }
-    GLColor(GLfloat r, GLfloat g, GLfloat b)
+    GLColor() noexcept { rgb[0] = rgb[1] = rgb[2] = 0; }
+    explicit GLColor(GLfloat i) noexcept { rgb[0] = rgb[1] = rgb[2] = i; }
+    GLColor(GLfloat r, GLfloat g, GLfloat b) noexcept
     {
         rgb[0] = r;
         rgb[1] = g;

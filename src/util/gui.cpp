@@ -1,4 +1,4 @@
-#include <core/dataholder.h>
+#include <core/active-style.h>
 #include <core/localplayer.h>
 #include <core/sprite-info.h>
 
@@ -7,6 +7,7 @@
 #include <util/errors.h>
 #include <util/gui.h>
 #include <util/log.h>
+
 
 extern float screen_gamma;
 namespace GUI {

@@ -32,7 +32,7 @@ public:
     /** Zero-constructor.
      * Everything is 0
      */
-    Rect2D();
+    Rect2D() = default;
     /** Test: point-in-box.
      * @param x
      * @param y
@@ -48,8 +48,8 @@ public:
     [[nodiscard]] UInt16 getSize() const noexcept;
 
 protected:
-    UInt8 x, y;
-    UInt8 w, h;
+    UInt8 x = 0, y = 0;
+    UInt8 w = 0, h = 0;
     /** Last sub-area location.
      * 0 = central
      * 1 = north
@@ -71,7 +71,7 @@ public:
     struct Sector : public Rect2D {
         /** Constructor from valid PHYSFS handle.
          */
-        Sector(Util::PhysFSFile &pf);
+        explicit Sector(Util::PhysFSFile &pf);
         Sector();
         /** Sample number.
          * 1) see $LANGUAGE.FXT file for actual name
@@ -82,12 +82,12 @@ public:
         std::string name;
         /** Returns the name prefixed with sub-area location.
          */
-        std::string getFullName() const;
+        [[nodiscard]] std::string getFullName() const;
 
     private:
         bool isADummy {};
     };
-    NavData(UInt32 size, Util::PhysFSFile &pf, const size_t level_num);
+    NavData(UInt32 size, Util::PhysFSFile &pf, size_t level_num);
     ~NavData();
     Sector *getSectorAt(UInt8, UInt8);
     static std::string _c, _n, _s, _w, _e, _nw, _ne, _sw, _se;

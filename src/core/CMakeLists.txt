@@ -2,11 +2,12 @@ configure_file(${CMAKE_CURRENT_SOURCE_DIR}/config.h.in
                ${CMAKE_CURRENT_BINARY_DIR}/config.h)
 
 add_library(ogta_core_ OBJECT
+    active-map.cpp
+    active-style.cpp
     ai.cpp
     blockanim.cpp
     blockdata.cpp
     car-info.cpp
-    dataholder.cpp
     entity_controller.cpp
     font.cpp
     font_cache.cpp
@@ -16,6 +17,7 @@ add_library(ogta_core_ OBJECT
     graphics-8bit.cpp
     loaded-anim.cpp
     localplayer.cpp
+    main-msg-lookup.cpp
     map.cpp
     message-db.cpp
     navdata.cpp

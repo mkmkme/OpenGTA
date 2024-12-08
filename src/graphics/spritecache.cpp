@@ -20,12 +20,10 @@
  * 3. This notice may not be removed or altered from any source          *
  * distribution.                                                         *
  ************************************************************************/
-// #include <map>
-// #include <memory>
 #include <cassert>
 
+#include <core/active-style.h>
 #include <core/config.h>
-#include <core/dataholder.h>
 #include <core/sprite-info.h>
 
 #include <graphics/spritecache.h>

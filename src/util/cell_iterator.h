@@ -25,7 +25,7 @@
 #include <cassert>
 #include <cmath>
 
-#include <core/dataholder.h>
+#include <core/active-map.h>
 #include <glm/ext/vector_float3.hpp>
 
 namespace Util {

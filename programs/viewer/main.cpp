@@ -31,15 +31,17 @@
 #include <string_view>
 
 #include <SDL2/SDL_opengl.h>
+#include <core/active-map.h>
+#include <core/active-style.h>
 #include <core/ai.h>
 #include <core/blockanim.h>
 #include <core/car-info.h>
 #include <core/config.h>
-#include <core/dataholder.h>
 #include <core/entity_controller.h>
 #include <core/font_cache.h>
 #include <core/id_sys.h>
 #include <core/localplayer.h>
+#include <core/main-msg-lookup.h>
 #include <core/navdata.h>
 #include <core/spritemanager.h>
 
@@ -57,6 +59,7 @@
 #include <util/file_helper.h>
 #include <util/gui.h>
 #include <util/log.h>
+
 
 int global_Done;
 int global_Restart;

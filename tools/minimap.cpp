@@ -5,11 +5,11 @@
 #endif
 
 #include <SDL2/SDL.h>
-#include <core/dataholder.h>
+#include <core/main-msg-lookup.h>
+#include <core/map.h>
 
 #include <util/file-manager.h>
 #include <util/log.h>
-
 
 uint32_t green = 0x00dd00ff;
 uint32_t red = 0xdd0000ff;

@@ -8,7 +8,7 @@
 #include <SDL_opengl.h>
 #include <physfs.h>
 
-#include <core/dataholder.h>
+#include <core/active-style.h>
 
 #include <graphics/pagedtexture.h>
 #include <graphics/screen.h>

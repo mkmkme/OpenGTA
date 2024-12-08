@@ -40,7 +40,7 @@
 #include <sys/types.h>
 #endif
 
-#include <core/dataholder.h>
+#include <core/active-style.h>
 #include <core/graphics-base.h>
 #include <core/sprite-info.h>
 

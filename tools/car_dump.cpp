@@ -1,10 +1,12 @@
 #include <iostream>
 #include <string>
 
+#include <core/active-style.h>
 #include <core/car-info.h>
-#include <core/dataholder.h>
+#include <core/main-msg-lookup.h>
 
 #include <util/file-manager.h>
+
 
 void print_car(OpenGTA::CarInfo &ci)
 {

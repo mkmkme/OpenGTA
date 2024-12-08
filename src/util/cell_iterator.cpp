@@ -20,10 +20,12 @@
  * 3. This notice may not be removed or altered from any source          *
  * distribution.                                                         *
  ************************************************************************/
+#include <core/map.h>
 #include <glm/geometric.hpp>
 
 #include <util/cell_iterator.h>
 #include <util/log.h>
+
 
 namespace {
 constexpr double pi = 3.14159265358979323846;

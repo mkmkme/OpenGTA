@@ -20,8 +20,9 @@
  * 3. This notice may not be removed or altered from any source          *
  * distribution.                                                         *
  ************************************************************************/
+#include <core/active-map.h>
+#include <core/active-style.h>
 #include <core/ai.h>
-#include <core/dataholder.h>
 #include <core/game_objects.h>
 #include <core/localplayer.h>
 #include <core/sprite-info.h>

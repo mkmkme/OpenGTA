@@ -29,8 +29,9 @@
 #endif
 
 #include <SDL2/SDL_opengl.h>
-#include <core/dataholder.h>
+#include <core/active-style.h>
 #include <core/graphics-base.h>
+#include <core/main-msg-lookup.h>
 #include <core/spritemanager.h>
 
 #include <graphics/camera.h>

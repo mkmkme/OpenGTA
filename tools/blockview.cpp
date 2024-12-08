@@ -2,7 +2,8 @@
 
 #include <SDL_opengl.h>
 
-#include <core/dataholder.h>
+#include <core/active-map.h>
+#include <core/main-msg-lookup.h>
 
 #include <graphics/camera.h>
 #include <graphics/screen.h>

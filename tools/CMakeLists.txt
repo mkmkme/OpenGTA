@@ -56,12 +56,10 @@ target_link_libraries(display-font PRIVATE
 add_executable(shaders-test shaders-test.cpp)
 target_include_directories(shaders-test PRIVATE ${PHYSFS_INCLUDE_DIR})
 target_link_libraries(shaders-test PRIVATE
-    ogta::core
-    ogta::graphics
-    ogta::util
     ogta::glad
     OpenGL::GLU
     fmt::fmt
+    SDL2::SDL2
     ${PHYSFS_LIBRARY})
 
 add_executable(display-font-shader display-font-shader.cpp)

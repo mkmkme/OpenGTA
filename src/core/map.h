@@ -20,10 +20,8 @@ class NavData; // see navdata.h
 
 /** the wrapper for the CMP (compressed map) files */
 class Map {
-    friend class MapViewGL;
-
 public:
-    Map(const std::string &filename);
+    explicit Map(const std::string &filename);
     ~Map();
 
     struct BlockInfo {
@@ -126,7 +124,7 @@ private:
     void loadObjects();
     void loadRoutes();
     void loadLocations();
-    void loadNavData(const size_t level_num);
+    void loadNavData(size_t level_num);
 };
 
 } // namespace OpenGTA

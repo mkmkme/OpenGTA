@@ -382,7 +382,6 @@ std::span<const UInt8> Graphics8Bit::getAux(UInt8 idx, unsigned int /*palIdx*/, 
 }
 
 /* RGBPalette */
-Graphics8Bit::RGBPalette::RGBPalette() = default;
 
 Graphics8Bit::RGBPalette::RGBPalette(const std::string &palette)
 {
@@ -395,28 +394,29 @@ Graphics8Bit::RGBPalette::RGBPalette(Util::PhysFSFile &styleFile)
     loadFromFile(styleFile);
 }
 
-int Graphics8Bit::RGBPalette::loadFromFile(Util::PhysFSFile &styleFile)
+void Graphics8Bit::RGBPalette::loadFromFile(Util::PhysFSFile &styleFile)
 {
     styleFile.read(data, sizeof(data));
-    return 0;
 }
 
 void Graphics8Bit::RGBPalette::apply(unsigned int len, const unsigned char *src, unsigned char *dst, bool rgba)
 {
+    size_t src_idx = 0;
+    size_t dst_idx = 0;
     for (unsigned int i = 0; i < len; i++) {
-        const auto tmp = *src * 3;
+        const auto tmp = src[src_idx] * 3;
         for (int j = 0; j < 3; j++) {
-            *dst = data[tmp + j];
-            ++dst;
+            dst[dst_idx] = data[tmp + j];
+            ++dst_idx;
         }
         if (rgba) {
-            if (*src == 0)
-                *dst = 0x00;
+            if (src[src_idx] == 0)
+                dst[dst_idx] = 0x00;
             else
-                *dst = 0xff;
-            ++dst;
+                dst[dst_idx] = 0xff;
+            ++dst_idx;
         }
-        ++src;
+        ++src_idx;
     }
 }
 } // namespace OpenGTA

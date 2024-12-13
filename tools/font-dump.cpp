@@ -16,9 +16,9 @@ namespace OpenGTA {
 void dumpAs(OpenGTA::Font &font, const char *filename, size_t id)
 {
     INFO("Dumping font character {} to {}", id, filename);
-    unsigned int len = font.chars[id].width;
-    len *= font.charHeight;
-    font.palette.apply(len, font.chars[id].rawData.data(), font.workBuffer.data(), true);
+    unsigned int width = 0;
+    unsigned int height = 0;
+    const auto bitmap = font.getCharacterBitmap(id, &width, &height);
 #if SDL_BYTEORDER == SDL_BIG_ENDIAN
 #define rmask 0xff000000
 #define gmask 0x00ff0000
@@ -30,11 +30,9 @@ void dumpAs(OpenGTA::Font &font, const char *filename, size_t id)
 #define bmask 0x00ff0000
 #define amask 0xff000000
 #endif
-    SDL_Surface *s = SDL_CreateRGBSurface(0, font.chars[id].width, font.charHeight, 32, rmask, gmask, bmask, amask);
+    SDL_Surface *s = SDL_CreateRGBSurface(0, width, height, 32, rmask, gmask, bmask, amask);
     SDL_LockSurface(s);
-    unsigned char *dst = static_cast<unsigned char *>(s->pixels);
-    unsigned char *rp = font.workBuffer.data();
-    memcpy(dst, rp, len * 4);
+    memcpy(s->pixels, bitmap.data(), bitmap.size());
     SDL_UnlockSurface(s);
     SDL_SaveBMP(s, filename);
     SDL_FreeSurface(s);

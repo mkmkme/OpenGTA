@@ -127,33 +127,17 @@ void glVerifyProgram_(int program, std::string_view file, int line)
 }
 #define glVerifyProgram(program) glVerifyProgram_(program, __FILE__, __LINE__)
 
-std::vector<UInt8> bitmap;
-unsigned int glwidth = 0;
-unsigned int glheight = 0;
-namespace OpenGTA {
-void dumpAs(OpenGTA::Font &font, const char * /*filename*/, size_t id)
-{
-    unsigned int len = font.chars[id].width;
-    len *= font.charHeight;
-    glwidth = font.chars[id].width;
-    glheight = font.charHeight;
-    font.palette.apply(len, font.chars[id].rawData.data(), font.workBuffer.data(), true);
-    bitmap.resize(len * 4);
-    memcpy(bitmap.data(), font.workBuffer.data(), len * 4);
-}
-} // namespace OpenGTA
-
-#define countof(x) (sizeof(x) / sizeof(x[0]))
+#define countof(x) (sizeof(x) / sizeof((x)[0]))
 
 int main(int /*argc*/, char **argv)
 {
     const Util::PhysFSContext pfs(argv[0]);
 
-    // auto *fps_label = new GUI::Label({ .x = 5, .y = 50 }, "", "F_MTEXT.FON", 1);
-    // fps_label->font.
     OpenGTA::Font font("F_MTEXT.FON");
     const auto id = 0;
-    dumpAs(font, "out.bmp", id);
+    unsigned int glwidth = 0;
+    unsigned int glheight = 0;
+    const auto bitmap = font.getCharacterBitmap(id, &glwidth, &glheight);
     fmt::print("glwidth: {}, glheight: {}, vector size: {}\n", glwidth, glheight, bitmap.size());
     for (size_t i = 0; i < bitmap.size(); i += 4) {
         fmt::print("bitmap[{}]: {}, {}, {}, {}\n", i / 4, bitmap[i], bitmap[i + 1], bitmap[i + 2], bitmap[i + 3]);

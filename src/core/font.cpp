@@ -17,14 +17,17 @@
 #include <util/log.h>
 #include <util/string_helpers.h>
 
+#include "core/numeric-types.h"
+
 namespace OpenGTA {
 Font::Font(const std::string &file)
 {
     Util::PhysFSFile pf { file };
-    readHeader(pf);
+    const auto numChars = readHeader(pf);
+    chars.reserve(numChars);
     int ww = 0;
     int lw = 0;
-    for (uint8_t i = 0; i < numChars; i++) {
+    for (UInt8 i = 0; i < numChars; i++) {
         const auto &ch = chars.emplace_back(pf, charHeight);
         ww += ch.width;
         if (ch.width > lw)
@@ -37,46 +40,48 @@ Font::Font(const std::string &file)
         ih *= 2;
         ww /= 2;
     }
-    workBuffer = std::vector<UInt8>(lw * charHeight * 4);
     loadMapping(file);
 }
 
-void Font::readHeader(Util::PhysFSFile &pf)
+UInt8 Font::readHeader(Util::PhysFSFile &pf)
 {
+    UInt8 numChars;
     pf.read(numChars);
     pf.read(charHeight);
     INFO("Font contains {} characters of height {}", numChars, charHeight);
+    return numChars;
 }
 void Font::addMapping(unsigned char c, size_t num)
 {
     mapping[c] = num;
 }
-size_t Font::getIdByChar(const char c)
+size_t Font::getIdByChar(const char c) const noexcept
 {
-    auto i = mapping.find(c);
+    const auto i = mapping.find(c);
     if (i == mapping.end())
         return 0;
     return i->second;
 }
 uint8_t Font::getMoveWidth(const char c)
 {
-    auto i = mapping.find(c);
+    const auto i = mapping.find(c);
     if (i == mapping.end()) {
         return chars[0].width;
     }
     return chars[i->second].width;
 }
 
-std::span<const UInt8> Font::getCharacterBitmap(size_t num, unsigned int *width, unsigned int *height)
+std::vector<UInt8> Font::getCharacterBitmap(size_t num, unsigned int *width, unsigned int *height)
 {
-    unsigned int len = chars[num].width;
-    len *= charHeight;
-    palette.apply(len, chars[num].rawData.data(), workBuffer.data(), true);
+    std::vector<UInt8> buffer;
+    const unsigned int len = chars[num].width * charHeight;
+    buffer.resize(len * 4);
+    palette.apply(len, chars[num].rawData.data(), buffer.data(), true);
     if (width != nullptr)
         *width = chars[num].width;
     if (height != nullptr)
         *height = charHeight;
-    return workBuffer;
+    return buffer;
 }
 
 Font::Character::Character(Util::PhysFSFile &pf, uint8_t height)

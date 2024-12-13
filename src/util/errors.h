@@ -6,6 +6,12 @@ namespace Util {
 
 struct Exception : public std::runtime_error {
     using std::runtime_error::runtime_error;
+
+    template <typename... Args>
+    explicit Exception(const std::format_string<Args...> &fmt, Args &&...args)
+        : std::runtime_error(std::format(fmt, std::forward<Args>(args)...))
+    {
+    }
 };
 
 struct FileNotFound : public Exception {

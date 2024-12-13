@@ -222,15 +222,14 @@ void Map::loadLocations()
         else
             continue;
         // std::cout << int(loc_type) <<": " << int(loc.x) << ", " << int(loc.y) << ", " << int(loc.z) << std::endl;
-        locations.insert({ loc_type, std::move(loc) });
+        locations.insert({ loc_type, loc });
     }
 }
-void Map::loadNavData(const size_t levelNum)
+void Map::loadNavData(size_t level_num)
 {
     UInt32 _si = baseSize + columnSize + topHeaderSize + objectPosSize + routeSize + 3 * 6 * 6 + blockSize;
     pf.seek(_si);
-    nav = new NavData(navDataSize, pf, levelNum);
-    assert(nav);
+    nav = new NavData(navDataSize, pf, level_num);
 }
 UInt16 Map::getNumBlocksAt(UInt8 x, UInt8 y)
 {
@@ -267,14 +266,14 @@ void Map::dump()
 {
     for (int y = 0; y < GTA_MAP_MAXDIMENSION; y++) {
         for (int x = 0; x < GTA_MAP_MAXDIMENSION; x++) {
-            std::cout << x << "," << y << ":" << column[base[x][y] / 2] << "||";
+            fmt::print("{}, {}: {}||(", x, y, column[base[x][y] / 2]);
             UInt16 ts = column[base[x][y] / 2];
             std::cout << "(";
             for (int t = 1; t <= (6 - ts); t++) {
                 BlockInfo *info = &block[column[base[x][y] / 2 + t]];
-                std::cout << int(info->slopeType()) << ", ";
+                fmt::print("{}, ", int(info->slopeType()));
             }
-            std::cout << ")" << std::endl;
+            fmt::print(")\n");
         }
     }
 }
@@ -284,7 +283,7 @@ const Map::Location &Map::getNearestLocationByType(uint8_t t, uint8_t x, uint8_t
     auto i = locations.find(t);
     auto j = i;
     if (i == locations.end())
-        throw Util::UnknownKey("location-type " + std::to_string(int(t)) + " not found in map");
+        throw Util::UnknownKey("location-type {} not found in map", int(t));
     int _x(x);
     int _y(y);
     int min_d = 255 * 255;

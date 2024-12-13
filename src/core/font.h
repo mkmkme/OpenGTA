@@ -25,23 +25,21 @@ public:
     };
     explicit Font(const std::string &file);
     [[nodiscard]] uint8_t getCharHeight() const noexcept { return charHeight; }
-    size_t getIdByChar(char c);
+    [[nodiscard]] size_t getIdByChar(char c) const noexcept;
     uint8_t getMoveWidth(char c);
 
     void addMapping(unsigned char c, size_t num);
 
-    friend void dumpAs(Font &font, const char *filename, size_t id);
-    std::span<const UInt8> getCharacterBitmap(size_t num, unsigned int *width, unsigned int *height);
+    std::vector<UInt8> getCharacterBitmap(size_t num, unsigned int *width, unsigned int *height);
 
 private:
+    // Returns the number of characters in the font
     void loadMapping(const std::string &name);
-    void readHeader(Util::PhysFSFile &pf);
-    uint8_t charHeight {};
-    uint8_t numChars {};
+    UInt8 readHeader(Util::PhysFSFile &pf);
+    UInt8 charHeight {};
     std::vector<Character> chars;
     std::map<char, size_t> mapping;
     Graphics8Bit::RGBPalette palette;
-    std::vector<UInt8> workBuffer;
 };
 
 } // namespace OpenGTA

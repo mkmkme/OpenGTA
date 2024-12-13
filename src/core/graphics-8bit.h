@@ -10,16 +10,11 @@ class PhysFSFile;
 
 namespace OpenGTA {
 
-class CityView;
-
 /** Loader for STYLE*.GRY files.
  *
  * Implements loading the 8-bit graphic files.
  */
 class Graphics8Bit : public GraphicsBase {
-    /** allow renderer direct access to members */
-    friend class CityView;
-
 public:
     /** Constructor for graphics loader.
      * @param style a valid filename (maybe uppercase depending on your files)
@@ -39,11 +34,11 @@ public:
          * You HAVE to call loadFromFile() function when using this
          * constructor!.
          */
-        RGBPalette();
+        RGBPalette() = default;
         /** Formerly private member, now exposed for Font class; take care.
          * @param styileFile Util::PhysFSFile handle.
          */
-        int loadFromFile(Util::PhysFSFile &styleFile);
+        void loadFromFile(Util::PhysFSFile &styleFile);
         /** Constructor from PHYFS_file.
          * @param styleFile Util::PhysFSFile handle
          */

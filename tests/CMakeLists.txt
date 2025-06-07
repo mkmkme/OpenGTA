@@ -15,7 +15,7 @@ if(SDL2_image_FOUND)
         ogta::util
         fmt::fmt
         OpenGL::GLU
-        SDL2_image::SDL2_image
+        $<IF:$<TARGET_EXISTS:SDL2_image::SDL2_image>,SDL2_image::SDL2_image,SDL2_image::SDL2_image-static>
         ${PHYSFS_LIBRARY}
         ${LUA_LIBRARIES})
 endif()

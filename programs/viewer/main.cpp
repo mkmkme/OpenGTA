@@ -27,7 +27,7 @@
 #define SDL_MAIN_HANDLED
 
 #include <array>
-#include <iostream>
+#include <cstdlib>
 #include <string_view>
 
 #include <SDL2/SDL_opengl.h>
@@ -60,9 +60,36 @@
 #include <util/gui.h>
 #include <util/log.h>
 
+namespace OpenGTA::Globals {
+extern int DONE;
+extern int RESTART;
+} // namespace OpenGTA::Globals
 
-int global_Done;
-int global_Restart;
+int OpenGTA::Globals::DONE = 0;
+int OpenGTA::Globals::RESTART = 0;
+
+class OpenGTAViewer {
+public:
+    explicit OpenGTAViewer(std::string_view progname);
+
+    void run();
+    void quit();
+
+    void screenGammaCallback(float v);
+
+private:
+    void handleKeyPress(SDL_Keysym *keysym);
+    void createPedAt(const glm::vec3 &v);
+    void showGammaConfig();
+
+    Util::PhysFSContext physfs_context_;
+    GUI::Manager guiManager_;
+    OpenGL::Screen screen_;
+    OpenGL::Camera camera_;
+    OpenGTA::Script::LuaVM luaVM_;
+    OpenGTA::LocalPlayer localPlayer_;
+};
+namespace {
 std::array<GLfloat, 3> mapPos = { 12.0f, 12.0f, 20.0f };
 
 OpenGTA::CityView *city = nullptr;
@@ -110,34 +137,9 @@ float screen_gamma = 1.0f;
 
 glm::vec3 test_dot;
 
-class OpenGTAViewer {
-public:
-    explicit OpenGTAViewer(std::string_view progname);
+} // namespace
 
-    void run();
-    void quit();
-
-    void screenGammaCallback(float v);
-
-private:
-    void handleKeyPress(SDL_Keysym *keysym);
-    void createPedAt(const glm::vec3 &v);
-    void showGammaConfig();
-
-    Util::PhysFSContext physfs_context_;
-    GUI::Manager guiManager_;
-    OpenGL::Screen screen_;
-    OpenGL::Camera camera_;
-    OpenGTA::Script::LuaVM luaVM_;
-    OpenGTA::LocalPlayer localPlayer_;
-};
-
-void OpenGTAViewer::quit()
-{
-    SDL_Quit();
-    delete city;
-    fmt::print("Goodbye\n");
-}
+namespace {
 
 void print_version_info()
 {
@@ -184,8 +186,6 @@ void print_version_info()
     PRINT_FORMATTED("default graphics:", "GRY - 8 bit");
 #endif
 }
-
-namespace {
 
 void create_ingame_gui(GUI::Manager &gm, OpenGL::Screen &screen)
 {
@@ -239,9 +239,13 @@ void remove_ingame_gui(GUI::Manager &gm)
     cashLabel = nullptr;
 }
 
-} // namespace
+enum class ParseArgsResult : uint8_t {
+    Success,
+    ExitSuccess,
+    ExitError,
+};
 
-void parse_args(int argc, char **argv)
+ParseArgsResult parse_args(int argc, char **argv) noexcept
 {
     cxxopts::Options options { "viewer", "Demo program for OpenGTA" };
     // clang-format off
@@ -269,11 +273,11 @@ void parse_args(int argc, char **argv)
         auto result = options.parse(argc, argv);
         if (result.count("help")) {
             fmt::print("{}", options.help());
-            exit(0);
+            return ParseArgsResult::ExitSuccess;
         }
         if (result.count("version")) {
             print_version_info();
-            exit(0);
+            return ParseArgsResult::ExitSuccess;
         }
         if (result.count("l")) {
             auto log_level = result["l"].as<int>();
@@ -303,11 +307,11 @@ void parse_args(int argc, char **argv)
         }
     } catch (const cxxopts::exceptions::exception &e) {
         fmt::print(stderr, "Error parsing options: {}\n", e.what());
-        exit(1);
+        return ParseArgsResult::ExitError;
     }
+    return ParseArgsResult::Success;
 }
 
-namespace {
 void setGamma(SDL_Window *w, float v)
 {
     std::array<Uint16, 256> ramp;
@@ -318,7 +322,282 @@ void setGamma(SDL_Window *w, float v)
     }
     SDL_SetWindowGammaRamp(w, ramp.data(), ramp.data(), ramp.data());
 }
+
+void print_position(OpenGL::Camera &camera)
+{
+    const auto &v = camera.getCenter();
+    const auto &e = camera.getEye();
+    const auto &u = camera.getUp();
+    if (!city->getViewMode()) {
+        fmt::print("{}: {}\n", cities[city_num], city->getCurrentSector()->getFullName());
+        fmt::print("camera.setCenter({}, {}, {})\n", v.x, v.y, v.z);
+        fmt::print("camera.setEye({}, {}, {})\n", e.x, e.y, e.z);
+        fmt::print("camera.setUp({}, {}, {})\n", u.x, u.y, u.z);
+        fmt::print("city_view:setVisibleRange({})\n", city->getVisibleRange());
+        fmt::print("city_view:setTopDownView( false )\n");
+    } else {
+        const auto cp = city->getCamPos();
+        fmt::print("{}: {}\n", cities[city_num], city->getCurrentSector()->getFullName());
+        fmt::print("city_view:setCamPosition({}, {}, {})\n", cp[0], cp[1], cp[2]);
+        fmt::print("city_view:setVisibleRange({})\n", city->getVisibleRange());
+        fmt::print("city_view:setTopDownView( true )\n");
+    }
+}
+
+void handleKeyUp(SDL_Keysym *keysym, OpenGTA::LocalPlayer &player)
+{
+    switch (keysym->sym) {
+        case 'j':
+            player.getCtrl().releaseTurnLeft();
+            break;
+        case 'l':
+            player.getCtrl().releaseTurnRight();
+            break;
+        case 'i':
+            player.getCtrl().releaseMoveForward();
+            break;
+        case 'k':
+            player.getCtrl().releaseMoveBack();
+            break;
+        case SDLK_LCTRL:
+            player.getCtrl().setFireWeapon(false);
+            break;
+        default:
+            break;
+    }
+}
+
+void explode_ped()
+{
+    try {
+        OpenGTA::Pedestrian &ped = OpenGTA::SpriteManager::Instance().getPed(0xffffffff);
+        auto p = ped.pos;
+        p.y += 0.2f;
+        OpenGTA::SpriteManager::Instance().createExplosion(p);
+    } catch (Util::UnknownKey &e) {
+        WARN("Cannot place explosion - press F4 to switch to player-mode first!");
+    }
+}
+
+void ai_step_fake(OpenGTA::Pedestrian *p)
+{
+    OpenGTA::Pedestrian &pr = OpenGTA::SpriteManager::Instance().getPed(0xffffffff);
+    float t_angle = Util::xz_angle(p->pos, pr.pos);
+    // INFO << "dist " << Util::distance(p->pos, pr.pos) << std::endl;
+    // INFO << "angle " << t_angle << std::endl;
+    // INFO << "myrot: " << p->rot << std::endl;
+    if (glm::distance(p->pos, pr.pos) > 3) {
+        p->m_control.setTurnLeft(false);
+        p->m_control.setTurnRight(false);
+        if (t_angle > p->rot)
+            p->m_control.setTurnLeft(true);
+        else
+            p->m_control.setTurnRight(true);
+    } else {
+        p->m_control.setMoveForward(true);
+        static thread_local std::mt19937 generator(std::random_device {}());
+        std::uniform_int_distribution<int> distribution(0, 4);
+        int k = distribution(generator);
+        if (k == 0) {
+            p->m_control.setTurnLeft(false);
+            p->m_control.setTurnRight(false);
+        } else if (k == 1) {
+            p->m_control.setTurnLeft(true);
+            p->m_control.setTurnRight(false);
+        } else if (k == 2) {
+            p->m_control.setTurnLeft(false);
+            p->m_control.setTurnRight(true);
+        }
+    }
+}
+
+void add_auto_ped()
+{
+    try {
+        OpenGTA::Pedestrian &pr = OpenGTA::SpriteManager::Instance().getPed(0xffffffff);
+        int id = OpenGTA::TypeIdBlackBox::Instance().requestId();
+        auto v = pr.pos;
+        v.y += 0.9f;
+        // INFO << v.x << " " << v.y << " " << v.z << std::endl;
+        Sint16 remap = OpenGTA::ActiveStyle::Instance().get().getRandomPedRemapNumber();
+        OpenGTA::Pedestrian p(glm::vec3(0.2f, 0.5f, 0.2f), v, id, remap);
+        OpenGTA::Pedestrian &pr2 = OpenGTA::SpriteManager::Instance().add(p);
+        pr2.switchToAnim(1);
+        INFO("now {} peds", OpenGTA::SpriteManager::Instance().getPeds().size());
+
+        // pr2.m_control = &OpenGTA::nullAI;
+    } catch (Util::UnknownKey &e) {
+        WARN("Cannot place peds now - press F4 to switch to player-mode first!");
+    }
+}
+
+void car_toggle(OpenGTA::LocalPlayer &player)
+{
+    OpenGTA::Pedestrian &pped = player.getPed();
+    auto pos = pped.pos;
+    auto &cars = OpenGTA::SpriteManager::Instance().getCars();
+    float min_dist = 360;
+    auto j = cars.end();
+    for (auto it = cars.begin(); it != cars.end(); ++it) {
+        if (float tmp_dist = glm::distance(pos, it->second.pos); tmp_dist < min_dist) {
+            j = it;
+            min_dist = tmp_dist;
+        }
+    }
+    assert(j != cars.end());
+    auto &car = j->second;
+    fmt::print("{} {} {}, {}\n", car.id(), car.pos.x, car.pos.y, car.pos.z);
+    glm::vec3 p_door(car.carInfo.door[0].rpx / 64.0f, 0, car.carInfo.door[0].rpy / 64.0f);
+
+    auto p_door_global = car.transformCoords(p_door);
+    p_door_global.y += 0.2f;
+    fmt::print("{}, {}, {}\n", p_door_global.x, p_door_global.y, p_door_global.z);
+    test_dot = p_door_global;
+    // pped.aiMode = 1;
+    // pped.aiData.pos1 = p_door_global;
+    OpenGTA::AI::Pedestrian::walk_pavement(&pped);
+}
+
+void drawScene(Uint32 ticks, GUI::Manager &manager, OpenGL::Screen &screen)
+{
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+    screen.set3DProjection();
+    city->draw(ticks);
+
+    glColor3f(1, 0, 0);
+    glDisable(GL_TEXTURE_2D);
+    glBegin(GL_POINTS);
+    glVertex3f(test_dot.x, test_dot.y, test_dot.z);
+    glEnd();
+    glEnable(GL_TEXTURE_2D);
+    glColor3f(1, 1, 1);
+
+    screen.setFlatProjection();
+    glDisable(GL_DEPTH_TEST);
+
+    glPushMatrix();
+    glTranslatef(10, 10, 0);
+    OpenGL::DrawableFont &m_font = OpenGTA::FontCache::Instance().getFont("F_MTEXT.FON", 1);
+    m_font.drawString(city->getCurrentSector()->getFullName());
+    glPopMatrix();
+
+    /*glPushMatrix();
+    glTranslatef(5, 50, 0);
+    std::ostringstream strstr;
+    strstr << fps << " fps";
+    m_font->drawString(strstr.str());
+    glPopMatrix();*/
+
+    manager.draw();
+
+    num_frames_drawn += 1;
+    glEnable(GL_DEPTH_TEST);
+
+    SDL_GL_SwapWindow(screen.get());
+}
+
+void draw_mapmode(OpenGL::Screen &screen)
+{
+    SDL_Event event;
+    OpenGL::PagedTexture map_tex = city->renderMap2Texture();
+    bool done_map = false;
+    OpenGL::Screen::setSystemMouseCursor(true);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glDisable(GL_DEPTH_TEST);
+    INFO("{}", map_tex.coords[1].u);
+    while (!done_map) {
+        while (SDL_PollEvent(&event)) {
+            switch (event.type) {
+                case SDL_QUIT:
+                    done_map = true;
+                    break;
+                case SDL_KEYDOWN:
+                    switch (event.key.keysym.sym) {
+                        case SDLK_ESCAPE:
+                            done_map = true;
+                            break;
+                        default:
+                            break;
+                    }
+                    break;
+                case SDL_MOUSEBUTTONDOWN:
+                    INFO("{} {}", event.button.x / 600.0f * 255, event.button.y / 600.0f * 255);
+                    mapPos[0] = event.button.x / 600.0f * 255;
+                    mapPos[2] = event.button.y / 600.0f * 255;
+                    // mapPos[1] = 10;
+                    done_map = true;
+                    break;
+                case SDL_MOUSEMOTION:
+                    INFO("Mouse move: x {} y {}", event.motion.x, event.motion.y);
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+        screen.setFlatProjection();
+        glBindTexture(GL_TEXTURE_2D, map_tex.inPage);
+        // glMatrixMode(GL_TEXTURE);
+        // if (_scale < 1)
+        //   glScalef(_scale, _scale, 1);
+
+        uint32_t h = screen.height();
+        glBegin(GL_QUADS);
+        glTexCoord2f(0, 0);
+        glVertex2i(0, 0);
+        glTexCoord2f(map_tex.coords[1].u, 0);
+        glVertex2i(h, 0);
+        glTexCoord2f(map_tex.coords[1].u, map_tex.coords[1].v);
+        glVertex2i(h, h);
+        glTexCoord2f(0, map_tex.coords[1].v);
+        glVertex2i(0, h);
+        glEnd();
+
+        const OpenGTA::Map::LocationMap &lmap = OpenGTA::ActiveMap::Instance().get().getLocationMap();
+        OpenGTA::Map::LocationMap::const_iterator i = lmap.begin();
+        glDisable(GL_TEXTURE_2D);
+        while (i != lmap.end()) {
+            if (i->first == 2) {
+                i++;
+                continue;
+            }
+            // uint8_t l_type = i->first;
+            float l_x, l_y;
+            l_x = i->second.x / 255.0f * h; // *  map_tex.coords[1].u;
+            l_y = i->second.y / 255.0f * h; // * map_tex.coords[1].u;
+            // INFO << int(l_type) << ": " << l_x << " " << l_y << std::endl;
+            glBegin(GL_LINE_STRIP);
+            glVertex2f(l_x - 5, l_y - 5);
+            glVertex2f(l_x + 5, l_y - 5);
+            glVertex2f(l_x + 5, l_y + 5);
+            glVertex2f(l_x - 5, l_y + 5);
+
+            glEnd();
+            ++i;
+        }
+
+        glEnable(GL_TEXTURE_2D);
+        SDL_GL_SwapWindow(screen.get());
+        SDL_Delay(20);
+    }
+    OpenGL::Screen::setSystemMouseCursor(false);
+    glEnable(GL_DEPTH_TEST);
+    glMatrixMode(GL_TEXTURE);
+    glLoadIdentity();
+    // the texture class doesn't cleanup!
+    glDeleteTextures(1, &map_tex.inPage);
+}
 } // namespace
+
+void OpenGTAViewer::quit()
+{
+    SDL_Quit();
+    delete city;
+    fmt::print("Goodbye\n");
+}
 
 void OpenGTAViewer::screenGammaCallback(float v)
 {
@@ -359,24 +638,18 @@ OpenGTAViewer::OpenGTAViewer(std::string_view progname)
     if (physfs_context_.exists("config")) {
         const auto config_as_string = Util::PhysFSFile("config").readAll();
 
-        try {
-            // vm.runString(config_as_string);
-            lua_State *L = luaVM_.getInternalState();
-            Util::LGUARD(L);
-            if (luaL_loadbuffer(L, config_as_string.c_str(), config_as_string.size(), "config"))
-                throw Util::ScriptError("Error running string: " + std::string(lua_tostring(L, -1)));
-            lua_newtable(L);
-            lua_pushvalue(L, -1);
-            // lua_setglobal(L, "config");
-            lua_setfield(L, -2, "config");
-            if (lua_pcall(L, 0, 0, 0))
-                throw Util::ScriptError("Error running string: " + std::string(lua_tostring(L, -1)));
-        } catch (const Util::ScriptError &e) {
-            std::cerr << "Error in config-file: " << e.what() << std::endl;
-            exit(1);
-        }
-
+        // vm.runString(config_as_string);
         lua_State *L = luaVM_.getInternalState();
+        Util::LGUARD(L);
+        if (luaL_loadbuffer(L, config_as_string.c_str(), config_as_string.size(), "config"))
+            throw Util::ScriptError("Error running string: " + std::string(lua_tostring(L, -1)));
+        lua_newtable(L);
+        lua_pushvalue(L, -1);
+        // lua_setglobal(L, "config");
+        lua_setfield(L, -2, "config");
+        if (lua_pcall(L, 0, 0, 0))
+            throw Util::ScriptError("Error running string: " + std::string(lua_tostring(L, -1)));
+
         lua_getglobal(L, "config");
         if (lua_type(L, 1) == LUA_TTABLE) {
             luaVM_.tryGetBool("use_g24_graphics", highcolor_data);
@@ -473,50 +746,6 @@ OpenGTAViewer::OpenGTAViewer(std::string_view progname)
     guiManager_.add(fps_label, 5);
 }
 
-void print_position(OpenGL::Camera &camera)
-{
-    const auto &v = camera.getCenter();
-    const auto &e = camera.getEye();
-    const auto &u = camera.getUp();
-    if (!city->getViewMode()) {
-        fmt::print("{}: {}\n", cities[city_num], city->getCurrentSector()->getFullName());
-        fmt::print("camera.setCenter({}, {}, {})\n", v.x, v.y, v.z);
-        fmt::print("camera.setEye({}, {}, {})\n", e.x, e.y, e.z);
-        fmt::print("camera.setUp({}, {}, {})\n", u.x, u.y, u.z);
-        fmt::print("city_view:setVisibleRange({})\n", city->getVisibleRange());
-        fmt::print("city_view:setTopDownView( false )\n");
-    } else {
-        const auto cp = city->getCamPos();
-        fmt::print("{}: {}\n", cities[city_num], city->getCurrentSector()->getFullName());
-        fmt::print("city_view:setCamPosition({}, {}, {})\n", cp[0], cp[1], cp[2]);
-        fmt::print("city_view:setVisibleRange({})\n", city->getVisibleRange());
-        fmt::print("city_view:setTopDownView( true )\n");
-    }
-}
-
-void handleKeyUp(SDL_Keysym *keysym, OpenGTA::LocalPlayer &player)
-{
-    switch (keysym->sym) {
-        case 'j':
-            player.getCtrl().releaseTurnLeft();
-            break;
-        case 'l':
-            player.getCtrl().releaseTurnRight();
-            break;
-        case 'i':
-            player.getCtrl().releaseMoveForward();
-            break;
-        case 'k':
-            player.getCtrl().releaseMoveBack();
-            break;
-        case SDLK_LCTRL:
-            player.getCtrl().setFireWeapon(false);
-            break;
-        default:
-            break;
-    }
-}
-
 // void draw_mapmode();
 
 void OpenGTAViewer::createPedAt(const glm::vec3 &v)
@@ -528,97 +757,6 @@ void OpenGTAViewer::createPedAt(const glm::vec3 &v)
     pr.switchToAnim(1);
     localPlayer_.setCtrl(pr.m_control);
     create_ingame_gui(guiManager_, screen_);
-}
-
-void explode_ped()
-{
-    try {
-        OpenGTA::Pedestrian &ped = OpenGTA::SpriteManager::Instance().getPed(0xffffffff);
-        auto p = ped.pos;
-        p.y += 0.2f;
-        OpenGTA::SpriteManager::Instance().createExplosion(p);
-    } catch (Util::UnknownKey &e) {
-        WARN("Cannot place explosion - press F4 to switch to player-mode first!");
-    }
-}
-
-void zoomToTrain(int k)
-{
-    /*
-      OpenGTA::TrainSegment & ts = OpenGTA::SpriteManager::Instance().getTrainById(k);
-      Vector3D p(ts.pos);
-      p.y += 9;
-      OpenGL::Camera::Instance().interpolate(p, 1, 30000);
-    */
-}
-
-// #include <util/cell_iterator.h>
-
-namespace OpenGTA {
-void ai_step_fake(OpenGTA::Pedestrian *p)
-{
-    try {
-        OpenGTA::Pedestrian &pr = OpenGTA::SpriteManager::Instance().getPed(0xffffffff);
-        float t_angle = Util::xz_angle(p->pos, pr.pos);
-        // INFO << "dist " << Util::distance(p->pos, pr.pos) << std::endl;
-        // INFO << "angle " << t_angle << std::endl;
-        // INFO << "myrot: " << p->rot << std::endl;
-        if (glm::distance(p->pos, pr.pos) > 3) {
-            p->m_control.setTurnLeft(false);
-            p->m_control.setTurnRight(false);
-            if (t_angle > p->rot)
-                p->m_control.setTurnLeft(true);
-            else
-                p->m_control.setTurnRight(true);
-        } else {
-            p->m_control.setMoveForward(true);
-            static thread_local std::mt19937 generator(std::random_device {}());
-            std::uniform_int_distribution<int> distribution(0, 4);
-            int k = distribution(generator);
-            if (k == 0) {
-                p->m_control.setTurnLeft(false);
-                p->m_control.setTurnRight(false);
-            } else if (k == 1) {
-                p->m_control.setTurnLeft(true);
-                p->m_control.setTurnRight(false);
-            } else if (k == 2) {
-                p->m_control.setTurnLeft(false);
-                p->m_control.setTurnRight(true);
-            }
-        }
-    } catch (Util::UnknownKey &e) {
-    }
-}
-} // namespace OpenGTA
-
-void add_auto_ped()
-{
-    try {
-        OpenGTA::Pedestrian &pr = OpenGTA::SpriteManager::Instance().getPed(0xffffffff);
-        int id = OpenGTA::TypeIdBlackBox::Instance().requestId();
-        auto v = pr.pos;
-        v.y += 0.9f;
-        // INFO << v.x << " " << v.y << " " << v.z << std::endl;
-        Sint16 remap = OpenGTA::ActiveStyle::Instance().get().getRandomPedRemapNumber();
-        OpenGTA::Pedestrian p(glm::vec3(0.2f, 0.5f, 0.2f), v, id, remap);
-        OpenGTA::Pedestrian &pr2 = OpenGTA::SpriteManager::Instance().add(p);
-        pr2.switchToAnim(1);
-        INFO("now {} peds", OpenGTA::SpriteManager::Instance().getPeds().size());
-
-        // pr2.m_control = &OpenGTA::nullAI;
-    } catch (Util::UnknownKey &e) {
-        WARN("Cannot place peds now - press F4 to switch to player-mode first!");
-    }
-}
-
-void toggle_player_run(OpenGTA::LocalPlayer &player)
-{
-    OpenGTA::PedController *pc = &player.getCtrl();
-    if (!pc) {
-        WARN("no player yet!");
-        return;
-    }
-    pc->toggleRunning();
 }
 
 void OpenGTAViewer::showGammaConfig()
@@ -658,35 +796,6 @@ void OpenGTAViewer::showGammaConfig()
     }
 }
 
-void car_toggle(OpenGTA::LocalPlayer &player)
-{
-    OpenGTA::Pedestrian &pped = player.getPed();
-    auto pos = pped.pos;
-    auto &cars = OpenGTA::SpriteManager::Instance().getCars();
-    float min_dist = 360;
-    auto j = cars.end();
-    for (auto it = cars.begin(); it != cars.end(); ++it) {
-        if (float tmp_dist = glm::distance(pos, it->second.pos); tmp_dist < min_dist) {
-            j = it;
-            min_dist = tmp_dist;
-        }
-    }
-    assert(j != cars.end());
-    auto &car = j->second;
-    fmt::print("{} {} {}, {}\n", car.id(), car.pos.x, car.pos.y, car.pos.z);
-    glm::vec3 p_door(car.carInfo.door[0].rpx / 64.0f, 0, car.carInfo.door[0].rpy / 64.0f);
-
-    auto p_door_global = car.transformCoords(p_door);
-    p_door_global.y += 0.2f;
-    fmt::print("{}, {}, {}\n", p_door_global.x, p_door_global.y, p_door_global.z);
-    test_dot = p_door_global;
-    // pped.aiMode = 1;
-    // pped.aiData.pos1 = p_door_global;
-    OpenGTA::AI::Pedestrian::walk_pavement(&pped);
-}
-
-void draw_mapmode(OpenGL::Screen &screen);
-
 void OpenGTAViewer::handleKeyPress(SDL_Keysym *keysym)
 {
     const auto cp = city->getCamPos();
@@ -695,7 +804,7 @@ void OpenGTAViewer::handleKeyPress(SDL_Keysym *keysym)
     mapPos[2] = cp[2];
     switch (keysym->sym) {
         case SDLK_ESCAPE:
-            global_Done = 1;
+            OpenGTA::Globals::DONE = 1;
             break;
         case SDLK_LEFT:
             mapPos[0] -= 1.0f;
@@ -779,7 +888,7 @@ void OpenGTAViewer::handleKeyPress(SDL_Keysym *keysym)
             showGammaConfig();
             break;
         case SDLK_LSHIFT:
-            toggle_player_run(localPlayer_);
+            localPlayer_.getCtrl().toggleRunning();
             break;
         /*
         case SDLK_F6:
@@ -916,146 +1025,13 @@ void OpenGTAViewer::handleKeyPress(SDL_Keysym *keysym)
     city->setPosition(mapPos[0], mapPos[1], mapPos[2]);
 }
 
-void drawScene(Uint32 ticks, GUI::Manager &manager, OpenGL::Screen &screen)
-{
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-    screen.set3DProjection();
-    city->draw(ticks);
-
-    glColor3f(1, 0, 0);
-    glDisable(GL_TEXTURE_2D);
-    glBegin(GL_POINTS);
-    glVertex3f(test_dot.x, test_dot.y, test_dot.z);
-    glEnd();
-    glEnable(GL_TEXTURE_2D);
-    glColor3f(1, 1, 1);
-
-    screen.setFlatProjection();
-    glDisable(GL_DEPTH_TEST);
-
-    glPushMatrix();
-    glTranslatef(10, 10, 0);
-    OpenGL::DrawableFont &m_font = OpenGTA::FontCache::Instance().getFont("F_MTEXT.FON", 1);
-    m_font.drawString(city->getCurrentSector()->getFullName());
-    glPopMatrix();
-
-    /*glPushMatrix();
-    glTranslatef(5, 50, 0);
-    std::ostringstream strstr;
-    strstr << fps << " fps";
-    m_font->drawString(strstr.str());
-    glPopMatrix();*/
-
-    manager.draw();
-
-    num_frames_drawn += 1;
-    glEnable(GL_DEPTH_TEST);
-
-    SDL_GL_SwapWindow(screen.get());
-}
-
-void draw_mapmode(OpenGL::Screen &screen)
-{
-    SDL_Event event;
-    OpenGL::PagedTexture map_tex = city->renderMap2Texture();
-    bool done_map = false;
-    OpenGL::Screen::setSystemMouseCursor(true);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    glDisable(GL_DEPTH_TEST);
-    INFO("{}", map_tex.coords[1].u);
-    while (!done_map) {
-        while (SDL_PollEvent(&event)) {
-            switch (event.type) {
-                case SDL_QUIT:
-                    done_map = true;
-                    break;
-                case SDL_KEYDOWN:
-                    switch (event.key.keysym.sym) {
-                        case SDLK_ESCAPE:
-                            done_map = true;
-                            break;
-                        default:
-                            break;
-                    }
-                    break;
-                case SDL_MOUSEBUTTONDOWN:
-                    INFO("{} {}", event.button.x / 600.0f * 255, event.button.y / 600.0f * 255);
-                    mapPos[0] = event.button.x / 600.0f * 255;
-                    mapPos[2] = event.button.y / 600.0f * 255;
-                    // mapPos[1] = 10;
-                    done_map = true;
-                    break;
-                case SDL_MOUSEMOTION:
-                    INFO("Mouse move: x {} y {}", event.motion.x, event.motion.y);
-                    break;
-                default:
-                    break;
-            }
-        }
-
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-        screen.setFlatProjection();
-        glBindTexture(GL_TEXTURE_2D, map_tex.inPage);
-        // glMatrixMode(GL_TEXTURE);
-        // if (_scale < 1)
-        //   glScalef(_scale, _scale, 1);
-
-        uint32_t h = screen.height();
-        glBegin(GL_QUADS);
-        glTexCoord2f(0, 0);
-        glVertex2i(0, 0);
-        glTexCoord2f(map_tex.coords[1].u, 0);
-        glVertex2i(h, 0);
-        glTexCoord2f(map_tex.coords[1].u, map_tex.coords[1].v);
-        glVertex2i(h, h);
-        glTexCoord2f(0, map_tex.coords[1].v);
-        glVertex2i(0, h);
-        glEnd();
-
-        const OpenGTA::Map::LocationMap &lmap = OpenGTA::ActiveMap::Instance().get().getLocationMap();
-        OpenGTA::Map::LocationMap::const_iterator i = lmap.begin();
-        glDisable(GL_TEXTURE_2D);
-        while (i != lmap.end()) {
-            if (i->first == 2) {
-                i++;
-                continue;
-            }
-            // uint8_t l_type = i->first;
-            float l_x, l_y;
-            l_x = i->second.x / 255.0f * h; // *  map_tex.coords[1].u;
-            l_y = i->second.y / 255.0f * h; // * map_tex.coords[1].u;
-            // INFO << int(l_type) << ": " << l_x << " " << l_y << std::endl;
-            glBegin(GL_LINE_STRIP);
-            glVertex2f(l_x - 5, l_y - 5);
-            glVertex2f(l_x + 5, l_y - 5);
-            glVertex2f(l_x + 5, l_y + 5);
-            glVertex2f(l_x - 5, l_y + 5);
-
-            glEnd();
-            ++i;
-        }
-
-        glEnable(GL_TEXTURE_2D);
-        SDL_GL_SwapWindow(screen.get());
-        SDL_Delay(20);
-    }
-    OpenGL::Screen::setSystemMouseCursor(false);
-    glEnable(GL_DEPTH_TEST);
-    glMatrixMode(GL_TEXTURE);
-    glLoadIdentity();
-    // the texture class doesn't cleanup!
-    glDeleteTextures(1, &map_tex.inPage);
-}
-
 void OpenGTAViewer::run()
 {
     test_dot = glm::vec3(-1, -1, -1);
     SDL_Event event;
-    const char *lang = getenv("OGTA_LANG");
+    const char *lang = std::getenv("OGTA_LANG"); // NOLINT(concurrency-mt-unsafe)
     if (!lang)
-        lang = getenv("LANG");
+        lang = std::getenv("LANG"); // NOLINT(concurrency-mt-unsafe)
     if (!lang)
         lang = "en";
     OpenGTA::MainMsgLookup::Instance().load(Util::FileHelper::Lang2MsgFilename(lang));
@@ -1108,7 +1084,7 @@ void OpenGTAViewer::run()
     bool vm_tick_ok = true;
     script_last_tick = last_tick;
 
-    while (!global_Done) {
+    while (!OpenGTA::Globals::DONE) {
         while (SDL_PollEvent(&event)) {
             switch (event.type) {
                 case SDL_WINDOWEVENT_FOCUS_GAINED:
@@ -1129,7 +1105,7 @@ void OpenGTAViewer::run()
                     screen_.resize(event.window.data1, event.window.data2);
                     break;
                 case SDL_QUIT:
-                    global_Done = 1;
+                    OpenGTA::Globals::DONE = 1;
                     break;
                 case SDL_MOUSEBUTTONDOWN:
                     guiManager_.receive(event.button, screen_.height());
@@ -1182,12 +1158,26 @@ void OpenGTAViewer::run()
 
 int main(int argc, char *argv[])
 {
-    if (argc > 1)
-        parse_args(argc, argv);
+    if (argc > 1) {
+        const auto result = parse_args(argc, argv);
+        switch (result) {
+            case ParseArgsResult::ExitSuccess:
+                return 0;
+            case ParseArgsResult::ExitError:
+                return 1;
+            default:
+                break;
+        }
+    }
 
-    OpenGTAViewer app { argv[0] };
-    app.run();
-    app.quit();
+    try {
+        OpenGTAViewer app { argv[0] };
+        app.run();
+        app.quit();
+    } catch (const std::exception &e) {
+        ERROR("Unhandled exception during shutdown: {}", e.what());
+        return 1;
+    }
 
     return 0;
 }

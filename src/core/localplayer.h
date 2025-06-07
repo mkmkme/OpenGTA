@@ -1,5 +1,7 @@
 #ifndef OGTA_LOCAL_PLAYER_H
 #define OGTA_LOCAL_PLAYER_H
+#include <algorithm>
+
 #include <core/entity_controller.h>
 #include <core/game_objects.h>
 #include <core/id_sys.h>
@@ -35,7 +37,7 @@ public:
     }
     void setCtrl(PedController &pc) { pc_ptr = &pc; }
     void giveLives(uint16_t k) { numLives += k; }
-    Pedestrian &getPed() const;
+    [[nodiscard]] Pedestrian &getPed() const;
     [[maybe_unused]] [[nodiscard]] int32_t getNumLives() const { return numLives; }
     [[nodiscard]] int32_t getWantedLevel() const { return wantedLevel; }
     [[nodiscard]] uint32_t getCash() const { return cash; }
@@ -47,8 +49,7 @@ public:
     void addWanted(uint32_t v)
     {
         wantedLevel += v;
-        if (wantedLevel > 5)
-            wantedLevel = 5;
+        wantedLevel = std::min(wantedLevel, 5);
     }
 
 private:

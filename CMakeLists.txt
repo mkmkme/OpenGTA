@@ -15,6 +15,11 @@ include(CompilerOptions.cmake)
 add_compile_options("$<$<C_COMPILER_ID:MSVC>:/utf-8>")
 add_compile_options("$<$<CXX_COMPILER_ID:MSVC>:/utf-8>")
 
+# Enable diagnostics colors for clang/gcc
+if(CMAKE_CXX_COMPILER_ID MATCHES "Clang|GNU")
+    add_compile_options("-fdiagnostics-color=always")
+endif()
+
 find_package(cxxopts REQUIRED)
 find_package(fmt REQUIRED)
 find_package(glm REQUIRED)

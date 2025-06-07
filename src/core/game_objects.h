@@ -79,7 +79,7 @@ public:
     Pedestrian(const glm::vec3 &, const glm::vec3 &, uint32_t id, int16_t remapId = -1);
     Pedestrian(const Pedestrian &o);
     uint32_t pedId;
-    [[nodiscard]] inline uint32_t id() const { return pedId; }
+    [[nodiscard]] uint32_t id() const { return pedId; }
     PedController m_control;
     void update(uint32_t ticks);
     uint32_t lastUpdateAt;
@@ -138,7 +138,7 @@ public:
     Car(OpenGTA::Map::ObjectPosition &, uint32_t id);
     Car(const glm::vec3 &_pos, float _rot, uint32_t id, uint8_t _type, int16_t _remap = -1);
     uint32_t carId;
-    [[nodiscard]] inline uint32_t id() const { return carId; }
+    [[nodiscard]] uint32_t id() const { return carId; }
     CarInfo &carInfo;
     uint8_t type;
     void update(uint32_t ticks) override;
@@ -156,7 +156,7 @@ public:
     SpriteObject(const glm::vec3 &pos, uint16_t spriteNum, GraphicsBase::SpriteNumbers::SpriteTypes st);
     SpriteObject(const SpriteObject &o);
     uint32_t objId {};
-    [[nodiscard]] inline uint32_t id() const { return objId; }
+    [[nodiscard]] uint32_t id() const { return objId; }
     void update(uint32_t ticks);
 
     bool isActive;

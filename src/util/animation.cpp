@@ -46,7 +46,7 @@ Animation::Animation(const Animation &other) noexcept
     callback = other.callback;
 }
 
-void Animation::update(const uint32_t &nowTicks)
+void Animation::update(uint32_t nowTicks)
 {
     if (status == STOPPED)
         return;

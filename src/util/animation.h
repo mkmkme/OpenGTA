@@ -36,12 +36,12 @@ namespace Util {
  */
 class Animation {
 public:
-    enum Status {
+    enum Status : uint8_t {
         STOPPED = 0,
         PLAY_FORWARD,
         PLAY_BACKWARD,
     };
-    enum OnDone {
+    enum OnDone : uint8_t {
         STOP = 0,
         REVERSE,
         LOOP,
@@ -49,18 +49,18 @@ public:
     };
     Animation(uint16_t numFrames, uint16_t fps) noexcept;
     Animation(const Animation &o) noexcept;
-    [[nodiscard]] inline uint16_t getCurrentFrameNumber() const { return currentFrame; }
-    inline void set(const Status doThis, const OnDone done = STOP) noexcept
+    [[nodiscard]] uint16_t getCurrentFrameNumber() const { return currentFrame; }
+    void set(Status doThis, OnDone done = STOP) noexcept
     {
         status = doThis;
         onDone = done;
     }
-    [[nodiscard]] inline const Status &get() const { return status; }
-    [[nodiscard]] inline const OnDone &getDone() const { return onDone; }
+    [[nodiscard]] Status get() const { return status; }
+    [[nodiscard]] OnDone getDone() const { return onDone; }
     void jumpToFrame(uint16_t num, Status andDo);
-    void update(const uint32_t &nowTicks);
+    void update(uint32_t nowTicks);
     using CallbackType = std::function<void()>;
-    void setCallback(const CallbackType &cb) { callback = cb; }
+    void setCallback(CallbackType cb) { callback = std::move(cb); }
 
     uint16_t currentFrame;
     uint16_t numFrames;

@@ -6,7 +6,6 @@
 #include <util/log.h>
 #include <util/string_helpers.h>
 
-
 namespace OpenGTA {
 GraphicsBase &ActiveStyle::get()
 {
@@ -19,9 +18,9 @@ void ActiveStyle::load(const std::string &file)
 {
     std::string tempName { Util::string_lower(file) };
     INFO("loading style from {}", file);
-    if (tempName.find(".g24") != std::string::npos) {
+    if (tempName.ends_with(".g24")) {
         data_ = std::make_unique<Graphics24Bit>(file);
-    } else if (tempName.find(".gry") != std::string::npos) {
+    } else if (tempName.ends_with(".gry")) {
         data_ = std::make_unique<Graphics8Bit>(file);
     } else {
         try {

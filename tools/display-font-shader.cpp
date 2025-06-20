@@ -1,45 +1,24 @@
-#include <cstdio>
-#include <iostream>
 #include <stdexcept>
 #include <string>
 #include <string_view>
 
 #include <SDL_video.h>
 
-// #include <GL/gl.h>
-// #include <GL/glext.h>
+#include <fmt/base.h>
 
 #ifdef _MSC_VER
 #define SDL_MAIN_HANDLED
 #endif
 
+#include <glad/gl.h>
+
 #include <SDL2/SDL.h>
 #include <core/font.h>
 #include <fmt/format.h>
-#include <glad/gl.h>
 
 #include <util/file-manager.h>
-#include <util/gui.h>
-// #include <util/log.h>
 
-#if 0
-void main_loop(GUI::Label *label, GUI::Manager &manager, OpenGL::Screen &screen)
-{
-    SDL_Event event;
-    while (true) {
-        while (SDL_PollEvent(&event)) {
-            switch (event.type) {
-                case SDL_QUIT:
-                    return;
-                default:
-                    break;
-            }
-        }
-    }
-}
-#endif
-
-const std::string_view vertex_shader = R"(
+constexpr const char *vertex_shader = R"(
 #version 330 core
 layout (location = 0) in vec3 aPos;
 layout (location = 1) in vec2 aTexCoord;
@@ -52,7 +31,7 @@ void main()
 }
 )";
 
-const std::string_view fragment_shader = R"(
+constexpr const char *fragment_shader = R"(
 #version 330 core
 out vec4 FragColor;
 in vec2 TexCoord;
@@ -61,41 +40,41 @@ uniform sampler2D texture1;
 void main()
 {
     FragColor = texture(texture1, TexCoord);
-    // FragColor = vec4(1.0, 0.0, 0.0, 1.0);
 }
 )";
 
-GLenum glCheckError_(const char *file, int line)
+namespace {
+
+std::string_view glErrorToString(GLenum errorCode)
+{
+    switch (errorCode) {
+        case GL_INVALID_ENUM:
+            return "INVALID_ENUM";
+        case GL_INVALID_VALUE:
+            return "INVALID_VALUE";
+        case GL_INVALID_OPERATION:
+            return "INVALID_OPERATION";
+        case GL_STACK_OVERFLOW:
+            return "STACK_OVERFLOW";
+        case GL_STACK_UNDERFLOW:
+            return "STACK_UNDERFLOW";
+        case GL_OUT_OF_MEMORY:
+            return "OUT_OF_MEMORY";
+        case GL_INVALID_FRAMEBUFFER_OPERATION:
+            return "INVALID_FRAMEBUFFER_OPERATION";
+        case GL_NO_ERROR:
+            return "NO_ERROR";
+        default:
+            return "UNKNOWN_ERROR";
+    }
+}
+
+void glCheckError_(const char *file, int line)
 {
     GLenum errorCode;
     while ((errorCode = glGetError()) != GL_NO_ERROR) {
-        std::string error;
-        switch (errorCode) {
-            case GL_INVALID_ENUM:
-                error = "INVALID_ENUM";
-                break;
-            case GL_INVALID_VALUE:
-                error = "INVALID_VALUE";
-                break;
-            case GL_INVALID_OPERATION:
-                error = "INVALID_OPERATION";
-                break;
-            case GL_STACK_OVERFLOW:
-                error = "STACK_OVERFLOW";
-                break;
-            case GL_STACK_UNDERFLOW:
-                error = "STACK_UNDERFLOW";
-                break;
-            case GL_OUT_OF_MEMORY:
-                error = "OUT_OF_MEMORY";
-                break;
-            case GL_INVALID_FRAMEBUFFER_OPERATION:
-                error = "INVALID_FRAMEBUFFER_OPERATION";
-                break;
-        }
-        std::cout << error << " | " << file << " (" << line << ")" << std::endl;
+        fmt::print(stderr, "{} | {} ({})\n", glErrorToString(errorCode), file, line);
     }
-    return errorCode;
 }
 #define glCheckError() glCheckError_(__FILE__, __LINE__)
 
@@ -127,9 +106,12 @@ void glVerifyProgram_(int program, std::string_view file, int line)
 }
 #define glVerifyProgram(program) glVerifyProgram_(program, __FILE__, __LINE__)
 
+} // namespace
+
 #define countof(x) (sizeof(x) / sizeof((x)[0]))
 
-int main(int /*argc*/, char **argv)
+// We don't want to catch exceptions here, because we want to see the stack trace
+int main(int /*argc*/, char **argv) // NOLINT(bugprone-exception-escape)
 {
     const Util::PhysFSContext pfs(argv[0]);
 
@@ -155,17 +137,16 @@ int main(int /*argc*/, char **argv)
 
     glViewport(0, 0, 800, 600);
 
-    auto vertexShader = glCreateShader(GL_VERTEX_SHADER);
-    const auto *vertex_shader_raw = vertex_shader.data();
-    glShaderSource(vertexShader, 1, &vertex_shader_raw, nullptr);
-    glCompileShader(vertexShader);
-    glVerifyShader(vertexShader);
+#define CREATE_SHADER(name, type, source)        \
+    auto(name) = glCreateShader(type);           \
+    glShaderSource(name, 1, &(source), nullptr); \
+    glCompileShader(name);                       \
+    glVerifyShader(name)
 
-    auto fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-    const auto *fragment_shader_raw = fragment_shader.data();
-    glShaderSource(fragmentShader, 1, &fragment_shader_raw, nullptr);
-    glCompileShader(fragmentShader);
-    glVerifyShader(fragmentShader);
+    CREATE_SHADER(vertexShader, GL_VERTEX_SHADER, vertex_shader);
+    CREATE_SHADER(fragmentShader, GL_FRAGMENT_SHADER, fragment_shader);
+
+#undef CREATE_SHADER
 
     auto shaderProgram = glCreateProgram();
     glAttachShader(shaderProgram, vertexShader);
@@ -173,10 +154,10 @@ int main(int /*argc*/, char **argv)
     glLinkProgram(shaderProgram);
     glVerifyProgram(shaderProgram);
 
-    float windowWidth = 800.0f;
-    float windowHeight = 600.0f;
-    float xScale = glwidth / windowWidth;
-    float yScale = glheight / windowHeight;
+    constexpr float windowWidth = 800.0f;
+    constexpr float windowHeight = 600.0f;
+    const float xScale = glwidth / windowWidth;
+    const float yScale = glheight / windowHeight;
 
     // Set up vertex data and buffers and configure vertex attributes
     // clang-format off
@@ -208,10 +189,10 @@ int main(int /*argc*/, char **argv)
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
     // Position attribute
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void *) 0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void *) 0); // NOLINT(performance-no-int-to-ptr,*-use-nullptr)
     glEnableVertexAttribArray(0);
     // Texture coord attribute
-    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void *) (3 * sizeof(float)));
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void *) (3 * sizeof(float))); // NOLINT(performance-no-int-to-ptr)
     glEnableVertexAttribArray(1);
 
     // Load and create a texture
@@ -236,29 +217,32 @@ int main(int /*argc*/, char **argv)
             switch (event.type) {
                 case SDL_QUIT:
                     goto end;
+                case SDL_KEYDOWN:
+                    if (event.key.keysym.sym == SDLK_ESCAPE)
+                        goto end;
                 default:
                     break;
             }
         }
 
-        // glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+        glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
 
         glUseProgram(shaderProgram);
         glBindTexture(GL_TEXTURE_2D, texture);
         glBindVertexArray(VAO);
-        // glDrawArrays(GL_TRIANGLES, 0, 3);
+        glDrawArrays(GL_TRIANGLES, 0, 3);
         glCheckError();
-        glDrawElements(GL_TRIANGLES, countof(indices), GL_UNSIGNED_INT, (void *) 0);
+        glDrawElements(GL_TRIANGLES, countof(indices), GL_UNSIGNED_INT, (void *) 0); // NOLINT(performance-no-int-to-ptr,*-use-nullptr)
         glCheckError();
 
         SDL_GL_SwapWindow(window);
     }
 
 end:
-    // glDeleteVertexArrays(1, &VAO);
-    // glDeleteBuffers(1, &VBO);
-    // glDeleteBuffers(1, &EBO);
+    glDeleteVertexArrays(1, &VAO);
+    glDeleteBuffers(1, &VBO);
+    glDeleteBuffers(1, &EBO);
     glDeleteShader(vertexShader);
     glDeleteShader(fragmentShader);
     glDeleteProgram(shaderProgram);

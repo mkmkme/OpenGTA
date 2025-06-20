@@ -1,6 +1,8 @@
 #include <cassert>
 #include <iostream>
 
+#include <fmt/base.h>
+
 #ifdef _MSC_VER
 #define SDL_MAIN_HANDLED
 #endif
@@ -56,19 +58,13 @@ void dumpClut(const OpenGTA::Graphics24Bit &g24, const char *fname)
     unsigned char *dst = static_cast<unsigned char *>(s->pixels);
 
     for (UInt32 color = 0; color < 256; color++) {
-
         for (UInt32 pal_id = 0; pal_id < num_pal; pal_id++) {
-            UInt32 clut_id = g24.palIndex[pal_id];
-            UInt32 off = 65536 * (clut_id / 64) + 4 * (clut_id % 64);
+            const auto clut_id = g24.palIndex[pal_id];
+            const auto off = (65536 * (clut_id / 64)) + (4 * (clut_id % 64));
 
-            *dst = g24.rawClut[off + color * 256];
-            ++dst;
-            *dst = g24.rawClut[off + color * 256 + 1];
-            ++dst;
-            *dst = g24.rawClut[off + color * 256 + 2];
-            ++dst;
-            *dst = 0xff;
-            ++dst;
+            std::copy_n(g24.rawClut + off + (color * 256), 3, dst);
+            dst[3] = 0xff;
+            dst += 4;
         }
     }
     SDL_UnlockSurface(s);
@@ -118,7 +114,7 @@ void display_image(SDL_Surface *s)
 int main(int argc, char *argv[])
 {
     if (argc < 2 || argc > 4) {
-        std::cerr << "Usage: " << argv[0] << "G24_FILE [INDEX]" << std::endl;
+        fmt::print(stderr, "Usage: {} G24_FILE [INDEX]\n", argv[0]);
         return 1;
     }
 

@@ -30,7 +30,7 @@
 #include <cstdlib>
 #include <string_view>
 
-#include <SDL2/SDL_opengl.h>
+// #include <SDL2/SDL_opengl.h>
 #include <core/active-map.h>
 #include <core/active-style.h>
 #include <core/ai.h>

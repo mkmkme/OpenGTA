@@ -10,9 +10,7 @@
 #include <common/bitwise.h>
 #include <util/file-manager.h>
 
-namespace {
 constexpr std::size_t GTA_MAP_MAXDIMENSION = 256;
-}
 
 namespace OpenGTA {
 
@@ -29,14 +27,14 @@ public:
         UInt8 typeMapExt;
         UInt8 left, right, top, bottom, lid;
 
-        [[nodiscard]] inline bool upOk() const noexcept { return Util::getBit(typeMap, 1); }
-        [[nodiscard]] inline bool downOk() const noexcept { return Util::getBit(typeMap, 2); }
-        [[nodiscard]] inline bool leftOk() const noexcept { return Util::getBit(typeMap, 3); }
-        [[nodiscard]] inline bool rightOk() const noexcept { return Util::getBit(typeMap, 4); }
-        [[nodiscard]] inline uint8_t blockType() const noexcept { return Util::getRangeBit(typeMap, 5, 7); }
-        [[nodiscard]] inline bool isFlat() const noexcept { return Util::getBit(typeMap, 8); }
-        [[nodiscard]] inline uint8_t slopeType() const noexcept { return Util::getRangeBit(typeMap, 9, 14); }
-        [[nodiscard]] inline uint8_t rotation() const noexcept { return Util::getRangeBit(typeMap, 15, 16); }
+        [[nodiscard]] bool upOk() const noexcept { return Util::getBit(typeMap, 1); }
+        [[nodiscard]] bool downOk() const noexcept { return Util::getBit(typeMap, 2); }
+        [[nodiscard]] bool leftOk() const noexcept { return Util::getBit(typeMap, 3); }
+        [[nodiscard]] bool rightOk() const noexcept { return Util::getBit(typeMap, 4); }
+        [[nodiscard]] uint8_t blockType() const noexcept { return Util::getRangeBit(typeMap, 5, 7); }
+        [[nodiscard]] bool isFlat() const noexcept { return Util::getBit(typeMap, 8); }
+        [[nodiscard]] uint8_t slopeType() const noexcept { return Util::getRangeBit(typeMap, 9, 14); }
+        [[nodiscard]] uint8_t rotation() const noexcept { return Util::getRangeBit(typeMap, 15, 16); }
         /* m1win seems to indicate:
          * 000 - Nothing
          * 001 - traffic lights
@@ -48,30 +46,30 @@ public:
          * 111 - railway station train
          */
 
-        inline void setUpOk(bool v) noexcept { Util::setBit(&typeMap, 1, v); }
-        inline void setDownOk(bool v) noexcept { Util::setBit(&typeMap, 2, v); }
-        inline void setLeftOk(bool v) noexcept { Util::setBit(&typeMap, 3, v); }
-        inline void setRightOk(bool v) noexcept { Util::setBit(&typeMap, 4, v); }
-        inline void setIsFlat(bool v) noexcept { Util::setBit(&typeMap, 8, v); }
-        inline void setBlockType(uint8_t v) noexcept { Util::copyRangeBit(&typeMap, 5, 7, v); }
-        inline void setSlopeType(uint8_t v) noexcept { Util::copyRangeBit(&typeMap, 9, 14, v); }
-        inline void setRotation(uint8_t v) noexcept { Util::copyRangeBit(&typeMap, 15, 16, v); }
+        void setUpOk(bool v) noexcept { Util::setBit(&typeMap, 1, v); }
+        void setDownOk(bool v) noexcept { Util::setBit(&typeMap, 2, v); }
+        void setLeftOk(bool v) noexcept { Util::setBit(&typeMap, 3, v); }
+        void setRightOk(bool v) noexcept { Util::setBit(&typeMap, 4, v); }
+        void setIsFlat(bool v) noexcept { Util::setBit(&typeMap, 8, v); }
+        void setBlockType(uint8_t v) noexcept { Util::copyRangeBit(&typeMap, 5, 7, v); }
+        void setSlopeType(uint8_t v) noexcept { Util::copyRangeBit(&typeMap, 9, 14, v); }
+        void setRotation(uint8_t v) noexcept { Util::copyRangeBit(&typeMap, 15, 16, v); }
 
-        [[nodiscard]] inline bool trafficLights() const noexcept { return Util::getBit(typeMapExt, 1); }
-        [[nodiscard]] inline bool railEndTurn() const noexcept { return Util::getBit(typeMapExt, 3); }
-        [[nodiscard]] inline bool railStartTurn() const noexcept
+        [[nodiscard]] bool trafficLights() const noexcept { return Util::getBit(typeMapExt, 1); }
+        [[nodiscard]] bool railEndTurn() const noexcept { return Util::getBit(typeMapExt, 3); }
+        [[nodiscard]] bool railStartTurn() const noexcept
         {
             return Util::getBit(typeMapExt, 3) && Util::getBit(typeMapExt, 1);
         }
-        [[nodiscard]] inline bool railStation() const noexcept { return Util::getBit(typeMapExt, 3) && Util::getBit(typeMapExt, 2); }
-        [[nodiscard]] inline bool railStationTrain() const noexcept
+        [[nodiscard]] bool railStation() const noexcept { return Util::getBit(typeMapExt, 3) && Util::getBit(typeMapExt, 2); }
+        [[nodiscard]] bool railStationTrain() const noexcept
         {
             return Util::getBit(typeMapExt, 3) && Util::getBit(typeMapExt, 2) && Util::getBit(typeMapExt, 1);
         }
-        [[nodiscard]] inline uint8_t remapIndex() const noexcept { return Util::getRangeBit(typeMapExt, 4, 5); }
-        [[nodiscard]] inline bool flipTopBottom() const noexcept { return Util::getBit(typeMapExt, 6); }
-        [[nodiscard]] inline bool flipLeftRight() const noexcept { return Util::getBit(typeMapExt, 7); }
-        [[nodiscard]] inline bool railway() const noexcept { return Util::getBit(typeMapExt, 8); }
+        [[nodiscard]] uint8_t remapIndex() const noexcept { return Util::getRangeBit(typeMapExt, 4, 5); }
+        [[nodiscard]] bool flipTopBottom() const noexcept { return Util::getBit(typeMapExt, 6); }
+        [[nodiscard]] bool flipLeftRight() const noexcept { return Util::getBit(typeMapExt, 7); }
+        [[nodiscard]] bool railway() const noexcept { return Util::getBit(typeMapExt, 8); }
     };
     struct ObjectPosition {
         UInt16 x, y, z;

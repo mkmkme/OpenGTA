@@ -66,14 +66,10 @@ Map::Map(const std::string &filename)
 }
 Map::~Map()
 {
-    if (column)
-        delete[] column;
-    if (block)
-        delete[] block;
-    if (objects)
-        delete[] objects;
-    if (nav)
-        delete nav;
+    delete[] column;
+    delete[] block;
+    delete[] objects;
+    delete nav;
 }
 int Map::loadHeader()
 {
@@ -109,9 +105,9 @@ int Map::loadHeader()
 int Map::loadBase()
 {
     pf.seek(topHeaderSize);
-    for (int y = 0; y < GTA_MAP_MAXDIMENSION; y++) {
-        for (int x = 0; x < GTA_MAP_MAXDIMENSION; x++) {
-            pf.read(base[x][y]);
+    for (auto &row : base) {
+        for (auto &x : row) {
+            pf.read(x);
         }
     }
     return 0;
@@ -227,7 +223,7 @@ void Map::loadLocations()
 }
 void Map::loadNavData(size_t level_num)
 {
-    UInt32 _si = baseSize + columnSize + topHeaderSize + objectPosSize + routeSize + 3 * 6 * 6 + blockSize;
+    UInt32 _si = baseSize + columnSize + topHeaderSize + objectPosSize + routeSize + (3 * 6 * 6) + blockSize;
     pf.seek(_si);
     nav = new NavData(navDataSize, pf, level_num);
 }
@@ -241,7 +237,7 @@ UInt16 Map::getNumBlocksAtNew(UInt8 x, UInt8 y)
 }
 Map::BlockInfo *Map::getBlockAt(UInt8 x, UInt8 y, UInt8 z)
 {
-    UInt16 v = column[base[x][y] / 2 + z];
+    UInt16 v = column[(base[x][y] / 2) + z];
     return &block[v];
 }
 Map::BlockInfo *Map::getBlockAtNew(UInt8 x, UInt8 y, UInt8 z)
@@ -251,12 +247,12 @@ Map::BlockInfo *Map::getBlockAtNew(UInt8 x, UInt8 y, UInt8 z)
         idx0 -= z;
     else
         assert(idx0 > z);
-    idx0 = column[base[x][y] / 2 + idx0];
+    idx0 = column[(base[x][y] / 2) + idx0];
     return &block[idx0];
 }
 UInt16 Map::getInternalIdAt(UInt8 x, UInt8 y, UInt8 z)
 {
-    return column[base[x][y] / 2 + z];
+    return column[(base[x][y] / 2) + z];
 }
 Map::BlockInfo *Map::getBlockByInternalId(UInt16 id)
 {
@@ -270,7 +266,7 @@ void Map::dump()
             UInt16 ts = column[base[x][y] / 2];
             std::cout << "(";
             for (int t = 1; t <= (6 - ts); t++) {
-                BlockInfo *info = &block[column[base[x][y] / 2 + t]];
+                BlockInfo *info = &block[column[(base[x][y] / 2) + t]];
                 fmt::print("{}, ", int(info->slopeType()));
             }
             fmt::print(")\n");

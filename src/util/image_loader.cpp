@@ -45,7 +45,7 @@
 #else
 #include <GL/glu.h>
 #endif
-#include <SDL2/SDL_opengl.h>
+// #include <SDL2/SDL_opengl.h>
 
 namespace ImageUtil {
 using OpenGL::PagedTexture;
@@ -164,7 +164,8 @@ OpenGL::PagedTexture loadImageSDL(const std::string &name)
 }
 #endif
 
-GLuint createGLTexture(GLsizei w, GLsizei h, bool rgba, std::span<const UInt8> pixels)
+#define GL_SILENCE_DEPRECATION
+UInt32 createGLTexture(size_t w, size_t h, bool rgba, std::span<const UInt8> pixels)
 {
     GLuint tex;
     glGenTextures(1, &tex);
@@ -197,9 +198,9 @@ GLuint createGLTexture(GLsizei w, GLsizei h, bool rgba, std::span<const UInt8> p
 void copyImage2Image(
     uint8_t *dest,
     const uint8_t *src,
-    const uint16_t srcWidth,
-    const uint16_t srcHeight,
-    const uint16_t destWidth
+    uint16_t srcWidth,
+    uint16_t srcHeight,
+    uint16_t destWidth
 )
 {
     uint8_t *d = dest;
@@ -211,7 +212,7 @@ void copyImage2Image(
     }
 }
 
-OpenGL::PagedTexture createEmbeddedTexture(GLsizei w, GLsizei h, bool rgba, std::vector<UInt8> pixels)
+OpenGL::PagedTexture createEmbeddedTexture(size_t w, size_t h, bool rgba, std::vector<UInt8> pixels)
 {
 
     NextPowerOfTwo npot(w, h);
@@ -308,5 +309,5 @@ std::vector<UInt8> scale2x_32bit(std::span<const UInt8> src, const int src_width
 }
 
 bool mipmapTextures = false;
-GLfloat supportedMaxAnisoDegree = 1.0f;
+float supportedMaxAnisoDegree = 1.0f;
 } // namespace ImageUtil

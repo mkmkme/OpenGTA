@@ -71,22 +71,22 @@ OpenGL::PagedTexture loadImageSDL(const std::string &name);
 #endif
 
 extern bool mipmapTextures;
-extern GLfloat supportedMaxAnisoDegree;
+extern float supportedMaxAnisoDegree;
 
 // plain simple garden-variety create-a-texture; needs to be 2^k
-GLuint createGLTexture(GLsizei w, GLsizei h, bool rgba, std::span<const UInt8> pixels);
+UInt32 createGLTexture(size_t w, size_t h, bool rgba, std::span<const UInt8> pixels);
 
 // blitting a buffer into another; no checks done!
 void copyImage2Image(
     uint8_t *dest,
     const uint8_t *src,
-    const uint16_t srcWidth,
-    const uint16_t srcHeight,
-    const uint16_t destWidth
+    uint16_t srcWidth,
+    uint16_t srcHeight,
+    uint16_t destWidth
 );
 
 // texture-class instance from pixel data; does transform to 2^k if required
-OpenGL::PagedTexture createEmbeddedTexture(GLsizei w, GLsizei h, bool rgba, std::vector<UInt8> pixels);
+OpenGL::PagedTexture createEmbeddedTexture(size_t w, size_t h, bool rgba, std::vector<UInt8> pixels);
 } // namespace ImageUtil
 
 #endif

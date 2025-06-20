@@ -106,7 +106,7 @@ void Graphics8Bit::loadHeader()
         return;
     }
 
-    UInt32 tmp = sideSize / 4096 + lidSize / 4096 + auxSize / 4096;
+    UInt32 tmp = (sideSize / 4096) + (lidSize / 4096) + (auxSize / 4096);
     tmp = tmp % 4;
     if (tmp) {
         auxBlockTrailSize = (4 - tmp) * 4096;
@@ -239,7 +239,7 @@ void Graphics8Bit::loadSpriteInfo()
                 styleFile.read(si.delta[j].size);
                 styleFile.read(w);
                 _bytes_read += 6;
-                si.delta[j].ptr = reinterpret_cast<unsigned char *>(w);
+                si.delta[j].ptr = reinterpret_cast<unsigned char *>(w); // NOLINT(performance-no-int-to-ptr)
             }
         }
         spriteInfos.push_back(si);

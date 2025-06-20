@@ -61,7 +61,7 @@ public:
         UInt16 GTA_SPRITE_TUMTRUCK;
         UInt16 GTA_SPRITE_FERRY;
 
-        enum SpriteTypes {
+        enum SpriteTypes : UInt8 {
             ARROW = 0,
             DIGIT,
             BOAT,

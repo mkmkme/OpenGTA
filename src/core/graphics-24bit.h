@@ -30,7 +30,7 @@ protected:
     void applyClut(
         unsigned char *src,
         unsigned char *dst,
-        const size_t &len,
+        size_t len,
         UInt16 clutIdx,
         bool rgba
     );

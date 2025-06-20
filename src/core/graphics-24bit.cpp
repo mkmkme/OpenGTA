@@ -93,7 +93,7 @@ void Graphics24Bit::loadHeader()
         return;
     }
 
-    UInt32 tmp = sideSize / 4096 + lidSize / 4096 + auxSize / 4096;
+    UInt32 tmp = (sideSize / 4096) + (lidSize / 4096) + (auxSize / 4096);
     tmp = tmp % 4;
     if (tmp) {
         auxBlockTrailSize = (4 - tmp) * 4096;
@@ -150,10 +150,10 @@ void Graphics24Bit::loadClut()
 
 void Graphics24Bit::loadPalIndex()
 {
-    UInt64 st = static_cast<UInt64>(_topHeaderSize) + sideSize + lidSize + auxSize + auxBlockTrailSize +
+    const auto st = static_cast<UInt64>(_topHeaderSize) + sideSize + lidSize + auxSize + auxBlockTrailSize +
         animSize + pagedClutSize;
     styleFile.ensurePosition(st);
-    UInt16 pal_index_count = paletteIndexSize / 2;
+    const UInt16 pal_index_count = paletteIndexSize / 2;
     assert(paletteIndexSize % 2 == 0);
     palIndex = new UInt16[pal_index_count];
     for (UInt16 i = 0; i < pal_index_count; i++) {
@@ -163,7 +163,7 @@ void Graphics24Bit::loadPalIndex()
 
 void Graphics24Bit::loadCarInfo()
 {
-    UInt64 st = static_cast<UInt64>(_topHeaderSize) + sideSize + lidSize + auxSize + auxBlockTrailSize +
+    const auto st = static_cast<UInt64>(_topHeaderSize) + sideSize + lidSize + auxSize + auxBlockTrailSize +
         animSize + pagedClutSize + paletteIndexSize + objectInfoSize;
     // INFO("seek for {}", st);
     loadCarInfo_shared(st);
@@ -171,7 +171,7 @@ void Graphics24Bit::loadCarInfo()
 
 void Graphics24Bit::loadSpriteInfo()
 {
-    UInt64 st = static_cast<UInt64>(_topHeaderSize) + sideSize + lidSize + auxSize + auxBlockTrailSize +
+    auto st = static_cast<UInt64>(_topHeaderSize) + sideSize + lidSize + auxSize + auxBlockTrailSize +
         animSize + pagedClutSize + paletteIndexSize + objectInfoSize + carInfoSize;
     styleFile.ensurePosition(st);
 
@@ -214,7 +214,7 @@ void Graphics24Bit::loadSpriteInfo()
                 styleFile.read(si.delta[j].size);
                 styleFile.read(w);
                 _bytes_read += 6;
-                si.delta[j].ptr = reinterpret_cast<unsigned char *>(w);
+                si.delta[j].ptr = reinterpret_cast<unsigned char *>(w); // NOLINT(performance-no-int-to-ptr)
             }
         }
         spriteInfos.emplace_back(si);
@@ -226,7 +226,7 @@ void Graphics24Bit::loadSpriteInfo()
 
 void Graphics24Bit::loadSpriteNumbers()
 {
-    UInt64 st = static_cast<UInt64>(_topHeaderSize) + sideSize + lidSize + auxSize + auxBlockTrailSize +
+    const auto st = static_cast<UInt64>(_topHeaderSize) + sideSize + lidSize + auxSize + auxBlockTrailSize +
         animSize + pagedClutSize + paletteIndexSize + objectInfoSize + carInfoSize + spriteInfoSize +
         spriteGraphicsSize;
     loadSpriteNumbers_shared(st);
@@ -234,7 +234,7 @@ void Graphics24Bit::loadSpriteNumbers()
 
 void Graphics24Bit::loadSpriteGraphics()
 {
-    UInt64 st = static_cast<UInt64>(_topHeaderSize) + sideSize + lidSize + auxSize + auxBlockTrailSize +
+    const auto st = static_cast<UInt64>(_topHeaderSize) + sideSize + lidSize + auxSize + auxBlockTrailSize +
         animSize + pagedClutSize + paletteIndexSize + objectInfoSize + carInfoSize + spriteInfoSize;
     styleFile.ensurePosition(st);
 
@@ -267,14 +267,14 @@ void Graphics24Bit::loadObjectInfo()
 void Graphics24Bit::applyClut(
     unsigned char *src,
     unsigned char *dst,
-    const size_t &len,
+    size_t len,
     UInt16 clutIdx,
     bool rgba
 )
 {
-    UInt32 off = 65536 * (clutIdx / 64) + 4 * (clutIdx % 64);
+    UInt32 off = (65536 * (clutIdx / 64)) + (4 * (clutIdx % 64));
     for (size_t i = 0; i < len; i++) {
-        UInt32 coff = UInt32(*src) * 256 + off;
+        UInt32 coff = (UInt32(*src) * 256) + off;
         *dst = rawClut[coff + 2];
         ++dst;
         *dst = rawClut[coff + 1];
@@ -359,7 +359,7 @@ std::vector<UInt8> Graphics24Bit::getSpriteBitmap(size_t id, int remap, UInt32 d
     if (remap > -1)
         skip_cluts = spriteclutSize / 1024 + remap + 1;
 
-    UInt16 clutIdx = palIndex[info.clut + tileclutSize / 1024] + skip_cluts;
+    UInt16 clutIdx = palIndex[info.clut + (tileclutSize / 1024)] + skip_cluts;
     //  UInt16 clutIdx = palIndex[info->clut + (spriteclutSize + tileclutSize) / 1024] + (remap > -1 ? remap+2 :
     //  0);
     applyClut(result.data(), bigbuf_raw, page_size, clutIdx, true);

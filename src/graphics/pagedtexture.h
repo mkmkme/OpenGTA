@@ -23,17 +23,19 @@
 #ifndef PAGED_TEXTURE_H
 #define PAGED_TEXTURE_H
 
-#include <SDL2/SDL_opengl.h>
+// #include <SDL2/SDL_opengl.h>
+
+#include <core/numeric-types.h>
 
 namespace OpenGL {
 
 struct TexCoord {
-    TexCoord(GLfloat a, GLfloat b)
+    TexCoord(float a, float b)
         : u(a), v(b) {}
     TexCoord()
         : u(0.0f), v(0.0f) {}
-    GLfloat u;
-    GLfloat v;
+    float u;
+    float v;
 };
 
 struct PagedTexture {
@@ -47,7 +49,7 @@ private:
     }
 
 public:
-    PagedTexture(GLuint p, GLfloat a, GLfloat b, GLfloat c, GLfloat d)
+    PagedTexture(UInt32 p, float a, float b, float c, float d)
         : inPage(p)
     {
         coords[0].u = a;
@@ -55,17 +57,18 @@ public:
         coords[1].u = c;
         coords[1].v = d;
     }
-    PagedTexture()
-        : inPage(0) {}
+    PagedTexture() = default;
     PagedTexture(const PagedTexture &other)
         : inPage(other.inPage) { _copyCoords(other); }
     PagedTexture &operator=(const PagedTexture &other)
     {
+        if (this == &other)
+            return *this;
         inPage = other.inPage;
         _copyCoords(other);
         return *this;
     }
-    GLuint inPage;
+    UInt32 inPage { 0 };
     TexCoord coords[2];
 };
 

@@ -26,7 +26,6 @@
 #include <util/errors.h>
 #include <util/image_loader.h>
 #include <util/log.h>
-
 #ifdef _WIN32
 #include <Windows.h>
 #elif defined(__APPLE__)
@@ -40,8 +39,9 @@
 #endif
 
 #include <cassert>
-#include <memory>
 #include <string>
+
+#include <SDL2/SDL.h>
 
 namespace {
 

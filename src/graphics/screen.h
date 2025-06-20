@@ -24,8 +24,7 @@
 #ifndef GL_SCREEN_H
 #define GL_SCREEN_H
 
-#include <SDL2/SDL.h>
-
+#include <SDL2/SDL_video.h>
 namespace OpenGL {
 
 enum class VSyncMode : uint8_t {

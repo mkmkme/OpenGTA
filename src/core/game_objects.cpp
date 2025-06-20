@@ -156,7 +156,7 @@ void Sprite::switchToAnim(uint32_t newId)
     animId = newId;
 }
 
-Pedestrian::Pedestrian(const glm::vec3 &e, const glm::vec3 &p, uint32_t id, int16_t remapId)
+Pedestrian::Pedestrian(const glm::vec3 &e, const glm::vec3 &p, uint32_t id, int16_t remapId) noexcept
     : GameObject_common(p)
     , Sprite(0, remapId, GraphicsBase::SpriteNumbers::PED)
     , OBox(glm::translate(glm::mat4(1.0f), p), e * 0.5f)

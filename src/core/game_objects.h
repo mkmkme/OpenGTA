@@ -76,7 +76,7 @@ public:
 
 class Pedestrian : public GameObject_common, public Sprite, public OBox {
 public:
-    Pedestrian(const glm::vec3 &, const glm::vec3 &, uint32_t id, int16_t remapId = -1);
+    Pedestrian(const glm::vec3 &, const glm::vec3 &, uint32_t id, int16_t remapId = -1) noexcept;
     Pedestrian(const Pedestrian &o);
     uint32_t pedId;
     [[nodiscard]] uint32_t id() const { return pedId; }

@@ -22,7 +22,7 @@
  * distribution.                                                         *
  ************************************************************************/
 #include <array>
-#include <iostream>
+#include <memory>
 
 #ifdef _MSC_VER
 #define SDL_MAIN_HANDLED
@@ -30,6 +30,7 @@
 
 #include <SDL2/SDL_opengl.h>
 #include <core/active-style.h>
+#include <core/game_objects.h>
 #include <core/graphics-base.h>
 #include <core/main-msg-lookup.h>
 #include <core/spritemanager.h>
@@ -45,8 +46,8 @@ using namespace std::string_view_literals;
 
 bool done = false;
 
-OpenGTA::Car *car = nullptr;
-glm::vec3 _p(4, 0.01f, 4);
+std::unique_ptr<OpenGTA::Car> car;
+const glm::vec3 _p(4, 0.01f, 4);
 OpenGTA::Pedestrian ped(glm::vec3(0.5f, 0.5f, 0.5f), glm::vec3(4, 0.01f, 4), 0xffffffff);
 OpenGTA::SpriteObject::Animation pedAnim(0, 0);
 
@@ -67,19 +68,14 @@ bool playWithCar = false;
 uint32_t car_delta = 0;
 
 int spr_type = (int) ped.sprType;
-namespace OpenGTA {
-void ai_step_fake(OpenGTA::Pedestrian *) {}
-} // namespace OpenGTA
 
 void safe_try_model(uint8_t model_id)
 {
-    delete car;
     try {
-        car = new OpenGTA::Car(_p, 0, 0, model_id, car_remap);
+        car = std::make_unique<OpenGTA::Car>(_p, 0, 0, model_id, car_remap);
     } catch (Util::UnknownKey &uk) {
-        car = nullptr;
+        car.reset();
         ERROR("not a model");
-        return;
     }
 }
 
@@ -111,7 +107,7 @@ const char *spr_type_name(int t)
     return (t < 0 || t >= types.size()) ? "???" : types[t];
 }
 
-const char *vtype2name(int vt)
+std::string_view vtype2name(int vt)
 {
     switch (vt) {
         case 0:
@@ -156,7 +152,7 @@ void drawScene(Uint32 ticks, OpenGL::Screen &screen, OpenGL::Camera &camera)
                 OpenGTA::MainMsgLookup::Instance().get().getText(fmt::format("car{}", car_model))
             );
         } else {
-            sprite_info = "not a model: " + std::to_string(int(car_model));
+            sprite_info = "not a model: " + std::to_string(car_model);
         }
         m_font.drawString(sprite_info);
         glPopMatrix();
@@ -210,10 +206,10 @@ void handleKeyPress(SDL_Keysym *keysym, OpenGL::Camera &camera)
             }
             break;
         case '=':
-            camera.translateBy(glm::vec3(0, -0.5f, 0));
+            camera.translateBy({ 0, -0.5f, 0 });
             break;
         case '-':
-            camera.translateBy(glm::vec3(0, 0.5f, 0));
+            camera.translateBy({ 0, 0.5f, 0 });
             break;
         case '1':
             if (playWithCar) {
@@ -275,8 +271,7 @@ void handleKeyPress(SDL_Keysym *keysym, OpenGL::Camera &camera)
                 if (spr_type > 0) {
                     spr_type -= 1;
                 }
-            } while (style.spriteNumbers.countByType((OpenGTA::GraphicsBase::SpriteNumbers::SpriteTypes) spr_type) == 0
-            );
+            } while (style.spriteNumbers.countByType((OpenGTA::GraphicsBase::SpriteNumbers::SpriteTypes) spr_type) == 0);
             ped.sprType = (OpenGTA::GraphicsBase::SpriteNumbers::SpriteTypes) spr_type;
             frame_offset = 0;
             update_anim = true;
@@ -290,8 +285,7 @@ void handleKeyPress(SDL_Keysym *keysym, OpenGL::Camera &camera)
                 spr_type += 1;
                 if (spr_type > 20)
                     spr_type = (int) ped.sprType;
-            } while (style.spriteNumbers.countByType((OpenGTA::GraphicsBase::SpriteNumbers::SpriteTypes) spr_type) == 0
-            );
+            } while (style.spriteNumbers.countByType((OpenGTA::GraphicsBase::SpriteNumbers::SpriteTypes) spr_type) == 0);
             ped.sprType = (OpenGTA::GraphicsBase::SpriteNumbers::SpriteTypes) spr_type;
             frame_offset = 0;
             update_anim = true;
@@ -299,6 +293,8 @@ void handleKeyPress(SDL_Keysym *keysym, OpenGL::Camera &camera)
         case 's':
             if (playWithCar) {
                 car->setSirenAnim(true);
+            } else {
+                WARN("No car to set siren anim on");
             }
             break;
         case SDLK_F2:
@@ -311,16 +307,16 @@ void handleKeyPress(SDL_Keysym *keysym, OpenGL::Camera &camera)
             break;
         case SDLK_F5:
             first_offset = frame_offset;
-            std::cout << "First frame: " << first_offset << std::endl;
+            INFO("First frame: {}", first_offset);
             break;
         case SDLK_F6:
             second_offset = frame_offset;
-            std::cout << "Last frame: " << second_offset << std::endl;
+            INFO("Last frame: {}", second_offset);
             break;
         case SDLK_F7:
             play_anim = !play_anim;
             if (play_anim)
-                std::cout << "Playing: " << first_offset << " .. " << second_offset << std::endl;
+                INFO("Playing: {} .. {}", first_offset, second_offset);
             now_frame = first_offset;
             break;
         case SDLK_F8:
@@ -340,26 +336,26 @@ void handleKeyPress(SDL_Keysym *keysym, OpenGL::Camera &camera)
 
 void usage(const char *a0)
 {
-    std::cout << "USAGE: " << a0 << " [style-filename]" << std::endl;
-    std::cout << std::endl
-              << "Default is: STYLE001.G24" << std::endl
-              << "Keys:" << std::endl
-              << " + - : zoom in/out" << std::endl
-              << " , . : previous/next frame offset" << std::endl
-              << " n m : previous/next sprite-type" << std::endl
-              << " tab : black/white background" << std::endl
-              << " F2  : toggle BBox drawn" << std::endl
-              << " F3  : toggle tex-border drawn" << std::endl
-              << " F5  : prepare animation: first-frame = current frame" << std::endl
-              << " F6  : prepare animation: last-frame  = current frame" << std::endl
-              << " F7  : toggle: play frames" << std::endl
-              << " F8  : toggle: special-car-mode" << std::endl
-              << std::endl
-              << "In car-mode:" << std::endl
-              << " , . : choose model" << std::endl
-              << " n m : choose remap" << std::endl
-              << " 1, 2, 3, 4 : open car door (if exists)" << std::endl
-              << " s   : toggle siren anim (if exists)" << std::endl;
+    fmt::print("USAGE: {} [style-filename]", a0);
+    fmt::print(
+        "\nDefault is: STYLE001.G24\n"
+        "Keys:\n"
+        " + - : zoom in/out\n"
+        " , . : previous/next frame offset\n"
+        " n m : previous/next sprite-type\n"
+        " tab : black/white background\n"
+        " F2  : toggle BBox drawn\n"
+        " F3  : toggle tex-border drawn\n"
+        " F5  : prepare animation: first-frame = current frame\n"
+        " F6  : prepare animation: last-frame  = current frame\n"
+        " F7  : toggle: play frames\n"
+        " F8  : toggle: special-car-mode\n"
+        "\nIn car-mode:\n"
+        " , . : choose model\n"
+        " n m : choose remap\n"
+        " 1, 2, 3, 4 : open car door (if exists)\n"
+        " s   : toggle siren anim (if exists)\n"
+    );
 }
 
 void main_loop(OpenGL::Screen &screen, OpenGL::Camera &camera)
@@ -372,19 +368,12 @@ void main_loop(OpenGL::Screen &screen, OpenGL::Camera &camera)
                 case SDL_KEYDOWN:
                     handleKeyPress(&event.key.keysym, camera);
                     break;
-                    // case SDL_KEYUP:
-                    //          handleKeyUp(&event.key.keysym);
-                    // break;
                 case SDL_WINDOWEVENT_SIZE_CHANGED:
                     screen.resize(event.window.data1, event.window.data2);
                     break;
                 case SDL_QUIT:
                     done = true;
                     break;
-                // case SDL_MOUSEMOTION:
-                // std::cout << "Mouse move: x " << float(event.motion.x)/screen->w << " y " <<
-                // float(event.motion.y)/screen->h << std::endl;
-                // break;
                 default:
                     break;
             }
@@ -398,17 +387,17 @@ int main(int argc, char *argv[])
 {
     std::string style_file = "STYLE001.G24";
     if (argc > 2) {
-        std::cerr << "Usage: " << argv[0] << " [STYLE_FILENAME]" << std::endl;
+        fmt::print(stderr, "Usage: {} [STYLE_FILENAME]\n", argv[0]);
         return 1;
     }
     if (argc == 2) {
-        if (argv[1] == "-h"sv || argv[1] == "-?"sv) {
+        if (argv[1] == "-h"sv) {
             usage(argv[0]);
             return 0;
         }
         style_file = argv[1];
     }
-    Util::PhysFSContext pfs("mapview");
+    const Util::PhysFSContext pfs("mapview");
 
     OpenGL::Screen screen;
     OpenGL::Camera camera;
@@ -422,8 +411,9 @@ int main(int argc, char *argv[])
     m_font.loadFont("F_MTEXT.FON");
     m_font.setScale(1);
     glClearColor(1, 1, 1, 1);
-    if (playWithCar)
-        car = new OpenGTA::Car(_p, 0, 0, car_model);
+    if (playWithCar) {
+        car = std::make_unique<OpenGTA::Car>(_p, 0, 0, car_model);
+    }
 
     glEnable(GL_TEXTURE_2D);
     glPolygonMode(GL_FRONT, GL_FILL);
@@ -437,7 +427,6 @@ int main(int argc, char *argv[])
 
     main_loop(screen, camera);
 
-    delete car;
     SDL_Quit();
 
     return 0;

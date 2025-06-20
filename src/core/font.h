@@ -1,8 +1,8 @@
 #pragma once
 
+#include <climits>
 #include <cstddef>
 #include <cstdint>
-#include <map>
 #include <string>
 #include <vector>
 
@@ -19,7 +19,7 @@ class Font {
 public:
     class Character {
     public:
-        Character(Util::PhysFSFile &, uint8_t);
+        Character(Util::PhysFSFile &, uint8_t) noexcept;
         uint8_t width {};
         std::vector<UInt8> rawData;
     };
@@ -38,7 +38,7 @@ private:
     UInt8 readHeader(Util::PhysFSFile &pf);
     UInt8 charHeight {};
     std::vector<Character> chars;
-    std::map<char, size_t> mapping;
+    std::array<size_t, UCHAR_MAX + 1> mapping {};
     Graphics8Bit::RGBPalette palette;
 };
 

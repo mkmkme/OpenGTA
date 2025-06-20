@@ -8,6 +8,7 @@
  *                                                                       *
  * This notice may not be removed or altered.                            *
  ************************************************************************/
+#include <algorithm>
 #include <set>
 
 #include <core/font.h>
@@ -30,8 +31,7 @@ Font::Font(const std::string &file)
     for (UInt8 i = 0; i < numChars; i++) {
         const auto &ch = chars.emplace_back(pf, charHeight);
         ww += ch.width;
-        if (ch.width > lw)
-            lw = ch.width;
+        lw = std::max<int>(ch.width, lw);
     }
     INFO("total width {} largest width {}", ww, lw);
     palette.loadFromFile(pf);
@@ -57,18 +57,11 @@ void Font::addMapping(unsigned char c, size_t num)
 }
 size_t Font::getIdByChar(const char c) const noexcept
 {
-    const auto i = mapping.find(c);
-    if (i == mapping.end())
-        return 0;
-    return i->second;
+    return mapping[c];
 }
 uint8_t Font::getMoveWidth(const char c)
 {
-    const auto i = mapping.find(c);
-    if (i == mapping.end()) {
-        return chars[0].width;
-    }
-    return chars[i->second].width;
+    return chars[getIdByChar(c)].width;
 }
 
 std::vector<UInt8> Font::getCharacterBitmap(size_t num, unsigned int *width, unsigned int *height)
@@ -84,7 +77,7 @@ std::vector<UInt8> Font::getCharacterBitmap(size_t num, unsigned int *width, uns
     return buffer;
 }
 
-Font::Character::Character(Util::PhysFSFile &pf, uint8_t height)
+Font::Character::Character(Util::PhysFSFile &pf, uint8_t height) noexcept
 {
     pf.read(width);
     size_t c = size_t(width) * size_t(height);

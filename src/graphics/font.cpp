@@ -32,7 +32,7 @@
 #include "base.h"
 
 namespace OpenGL {
-DrawableFont::DrawableFont()
+DrawableFont::DrawableFont() noexcept
 {
     fontSource = nullptr;
     texCache = nullptr;

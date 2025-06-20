@@ -22,7 +22,6 @@
  ************************************************************************/
 #ifndef M_OPENGL_FONT_H
 #define M_OPENGL_FONT_H
-#include <map>
 #include <memory>
 #include <string>
 
@@ -36,7 +35,7 @@ class Font;
 namespace OpenGL {
 class DrawableFont {
 public:
-    DrawableFont();
+    DrawableFont() noexcept;
     ~DrawableFont();
     void loadFont(const std::string &filename);
     GLfloat drawString(const std::string &text);

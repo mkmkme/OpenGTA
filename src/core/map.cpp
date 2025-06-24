@@ -105,9 +105,9 @@ int Map::loadHeader()
 int Map::loadBase()
 {
     pf.seek(topHeaderSize);
-    for (auto &row : base) {
-        for (auto &x : row) {
-            pf.read(x);
+    for (int y = 0; y < GTA_MAP_MAXDIMENSION; y++) {
+        for (auto &x : base) {
+            pf.read(x[y]);
         }
     }
     return 0;

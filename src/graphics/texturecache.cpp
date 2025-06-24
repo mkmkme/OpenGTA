@@ -51,7 +51,6 @@ TextureCache<key_type>::~TextureCache()
     unsigned int ts = cached.size();
     clearAll();
     INFO("{} exited - {} textures recycled", m_name, ts);
-    m_name.clear();
     instance_count--;
 }
 

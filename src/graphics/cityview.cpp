@@ -294,11 +294,6 @@ void CityView::setPosition(const GLfloat &x, const GLfloat &y, const GLfloat &z)
     //   getTerrainHeight(camPos[0], camPos[1], camPos[2]);
 }
 
-NavData::Sector *CityView::getCurrentSector()
-{
-    return current_sector;
-}
-
 /*
   void CityView::setCamVector(const GLfloat & x, const GLfloat & y, const GLfloat & z) {
     camVec[1] = x;

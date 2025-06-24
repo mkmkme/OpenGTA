@@ -62,7 +62,7 @@ public:
     [[nodiscard]] int getVisibleRange() const;
     void getTerrainHeight(GLfloat &x, GLfloat &y, GLfloat &z);
     void draw(Uint32 ticks);
-    NavData::Sector *getCurrentSector();
+    NavData::Sector *getCurrentSector() noexcept { return current_sector; }
     OpenGL::PagedTexture renderMap2Texture();
 
     [[nodiscard]] bool getDrawTextured() const;

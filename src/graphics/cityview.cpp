@@ -20,6 +20,7 @@
  * 3. This notice may not be removed or altered from any source          *
  * distribution.                                                         *
  ************************************************************************/
+#include <algorithm>
 #include <cassert>
 
 #include <core/active-map.h>
@@ -39,7 +40,6 @@
 #include <util/image_loader.h>
 #include <util/log.h>
 #include <util/map_helper.h>
-
 
 #ifdef __APPLE__
 #include <OpenGL/glu.h>
@@ -95,6 +95,8 @@ struct GLColor {
     }
 };
 
+namespace {
+
 std::array block_colors = {
     GLColor(1),       // air
     GLColor(0, 0, 1), // water
@@ -116,6 +118,8 @@ std::array<GLfloat, 3> map_block_type_color(uint8_t k)
     ERROR("Invalid block-type: {}", k);
     return block_colors[0].rgb;
 }
+
+} // namespace
 
 CityView::CityView(OpenGL::Screen &screen, OpenGL::Camera &camera)
     : screen_(screen), camera_(camera)
@@ -505,14 +509,10 @@ void CityView::draw(Uint32 ticks)
     }
     frustum.CalculateFrustum();
 
-    if (x1 < 0)
-        x1 = 0;
-    if (y1 < 0)
-        y1 = 0;
-    if (x2 > 255)
-        x2 = 255;
-    if (y2 > 255)
-        y2 = 255;
+    x1 = std::max(x1, 0);
+    y1 = std::max(y1, 0);
+    x2 = std::min(x2, 255);
+    y2 = std::min(y2, 255);
 
     // INFO << activeRect.x << ", " << activeRect.y << " -> " <<
     //   activeRect.x+activeRect.w << ", " << activeRect.y + activeRect.h << std::endl;
@@ -543,11 +543,9 @@ void CityView::draw(Uint32 ticks)
             for (int j = x1; j <= x2; j++) {
                 if (!frustum.BlockInFrustum(0.5f + j, 0.5f + i, 0.5f))
                     continue;
-                if (j < xd1)
-                    xd1 = j;
+                xd1 = std::min(j, xd1);
                 xd2 = j;
-                if (i < yd1)
-                    yd1 = i;
+                yd1 = std::min(i, yd1);
                 yd2 = i;
                 glPushMatrix();
                 glTranslatef(1.0f * j, 0.0f, 1.0f * i);

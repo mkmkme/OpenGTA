@@ -54,10 +54,10 @@ public:
     // void setCamVector(const GLfloat & x, const GLfloat & y, const GLfloat & z);
     void setZoom(GLfloat zoom);
     void setViewMode(bool topDown);
-    [[nodiscard]] inline bool getViewMode() const noexcept { return topDownView; }
-    inline void setDrawHeadingArrows(bool yes) noexcept { drawHeadingMarkers = yes; }
-    inline void setTexFlipTest(int v) noexcept { texFlipTest = v; }
-    [[nodiscard]] inline std::span<const GLfloat> getCamPos() const noexcept { return camPos; }
+    [[nodiscard]] bool getViewMode() const noexcept { return topDownView; }
+    void setDrawHeadingArrows(bool yes) noexcept { drawHeadingMarkers = yes; }
+    void setTexFlipTest(int v) noexcept { texFlipTest = v; }
+    [[nodiscard]] std::span<const GLfloat> getCamPos() const noexcept { return camPos; }
     void setVisibleRange(int);
     [[nodiscard]] int getVisibleRange() const;
     void getTerrainHeight(GLfloat &x, GLfloat &y, GLfloat &z);

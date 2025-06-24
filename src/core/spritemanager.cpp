@@ -111,7 +111,7 @@ Pedestrian &SpriteManager::getPed(uint32_t id)
     if (auto it = _peds.find(id); it != _peds.end()) {
         return it->second;
     }
-    throw Util::UnknownKey(std::to_string(id));
+    throw Util::UnknownKey(id);
 }
 
 Car &SpriteManager::add(const Car &car)
@@ -126,7 +126,7 @@ Car &SpriteManager::getCar(uint32_t id)
     if (auto it = _cars.find(id); it != _cars.end()) {
         return it->second;
     }
-    throw Util::UnknownKey(std::to_string(id));
+    throw Util::UnknownKey(id);
 }
 
 SpriteObject &SpriteManager::add(const SpriteObject &obj)
@@ -141,7 +141,7 @@ SpriteObject &SpriteManager::getObject(uint32_t id)
     if (auto it = _objects.find(id); it != _objects.end()) {
         return it->second;
     }
-    throw Util::UnknownKey(std::to_string(id));
+    throw Util::UnknownKey(id);
 }
 
 void SpriteManager::update(Uint32 ticks, LocalPlayer &player)

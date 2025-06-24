@@ -46,7 +46,7 @@ SoundsDB::SoundsDB(const std::string &sdt_file)
 {
     auto num_e = dataFile.length();
     if (num_e % 12) {
-        throw Util::InvalidFormat("SDT filesize " + std::to_string(uint32_t(num_e)) + " % 12 != 0");
+        throw Util::InvalidFormat("SDT filesize {} % 12 != 0", uint32_t(num_e));
     }
     num_e /= 12;
     UInt32 r1, r2, sr;
@@ -72,7 +72,7 @@ SoundsDB::Entry &SoundsDB::getEntry(KeyType key)
     auto i = knownEntries.find(key);
     if (i == knownEntries.end()) {
         // throw std::string("Unknown sound-db entry");
-        throw Util::UnknownKey("Querying for sound id: " + std::to_string(unsigned(key)));
+        throw Util::UnknownKey("Querying for sound id: {}", unsigned(key));
     }
     return i->second;
 }

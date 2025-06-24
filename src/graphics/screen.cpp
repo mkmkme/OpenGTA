@@ -142,7 +142,7 @@ void Screen::initScreen(uint32_t w, uint32_t h)
 {
     int err = SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER);
     if (err)
-        throw Util::InvalidFormat("SDL_Init failed: " + std::string(SDL_GetError()));
+        throw Util::InvalidFormat("SDL_Init failed: {}", SDL_GetError());
     checkAndClearSDLError("SDL_Init");
 
     INFO("Creating window {}x{}", w, h);

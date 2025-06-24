@@ -49,10 +49,12 @@ Node &Node::insert(const char *str, size_t offset)
         } else {
             if (i->second->isLeaf())
                 throw Util::InvalidFormat(
-                    std::format("Cannot enter '{}' at offset {} as a leaf node already exists", str, offset)
+                    "Cannot enter '{}' at offset {} as a leaf node already exists",
+                    str,
+                    offset
                 );
             if ((offset == str_len) && (!i->second->isLeaf()))
-                throw Util::InvalidFormat(std::format("Cannot enter '{}' as a non-leaf node already exists", str));
+                throw Util::InvalidFormat("Cannot enter '{}' as a non-leaf node already exists", str);
             return i->second->insert(str, offset);
         }
     }

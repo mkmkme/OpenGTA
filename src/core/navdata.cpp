@@ -147,7 +147,7 @@ std::string NavData::_se;
 NavData::NavData(UInt32 size, Util::PhysFSFile &pf, size_t level_num)
 {
     if (size % 35) {
-        throw Util::InvalidFormat("Navdata size: " + std::to_string(size) + " % 35 != 0");
+        throw Util::InvalidFormat("Navdata size: {} % 35 != 0", size);
         // throw std::string("Invalid NavData size in mapfile");
     }
     UInt32 c = size / 35;
@@ -199,7 +199,7 @@ NavData::Sector *NavData::getSectorAt(UInt8 x, UInt8 y)
         if (area.second->isInside(x, y))
             return area.second;
     }
-    throw Util::OutOfRange(std::format("Querying invalid sector at {}, {}", int(x), int(y)));
+    throw Util::OutOfRange("Querying invalid sector at {}, {}", int(x), int(y));
 }
 
 void NavData::clear()

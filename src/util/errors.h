@@ -4,19 +4,28 @@
 
 namespace Util {
 
-struct Exception : public std::runtime_error {
-    using std::runtime_error::runtime_error;
+struct Exception : public std::exception {
 
     template <typename... Args>
     explicit Exception(const std::format_string<Args...> &fmt, Args &&...args)
-        : std::runtime_error(std::format(fmt, std::forward<Args>(args)...))
+        : what_(std::format(fmt, std::forward<Args>(args)...))
     {
     }
+
+    [[nodiscard]] const char *what() const noexcept override
+    {
+        return what_.c_str();
+    }
+
+private:
+    std::string what_;
 };
 
 struct FileNotFound : public Exception {
+    using Exception::Exception;
+
     explicit FileNotFound(const std::string &file)
-        : Exception(std::format("File not found: {}", file)) {}
+        : Exception("File not found: {}", file) {}
 };
 
 struct IOError : public Exception {
@@ -29,6 +38,11 @@ struct InvalidFormat : public Exception {
 
 struct UnknownKey : public Exception {
     using Exception::Exception;
+    template <typename T>
+    explicit UnknownKey(const T &key)
+        : Exception("Unknown key: {}", key)
+    {
+    }
 };
 
 struct OutOfRange : public Exception {

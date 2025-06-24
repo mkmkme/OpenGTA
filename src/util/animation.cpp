@@ -79,7 +79,7 @@ void Animation::flipFrame(bool forward = true)
 void Animation::jumpToFrame(const uint16_t num, const Status andDo)
 {
     if (num >= numFrames)
-        throw Util::OutOfRange(std::to_string(num) + " >= " + std::to_string(numFrames));
+        throw Util::OutOfRange("Jumping to frame {} is out of range (< {})", num, numFrames);
     currentFrame = num;
     status = andDo;
 }

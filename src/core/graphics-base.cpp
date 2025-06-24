@@ -105,7 +105,7 @@ CarInfo &GraphicsBase::findCarByModel(UInt8 model)
         if (car.model == model)
             return car;
     }
-    throw Util::UnknownKey("Searching for car model " + std::to_string(int(model)) + " failed");
+    throw Util::UnknownKey("Searching for car model {} failed", int(model));
 }
 
 unsigned int GraphicsBase::getRandomPedRemapNumber() const

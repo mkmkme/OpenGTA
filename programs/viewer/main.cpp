@@ -642,13 +642,13 @@ OpenGTAViewer::OpenGTAViewer(std::string_view progname)
         lua_State *L = luaVM_.getInternalState();
         Util::LGUARD(L);
         if (luaL_loadbuffer(L, config_as_string.c_str(), config_as_string.size(), "config"))
-            throw Util::ScriptError("Error running string: " + std::string(lua_tostring(L, -1)));
+            throw Util::ScriptError("Error running string: {}", lua_tostring(L, -1));
         lua_newtable(L);
         lua_pushvalue(L, -1);
         // lua_setglobal(L, "config");
         lua_setfield(L, -2, "config");
         if (lua_pcall(L, 0, 0, 0))
-            throw Util::ScriptError("Error running string: " + std::string(lua_tostring(L, -1)));
+            throw Util::ScriptError("Error running string: {}", lua_tostring(L, -1));
 
         lua_getglobal(L, "config");
         if (lua_type(L, 1) == LUA_TTABLE) {

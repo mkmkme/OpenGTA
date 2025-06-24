@@ -82,7 +82,7 @@ int Block::l_getTextureId(lua_State *L)
     int which = luaL_checkinteger(L, 1);
     int v = 0;
     if ((which < 0) || (which > 4))
-        throw Util::OutOfRange("Quad id " + std::to_string(which) + " is invalid");
+        throw Util::OutOfRange("Quad id {} is invalid", which);
     switch (which) {
         case 0:
             v = lid;

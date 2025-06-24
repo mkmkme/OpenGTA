@@ -10,9 +10,11 @@
 
 using namespace Util;
 
-namespace OpenGTA::Globals {
-extern int DONE;
-} // namespace OpenGTA::Globals
+// namespace OpenGTA::Globals {
+// extern int DONE;
+// } // namespace OpenGTA::Globals
+
+extern int global_Done;
 
 namespace OpenGTA::Script {
 LuaVM::LuaVM(OpenGL::Screen &screen, OpenGL::Camera &camera)
@@ -38,7 +40,8 @@ LuaVM::~LuaVM()
 
 int vm_quit([[maybe_unused]] lua_State *L)
 {
-    OpenGTA::Globals::DONE = true;
+    // OpenGTA::Globals::DONE = true;
+    global_Done = 1;
     return 0;
 }
 

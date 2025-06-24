@@ -1,6 +1,7 @@
 #pragma once
 
 #include <format>
+#include <stacktrace>
 
 namespace Util {
 
@@ -9,6 +10,7 @@ struct Exception : public std::exception {
     template <typename... Args>
     explicit Exception(const std::format_string<Args...> &fmt, Args &&...args)
         : what_(std::format(fmt, std::forward<Args>(args)...))
+        , stacktrace_(std::stacktrace::current())
     {
     }
 
@@ -17,8 +19,14 @@ struct Exception : public std::exception {
         return what_.c_str();
     }
 
+    [[nodiscard]] const std::stacktrace &stacktrace() const noexcept
+    {
+        return stacktrace_;
+    }
+
 private:
     std::string what_;
+    std::stacktrace stacktrace_;
 };
 
 struct FileNotFound : public Exception {
@@ -56,4 +64,6 @@ struct ScriptError : public Exception {
 struct NotSupported : public Exception {
     using Exception::Exception;
 };
+
+void enableBacktraces();
 } // namespace Util

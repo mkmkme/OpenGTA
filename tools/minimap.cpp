@@ -1,6 +1,8 @@
 #include <cassert>
 #include <iostream>
 
+#include "util/errors.h"
+
 #ifdef _MSC_VER
 #define SDL_MAIN_HANDLED
 #endif
@@ -74,6 +76,8 @@ int main(int argc, char *argv[])
         std::cerr << "saves map as 'out.bmp'" << std::endl;
         return 1;
     }
+
+    Util::enableBacktraces();
 
     Util::PhysFSContext pfs(argv[0]);
 

@@ -264,7 +264,7 @@ void Map::dump()
         for (int x = 0; x < GTA_MAP_MAXDIMENSION; x++) {
             fmt::print("{}, {}: {}||(", x, y, column[base[x][y] / 2]);
             UInt16 ts = column[base[x][y] / 2];
-            std::cout << "(";
+            fmt::print("(");
             for (int t = 1; t <= (6 - ts); t++) {
                 BlockInfo *info = &block[column[(base[x][y] / 2) + t]];
                 fmt::print("{}, ", int(info->slopeType()));

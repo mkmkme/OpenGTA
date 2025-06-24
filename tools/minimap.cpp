@@ -1,4 +1,5 @@
 #include <cassert>
+#include <iostream>
 
 #ifdef _MSC_VER
 #define SDL_MAIN_HANDLED

@@ -284,23 +284,21 @@ ParseArgsResult parse_args(int argc, char **argv) noexcept
         if (result.count("l")) {
             auto log_level = result["l"].as<int>();
             switch (log_level) {
-                using enum Util::LogLevel;
-                using Util::Log;
                 case 0:
-                    Log::setOutputLevel(error);
+                    OpenGTA::Log::level = OpenGTA::Log::Level::error;
                     break;
                 case 1:
-                    Log::setOutputLevel(warn);
+                    OpenGTA::Log::level = OpenGTA::Log::Level::warn;
                     break;
                 case 2:
-                    Log::setOutputLevel(info);
+                    OpenGTA::Log::level = OpenGTA::Log::Level::info;
                     break;
                 case 3:
-                    Log::setOutputLevel(debug);
+                    OpenGTA::Log::level = OpenGTA::Log::Level::debug;
                     break;
                 default:
                     fmt::print(stderr, "Invalid log level, falling back to info");
-                    Log::setOutputLevel(info);
+                    OpenGTA::Log::level = OpenGTA::Log::Level::info;
                     break;
             }
         }

@@ -317,38 +317,38 @@ void GraphicsBase::applyDelta(
 void GraphicsBase::prepareSideTexture(UInt32 idx, std::span<UInt8> dst)
 {
     ++idx;
-    auto *dst_raw = dst.data();
-    auto *rt = rawTiles.data() + static_cast<size_t>((idx / 4) * 4096 * 4) + static_cast<size_t>((idx % 4) * 64);
+    auto dstIterator = dst.begin();
+    auto tilesIterator = rawTiles.begin() + ((idx / 4) * 4096 * 4) + ((idx % 4) * 64);
     for (int i = 0; i < 64; ++i) {
-        memcpy(dst_raw, rt, 64);
-        dst_raw += 64;
-        rt += 64 * 4;
+        std::copy_n(tilesIterator, 64, dstIterator);
+        dstIterator += 64;
+        tilesIterator += 64 * 4;
     }
 }
 
 void GraphicsBase::prepareLidTexture(UInt32 idx, std::span<UInt8> dst)
 {
-    const auto *rt = rawTiles.data();
-    auto *dst_raw = dst.data();
+    auto tilesIterator = rawTiles.begin();
+    auto dstIterator = dst.begin();
     idx += sideSize / 4096 + 1; // FIXME: assumes partition == block end
-    rt += (idx / 4) * 4096 * 4 + (idx % 4) * 64;
+    tilesIterator += ((idx / 4) * 4096 * 4) + ((idx % 4) * 64);
     for (int i = 0; i < 64; i++) {
-        memcpy(dst_raw, rt, 64);
-        dst_raw += 64;
-        rt += 64 * 4;
+        std::copy_n(tilesIterator, 64, dstIterator);
+        dstIterator += 64;
+        tilesIterator += 64 * 4;
     }
 }
 
 void GraphicsBase::prepareAuxTexture(UInt32 idx, std::span<UInt8> dst)
 {
-    const auto *rt = rawTiles.data();
-    auto *dst_raw = dst.data();
+    auto tilesIterator = rawTiles.begin();
+    auto dstIterator = dst.begin();
     idx += (sideSize + lidSize) / 4096 + 1; // FIXME: assumes partition == block end
-    rt += (idx / 4) * 4096 * 4 + (idx % 4) * 64;
+    tilesIterator += ((idx / 4) * 4096 * 4) + ((idx % 4) * 64);
     for (int i = 0; i < 64; i++) {
-        memcpy(dst_raw, rt, 64);
-        dst_raw += 64;
-        rt += 64 * 4;
+        std::copy_n(tilesIterator, 64, dstIterator);
+        dstIterator += 64;
+        tilesIterator += 64 * 4;
     }
 }
 

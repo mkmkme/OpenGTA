@@ -34,17 +34,15 @@ namespace {
 
 inline size_t mapFileName2Number(const std::string &file)
 {
-    size_t num = 0;
     std::string file2 { Util::string_lower(file) };
-    if (file2.find("nyc.cmp") != std::string::npos)
-        num = 1;
-    else if (file2.find("sanb.cmp") != std::string::npos)
-        num = 2;
-    else if (file2.find("miami.cmp") != std::string::npos)
-        num = 3;
-    else
-        ERROR("unknown level: {}", file);
-    return num;
+    if (file2 == "nyc.cmp")
+        return 1;
+    if (file2 == "sanb.cmp")
+        return 2;
+    if (file2 == "miami.cmp")
+        return 3;
+    ERROR("unknown level: {}", file);
+    return 0;
 }
 
 } // namespace

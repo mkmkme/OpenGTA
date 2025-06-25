@@ -8,7 +8,6 @@
 #include <util/gui.h>
 #include <util/log.h>
 
-
 extern float screen_gamma;
 namespace GUI {
 Object::Object(const SDL_Rect &r)
@@ -387,20 +386,10 @@ uint16_t Animation::getCurrentFrame()
 
 const int WEAPON_DISPLAY_ID = 100;
 
-SDL_Rect sdl_rect(size_t a, size_t b, size_t c, size_t d)
-{
-    SDL_Rect rect;
-    rect.x = a;
-    rect.y = b;
-    rect.w = c;
-    rect.h = d;
-    return rect;
-}
-
 WeaponDisplay::WeaponDisplay(const SDL_Rect &r)
     : Object(WEAPON_DISPLAY_ID, r)
-    , img(sdl_rect(r.x + 2, r.y + 2, r.w - 4, r.h - 4), 0)
-    , label(sdl_rect(r.x + 2, r.y + r.h, r.w - 4, r.h - 4), "", "F_MTEXT.FON", 1)
+    , img({ r.x + 2, r.y + 2, r.w - 4, r.h - 4 }, 0)
+    , label({ r.x + 2, r.y + r.h, r.w - 4, r.h - 4 }, "", "F_MTEXT.FON", 1)
 {
 }
 

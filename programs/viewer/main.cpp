@@ -1050,15 +1050,18 @@ void OpenGTAViewer::run()
     glEnable(GL_ALPHA_TEST);
     glAlphaFunc(GL_GREATER, 2 / 255.0f); // 0);
 
-    city = new OpenGTA::CityView(screen_, camera_);
-    if (!specific_map.empty() && !specific_style.empty()) {
-        city->loadMap(specific_map, specific_style);
-    } else {
-        if (highcolor_data)
-            city->loadMap(cities[city_num], styles_24[city_num]);
-        else
-            city->loadMap(cities[city_num], styles_8[city_num]);
+    if (specific_map.empty()) {
+        specific_map = cities[city_num];
     }
+    if (specific_style.empty()) {
+        if (highcolor_data) {
+            specific_style = styles_24[city_num];
+        } else {
+            specific_style = styles_8[city_num];
+        }
+    }
+
+    city = new OpenGTA::CityView(specific_map, specific_style, screen_, camera_);
     if (city_blocks_area > -1)
         city->setVisibleRange(city_blocks_area);
     city->setPosition(mapPos[0], mapPos[1], mapPos[2]);
@@ -1122,7 +1125,7 @@ void OpenGTAViewer::run()
         Uint32 now_ticks = SDL_GetTicks();
 #endif
         OpenGTA::SpriteManager::Instance().update(now_ticks, localPlayer_);
-        city->blockAnims->update(now_ticks);
+        city->blockAnims.update(now_ticks);
         guiManager_.update(now_ticks);
         update_ingame_gui_values(localPlayer_);
         if (!paused) {

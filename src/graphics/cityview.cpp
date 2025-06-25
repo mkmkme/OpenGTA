@@ -121,10 +121,15 @@ std::array<GLfloat, 3> map_block_type_color(uint8_t k)
 
 } // namespace
 
-CityView::CityView(OpenGL::Screen &screen, OpenGL::Camera &camera)
-    : screen_(screen), camera_(camera)
+CityView::CityView(const std::string &map, const std::string &style, OpenGL::Screen &screen, OpenGL::Camera &camera)
+    : sideCache("SideCache")
+    , lidCache("LidCache")
+    , auxCache("AuxCache")
+    , screen_(screen)
+    , camera_(camera)
 {
     setNull();
+    loadMap(map, style);
     /*
     Pedestrian p(Vector3D(0.5f, 0.5f, 0.5f), Vector3D(4, 5.01f, 4), 0xffffffff);
     p.m_control = &LocalPlayer::Instance();
@@ -134,10 +139,6 @@ CityView::CityView(OpenGL::Screen &screen, OpenGL::Camera &camera)
 void CityView::setNull()
 {
     loadedMap = nullptr;
-    sideCache = nullptr;
-    lidCache = nullptr;
-    auxCache = nullptr;
-    blockAnims = nullptr;
     camVec[0] = 0.0f;
     camVec[1] = 1.0f;
     camVec[2] = 0.0f;
@@ -154,67 +155,34 @@ void CityView::setNull()
     drawHeadingMarkers = false;
     current_sector = nullptr;
 }
+
 CityView::~CityView()
 {
     cleanup();
 }
+
 void CityView::resetTextures()
 {
-    sideCache->clearAll();
-    lidCache->clearAll();
-    auxCache->clearAll();
+    sideCache.clearAll();
+    lidCache.clearAll();
+    auxCache.clearAll();
 }
+
 void CityView::setVisibleRange(int r)
 {
     visibleRange = r;
     scene_is_dirty = true;
 }
-int CityView::getVisibleRange() const
-{
-    return visibleRange;
-}
-bool CityView::getDrawTextured() const
-{
-    return drawTextured;
-}
-bool CityView::getDrawLines() const
-{
-    return drawLines;
-}
-bool CityView::getDrawLinesBlockColor() const
-{
-    return drawLinesBlockType;
-}
-void CityView::setDrawTextured(bool v)
-{
-    drawTextured = v;
-}
-void CityView::setDrawLines(bool v)
-{
-    drawLines = v;
-}
-void CityView::setDrawLinesBlockColor(bool v)
-{
-    drawLinesBlockType = v;
-}
+
 void CityView::cleanup()
 {
-    delete sideCache;
-    delete lidCache;
-    delete auxCache;
-    delete blockAnims;
     if (scene_display_list)
         glDeleteLists(scene_display_list, 1);
     setNull();
 }
-void CityView::setViewMode(bool topDown)
-{
-    topDownView = topDown;
-}
+
 void CityView::loadMap(const std::string &map, const std::string &style_f)
 {
-    cleanup();
-    // loadedMap = new Map(map);
     ActiveMap::Instance().load(map);
     loadedMap = &ActiveMap::Instance().get();
     ActiveStyle::Instance().load(style_f);
@@ -227,13 +195,10 @@ void CityView::loadMap(const std::string &map, const std::string &style_f)
       INFO << cinfo->numDoors << std::endl;
     }*/
 
-    sideCache = new OpenGL::TextureCache<uint8_t>("SideCache");
-    lidCache = new OpenGL::TextureCache<uint8_t>("LidCache");
-    auxCache = new OpenGL::TextureCache<uint8_t>("AuxCache");
-    sideCache->setClearMagic(5);
-    lidCache->setClearMagic(8);
-    auxCache->setClearMagic(5);
-    blockAnims = new BlockAnimCtrl(style->animations);
+    sideCache.setClearMagic(5);
+    lidCache.setClearMagic(8);
+    auxCache.setClearMagic(5);
+    blockAnims = BlockAnimCtrl(style->animations);
     scene_is_dirty = true;
     lastCacheEmptyTicks = 0;
 
@@ -269,10 +234,7 @@ void CityView::createLevelObject(OpenGTA::Map::ObjectPosition *obj)
         s_man.add(gobj);
     }
 }
-void CityView::setZoom(const GLfloat zoom)
-{
-    zoomLevel = zoom;
-}
+
 void CityView::setPosition(const GLfloat &x, const GLfloat &y, const GLfloat &z)
 {
     camPos[0] = x;
@@ -423,24 +385,24 @@ OpenGL::PagedTexture CityView::renderMap2Texture()
     glReadPixels(0, 0, gl_h, gl_h, GL_RGB, GL_UNSIGNED_BYTE, img_buf_raw);
     GL_CHECKERROR;
 
-    sideCache->sink();
-    sideCache->sink();
-    lidCache->sink();
-    lidCache->sink();
-    sideCache->clear();
-    lidCache->clear();
+    sideCache.sink();
+    sideCache.sink();
+    lidCache.sink();
+    lidCache.sink();
+    sideCache.clear();
+    lidCache.clear();
 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     uint32_t y_off = 100;
     uint32_t x = 0;
-    while (*(img_buf_raw + y_off * gl_h * 3 + x) == 0 && *(img_buf_raw + y_off * gl_h * 3 + x + 1) == 0 &&
-           *(img_buf_raw + y_off * gl_h * 3 + x + 2) == 0)
+    while (*(img_buf_raw + (y_off * gl_h * 3) + x) == 0 && *(img_buf_raw + (y_off * gl_h * 3) + x + 1) == 0 &&
+           *(img_buf_raw + (y_off * gl_h * 3) + x + 2) == 0)
         x += 3;
     INFO("color after x = {}", x / 3);
     x = gl_h - 3;
-    while (*(img_buf_raw + y_off * gl_h * 3 + x) == 0 && *(img_buf_raw + y_off * gl_h * 3 + x + 1) == 0 &&
-           *(img_buf_raw + y_off * gl_h * 3 + x + 2) == 0)
+    while (*(img_buf_raw + (y_off * gl_h * 3) + x) == 0 && *(img_buf_raw + (y_off * gl_h * 3) + x + 1) == 0 &&
+           *(img_buf_raw + (y_off * gl_h * 3) + x + 2) == 0)
         x -= 3;
     INFO("color after x = {}", x / 3);
 
@@ -587,11 +549,11 @@ void CityView::draw(Uint32 ticks)
 
     lastCacheEmptyTicks += ticks;
     if (lastCacheEmptyTicks > 4000) {
-        lidCache->sink();
-        lidCache->sink();
-        sideCache->sink();
-        sideCache->clear();
-        lidCache->clear();
+        lidCache.sink();
+        lidCache.sink();
+        sideCache.sink();
+        sideCache.clear();
+        lidCache.clear();
         lastCacheEmptyTicks = 0;
         // lidCache->status();
         // sideCache->status();
@@ -636,9 +598,9 @@ void CityView::drawObject(OpenGTA::Map::ObjectPosition *obj)
 {
 
     float w, h;
-    float x = float(obj->x >> 6) + float(obj->x % 64) / 64.0f;
-    float y = float(obj->y >> 6) + float(obj->y % 64) / 64.0f;
-    float z = float(obj->z >> 6) + float(obj->z % 64) / 64.0f;
+    float x = float(obj->x >> 6) + (float(obj->x % 64) / 64.0f);
+    float y = float(obj->y >> 6) + (float(obj->y % 64) / 64.0f);
+    float z = float(obj->z >> 6) + (float(obj->z % 64) / 64.0f);
     size_t spriteNumAbs, sprNum;
     GraphicsBase::SpriteNumbers::SpriteTypes st;
     if (obj->remap >= 128) { // car
@@ -743,145 +705,145 @@ void CityView::drawBlock(OpenGTA::Map::BlockInfo *bi)
 
     // FIXME: no remaps used!
     if (bi->lid) {
-        const auto banim = blockAnims->getAnim(1, bi->lid);
+        const auto banim = blockAnims.getAnim(1, bi->lid);
         if (!banim.has_value()) {
-            if (!lidCache->hasTexture(bi->lid)) {
+            if (!lidCache.hasTexture(bi->lid)) {
                 lid_tex = ImageUtil::createGLTexture(
                     64,
                     64,
                     is_flat,
                     style->getLid(static_cast<unsigned int>(bi->lid), 0, is_flat)
                 );
-                lidCache->addTexture(bi->lid, lid_tex);
+                lidCache.addTexture(bi->lid, lid_tex);
             } else
-                lid_tex = lidCache->getTextureWithId(bi->lid);
+                lid_tex = lidCache.getTextureWithId(bi->lid);
         } else {
             const auto frame_num = banim->getCurrentFrameNumber();
             uint8_t aux_id = banim->getFrame(frame_num > 0 ? frame_num - 1 : 0);
-            if (!auxCache->hasTexture(aux_id)) {
+            if (!auxCache.hasTexture(aux_id)) {
                 lid_tex = ImageUtil::createGLTexture(
                     64,
                     64,
                     is_flat,
                     style->getAux(aux_id, 0, is_flat)
                 );
-                auxCache->addTexture(aux_id, lid_tex);
+                auxCache.addTexture(aux_id, lid_tex);
             } else
-                lid_tex = auxCache->getTextureWithId(aux_id);
+                lid_tex = auxCache.getTextureWithId(aux_id);
         }
     }
     if (bi->left) {
-        const auto banim = blockAnims->getAnim(0, bi->left);
+        const auto banim = blockAnims.getAnim(0, bi->left);
         if (!banim.has_value()) {
-            if (!sideCache->hasTexture(bi->left)) {
+            if (!sideCache.hasTexture(bi->left)) {
                 left_tex = ImageUtil::createGLTexture(
                     64,
                     64,
                     is_flat,
                     style->getSide(bi->left, 0, is_flat)
                 );
-                sideCache->addTexture(bi->left, left_tex);
+                sideCache.addTexture(bi->left, left_tex);
             } else
-                left_tex = sideCache->getTextureWithId(bi->left);
+                left_tex = sideCache.getTextureWithId(bi->left);
         } else {
             const auto frame_num = banim->getCurrentFrameNumber();
             uint8_t aux_id = banim->getFrame(frame_num > 0 ? frame_num - 1 : 0);
-            if (!auxCache->hasTexture(aux_id)) {
+            if (!auxCache.hasTexture(aux_id)) {
                 left_tex = ImageUtil::createGLTexture(
                     64,
                     64,
                     is_flat,
                     style->getAux(aux_id, 0, is_flat)
                 );
-                auxCache->addTexture(aux_id, left_tex);
+                auxCache.addTexture(aux_id, left_tex);
             } else
-                left_tex = auxCache->getTextureWithId(aux_id);
+                left_tex = auxCache.getTextureWithId(aux_id);
         }
     }
     if (bi->right) {
-        const auto banim = blockAnims->getAnim(0, bi->right);
+        const auto banim = blockAnims.getAnim(0, bi->right);
         if (!banim.has_value()) {
-            if (!sideCache->hasTexture(bi->right)) {
+            if (!sideCache.hasTexture(bi->right)) {
                 right_tex = ImageUtil::createGLTexture(
                     64,
                     64,
                     is_flat,
                     style->getSide(static_cast<unsigned int>(bi->right), 0, is_flat)
                 );
-                sideCache->addTexture(bi->right, right_tex);
+                sideCache.addTexture(bi->right, right_tex);
             } else
-                right_tex = sideCache->getTextureWithId(bi->right);
+                right_tex = sideCache.getTextureWithId(bi->right);
         } else {
             const auto frame_num = banim->getCurrentFrameNumber();
             uint8_t aux_id = banim->getFrame(frame_num > 0 ? frame_num - 1 : 0);
-            if (!auxCache->hasTexture(aux_id)) {
+            if (!auxCache.hasTexture(aux_id)) {
                 right_tex = ImageUtil::createGLTexture(
                     64,
                     64,
                     is_flat,
                     style->getAux(static_cast<unsigned int>(aux_id), 0, is_flat)
                 );
-                auxCache->addTexture(aux_id, right_tex);
+                auxCache.addTexture(aux_id, right_tex);
             } else
-                right_tex = auxCache->getTextureWithId(aux_id);
+                right_tex = auxCache.getTextureWithId(aux_id);
         }
     }
     if (bi->top) {
-        const auto banim = blockAnims->getAnim(0, bi->top);
+        const auto banim = blockAnims.getAnim(0, bi->top);
         if (!banim.has_value()) {
 
-            if (!sideCache->hasTexture(bi->top)) {
+            if (!sideCache.hasTexture(bi->top)) {
                 top_tex = ImageUtil::createGLTexture(
                     64,
                     64,
                     is_flat,
                     style->getSide(static_cast<unsigned int>(bi->top), 0, is_flat)
                 );
-                sideCache->addTexture(bi->top, top_tex);
+                sideCache.addTexture(bi->top, top_tex);
             } else
-                top_tex = sideCache->getTextureWithId(bi->top);
+                top_tex = sideCache.getTextureWithId(bi->top);
         } else {
             const auto frame_num = banim->getCurrentFrameNumber();
             uint8_t aux_id = banim->getFrame(frame_num > 0 ? frame_num - 1 : 0);
-            if (!auxCache->hasTexture(aux_id)) {
+            if (!auxCache.hasTexture(aux_id)) {
                 top_tex = ImageUtil::createGLTexture(
                     64,
                     64,
                     is_flat,
                     style->getAux(static_cast<unsigned int>(aux_id), 0, is_flat)
                 );
-                auxCache->addTexture(aux_id, top_tex);
+                auxCache.addTexture(aux_id, top_tex);
             } else
-                top_tex = auxCache->getTextureWithId(aux_id);
+                top_tex = auxCache.getTextureWithId(aux_id);
         }
     }
     if (bi->bottom) {
-        const auto banim = blockAnims->getAnim(0, bi->bottom);
+        const auto banim = blockAnims.getAnim(0, bi->bottom);
         if (!banim.has_value()) {
 
-            if (!sideCache->hasTexture(bi->bottom)) {
+            if (!sideCache.hasTexture(bi->bottom)) {
                 bottom_tex = ImageUtil::createGLTexture(
                     64,
                     64,
                     is_flat,
                     style->getSide(static_cast<unsigned int>(bi->bottom), 0, is_flat)
                 );
-                sideCache->addTexture(bi->bottom, bottom_tex);
+                sideCache.addTexture(bi->bottom, bottom_tex);
             } else
-                bottom_tex = sideCache->getTextureWithId(bi->bottom);
+                bottom_tex = sideCache.getTextureWithId(bi->bottom);
         } else {
             const auto frame_num = banim->getCurrentFrameNumber();
             uint8_t aux_id = banim->getFrame(frame_num > 0 ? frame_num - 1 : 0);
-            if (!auxCache->hasTexture(aux_id)) {
+            if (!auxCache.hasTexture(aux_id)) {
                 bottom_tex = ImageUtil::createGLTexture(
                     64,
                     64,
                     is_flat,
                     style->getAux(static_cast<unsigned int>(aux_id), 0, is_flat)
                 );
-                auxCache->addTexture(aux_id, bottom_tex);
+                auxCache.addTexture(aux_id, bottom_tex);
             } else
-                bottom_tex = auxCache->getTextureWithId(aux_id);
+                bottom_tex = auxCache.getTextureWithId(aux_id);
         }
     }
 
@@ -1492,7 +1454,7 @@ void CityView::drawBlock(OpenGTA::Map::BlockInfo *bi)
     // #if 0
     glColor3f(1, 0, 0);
 #define NORMAL_POS(a, b)  glVertex3f(a, slope_height_offset(which, a, b), b)
-#define NORMAL_POS2(a, b) glVertex3f(a + nx, slope_height_offset(which, a, b) + ny, b + nz)
+#define NORMAL_POS2(a, b) glVertex3f((a) + nx, slope_height_offset(which, a, b) + ny, (b) + nz)
     glBegin(GL_LINES);
     if (bi->lid) {
         NORMAL_POS(0.5f, 0.5f);

@@ -56,6 +56,7 @@ public:
 
 class BlockAnimCtrl {
 public:
+    BlockAnimCtrl() = default;
     explicit BlockAnimCtrl(std::vector<LoadedAnim> &v);
     void update(uint32_t ticks);
     std::optional<BlockAnim> getAnim(uint8_t area, uint8_t id);

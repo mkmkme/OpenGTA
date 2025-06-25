@@ -27,6 +27,7 @@
 #include <span>
 
 #include <SDL2/SDL.h>
+#include <core/blockanim.h>
 #include <core/map.h>
 #include <core/navdata.h>
 
@@ -45,37 +46,37 @@ class BlockAnimCtrl;
 class GraphicsBase;
 class CityView {
 public:
-    CityView(OpenGL::Screen &screen, OpenGL::Camera &camera);
+    CityView(const std::string &map, const std::string &style, OpenGL::Screen &screen, OpenGL::Camera &camera);
     ~CityView();
     void loadMap(const std::string &map, const std::string &style);
     static void createLevelObject(OpenGTA::Map::ObjectPosition *obj);
     void setPosition(const GLfloat &x, const GLfloat &y, const GLfloat &z);
     void setTopDownView(const GLfloat &height);
     // void setCamVector(const GLfloat & x, const GLfloat & y, const GLfloat & z);
-    void setZoom(GLfloat zoom);
-    void setViewMode(bool topDown);
+    void setZoom(GLfloat zoom) { zoomLevel = zoom; }
+    void setViewMode(bool topDown) { topDownView = topDown; }
     [[nodiscard]] bool getViewMode() const noexcept { return topDownView; }
     void setDrawHeadingArrows(bool yes) noexcept { drawHeadingMarkers = yes; }
     void setTexFlipTest(int v) noexcept { texFlipTest = v; }
     [[nodiscard]] std::span<const GLfloat> getCamPos() const noexcept { return camPos; }
     void setVisibleRange(int);
-    [[nodiscard]] int getVisibleRange() const;
+    [[nodiscard]] int getVisibleRange() const { return visibleRange; }
     void getTerrainHeight(GLfloat &x, GLfloat &y, GLfloat &z);
     void draw(Uint32 ticks);
     NavData::Sector *getCurrentSector() noexcept { return current_sector; }
     OpenGL::PagedTexture renderMap2Texture();
 
-    [[nodiscard]] bool getDrawTextured() const;
-    [[nodiscard]] bool getDrawLines() const;
-    [[nodiscard]] bool getDrawLinesBlockColor() const;
-    void setDrawTextured(bool v);
-    void setDrawLines(bool v);
-    void setDrawLinesBlockColor(bool v);
+    [[nodiscard]] bool getDrawTextured() const { return drawTextured; }
+    [[nodiscard]] bool getDrawLines() const { return drawLines; }
+    [[nodiscard]] bool getDrawLinesBlockColor() const { return drawLinesBlockType; }
+    void setDrawTextured(bool v) { drawTextured = v; }
+    void setDrawLines(bool v) { drawLines = v; }
+    void setDrawLinesBlockColor(bool v) { drawLinesBlockType = v; }
 
     void resetTextures();
     [[nodiscard]] const SDL_Rect &getActiveRect() const noexcept { return activeRect; }
     [[nodiscard]] const SDL_Rect &getOnScreenRect() const noexcept { return drawnRect; }
-    BlockAnimCtrl *blockAnims {};
+    BlockAnimCtrl blockAnims;
 
 protected:
     void setNull();
@@ -84,9 +85,9 @@ protected:
     void drawObject(OpenGTA::Map::ObjectPosition *);
     // OpenGL::PagedTexture createSprite(size_t sprNum, GraphicsBase::SpriteInfo* info);
     Util::CFrustum frustum {};
-    OpenGL::TextureCache<uint8_t> *sideCache {};
-    OpenGL::TextureCache<uint8_t> *lidCache {};
-    OpenGL::TextureCache<uint8_t> *auxCache {};
+    OpenGL::TextureCache<uint8_t> sideCache;
+    OpenGL::TextureCache<uint8_t> lidCache;
+    OpenGL::TextureCache<uint8_t> auxCache;
     Map *loadedMap {};
     OpenGTA::GraphicsBase *style {};
     GLfloat zoomLevel {};

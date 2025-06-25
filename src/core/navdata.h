@@ -78,7 +78,6 @@ public:
          * 2) probably sound?
          */
         UInt8 sam {}; // sample number
-        // char         name2[30]; // FIXME: should not be used
         std::string name;
         /** Returns the name prefixed with sub-area location.
          */
@@ -94,7 +93,7 @@ public:
 
 private:
     void clear();
-    using SectorMapType = std::multimap<UInt16, Sector *>;
+    using SectorMapType = std::multimap<UInt16, Sector>;
     SectorMapType areas;
 };
 } // namespace OpenGTA

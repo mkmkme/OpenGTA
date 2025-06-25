@@ -163,19 +163,19 @@ NavData::NavData(UInt32 size, Util::PhysFSFile &pf, size_t level_num)
     _sw = msg.getText("sw");
     _se = msg.getText("se");
     for (UInt32 i = 0; i < c; ++i) {
-        auto *sec = new Sector(pf);
-        if (sec->getSize() == 0) { // workaround for 'NYC.CMP' (empty sectors)
-            delete sec;
+        Sector sec { pf };
+        if (sec.getSize() == 0) { // workaround for 'NYC.CMP' (empty sectors)
             WARN("skipping zero size sector");
             continue;
         }
-        // INFO << i << " " << sec->name2 << std::endl << os.str() << " : " << msg.getText(os.str()) << std::endl;
-        sec->name = msg.getText(fmt::format("{:03}area{:03}", level_num, int(sec->sam)));
+        sec.name = msg.getText(fmt::format("{:03}area{:03}", level_num, int(sec.sam)));
 
-        areas.insert(std::pair<UInt16, Sector *>(sec->getSize(), sec));
+        const auto size = sec.getSize();
+
+        areas.insert({ size, std::move(sec) });
     }
     // dummy catch-all sector for gta london maps
-    areas.insert(std::pair<UInt16, Sector *>(255 * 255, new Sector()));
+    areas.insert({ 255 * 255, Sector() });
 
     /*
     std::cout << "map areas (by size)" << std::endl;
@@ -188,25 +188,20 @@ NavData::NavData(UInt32 size, Util::PhysFSFile &pf, size_t level_num)
     }
     */
 }
-NavData::~NavData()
-{
-    clear();
-}
+
+NavData::~NavData() = default;
 
 NavData::Sector *NavData::getSectorAt(UInt8 x, UInt8 y)
 {
-    for (const auto &area : areas) {
-        if (area.second->isInside(x, y))
-            return area.second;
+    for (auto &area : areas) {
+        if (area.second.isInside(x, y))
+            return &area.second;
     }
     throw Util::OutOfRange("Querying invalid sector at {}, {}", int(x), int(y));
 }
 
 void NavData::clear()
 {
-    for (const auto &area : areas) {
-        delete area.second;
-    }
     areas.clear();
 }
 } // namespace OpenGTA

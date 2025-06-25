@@ -284,7 +284,6 @@ void CityView::setPosition(const GLfloat &x, const GLfloat &y, const GLfloat &z)
         auto _x = UInt8((x >= 1.0f) ? ((x < 255.0f) ? x : 254) : 1); // FIXME: crashes on 0 or 255
         auto _y = UInt8((z >= 1.0f) ? ((z < 255.0f) ? z : 254) : 1); // why???
         NavData::Sector *in_sector = loadedMap->nav->getSectorAt(_x, _y);
-        assert(in_sector);
         if (in_sector != current_sector) {
             current_sector = in_sector;
         }

@@ -73,13 +73,10 @@ Map::~Map()
 }
 int Map::loadHeader()
 {
-    UInt32 vc;
-    pf.read(vc);
-    UInt8 sn;
+    auto vc = pf.read<UInt32>();
     pf.read(styleNumber);
-    pf.read(sn);
-    UInt16 reserved;
-    pf.read(reserved);
+    auto sn = pf.read<UInt8>();
+    auto reserved = pf.read<UInt16>();
     pf.read(routeSize);
     pf.read(objectPosSize);
     pf.read(columnSize);

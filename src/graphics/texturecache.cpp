@@ -58,9 +58,8 @@ template <typename key_type>
 void TextureCache<key_type>::clearAll()
 {
     for (auto &c : cached) {
-        GLuint tid = c.second->texId;
+        GLuint tid = c.second.texId;
         glDeleteTextures(1, &tid);
-        delete c.second;
     }
     cached.clear();
 }
@@ -78,16 +77,17 @@ void TextureCache<key_type>::sink()
     constexpr auto MAX_4 = std::numeric_limits<unsigned int>::max() / 4;
     constexpr auto MAX_2 = std::numeric_limits<unsigned int>::max() / 2;
     for (auto &c : cached) {
-        if (c.second->refCount <= 1)
-            c.second->refCount = 0;
-        else if (c.second->refCount < MAX_4)
-            c.second->refCount = c.second->refCount >> 1;
-        else if (c.second->refCount < MAX_2) {
+        auto &tex = c.second;
+        if (tex.refCount <= 1)
+            tex.refCount = 0;
+        else if (tex.refCount < MAX_4)
+            tex.refCount = tex.refCount >> 1;
+        else if (tex.refCount < MAX_2) {
             INFO("{} texture id {} -- half-count reached", m_name, int(c.first));
-            c.second->refCount = c.second->refCount >> 2;
+            tex.refCount = tex.refCount >> 2;
         } else {
             WARN("{} texture id {} -- going critical", m_name, int(c.first));
-            c.second->refCount = c.second->refCount >> 3;
+            tex.refCount = tex.refCount >> 3;
         }
     }
 }
@@ -102,11 +102,10 @@ void TextureCache<key_type>::clear()
 
     uint32_t numCleared = 0;
     for (auto i = cached.begin(); i != cached.end();) {
-        if (i->second->refCount < clearMagic) {
-            DEBUG("{} clearing: {} count: {}", m_name, int(i->first), i->second->refCount);
-            GLuint tid = (i->second->texId);
+        if (i->second.refCount < clearMagic) {
+            DEBUG("{} clearing: {} count: {}", m_name, int(i->first), i->second.refCount);
+            GLuint tid = (i->second.texId);
             glDeleteTextures(1, &tid);
-            delete i->second;
             i = cached.erase(i);
             numCleared++;
         } else {
@@ -119,8 +118,8 @@ void TextureCache<key_type>::clear()
 template <typename key_type>
 void TextureCache<key_type>::clearStats()
 {
-    for (const auto &[key, value] : cached) {
-        value->refCount = 0;
+    for (auto &[key, value] : cached) {
+        value.refCount = 0;
     }
 }
 
@@ -130,8 +129,8 @@ void TextureCache<key_type>::printStats()
     size_t c = 1;
     size_t c_active = 0;
     for (const auto &[key, value] : cached) {
-        if (value->refCount > 0) {
-            INFO("{} = {} : {}", c, uint32_t(key), value->refCount);
+        if (value.refCount > 0) {
+            INFO("{} = {} : {}", c, uint32_t(key), value.refCount);
             ++c_active;
         }
         ++c;
@@ -151,15 +150,15 @@ GLuint TextureCache<key_type>::getTextureWithId(key_type id)
         ERROR("{} failed to find texture {}", m_name, int(id));
         return 0;
     } else {
-        cacheQuery(id, i->second);
-        i->second->refCount++;
+        cacheQuery(id, &i->second);
+        i->second.refCount++;
     }
     /*
      * if (i->second->isAnimated) {
      AnimControl->lookup(i->second)
      * }
      */
-    return i->second->texId;
+    return i->second.texId;
 }
 
 template <typename key_type>
@@ -170,7 +169,7 @@ bool TextureCache<key_type>::hasTexture(key_type id)
     auto i = cached.find(id);
     if (i == cached.end())
         return false;
-    cacheQuery(id, i->second);
+    cacheQuery(id, &i->second);
     return true;
 }
 
@@ -182,7 +181,7 @@ void TextureCache<key_type>::setToAlpha(key_type id)
         ERROR("{} texture not found when trying to set alpha", m_name);
         return;
     }
-    i->second->hasAlpha = true;
+    i->second.hasAlpha = true;
 }
 
 template <typename key_type>
@@ -193,7 +192,7 @@ void TextureCache<key_type>::setToAnimated(key_type id)
         ERROR("{} texture not found when trying to set animation", m_name);
         return;
     }
-    i->second->isAnimated = true;
+    i->second.isAnimated = true;
 }
 
 template <typename key_type>
@@ -203,12 +202,7 @@ void TextureCache<key_type>::addTexture(key_type id, GLuint texId)
        std::map<uint8_t, texTuple*>::iterator i = cached.find(id);
        if (i == cached.end())
        return;*/
-    auto *tt = new texTuple();
-    tt->texId = texId;
-    tt->refCount = 1;
-    tt->hasAlpha = false;
-    tt->isAnimated = false;
-    cached[id] = tt;
+    cached[id] = { texId, 1, false, false };
     DEBUG("{} GL texture {} added for key: {}", m_name, texId, int(id));
 }
 

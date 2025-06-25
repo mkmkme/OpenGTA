@@ -49,8 +49,8 @@ public:
     CityView(const std::string &map, const std::string &style, OpenGL::Screen &screen, OpenGL::Camera &camera);
     ~CityView();
     static void createLevelObject(OpenGTA::Map::ObjectPosition *obj);
-    void setPosition(const GLfloat &x, const GLfloat &y, const GLfloat &z);
-    void setTopDownView(const GLfloat &height);
+    void setPosition(GLfloat x, GLfloat y, GLfloat z);
+    void setTopDownView(GLfloat height);
     // void setCamVector(const GLfloat & x, const GLfloat & y, const GLfloat & z);
     void setZoom(GLfloat zoom) { zoomLevel = zoom; }
     void setViewMode(bool topDown) { topDownView = topDown; }
@@ -60,7 +60,7 @@ public:
     [[nodiscard]] std::span<const GLfloat> getCamPos() const noexcept { return camPos; }
     void setVisibleRange(int);
     [[nodiscard]] int getVisibleRange() const { return visibleRange; }
-    void getTerrainHeight(GLfloat &x, GLfloat &y, GLfloat &z);
+    void getTerrainHeight(GLfloat x, GLfloat &y, GLfloat z);
     void draw(Uint32 ticks);
     NavData::Sector *getCurrentSector() noexcept { return current_sector; }
     OpenGL::PagedTexture renderMap2Texture();

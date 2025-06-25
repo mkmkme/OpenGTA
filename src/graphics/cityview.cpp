@@ -197,11 +197,9 @@ void CityView::createLevelObject(OpenGTA::Map::ObjectPosition *obj)
     }
 }
 
-void CityView::setPosition(const GLfloat &x, const GLfloat &y, const GLfloat &z)
+void CityView::setPosition(GLfloat x, GLfloat y, GLfloat z)
 {
-    camPos[0] = x;
-    camPos[1] = y;
-    camPos[2] = z;
+    camPos = { x, y, z };
     scene_is_dirty = true;
     // INFO << "Position: " << x << ", " << z << " (" << y << ")" << std::endl;
     if (loadedMap) {
@@ -226,14 +224,14 @@ void CityView::setPosition(const GLfloat &x, const GLfloat &y, const GLfloat &z)
   }
 */
 
-void CityView::setTopDownView(const GLfloat &height)
+void CityView::setTopDownView(GLfloat height)
 {
     camPos[1] = height;
     scene_is_dirty = true;
     setViewMode(true);
 }
 
-void CityView::getTerrainHeight(GLfloat &x, GLfloat &y, GLfloat &z)
+void CityView::getTerrainHeight(GLfloat x, GLfloat &y, GLfloat z)
 {
     int xi = int(x);
     int yi = int(z);

@@ -22,7 +22,7 @@ struct HlsInfo {
 
 struct CarInfo {
     explicit CarInfo(Util::PhysFSFile &file);
-    [[nodiscard]] inline UInt32 bytes_read() const noexcept { return bytes_read_; }
+    [[nodiscard]] UInt32 bytes_read() const noexcept { return bytes_read_; }
     Int16 width {}, height {}, depth {};
     Int16 sprNum {};
     Int16 weightDescriptor {};

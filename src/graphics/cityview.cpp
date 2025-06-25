@@ -83,40 +83,29 @@ namespace OpenGTA {
     return tex;
   }
 */
-struct GLColor {
-    std::array<GLfloat, 3> rgb {};
-    GLColor() noexcept { rgb[0] = rgb[1] = rgb[2] = 0; }
-    explicit GLColor(GLfloat i) noexcept { rgb[0] = rgb[1] = rgb[2] = i; }
-    GLColor(GLfloat r, GLfloat g, GLfloat b) noexcept
-    {
-        rgb[0] = r;
-        rgb[1] = g;
-        rgb[2] = b;
-    }
-};
 
 namespace {
 
-std::array block_colors = {
-    GLColor(1),       // air
-    GLColor(0, 0, 1), // water
-    GLColor(0, 1, 1), // road
-    GLColor(1, 0, 0), // pavement
-    GLColor(0, 1, 0), // field
-    GLColor(1, 1, 0), // building
-    GLColor(1),       // unused
-    GLColor(1)        // unused
-};
-
-std::array<GLfloat, 3> map_block_type_color(uint8_t k)
+glm::vec3 map_block_type_color(uint8_t k)
 {
+    constexpr std::array block_colors = {
+        glm::vec3(1),       // air
+        glm::vec3(0, 0, 1), // water
+        glm::vec3(0, 1, 1), // road
+        glm::vec3(1, 0, 0), // pavement
+        glm::vec3(0, 1, 0), // field
+        glm::vec3(1, 1, 0), // building
+        glm::vec3(1),       // unused
+        glm::vec3(1)        // unused
+    };
+
     // k = 6  now used to fix pavement cols
     if (k == 7)
         WARN("block-type: {} should be unused!", k);
     if (k < 8)
-        return block_colors[k].rgb;
+        return block_colors[k];
     ERROR("Invalid block-type: {}", k);
-    return block_colors[0].rgb;
+    return block_colors[0];
 }
 
 } // namespace
@@ -850,12 +839,12 @@ void CityView::drawBlock(OpenGTA::Map::BlockInfo *bi)
 #define COLOR_OFF           \
     if (drawLinesBlockType) \
     glColor3f(1, 1, 1)
-#define COLOR_ON                                                              \
-    do {                                                                      \
-        if (drawLinesBlockType) {                                             \
-            std::array<GLfloat, 3> _c = map_block_type_color(aboveBlockType); \
-            glColor3f(_c[0], _c[1], _c[2]);                                   \
-        }                                                                     \
+#define COLOR_ON                                                  \
+    do {                                                          \
+        if (drawLinesBlockType) {                                 \
+            const auto _c = map_block_type_color(aboveBlockType); \
+            glColor3f(_c.r, _c.g, _c.b);                          \
+        }                                                         \
     } while (false)
 
     if (drawLinesBlockType)

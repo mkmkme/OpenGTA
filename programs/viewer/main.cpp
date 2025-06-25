@@ -1106,7 +1106,6 @@ void OpenGTAViewer::run()
                     screen_.resize(event.window.data1, event.window.data2);
                     break;
                 case SDL_QUIT:
-                    // OpenGTA::Globals::DONE = 1;
                     global_Done = 1;
                     break;
                 case SDL_MOUSEBUTTONDOWN:
@@ -1158,8 +1157,10 @@ void OpenGTAViewer::run()
     luaVM_.runFile("scripts/dump_config.lua");
 }
 
-int main(int argc, char *argv[])
+int main(int argc, char *argv[]) // NOLINT(bugprone-exception-escape)
 {
+    Util::enableBacktraces();
+
     if (argc > 1) {
         const auto result = parse_args(argc, argv);
         switch (result) {
@@ -1172,14 +1173,9 @@ int main(int argc, char *argv[])
         }
     }
 
-    try {
-        OpenGTAViewer app { argv[0] };
-        app.run();
-        app.quit();
-    } catch (const std::exception &e) {
-        ERROR("Unhandled exception during shutdown: {}", e.what());
-        return 1;
-    }
+    OpenGTAViewer app { argv[0] };
+    app.run();
+    app.quit();
 
     return 0;
 }

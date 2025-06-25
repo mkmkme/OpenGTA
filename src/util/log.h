@@ -60,6 +60,7 @@ struct Logger {
     }
 };
 
+// Deduction guide for Logger
 template <Level L = {}, typename... Args>
 Logger(fmt::format_string<Args...>, Args &&...)
     -> Logger<L, Args...>;

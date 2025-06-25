@@ -15,7 +15,7 @@
 // Credit: This class is inspired by Nathan Baggs' ugame logging
 // https://github.com/nathan-baggs/ugame/blob/de9b6d69b7b7eccb785be3de2db4b2e3809f98b1/src/utils/log.h
 
-namespace OpenGTA::Log {
+namespace OpenGTA::log {
 
 enum class Level : uint8_t { error,
                              warn,
@@ -74,7 +74,7 @@ using info = Logger<Level::info, Args...>;
 template <typename... Args>
 using debug = Logger<Level::debug, Args...>;
 
-} // namespace OpenGTA::Log
+} // namespace OpenGTA::log
 
 namespace Util::Log {
 const char *glErrorName(int k);
@@ -82,13 +82,13 @@ const char *glErrorName(int k);
 
 // TODO: Remove these aliases in the future
 template <typename... Args>
-using ERROR = OpenGTA::Log::Logger<OpenGTA::Log::Level::error, Args...>;
+using ERROR = OpenGTA::log::Logger<OpenGTA::log::Level::error, Args...>;
 template <typename... Args>
-using WARN = OpenGTA::Log::Logger<OpenGTA::Log::Level::warn, Args...>;
+using WARN = OpenGTA::log::Logger<OpenGTA::log::Level::warn, Args...>;
 template <typename... Args>
-using INFO = OpenGTA::Log::Logger<OpenGTA::Log::Level::info, Args...>;
+using INFO = OpenGTA::log::Logger<OpenGTA::log::Level::info, Args...>;
 template <typename... Args>
-using DEBUG = OpenGTA::Log::Logger<OpenGTA::Log::Level::debug, Args...>;
+using DEBUG = OpenGTA::log::Logger<OpenGTA::log::Level::debug, Args...>;
 
 #define GL_CHECKERROR                                               \
     do {                                                            \

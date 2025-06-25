@@ -101,10 +101,10 @@ glm::vec3 map_block_type_color(uint8_t k)
 
     // k = 6  now used to fix pavement cols
     if (k == 7)
-        Log::warn("block-type: {} should be unused!", k);
+        log::warn("block-type: {} should be unused!", k);
     if (k < 8)
         return block_colors[k];
-    Log::error("Invalid block-type: {}", k);
+    log::error("Invalid block-type: {}", k);
     return block_colors[0];
 }
 
@@ -234,7 +234,7 @@ void CityView::getTerrainHeight(GLfloat x, GLfloat &y, GLfloat z)
     int yi = int(z);
     // int zi = int(z);
     float h = 0.5f;
-    Log::warn("THIS FUNCTION SHOULD NOT BE USED!");
+    log::warn("THIS FUNCTION SHOULD NOT BE USED!");
     const auto emptycount = loadedMap->getNumBlocksAt(xi, yi);
     for (int c = 6 - emptycount; c >= 1; c--) {
         OpenGTA::Map::BlockInfo *bi = loadedMap->getBlockAt(xi, yi, c);
@@ -285,7 +285,7 @@ OpenGL::PagedTexture CityView::renderMap2Texture()
             v_off.x -= 0.2f;
         else
             persp_find_done |= 1;
-        Log::info("{} {}", winx, winy);
+        log::info("{} {}", winx, winy);
         gluProject(256, 0, 256, mvmatrix.data(), projmatrix.data(), viewport.data(), &winx, &winy, &winz);
         if (winy < -0.5f)
             v_off.y += 0.2f;
@@ -295,10 +295,10 @@ OpenGL::PagedTexture CityView::renderMap2Texture()
             persp_find_done |= 2;
         break_loop_safe--;
         if (break_loop_safe == 0) {
-            Log::warn("breaking out of loop - NOT GOOD!");
+            log::warn("breaking out of loop - NOT GOOD!");
             persp_find_done = 3;
         }
-        Log::info("{} {}", winx, winy);
+        log::info("{} {}", winx, winy);
     }
 
     // glTranslatef(-35, 0, 0);
@@ -356,12 +356,12 @@ OpenGL::PagedTexture CityView::renderMap2Texture()
     while (*(img_buf_raw + (y_off * gl_h * 3) + x) == 0 && *(img_buf_raw + (y_off * gl_h * 3) + x + 1) == 0 &&
            *(img_buf_raw + (y_off * gl_h * 3) + x + 2) == 0)
         x += 3;
-    Log::info("color after x = {}", x / 3);
+    log::info("color after x = {}", x / 3);
     x = gl_h - 3;
     while (*(img_buf_raw + (y_off * gl_h * 3) + x) == 0 && *(img_buf_raw + (y_off * gl_h * 3) + x + 1) == 0 &&
            *(img_buf_raw + (y_off * gl_h * 3) + x + 2) == 0)
         x -= 3;
-    Log::info("color after x = {}", x / 3);
+    log::info("color after x = {}", x / 3);
 
     GLuint tex = ImageUtil::createGLTexture(gl_h, gl_h, false, img_buf);
     float f_h = float(height) / gl_h;

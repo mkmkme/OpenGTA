@@ -285,20 +285,20 @@ ParseArgsResult parse_args(int argc, char **argv) noexcept
             auto log_level = result["l"].as<int>();
             switch (log_level) {
                 case 0:
-                    OpenGTA::Log::level = OpenGTA::Log::Level::error;
+                    OpenGTA::log::level = OpenGTA::log::Level::error;
                     break;
                 case 1:
-                    OpenGTA::Log::level = OpenGTA::Log::Level::warn;
+                    OpenGTA::log::level = OpenGTA::log::Level::warn;
                     break;
                 case 2:
-                    OpenGTA::Log::level = OpenGTA::Log::Level::info;
+                    OpenGTA::log::level = OpenGTA::log::Level::info;
                     break;
                 case 3:
-                    OpenGTA::Log::level = OpenGTA::Log::Level::debug;
+                    OpenGTA::log::level = OpenGTA::log::Level::debug;
                     break;
                 default:
                     fmt::print(stderr, "Invalid log level, falling back to info");
-                    OpenGTA::Log::level = OpenGTA::Log::Level::info;
+                    OpenGTA::log::level = OpenGTA::log::Level::info;
                     break;
             }
         }

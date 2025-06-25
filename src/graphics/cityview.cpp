@@ -316,7 +316,7 @@ OpenGL::PagedTexture CityView::renderMap2Texture()
             glPopMatrix();
         }
     }
-    GL_CHECKERROR;
+    Util::Log::glCheckError();
 
     glFinish();
     /*
@@ -340,7 +340,7 @@ OpenGL::PagedTexture CityView::renderMap2Texture()
     //   glReadPixels(0, i, gl_h, 1, GL_RGB, GL_UNSIGNED_BYTE, (GLvoid*)(img_buf + gl_h * 3 * i));
     // }
     glReadPixels(0, 0, gl_h, gl_h, GL_RGB, GL_UNSIGNED_BYTE, img_buf_raw);
-    GL_CHECKERROR;
+    Util::Log::glCheckError();
 
     sideCache.sink();
     sideCache.sink();
@@ -374,7 +374,7 @@ OpenGL::PagedTexture CityView::renderMap2Texture()
 
 void CityView::draw(Uint32 ticks)
 {
-    GL_CHECKERROR;
+    Util::Log::glCheckError();
 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     /*
@@ -442,7 +442,7 @@ void CityView::draw(Uint32 ticks)
 
     bool use_display_list = false;
 
-    GL_CHECKERROR;
+    Util::Log::glCheckError();
     if (!scene_is_dirty) {
         glCallList(scene_display_list);
     } else {
@@ -494,14 +494,14 @@ void CityView::draw(Uint32 ticks)
         // INFO << scene_rendered_blocks << " blocks drawn with " << scene_rendered_vertices << " vertices" <<
         // std::endl;
     }
-    GL_CHECKERROR;
+    Util::Log::glCheckError();
     /*
     for (PHYSFS_uint16 oc = 0; oc < loadedMap->numObjects; oc++) {
       if (frustum.BlockInFrustum((loadedMap->objects[oc].x >> 6) + 0.5f,
         (loadedMap->objects[oc].y >> 6) + 0.5f, 0.5f))
         drawObject(&loadedMap->objects[oc]);
     }*/
-    GL_CHECKERROR;
+    Util::Log::glCheckError();
     SpriteManager::Instance().drawInRect(activeRect);
 
     lastCacheEmptyTicks += ticks;
@@ -515,7 +515,7 @@ void CityView::draw(Uint32 ticks)
         // lidCache->status();
         // sideCache->status();
     }
-    GL_CHECKERROR;
+    Util::Log::glCheckError();
 }
 
 #if 0
@@ -608,7 +608,7 @@ void CityView::drawObject(OpenGTA::Map::ObjectPosition *obj)
 void CityView::drawBlock(OpenGTA::Map::BlockInfo *bi)
 {
 
-    GL_CHECKERROR;
+    Util::Log::glCheckError();
     /*
        std::cout << "is flat: " << bi->isFlat() << " up ok: " << bi->upOk() <<
        " down " << bi->downOk() << " left " << bi->leftOk() << " right " << bi->rightOk() << std::endl;
@@ -1442,6 +1442,6 @@ void CityView::drawBlock(OpenGTA::Map::BlockInfo *bi)
     // #endif
     glEnable(GL_TEXTURE_2D);
 
-    GL_CHECKERROR;
+    Util::Log::glCheckError();
 }
 } // namespace OpenGTA

@@ -58,6 +58,9 @@ struct Logger {
 
         fmt::println("[{}]({}:{}) {}", fmt::styled(symbol, fmt::fg(color)), path.filename().string(), loc.line(), fmt::format(fmt, std::forward<Args>(args)...));
     }
+
+    explicit Logger(std::source_location loc, fmt::format_string<Args...> fmt, Args &&...args)
+        : Logger(fmt, std::forward<Args>(args)..., loc) {}
 };
 
 // Deduction guide for Logger
@@ -78,7 +81,8 @@ using debug = Logger<Level::debug, Args...>;
 
 namespace Util::Log {
 const char *glErrorName(int k);
-}
+void glCheckError(std::source_location loc = std::source_location::current());
+} // namespace Util::Log
 
 // TODO: Remove these aliases in the future
 template <typename... Args>
@@ -90,10 +94,4 @@ using INFO = OpenGTA::log::Logger<OpenGTA::log::Level::info, Args...>;
 template <typename... Args>
 using DEBUG = OpenGTA::log::Logger<OpenGTA::log::Level::debug, Args...>;
 
-#define GL_CHECKERROR                                               \
-    do {                                                            \
-        auto err = glGetError();                                    \
-        if (err != GL_NO_ERROR) {                                   \
-            ERROR("OpenGL error: {}", Util::Log::glErrorName(err)); \
-        }                                                           \
-    } while (0)
+#define GL_CHECKERROR Util::Log::glCheckError()

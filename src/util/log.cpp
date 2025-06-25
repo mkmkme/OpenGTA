@@ -32,4 +32,12 @@ const char *glErrorName(int k)
     }
 }
 
+void glCheckError(std::source_location loc)
+{
+    auto err = glGetError();
+    if (err != GL_NO_ERROR) {
+        OpenGTA::log::error(loc, "OpenGL error: {}", Util::Log::glErrorName(err));
+    }
+}
+
 } // namespace Util::Log

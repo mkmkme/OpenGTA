@@ -205,10 +205,7 @@ void CityView::setPosition(GLfloat x, GLfloat y, GLfloat z)
     if (loadedMap) {
         auto _x = std::clamp(UInt8(x), UInt8(0), UInt8(254));
         auto _y = std::clamp(UInt8(z), UInt8(0), UInt8(254));
-        NavData::Sector *in_sector = loadedMap->nav->getSectorAt(_x, _y);
-        if (in_sector != current_sector) {
-            current_sector = in_sector;
-        }
+        current_sector = loadedMap->nav->getSectorAt(_x, _y);
     }
 
     // if (loadedMap && !topDownView)

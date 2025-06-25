@@ -1125,7 +1125,7 @@ void OpenGTAViewer::run()
         Uint32 now_ticks = SDL_GetTicks();
 #endif
         OpenGTA::SpriteManager::Instance().update(now_ticks, localPlayer_);
-        city->blockAnims.update(now_ticks);
+        city->getBlockAnimCtrl().update(now_ticks);
         guiManager_.update(now_ticks);
         update_ingame_gui_values(localPlayer_);
         if (!paused) {

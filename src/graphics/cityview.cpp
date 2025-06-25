@@ -114,10 +114,11 @@ CityView::CityView(const std::string &map, const std::string &style, OpenGL::Scr
     : sideCache("SideCache")
     , lidCache("LidCache")
     , auxCache("AuxCache")
+    , scene_display_list(glGenLists(1))
     , screen_(screen)
     , camera_(camera)
 {
-    setNull();
+    setPosition(0.0f, 0.0f, 20.0f);
     loadMap(map, style);
     /*
     Pedestrian p(Vector3D(0.5f, 0.5f, 0.5f), Vector3D(4, 5.01f, 4), 0xffffffff);
@@ -125,29 +126,12 @@ CityView::CityView(const std::string &map, const std::string &style, OpenGL::Scr
     SpriteManager::Instance().addPed(p);
     */
 }
-void CityView::setNull()
-{
-    loadedMap = nullptr;
-    camVec[0] = 0.0f;
-    camVec[1] = 1.0f;
-    camVec[2] = 0.0f;
-    zoomLevel = 1.0f;
-    visibleRange = 15;
-    topDownView = true;
-    drawTextured = true;
-    drawLines = false;
-    drawLinesBlockType = true;
-    setPosition(0.0f, 0.0f, 20.0f);
-
-    scene_display_list = 0;
-    texFlipTest = 0;
-    drawHeadingMarkers = false;
-    current_sector = nullptr;
-}
 
 CityView::~CityView()
 {
-    cleanup();
+    if (scene_display_list) {
+        glDeleteLists(scene_display_list, 1);
+    }
 }
 
 void CityView::resetTextures()
@@ -161,13 +145,6 @@ void CityView::setVisibleRange(int r)
 {
     visibleRange = r;
     scene_is_dirty = true;
-}
-
-void CityView::cleanup()
-{
-    if (scene_display_list)
-        glDeleteLists(scene_display_list, 1);
-    setNull();
 }
 
 void CityView::loadMap(const std::string &map, const std::string &style_f)
@@ -188,10 +165,6 @@ void CityView::loadMap(const std::string &map, const std::string &style_f)
     lidCache.setClearMagic(8);
     auxCache.setClearMagic(5);
     blockAnims = BlockAnimCtrl(style->animations);
-    scene_is_dirty = true;
-    lastCacheEmptyTicks = 0;
-
-    scene_display_list = glGenLists(1);
 
     SpriteManager::Instance().clear();
 
@@ -232,8 +205,8 @@ void CityView::setPosition(const GLfloat &x, const GLfloat &y, const GLfloat &z)
     scene_is_dirty = true;
     // INFO << "Position: " << x << ", " << z << " (" << y << ")" << std::endl;
     if (loadedMap) {
-        auto _x = UInt8((x >= 1.0f) ? ((x < 255.0f) ? x : 254) : 1); // FIXME: crashes on 0 or 255
-        auto _y = UInt8((z >= 1.0f) ? ((z < 255.0f) ? z : 254) : 1); // why???
+        auto _x = std::clamp(UInt8(x), UInt8(0), UInt8(254));
+        auto _y = std::clamp(UInt8(z), UInt8(0), UInt8(254));
         NavData::Sector *in_sector = loadedMap->nav->getSectorAt(_x, _y);
         if (in_sector != current_sector) {
             current_sector = in_sector;

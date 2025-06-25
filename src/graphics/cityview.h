@@ -48,7 +48,6 @@ class CityView {
 public:
     CityView(const std::string &map, const std::string &style, OpenGL::Screen &screen, OpenGL::Camera &camera);
     ~CityView();
-    void loadMap(const std::string &map, const std::string &style);
     static void createLevelObject(OpenGTA::Map::ObjectPosition *obj);
     void setPosition(const GLfloat &x, const GLfloat &y, const GLfloat &z);
     void setTopDownView(const GLfloat &height);
@@ -76,11 +75,10 @@ public:
     void resetTextures();
     [[nodiscard]] const SDL_Rect &getActiveRect() const noexcept { return activeRect; }
     [[nodiscard]] const SDL_Rect &getOnScreenRect() const noexcept { return drawnRect; }
-    BlockAnimCtrl blockAnims;
+    BlockAnimCtrl &getBlockAnimCtrl() noexcept { return blockAnims; }
 
 protected:
-    void setNull();
-    void cleanup();
+    void loadMap(const std::string &map, const std::string &style);
     void drawBlock(OpenGTA::Map::BlockInfo *bi);
     void drawObject(OpenGTA::Map::ObjectPosition *);
     // OpenGL::PagedTexture createSprite(size_t sprNum, GraphicsBase::SpriteInfo* info);
@@ -88,17 +86,18 @@ protected:
     OpenGL::TextureCache<uint8_t> sideCache;
     OpenGL::TextureCache<uint8_t> lidCache;
     OpenGL::TextureCache<uint8_t> auxCache;
-    Map *loadedMap {};
+    BlockAnimCtrl blockAnims;
+    Map *loadedMap { nullptr };
     OpenGTA::GraphicsBase *style {};
-    GLfloat zoomLevel {};
+    GLfloat zoomLevel { 1.0f };
     std::array<GLfloat, 3> camPos {};
-    std::array<GLfloat, 3> camVec {};
-    int visibleRange {};
-    bool topDownView {};
-    bool drawTextured {};
-    bool drawLines {};
-    bool drawLinesBlockType {};
-    bool drawHeadingMarkers {};
+    std::array<GLfloat, 3> camVec { 0, 1, 0 };
+    int visibleRange { 15 };
+    bool topDownView { true };
+    bool drawTextured { true };
+    bool drawLines { false };
+    bool drawLinesBlockType { true };
+    bool drawHeadingMarkers { false };
     uint8_t aboveBlockType {};
 
     SDL_Rect activeRect {};
@@ -107,13 +106,13 @@ protected:
     int scene_rendered_vertices {};
     int scene_rendered_blocks {};
 
-    GLuint scene_display_list {};
-    bool scene_is_dirty {};
-    int texFlipTest {};
+    GLuint scene_display_list { 0 };
+    bool scene_is_dirty { true };
+    int texFlipTest { 0 };
 
-    Uint32 lastCacheEmptyTicks {};
+    Uint32 lastCacheEmptyTicks { 0 };
 
-    NavData::Sector *current_sector {};
+    NavData::Sector *current_sector { nullptr };
 
     OpenGL::Screen &screen_;
     OpenGL::Camera &camera_;

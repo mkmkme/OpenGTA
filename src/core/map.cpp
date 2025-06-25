@@ -50,7 +50,6 @@ inline size_t mapFileName2Number(const std::string &file)
 Map::Map(const std::string &filename)
     : pf { filename }
 {
-    nav = nullptr;
     size_t level_as_num = mapFileName2Number(filename);
     loadHeader();
     loadBase();
@@ -62,14 +61,8 @@ Map::Map(const std::string &filename)
     loadNavData(level_as_num);
     // dump();
 }
-Map::~Map()
-{
-    delete[] column;
-    delete[] block;
-    delete[] objects;
-    delete nav;
-}
-int Map::loadHeader()
+
+void Map::loadHeader()
 {
     auto vc = pf.read<UInt32>();
     pf.read(styleNumber);
@@ -90,31 +83,24 @@ int Map::loadHeader()
     INFO << "Navdata size: " << navDataSize << std::endl;
     */
 
-    column = new UInt16[columnSize / 2];
-    block = new BlockInfo[blockSize / sizeof(BlockInfo)];
-
-    objects = new ObjectPosition[objectPosSize / sizeof(ObjectPosition)];
-
-    return 0;
+    column.resize(columnSize / 2);
+    block.resize(blockSize / sizeof(BlockInfo));
+    objects.resize(objectPosSize / sizeof(ObjectPosition));
 }
-int Map::loadBase()
+
+void Map::loadBase()
 {
     pf.seek(topHeaderSize);
-    for (int y = 0; y < GTA_MAP_MAXDIMENSION; y++) {
-        for (auto &x : base) {
-            pf.read(x[y]);
-        }
-    }
-    return 0;
+    pf.read(base, sizeof(base));
 }
-int Map::loadColumn()
+
+void Map::loadColumn()
 {
-    for (unsigned int i = 0; i < columnSize / 2; i++) {
-        pf.read(column[i]);
-    }
-    return 0;
+    std::span<UInt16> columnSpan { column };
+    pf.read(columnSpan);
 }
-int Map::loadBlock()
+
+void Map::loadBlock()
 {
     pf.seek(baseSize + columnSize + topHeaderSize);
     int i, max;
@@ -130,7 +116,6 @@ int Map::loadBlock()
         pf.read(block[i].lid);
         // block[i].animMode = 0;
     }
-    return 0;
 }
 void Map::loadObjects()
 {
@@ -197,10 +182,7 @@ void Map::loadLocations()
     // unused
     UInt8 loc_type = 0;
     for (int i = 0; i < 36; ++i) {
-        Location loc;
-        pf.read(loc.x);
-        pf.read(loc.y);
-        pf.read(loc.z);
+        Location loc(pf);
         // skip dummy entries at 0,0,0
         if ((loc.x == 0) && (loc.y == 0) && (loc.z == 0))
             continue;
@@ -212,7 +194,6 @@ void Map::loadLocations()
             loc_type = 2;
         else
             continue;
-        // std::cout << int(loc_type) <<": " << int(loc.x) << ", " << int(loc.y) << ", " << int(loc.z) << std::endl;
         locations.insert({ loc_type, loc });
     }
 }
@@ -220,34 +201,34 @@ void Map::loadNavData(size_t level_num)
 {
     UInt32 _si = baseSize + columnSize + topHeaderSize + objectPosSize + routeSize + (3 * 6 * 6) + blockSize;
     pf.seek(_si);
-    nav = new NavData(navDataSize, pf, level_num);
+    nav.emplace(navDataSize, pf, level_num);
 }
 UInt16 Map::getNumBlocksAt(UInt8 x, UInt8 y)
 {
-    return column[base[x][y] / 2];
+    return column[base[y][x] / 2];
 }
 UInt16 Map::getNumBlocksAtNew(UInt8 x, UInt8 y)
 {
-    return 6 - column[base[x][y] / 2];
+    return 6 - column[base[y][x] / 2];
 }
 Map::BlockInfo *Map::getBlockAt(UInt8 x, UInt8 y, UInt8 z)
 {
-    UInt16 v = column[(base[x][y] / 2) + z];
+    UInt16 v = column[(base[y][x] / 2) + z];
     return &block[v];
 }
 Map::BlockInfo *Map::getBlockAtNew(UInt8 x, UInt8 y, UInt8 z)
 {
-    UInt16 idx0 = 6 - column[base[x][y] / 2];
+    UInt16 idx0 = 6 - column[base[y][x] / 2];
     if (idx0 > z)
         idx0 -= z;
     else
         assert(idx0 > z);
-    idx0 = column[(base[x][y] / 2) + idx0];
+    idx0 = column[(base[y][x] / 2) + idx0];
     return &block[idx0];
 }
 UInt16 Map::getInternalIdAt(UInt8 x, UInt8 y, UInt8 z)
 {
-    return column[(base[x][y] / 2) + z];
+    return column[(base[y][x] / 2) + z];
 }
 Map::BlockInfo *Map::getBlockByInternalId(UInt16 id)
 {
@@ -257,11 +238,11 @@ void Map::dump()
 {
     for (int y = 0; y < GTA_MAP_MAXDIMENSION; y++) {
         for (int x = 0; x < GTA_MAP_MAXDIMENSION; x++) {
-            fmt::print("{}, {}: {}||(", x, y, column[base[x][y] / 2]);
-            UInt16 ts = column[base[x][y] / 2];
+            fmt::print("{}, {}: {}||(", x, y, column[base[y][x] / 2]);
+            UInt16 ts = column[base[y][x] / 2];
             fmt::print("(");
             for (int t = 1; t <= (6 - ts); t++) {
-                BlockInfo *info = &block[column[(base[x][y] / 2) + t]];
+                BlockInfo *info = &block[column[(base[y][x] / 2) + t]];
                 fmt::print("{}, ", int(info->slopeType()));
             }
             fmt::print(")\n");
@@ -288,6 +269,13 @@ const Map::Location &Map::getNearestLocationByType(uint8_t t, uint8_t x, uint8_t
         }
     }
     return j->second;
+}
+
+Map::Location::Location(Util::PhysFSFile &pf)
+{
+    pf.read(x);
+    pf.read(y);
+    pf.read(z);
 }
 
 } // namespace OpenGTA

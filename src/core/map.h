@@ -1,10 +1,13 @@
 #pragma once
 
 #include <map>
+#include <optional>
 #include <string>
+#include <vector>
 
 #include <physfs.h>
 
+#include <core/navdata.h>
 #include <core/numeric-types.h>
 
 #include <common/bitwise.h>
@@ -20,7 +23,6 @@ class NavData; // see navdata.h
 class Map {
 public:
     explicit Map(const std::string &filename);
-    ~Map();
 
     struct BlockInfo {
         UInt16 typeMap;
@@ -80,9 +82,11 @@ public:
         UInt16 roll;
     };
     struct Location {
-        UInt8 x = 0;
-        UInt8 y = 0;
-        UInt8 z = 0;
+        UInt8 x;
+        UInt8 y;
+        UInt8 z;
+
+        explicit Location(Util::PhysFSFile &pf);
     };
     using LocationMap = std::multimap<UInt8, Location>;
     //...
@@ -93,16 +97,16 @@ public:
     BlockInfo *getBlockByInternalId(UInt16 id);
     UInt16 getInternalIdAt(UInt8 x, UInt8 y, UInt8 z);
     void dump();
-    NavData *nav;
-    ObjectPosition *objects {};
+    std::optional<NavData> nav;
+    std::vector<ObjectPosition> objects;
     UInt16 numObjects {};
     const Location &getNearestLocationByType(uint8_t t, uint8_t x, uint8_t y);
     [[nodiscard]] const LocationMap &getLocationMap() const noexcept { return locations; }
 
 protected:
     UInt32 base[GTA_MAP_MAXDIMENSION][GTA_MAP_MAXDIMENSION] {};
-    UInt16 *column {};
-    BlockInfo *block {};
+    std::vector<UInt16> column;
+    std::vector<BlockInfo> block;
     LocationMap locations;
 
 private:
@@ -115,10 +119,10 @@ private:
     UInt32 blockSize {};
     UInt32 navDataSize {};
 
-    int loadHeader();
-    int loadBase();
-    int loadColumn();
-    int loadBlock();
+    void loadHeader();
+    void loadBase();
+    void loadColumn();
+    void loadBlock();
     void loadObjects();
     void loadRoutes();
     void loadLocations();

@@ -43,7 +43,8 @@ public:
     template <BuiltinNumber T>
     T read() noexcept;
 
-    void read(std::span<UInt8> &data) noexcept;
+    template <BuiltinNumber T>
+    void read(std::span<T> &data) noexcept;
 
     Int64 read(void *buf, UInt64 len) noexcept;
 

@@ -118,9 +118,10 @@ T PhysFSFile::read() noexcept
     return data;
 }
 
-void PhysFSFile::read(std::span<UInt8> &data) noexcept
+template <BuiltinNumber T>
+void PhysFSFile::read(std::span<T> &data) noexcept
 {
-    PHYSFS_readBytes(file, data.data(), data.size());
+    PHYSFS_readBytes(file, data.data(), data.size_bytes());
 }
 
 Int64 PhysFSFile::read(void *buf, UInt64 len) noexcept
@@ -174,5 +175,8 @@ template UInt8 PhysFSFile::read<UInt8>();
 template Int16 PhysFSFile::read<Int16>();
 template UInt16 PhysFSFile::read<UInt16>();
 template UInt32 PhysFSFile::read<UInt32>();
+
+template void PhysFSFile::read<UInt8>(std::span<UInt8> &);
+template void PhysFSFile::read<UInt16>(std::span<UInt16> &);
 
 } // namespace Util

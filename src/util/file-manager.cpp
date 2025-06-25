@@ -118,10 +118,9 @@ T PhysFSFile::read() noexcept
     return data;
 }
 
-template <typename T, size_t N>
-void PhysFSFile::read(std::span<T, N> &data) noexcept
+void PhysFSFile::read(std::span<UInt8> &data) noexcept
 {
-    PHYSFS_readBytes(file, data.data(), N * sizeof(T));
+    PHYSFS_readBytes(file, data.data(), data.size());
 }
 
 Int64 PhysFSFile::read(void *buf, UInt64 len) noexcept

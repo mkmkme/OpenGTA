@@ -1,6 +1,5 @@
 #pragma once
 
-#include <cstddef>
 #include <span>
 #include <string>
 
@@ -44,8 +43,7 @@ public:
     template <BuiltinNumber T>
     T read() noexcept;
 
-    template <typename T, size_t N>
-    void read(std::span<T, N> &data) noexcept;
+    void read(std::span<UInt8> &data) noexcept;
 
     Int64 read(void *buf, UInt64 len) noexcept;
 

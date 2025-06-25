@@ -3,6 +3,7 @@
 #include <memory>
 
 #include <core/graphics-base.h>
+#include <core/numeric-types.h>
 
 namespace Util {
 class PhysFSFile;
@@ -27,7 +28,7 @@ public:
      */
     class RGBPalette {
     private:
-        unsigned char data[256 * 3] {};
+        std::array<UInt8, 256 * 3> data {};
 
     public:
         /** Empty constructor.

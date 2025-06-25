@@ -5,7 +5,7 @@
 #endif
 
 #include <SDL2/SDL.h>
-#include <glad/gl.h>
+#include <glad/glad.h>
 
 int main()
 {
@@ -29,7 +29,7 @@ int main()
         return -1;
     }
 
-    if (!gladLoadGL((GLADloadfunc) SDL_GL_GetProcAddress)) {
+    if (!gladLoadGLLoader((GLADloadproc) SDL_GL_GetProcAddress)) {
         std::cerr << "Failed to initialize GLAD" << std::endl;
         SDL_GL_DeleteContext(context);
         SDL_DestroyWindow(window);

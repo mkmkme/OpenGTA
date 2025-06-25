@@ -2,6 +2,7 @@
   "dependencies": [
     "cxxopts",
     "fmt",
+    "glad",
     "glm",
     "lua",
     "physfs",

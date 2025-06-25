@@ -15,9 +15,3 @@ add_library(opensteer_ STATIC opensteer/src/Clock.cpp)
 target_include_directories(opensteer_ PUBLIC
     ${OpenGTA_SOURCE_DIR}/third_party/opensteer/include)
 add_library(ogta::opensteer ALIAS opensteer_)
-
-# glad
-add_library(glad_ STATIC glad/src/gl.c)
-target_include_directories(glad_ PUBLIC
-    ${OpenGTA_SOURCE_DIR}/third_party/glad/include)
-add_library(ogta::glad ALIAS glad_)

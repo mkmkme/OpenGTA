@@ -10,11 +10,10 @@
 #define SDL_MAIN_HANDLED
 #endif
 
-#include <glad/gl.h>
-
 #include <SDL2/SDL.h>
 #include <core/font.h>
 #include <fmt/format.h>
+#include <glad/glad.h>
 
 #include <util/file-manager.h>
 
@@ -130,7 +129,7 @@ int main(int /*argc*/, char **argv) // NOLINT(bugprone-exception-escape)
     auto *window = SDL_CreateWindow("Shader shenanigans", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 800, 600, SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE);
     auto *context = SDL_GL_CreateContext(window);
 
-    if (!gladLoadGL((GLADloadfunc) SDL_GL_GetProcAddress)) {
+    if (!gladLoadGLLoader((GLADloadproc) SDL_GL_GetProcAddress)) {
         fmt::print(stderr, "Failed to initialize GLAD\n");
         return 1;
     }

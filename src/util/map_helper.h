@@ -28,23 +28,8 @@ private:
     std::mt19937 rng_;
 };
 
-/** lesser than comparison of two std::pair<int, int>.
- */
-template <typename T>
-struct lt_pair {
-    bool operator()(const T &a, const T &b) const
-    {
-        if (a.first < b.first)
-            return true;
-        if (a.first > b.first)
-            return false;
-        return (a.second < b.second);
-    }
-};
-
 using Pair2Int = std::pair<int, int>;
-using cmp_Pair2Int = lt_pair<std::pair<int, int>>;
-using MapOfPair2Int = std::map<Pair2Int, int, cmp_Pair2Int>;
+using MapOfPair2Int = std::map<Pair2Int, int>;
 
 /** count of Pair2Int(a,b) in the map.
  * @return 0 if no entry at that \e position

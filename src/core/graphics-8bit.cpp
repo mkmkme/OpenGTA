@@ -13,6 +13,7 @@
 #include <memory>
 
 #include <core/graphics-8bit.h>
+#include <core/graphics-base.h>
 #include <core/sprite-info.h>
 
 #include <util/errors.h>
@@ -47,27 +48,11 @@ void Graphics8Bit::dump()
     INFO("{} bytes in {} pages {} images", gs, gs / 65536, gs / 4096);
     INFO("{} sprites ({}) total: {} bytes", spriteInfos.size(), spriteInfoSize, spriteGraphicsSize);
     INFO("sprite numbers:");
-    INFO("{} arrows", spriteNumbers.GTA_SPRITE_ARROW);
-    INFO("{} digits", spriteNumbers.GTA_SPRITE_DIGITS);
-    INFO("{} boats", spriteNumbers.GTA_SPRITE_BOAT);
-    INFO("{} boxes", spriteNumbers.GTA_SPRITE_BOX);
-    INFO("{} buses", spriteNumbers.GTA_SPRITE_BUS);
-    INFO("{} cars", spriteNumbers.GTA_SPRITE_CAR);
-    INFO("{} objects", spriteNumbers.GTA_SPRITE_OBJECT);
-    INFO("{} peds", spriteNumbers.GTA_SPRITE_PED);
-    INFO("{} speedos", spriteNumbers.GTA_SPRITE_SPEEDO);
-    INFO("{} tanks", spriteNumbers.GTA_SPRITE_TANK);
-    INFO("{} traffic lights", spriteNumbers.GTA_SPRITE_TRAFFIC_LIGHTS);
-    INFO("{} trains", spriteNumbers.GTA_SPRITE_TRAIN);
-    INFO("{} train doors", spriteNumbers.GTA_SPRITE_TRDOORS);
-    INFO("{} bikes", spriteNumbers.GTA_SPRITE_BIKE);
-    INFO("{} trams", spriteNumbers.GTA_SPRITE_TRAM);
-    INFO("{} wbuses", spriteNumbers.GTA_SPRITE_WBUS);
-    INFO("{} wcars", spriteNumbers.GTA_SPRITE_WCAR);
-    INFO("{} exes", spriteNumbers.GTA_SPRITE_EX);
-    INFO("{} tumcars", spriteNumbers.GTA_SPRITE_TUMCAR);
-    INFO("{} tumtrucks", spriteNumbers.GTA_SPRITE_TUMTRUCK);
-    INFO("{} ferries", spriteNumbers.GTA_SPRITE_FERRY);
+
+#define PRINT_SPRITE(name) INFO("{} sprites of type {}", spriteNumbers.name, #name);
+
+    SPRITE_TYPES(PRINT_SPRITE)
+
     INFO("#object-info: {} #car-info: {}", objectInfos.size(), carInfos.size());
 }
 

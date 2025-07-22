@@ -77,34 +77,6 @@ void safe_try_model(uint8_t model_id)
     }
 }
 
-const char *spr_type_name(int t)
-{
-    static const std::array types = {
-        "arrow",
-        "digit",
-        "boat",
-        "box",
-        "bus",
-        "car",
-        "object",
-        "ped",
-        "speedo",
-        "tank",
-        "tr light",
-        "train",
-        "tr door",
-        "bike",
-        "tram",
-        "wbus",
-        "wcar",
-        "ex",
-        "tumcar",
-        "tumtruck",
-        "ferry",
-    };
-    return (t < 0 || t >= types.size()) ? "???" : types[t];
-}
-
 std::string_view vtype2name(int vt)
 {
     switch (vt) {
@@ -168,7 +140,8 @@ void drawScene(Uint32 ticks, OpenGL::Screen &screen, OpenGL::Camera &camera, Ope
 
         glPushMatrix();
         glTranslatef(10, 10, 0);
-        std::string sprite_info = std::string { spr_type_name(spr_type) } + " offset " + std::to_string(frame_offset);
+        std::string sprite_info =
+            std::string { OpenGTA::GraphicsBase::getSpriteName(spr_type) } + " offset " + std::to_string(frame_offset);
         font.drawString(sprite_info);
         glPopMatrix();
     }

@@ -563,18 +563,18 @@ void CityView::drawObject(OpenGTA::Map::ObjectPosition *obj)
     if (obj->remap >= 128) { // car
         CarInfo &cinfo = style->findCarByModel(obj->type);
         sprNum = cinfo.sprNum;
-        spriteNumAbs = style->spriteNumbers.reIndex(cinfo.sprNum, GraphicsBase::SpriteNumbers::CAR);
+        spriteNumAbs = style->spriteNumbers.reIndex(cinfo.sprNum, GraphicsBase::SpriteNumbers::SpriteTypes::car);
         const SpriteInfo &info = style->getSprite(spriteNumAbs);
         w = float(info.w) / 64.0f;
         h = float(info.h) / 64.0f;
-        st = GraphicsBase::SpriteNumbers::CAR;
+        st = GraphicsBase::SpriteNumbers::SpriteTypes::car;
     } else {
         sprNum = style->objectInfos[obj->type].sprNum;
-        spriteNumAbs = style->spriteNumbers.reIndex(sprNum, GraphicsBase::SpriteNumbers::OBJECT);
+        spriteNumAbs = style->spriteNumbers.reIndex(sprNum, GraphicsBase::SpriteNumbers::SpriteTypes::object);
         const SpriteInfo &info = style->getSprite(spriteNumAbs);
         w = float(info.w) / 64.0f;
         h = float(info.h) / 64.0f;
-        st = GraphicsBase::SpriteNumbers::OBJECT;
+        st = GraphicsBase::SpriteNumbers::SpriteTypes::object;
     }
 
     OpenGL::PagedTexture t;
@@ -678,12 +678,7 @@ void CityView::drawBlock(OpenGTA::Map::BlockInfo *bi)
             const auto frame_num = banim->getCurrentFrameNumber();
             uint8_t aux_id = banim->getFrame(frame_num > 0 ? frame_num - 1 : 0);
             if (!auxCache.hasTexture(aux_id)) {
-                lid_tex = ImageUtil::createGLTexture(
-                    64,
-                    64,
-                    is_flat,
-                    style->getAux(aux_id, 0, is_flat)
-                );
+                lid_tex = ImageUtil::createGLTexture(64, 64, is_flat, style->getAux(aux_id, 0, is_flat));
                 auxCache.addTexture(aux_id, lid_tex);
             } else
                 lid_tex = auxCache.getTextureWithId(aux_id);
@@ -693,12 +688,7 @@ void CityView::drawBlock(OpenGTA::Map::BlockInfo *bi)
         const auto banim = blockAnims.getAnim(0, bi->left);
         if (!banim.has_value()) {
             if (!sideCache.hasTexture(bi->left)) {
-                left_tex = ImageUtil::createGLTexture(
-                    64,
-                    64,
-                    is_flat,
-                    style->getSide(bi->left, 0, is_flat)
-                );
+                left_tex = ImageUtil::createGLTexture(64, 64, is_flat, style->getSide(bi->left, 0, is_flat));
                 sideCache.addTexture(bi->left, left_tex);
             } else
                 left_tex = sideCache.getTextureWithId(bi->left);
@@ -706,12 +696,7 @@ void CityView::drawBlock(OpenGTA::Map::BlockInfo *bi)
             const auto frame_num = banim->getCurrentFrameNumber();
             uint8_t aux_id = banim->getFrame(frame_num > 0 ? frame_num - 1 : 0);
             if (!auxCache.hasTexture(aux_id)) {
-                left_tex = ImageUtil::createGLTexture(
-                    64,
-                    64,
-                    is_flat,
-                    style->getAux(aux_id, 0, is_flat)
-                );
+                left_tex = ImageUtil::createGLTexture(64, 64, is_flat, style->getAux(aux_id, 0, is_flat));
                 auxCache.addTexture(aux_id, left_tex);
             } else
                 left_tex = auxCache.getTextureWithId(aux_id);

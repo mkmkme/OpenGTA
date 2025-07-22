@@ -16,35 +16,11 @@ using namespace Util;
 UInt16 GraphicsBase::SpriteNumbers::countByType(const SpriteTypes &t) const
 {
     switch (t) {
-#define CASE_COUNT(_enum, _value) \
-    case _enum:                   \
-        return _value
-#define CASE_COUNT_TRIVIAL(_enum) CASE_COUNT(_enum, GTA_SPRITE_##_enum);
+#define CASE_COUNT(_name)    \
+    case SpriteTypes::_name: \
+        return _name;
 
-        CASE_COUNT_TRIVIAL(ARROW);
-        CASE_COUNT(DIGIT, GTA_SPRITE_DIGITS);
-        CASE_COUNT_TRIVIAL(BOAT);
-        CASE_COUNT_TRIVIAL(BOX);
-        CASE_COUNT_TRIVIAL(BUS);
-        CASE_COUNT_TRIVIAL(CAR);
-        CASE_COUNT_TRIVIAL(OBJECT);
-        CASE_COUNT_TRIVIAL(PED);
-        CASE_COUNT_TRIVIAL(SPEEDO);
-        CASE_COUNT_TRIVIAL(TANK);
-        CASE_COUNT(TRAFFIC_LIGHT, GTA_SPRITE_TRAFFIC_LIGHTS);
-        CASE_COUNT_TRIVIAL(TRAIN);
-        CASE_COUNT(TRDOOR, GTA_SPRITE_TRDOORS);
-        CASE_COUNT_TRIVIAL(BIKE);
-        CASE_COUNT_TRIVIAL(TRAM);
-        CASE_COUNT_TRIVIAL(WBUS);
-        CASE_COUNT_TRIVIAL(WCAR);
-        CASE_COUNT_TRIVIAL(EX);
-        CASE_COUNT_TRIVIAL(TUMCAR);
-        CASE_COUNT_TRIVIAL(TUMTRUCK);
-        CASE_COUNT_TRIVIAL(FERRY);
-
-#undef CASE_COUNT
-#undef CASE_COUNT_TRIVIAL
+        SPRITE_TYPES(CASE_COUNT)
     }
     ERROR("UPS: {}", static_cast<int>(t));
     throw std::runtime_error("UPS");
@@ -99,6 +75,13 @@ bool GraphicsBase::isAnimatedBlock(UInt8 area_code, UInt8 id)
     });
 }
 
+const char *GraphicsBase::getSpriteName(int t)
+{
+#define STR_ARRAY_ITEM(name) #name,
+    static const std::array types = { SPRITE_TYPES(STR_ARRAY_ITEM) };
+    return (t < 0 || t >= types.size()) ? "???" : types[t];
+}
+
 CarInfo &GraphicsBase::findCarByModel(UInt8 model)
 {
     for (auto &car : carInfos) {
@@ -134,34 +117,33 @@ UInt16 GraphicsBase::SpriteNumbers::reIndex(const UInt16 &id, const SpriteTypes 
 {
     UInt16 ret = id;
     switch (t) {
-#define CASE_ACCUMULATE(_enum, _val) \
-    case _enum:                      \
-        ret += (_val);               \
-        [[fallthrough]]
+#define CASE_ACCUMULATE(_name, _to_add_name) \
+    case SpriteTypes::_name:                 \
+        ret += (_to_add_name);               \
+        /* fallthrough */
 
-        CASE_ACCUMULATE(FERRY, GTA_SPRITE_TUMTRUCK);
-        CASE_ACCUMULATE(TUMTRUCK, GTA_SPRITE_TUMCAR);
-        CASE_ACCUMULATE(TUMCAR, GTA_SPRITE_EX);
-        CASE_ACCUMULATE(EX, GTA_SPRITE_WCAR);
-        CASE_ACCUMULATE(WCAR, GTA_SPRITE_WBUS);
-        CASE_ACCUMULATE(WBUS, GTA_SPRITE_TRAM);
-        CASE_ACCUMULATE(TRAM, GTA_SPRITE_BIKE);
-        CASE_ACCUMULATE(BIKE, GTA_SPRITE_TRDOORS);
-        CASE_ACCUMULATE(TRDOOR, GTA_SPRITE_TRAIN);
-        CASE_ACCUMULATE(TRAIN, GTA_SPRITE_TRAFFIC_LIGHTS);
-        CASE_ACCUMULATE(TRAFFIC_LIGHT, GTA_SPRITE_TANK);
-        CASE_ACCUMULATE(TANK, GTA_SPRITE_SPEEDO);
-        CASE_ACCUMULATE(SPEEDO, GTA_SPRITE_PED);
-        CASE_ACCUMULATE(PED, GTA_SPRITE_OBJECT);
-        CASE_ACCUMULATE(OBJECT, GTA_SPRITE_CAR);
-        CASE_ACCUMULATE(CAR, GTA_SPRITE_BUS);
-        CASE_ACCUMULATE(BUS, GTA_SPRITE_BOX);
-        CASE_ACCUMULATE(BOX, GTA_SPRITE_BOAT);
-        CASE_ACCUMULATE(BOAT, GTA_SPRITE_DIGITS);
-        CASE_ACCUMULATE(DIGIT, GTA_SPRITE_ARROW);
-        case ARROW:
+        CASE_ACCUMULATE(ferry, tumtruck)
+        CASE_ACCUMULATE(tumtruck, tumcar)
+        CASE_ACCUMULATE(tumcar, ex)
+        CASE_ACCUMULATE(ex, wcar)
+        CASE_ACCUMULATE(wcar, wbus)
+        CASE_ACCUMULATE(wbus, tram)
+        CASE_ACCUMULATE(tram, bike)
+        CASE_ACCUMULATE(bike, trdoors)
+        CASE_ACCUMULATE(trdoors, train)
+        CASE_ACCUMULATE(train, traffic_lights)
+        CASE_ACCUMULATE(traffic_lights, tank)
+        CASE_ACCUMULATE(tank, speedo)
+        CASE_ACCUMULATE(speedo, ped)
+        CASE_ACCUMULATE(ped, object)
+        CASE_ACCUMULATE(object, car)
+        CASE_ACCUMULATE(car, bus)
+        CASE_ACCUMULATE(bus, box)
+        CASE_ACCUMULATE(box, boat)
+        CASE_ACCUMULATE(boat, digits)
+        CASE_ACCUMULATE(digits, arrow)
+        case SpriteTypes::arrow:
             break;
-#undef CASE_ACCUMULATE
     }
     return ret;
 }
@@ -204,27 +186,9 @@ void GraphicsBase::loadSpriteNumbers_shared(UInt64 offset)
 
     styleFile.ensurePosition(offset);
 
-    styleFile.read(spriteNumbers.GTA_SPRITE_ARROW);
-    styleFile.read(spriteNumbers.GTA_SPRITE_DIGITS);
-    styleFile.read(spriteNumbers.GTA_SPRITE_BOAT);
-    styleFile.read(spriteNumbers.GTA_SPRITE_BOX);
-    styleFile.read(spriteNumbers.GTA_SPRITE_BUS);
-    styleFile.read(spriteNumbers.GTA_SPRITE_CAR);
-    styleFile.read(spriteNumbers.GTA_SPRITE_OBJECT);
-    styleFile.read(spriteNumbers.GTA_SPRITE_PED);
-    styleFile.read(spriteNumbers.GTA_SPRITE_SPEEDO);
-    styleFile.read(spriteNumbers.GTA_SPRITE_TANK);
-    styleFile.read(spriteNumbers.GTA_SPRITE_TRAFFIC_LIGHTS);
-    styleFile.read(spriteNumbers.GTA_SPRITE_TRAIN);
-    styleFile.read(spriteNumbers.GTA_SPRITE_TRDOORS);
-    styleFile.read(spriteNumbers.GTA_SPRITE_BIKE);
-    styleFile.read(spriteNumbers.GTA_SPRITE_TRAM);
-    styleFile.read(spriteNumbers.GTA_SPRITE_WBUS);
-    styleFile.read(spriteNumbers.GTA_SPRITE_WCAR);
-    styleFile.read(spriteNumbers.GTA_SPRITE_EX);
-    styleFile.read(spriteNumbers.GTA_SPRITE_TUMCAR);
-    styleFile.read(spriteNumbers.GTA_SPRITE_TUMTRUCK);
-    styleFile.read(spriteNumbers.GTA_SPRITE_FERRY);
+#define READ_SPRITE_NUMBER(name) styleFile.read(spriteNumbers.name);
+
+    SPRITE_TYPES(READ_SPRITE_NUMBER)
 }
 
 void GraphicsBase::loadTileTextures()

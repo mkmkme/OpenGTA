@@ -29,6 +29,29 @@ struct DeltaInfo;
 struct LoadedAnim;
 struct SpriteInfo;
 
+#define SPRITE_TYPES(DECLARE) \
+    DECLARE(arrow)            \
+    DECLARE(digits)           \
+    DECLARE(boat)             \
+    DECLARE(box)              \
+    DECLARE(bus)              \
+    DECLARE(car)              \
+    DECLARE(object)           \
+    DECLARE(ped)              \
+    DECLARE(speedo)           \
+    DECLARE(tank)             \
+    DECLARE(traffic_lights)   \
+    DECLARE(train)            \
+    DECLARE(trdoors)          \
+    DECLARE(bike)             \
+    DECLARE(tram)             \
+    DECLARE(wbus)             \
+    DECLARE(wcar)             \
+    DECLARE(ex)               \
+    DECLARE(tumcar)           \
+    DECLARE(tumtruck)         \
+    DECLARE(ferry)
+
 /** The common class for all graphics wrappers.
  * Contains a number of common variables; does essentially nothing.
  */
@@ -39,50 +62,15 @@ public:
     [[nodiscard]] UInt8 getFormat() const;
 
     struct SpriteNumbers {
-        UInt16 GTA_SPRITE_ARROW;
-        UInt16 GTA_SPRITE_DIGITS;
-        UInt16 GTA_SPRITE_BOAT;
-        UInt16 GTA_SPRITE_BOX;
-        UInt16 GTA_SPRITE_BUS;
-        UInt16 GTA_SPRITE_CAR;
-        UInt16 GTA_SPRITE_OBJECT;
-        UInt16 GTA_SPRITE_PED;
-        UInt16 GTA_SPRITE_SPEEDO;
-        UInt16 GTA_SPRITE_TANK;
-        UInt16 GTA_SPRITE_TRAFFIC_LIGHTS;
-        UInt16 GTA_SPRITE_TRAIN;
-        UInt16 GTA_SPRITE_TRDOORS;
-        UInt16 GTA_SPRITE_BIKE;
-        UInt16 GTA_SPRITE_TRAM;
-        UInt16 GTA_SPRITE_WBUS;
-        UInt16 GTA_SPRITE_WCAR;
-        UInt16 GTA_SPRITE_EX;
-        UInt16 GTA_SPRITE_TUMCAR;
-        UInt16 GTA_SPRITE_TUMTRUCK;
-        UInt16 GTA_SPRITE_FERRY;
 
-        enum SpriteTypes : UInt8 {
-            ARROW = 0,
-            DIGIT,
-            BOAT,
-            BOX,
-            BUS,
-            CAR,
-            OBJECT,
-            PED,
-            SPEEDO,
-            TANK,
-            TRAFFIC_LIGHT,
-            TRAIN,
-            TRDOOR,
-            BIKE,
-            TRAM,
-            WBUS,
-            WCAR,
-            EX,
-            TUMCAR,
-            TUMTRUCK,
-            FERRY
+#define DECLARE_SPRITE_NUMBER(name) UInt16 name;
+        SPRITE_TYPES(DECLARE_SPRITE_NUMBER)
+
+        enum class SpriteTypes : UInt8 {
+
+#define DECLARE_SPRITE_TYPE(name) name,
+            SPRITE_TYPES(DECLARE_SPRITE_TYPE)
+
         };
 
         [[nodiscard]] UInt16 reIndex(const UInt16 &id, const enum SpriteTypes &st) const;
@@ -90,6 +78,9 @@ public:
     };
 
     bool isAnimatedBlock(UInt8 area_code, UInt8 id);
+
+    static const char *getSpriteName(int t);
+    static const char *getSpriteName(SpriteNumbers::SpriteTypes t) { return getSpriteName(static_cast<int>(t)); }
 
     void prepareSideTexture(UInt32 idx, std::span<UInt8> dst);
     void prepareLidTexture(UInt32 idx, std::span<UInt8> dst);

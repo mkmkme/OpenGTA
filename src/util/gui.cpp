@@ -11,7 +11,11 @@
 extern float screen_gamma;
 namespace GUI {
 Object::Object(const SDL_Rect &r)
-    : id(0), rect(), color(), borderColor(), drawBorder(false)
+    : id(0)
+    , rect()
+    , color()
+    , borderColor()
+    , drawBorder(false)
 {
     copyRect(r);
     color.r = 255;
@@ -20,7 +24,11 @@ Object::Object(const SDL_Rect &r)
     color.a = 255;
 }
 Object::Object(const size_t Id, const SDL_Rect &r)
-    : id(Id), rect(), color(), borderColor(), drawBorder(false)
+    : id(Id)
+    , rect()
+    , color()
+    , borderColor()
+    , drawBorder(false)
 {
     copyRect(r);
     color.r = 255;
@@ -29,7 +37,11 @@ Object::Object(const size_t Id, const SDL_Rect &r)
     color.a = 255;
 }
 Object::Object(const size_t Id, const SDL_Rect &r, const SDL_Color &c)
-    : id(Id), rect(), color(), borderColor(), drawBorder(false)
+    : id(Id)
+    , rect()
+    , color()
+    , borderColor()
+    , drawBorder(false)
 {
     copyRect(r);
     copyColor(c);
@@ -266,14 +278,9 @@ void Manager::cacheImageRAT(const std::string &file, const std::string &palette,
 ImageUtil::WidthHeightPair Manager::cacheStyleArrowSprite(const size_t id, int remap)
 {
     OpenGTA::GraphicsBase &graphics = OpenGTA::ActiveStyle::Instance().get();
-    const auto t = graphics.spriteNumbers.reIndex(id, OpenGTA::GraphicsBase::SpriteNumbers::ARROW);
+    const auto t = graphics.spriteNumbers.reIndex(id, OpenGTA::GraphicsBase::SpriteNumbers::SpriteTypes::arrow);
     const OpenGTA::SpriteInfo &info = graphics.getSprite(t);
-    texCache.insert(
-        std::make_pair(
-            id,
-            OpenGL::SpriteCache::Instance().createSprite(size_t(t), remap, 0, info)
-        )
-    );
+    texCache.insert(std::make_pair(id, OpenGL::SpriteCache::Instance().createSprite(size_t(t), remap, 0, info)));
     return ImageUtil::WidthHeightPair(info.w, info.h);
 }
 
@@ -335,8 +342,7 @@ void Manager::removeById(const size_t id)
 
 bool Manager::isInside(Object &obj, Uint16 x, Uint16 y) const
 {
-    return (obj.rect.x <= x) && (x <= obj.rect.x + obj.rect.w) &&
-        (obj.rect.y <= y) && (y <= obj.rect.y + obj.rect.h);
+    return (obj.rect.x <= x) && (x <= obj.rect.x + obj.rect.w) && (obj.rect.y <= y) && (y <= obj.rect.y + obj.rect.h);
 }
 void Manager::receive(SDL_MouseButtonEvent &mb_event, uint32_t height)
 {

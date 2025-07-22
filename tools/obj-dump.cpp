@@ -1,11 +1,11 @@
 #include <cassert>
-#include <iostream>
 #include <string>
 
 #include <core/car-info.h>
 #include <core/graphics-8bit.h>
 #include <core/map.h>
 #include <core/sprite-info.h>
+#include <fmt/base.h>
 
 #include <util/file-manager.h>
 
@@ -16,52 +16,76 @@ void dump_in_map(const std::string &style_file, const std::string &map_file)
 
     for (int i = 0; i < map.numObjects; i++) {
         OpenGTA::Map::ObjectPosition &o = map.objects[i];
-        std::cout << "object: " << i << std::endl;
-        std::cout << o.x << ", " << o.y << ", " << o.z << " rot: " << o.rotation << " pitch: " << o.pitch
-                  << " roll: " << o.roll << std::endl;
-        std::cout << "type: " << int(o.type);
+        fmt::println("object: {}", i);
+        fmt::println("{}, {}, {}, rot: {}, pitch: {}, roll: {}", o.x, o.y, o.z, o.rotation, o.pitch, o.roll);
+        fmt::print("type: {}", o.type);
         if (o.remap >= 128) {
-            std::cout << " (a car) remap: " << int(o.remap - 128) << std::endl;
+            fmt::println(" (a car) remap: {}", o.remap - 128);
             auto &info = style.findCarByModel(o.type);
-            std::cout << "width: " << info.width << " height: " << info.height << " depth " << info.depth
-                      << " sprnum: " << info.sprNum << " weight: " << info.weightDescriptor << std::endl;
+            fmt::println(
+                "width: {}, height: {}, depth: {}, sprnum: {}, weight: {}",
+                info.width,
+                info.height,
+                info.depth,
+                info.sprNum,
+                info.weightDescriptor
+            );
         } else {
-            std::cout << " (an obj) remap: " << int(o.remap) << std::endl;
+            fmt::println(" (an obj) remap: {}", o.remap);
             const auto &info = style.objectInfos[o.type];
-            std::cout << "width: " << info.width << " height: " << info.height << " depth " << info.depth
-                      << " sprnum: " << info.sprNum << " weight: " << info.weight << " aux: " << info.aux
-                      << " status: " << int(info.status) << " n-into: " << int(info.numInto) << std::endl;
+            fmt::println(
+                "width: {}, height: {}, depth: {}, sprnum: {}, weight: {}, aux: {}, status: {}, n-into: {}",
+                info.width,
+                info.height,
+                info.depth,
+                info.sprNum,
+                info.weight,
+                info.aux,
+                int(info.status),
+                int(info.numInto)
+            );
         }
-        std::cout << std::endl;
+        fmt::print("\n");
     }
 }
 
 void dump(const std::string &style_file)
 {
     OpenGTA::Graphics8Bit style(style_file);
-    std::cout << "DUMP_OBJ_INFO BEGIN" << std::endl;
+    fmt::println("DUMP_OBJ_INFO BEGIN");
     for (size_t i = 0; i < style.objectInfos.size(); ++i) {
-        std::cout
-            << "obj-type: " << i << "  width: " << style.objectInfos[i].width
-            << " height: " << style.objectInfos[i].height << " depth: " << style.objectInfos[i].depth
-            << " spr-num: " << style.objectInfos[i].sprNum << " reindex: "
-            << style.spriteNumbers.reIndex(style.objectInfos[i].sprNum, OpenGTA::GraphicsBase::SpriteNumbers::OBJECT)
-            << " weight: " << style.objectInfos[i].weight << " aux: " << style.objectInfos[i].aux
-            << " status: " << int(style.objectInfos[i].status) << " num-into: " << int(style.objectInfos[i].numInto)
-            << std::endl;
+        fmt::println(
+            "obj-type: {}, width: {}, height: {}, depth: {}, spr-num: {}, reindex: {}, weight: {}, aux: {}, status: "
+            "{}, num-into: {}",
+            i,
+            style.objectInfos[i].width,
+            style.objectInfos[i].height,
+            style.objectInfos[i].depth,
+            style.objectInfos[i].sprNum,
+            style.spriteNumbers
+                .reIndex(style.objectInfos[i].sprNum, OpenGTA::GraphicsBase::SpriteNumbers::SpriteTypes::object),
+            style.objectInfos[i].weight,
+            style.objectInfos[i].aux,
+            int(style.objectInfos[i].status),
+            int(style.objectInfos[i].numInto)
+        );
     }
-    std::cout << "DUMP_OBJ_INFO END" << std::endl;
+    fmt::println("DUMP_SPRITE_INFO END");
     for (size_t i = 0; i < style.spriteInfos.size(); ++i) {
-        std::cout << "sprite: " << i << "  width: " << int(style.spriteInfos[i].w)
-                  << " height: " << int(style.spriteInfos[i].h)
-                  << " delta-count: " << int(style.spriteInfos[i].deltaCount) << std::endl;
+        fmt::println(
+            "sprite: {}, width: {}, height: {}, delta-count: {}",
+            i,
+            int(style.spriteInfos[i].w),
+            int(style.spriteInfos[i].h),
+            int(style.spriteInfos[i].deltaCount)
+        );
     }
 }
 
 int main(int argc, char *argv[])
 {
     if (argc < 2 || argc > 3) {
-        std::cerr << "USAGE: " << argv[0] << " GRY_FILE [MAP_FILE]" << std::endl;
+        fmt::println(stderr, "USAGE: {} GRY_FILE [MAP_FILE]", argv[0]);
         return 1;
     }
 

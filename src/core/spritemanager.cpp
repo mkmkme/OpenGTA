@@ -357,8 +357,9 @@ void SpriteManager::drawTextureOutline(const float &w, const float &h)
 
 void SpriteManager::draw(SpriteObject &obj)
 {
-    if (obj.sprType == GraphicsBase::SpriteNumbers::EX) {
-        return drawExplosion(obj);
+    if (obj.sprType == GraphicsBase::SpriteNumbers::SpriteTypes::ex) {
+        drawExplosion(obj);
+        return;
     }
     GL_OBJ_COMMON(obj);
     GraphicsBase &style = ActiveStyle::Instance().get();
@@ -372,11 +373,8 @@ void SpriteManager::draw(SpriteObject &obj)
     if (OpenGL::SpriteCache::Instance().has(sprNum, obj.remap))
         t = OpenGL::SpriteCache::Instance().get(sprNum, obj.remap);
     else {
-        t = OpenGL::SpriteCache::Instance().create(
-            obj.sprNum + obj.anim.firstFrameOffset + obj.anim.currentFrame,
-            obj.sprType,
-            obj.remap
-        );
+        t = OpenGL::SpriteCache::Instance()
+                .create(obj.sprNum + obj.anim.firstFrameOffset + obj.anim.currentFrame, obj.sprType, obj.remap);
     }
 
     DRAW_TEX_QUADS_OBJ(t, w, h);
@@ -412,11 +410,8 @@ void SpriteManager::draw(Pedestrian &ped)
     if (OpenGL::SpriteCache::Instance().has(sprNum, ped.remap))
         t = OpenGL::SpriteCache::Instance().get(sprNum, ped.remap);
     else {
-        t = OpenGL::SpriteCache::Instance().create(
-            ped.sprNum + ped.anim.firstFrameOffset + ped.anim.currentFrame,
-            ped.sprType,
-            ped.remap
-        );
+        t = OpenGL::SpriteCache::Instance()
+                .create(ped.sprNum + ped.anim.firstFrameOffset + ped.anim.currentFrame, ped.sprType, ped.remap);
     }
 
     DRAW_TEX_QUADS_OBJ(t, w, h);
@@ -463,11 +458,8 @@ void SpriteManager::drawExplosion(SpriteObject &obj)
     if (OpenGL::SpriteCache::Instance().has(sprNum))
         t = OpenGL::SpriteCache::Instance().get(sprNum);
     else
-        t = OpenGL::SpriteCache::Instance().create(
-            obj.sprNum + obj.anim.firstFrameOffset + obj.anim.currentFrame,
-            obj.sprType,
-            -1
-        );
+        t = OpenGL::SpriteCache::Instance()
+                .create(obj.sprNum + obj.anim.firstFrameOffset + obj.anim.currentFrame, obj.sprType, -1);
 
     glBindTexture(GL_TEXTURE_2D, t.inPage);
 
@@ -493,11 +485,8 @@ void SpriteManager::drawExplosion(SpriteObject &obj)
     if (OpenGL::SpriteCache::Instance().has(sprNum))
         t = OpenGL::SpriteCache::Instance().get(sprNum);
     else
-        t = OpenGL::SpriteCache::Instance().create(
-            obj.sprNum + obj.anim.firstFrameOffset + obj.anim.currentFrame + 12,
-            obj.sprType,
-            -1
-        );
+        t = OpenGL::SpriteCache::Instance()
+                .create(obj.sprNum + obj.anim.firstFrameOffset + obj.anim.currentFrame + 12, obj.sprType, -1);
 
     glBindTexture(GL_TEXTURE_2D, t.inPage);
 
@@ -523,11 +512,8 @@ void SpriteManager::drawExplosion(SpriteObject &obj)
     if (OpenGL::SpriteCache::Instance().has(sprNum))
         t = OpenGL::SpriteCache::Instance().get(sprNum);
     else
-        t = OpenGL::SpriteCache::Instance().create(
-            obj.sprNum + obj.anim.firstFrameOffset + obj.anim.currentFrame + 24,
-            obj.sprType,
-            -1
-        );
+        t = OpenGL::SpriteCache::Instance()
+                .create(obj.sprNum + obj.anim.firstFrameOffset + obj.anim.currentFrame + 24, obj.sprType, -1);
 
     glBindTexture(GL_TEXTURE_2D, t.inPage);
 
@@ -553,11 +539,8 @@ void SpriteManager::drawExplosion(SpriteObject &obj)
     if (OpenGL::SpriteCache::Instance().has(sprNum))
         t = OpenGL::SpriteCache::Instance().get(sprNum);
     else
-        t = OpenGL::SpriteCache::Instance().create(
-            obj.sprNum + obj.anim.firstFrameOffset + obj.anim.currentFrame + 36,
-            obj.sprType,
-            -1
-        );
+        t = OpenGL::SpriteCache::Instance()
+                .create(obj.sprNum + obj.anim.firstFrameOffset + obj.anim.currentFrame + 36, obj.sprType, -1);
 
     glBindTexture(GL_TEXTURE_2D, t.inPage);
 
@@ -687,14 +670,21 @@ void SpriteManager::setDrawTexBorder(bool v)
 
 void SpriteManager::setDrawTexture(bool v) {}
 
-void SpriteManager::createProjectile(uint8_t typeId, float r, const glm::vec3 &p, const glm::vec3 &d, Uint32 &ticks, Uint32 &owner)
+void SpriteManager::createProjectile(
+    uint8_t typeId,
+    float r,
+    const glm::vec3 &p,
+    const glm::vec3 &d,
+    Uint32 &ticks,
+    Uint32 &owner
+)
 {
     activeProjectiles.emplace_back(typeId, r, p, d, ticks, owner);
 }
 
 void SpriteManager::createExplosion(const glm::vec3 &center)
 {
-    SpriteObject expl(center, 0, GraphicsBase::SpriteNumbers::EX);
+    SpriteObject expl(center, 0, GraphicsBase::SpriteNumbers::SpriteTypes::ex);
     expl.anim = SpriteObject::Animation(getAnimationById(99));
     expl.anim.set(Util::Animation::PLAY_FORWARD, Util::Animation::STOP);
     add(expl);

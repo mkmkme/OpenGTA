@@ -17,11 +17,12 @@ BraceWrapping:
 BreakBeforeBinaryOperators: false
 BreakBeforeBraces: Custom
 BreakConstructorInitializers: BeforeComma
-ColumnLimit: 0
+ColumnLimit: 120
+ConstructorInitializerIndentWidth: 4
 Cpp11BracedListStyle: false
 IndentCaseLabels: true
 IndentWidth: 4
-PackConstructorInitializers: NextLine
+PackConstructorInitializers: Never
 PenaltyReturnTypeOnItsOwnLine: 0
 PenaltyBreakBeforeFirstCallParameter: 0
 PenaltyBreakString: 0

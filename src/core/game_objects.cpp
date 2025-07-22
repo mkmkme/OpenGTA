@@ -105,15 +105,16 @@ float GameObject_common::heightOverTerrain(const glm::vec3 &v)
 Sprite::Animation::Animation() noexcept
     : Util::Animation(7, 7)
     , firstFrameOffset(0)
-    , moveSpeed(0.0f) {}
+    , moveSpeed(0.0f)
+{
+}
 
 Sprite::Animation::Animation(const Animation &other) noexcept
     : // Util::Animation(other.numFrames, 1000 / other.delay),
     Util::Animation(other)
     , firstFrameOffset(other.firstFrameOffset)
-    ,
-    // numFrames(other.numFrames),
-    moveSpeed(other.moveSpeed)
+    // , numFrames(other.numFrames)
+    , moveSpeed(other.moveSpeed)
 {
     set(other.get(), other.getDone());
 }
@@ -137,12 +138,15 @@ Sprite::Sprite()
     , remap(-1)
     //, anim(SpriteManager::Instance().getAnimationById(0)),
     , animId()
-    , sprType(GraphicsBase::SpriteNumbers::ARROW)
+    , sprType(GraphicsBase::SpriteNumbers::SpriteTypes::arrow)
 {
 }
 
 Sprite::Sprite(uint16_t sprN, int16_t rem, GraphicsBase::SpriteNumbers::SpriteTypes sprT)
-    : sprNum(sprN), remap(rem), animId(), sprType(sprT)
+    : sprNum(sprN)
+    , remap(rem)
+    , animId()
+    , sprType(sprT)
 {
 }
 
@@ -158,7 +162,7 @@ void Sprite::switchToAnim(uint32_t newId)
 
 Pedestrian::Pedestrian(const glm::vec3 &e, const glm::vec3 &p, uint32_t id, int16_t remapId) noexcept
     : GameObject_common(p)
-    , Sprite(0, remapId, GraphicsBase::SpriteNumbers::PED)
+    , Sprite(0, remapId, GraphicsBase::SpriteNumbers::SpriteTypes::ped)
     , OBox(glm::translate(glm::mat4(1.0f), p), e * 0.5f)
     , m_control()
     , speedForces(0, 0, 0)
@@ -259,7 +263,7 @@ void Pedestrian::update(uint32_t ticks)
         rot -= 360.0f;
     if (rot < 0.0f)
         rot += 360.0f;
-    constexpr auto pi = static_cast<float>(M_PI);
+    using std::numbers::pi;
     switch (m_control.getMove()) {
         case -1:
             moveDelta.x -= sin(rot * pi / 180.0f) * anim.moveSpeed * delta;
@@ -293,8 +297,7 @@ void Pedestrian::update(uint32_t ticks)
     }
     transform_ = rotationMatrix(pos, rot);
     if (m_control.getFireWeapon() && ticks - lastWeaponTick > 400) {
-        auto d1 =
-            glm::normalize(glm::vec3(sin(rot * pi / 180.0f), 0, cos(rot * pi / 180.0f))) * 0.01f;
+        auto d1 = glm::normalize(glm::vec3(sin(rot * pi / 180.0f), 0, cos(rot * pi / 180.0f))) * 0.01f;
         SpriteManager::Instance().createProjectile(0, rot, pos, d1, ticks, pedId);
         lastWeaponTick = ticks;
     }
@@ -473,7 +476,7 @@ void Pedestrian::getShot(
 CarSprite::CarSprite()
     : sprNum(0)
     , remap(-1)
-    , sprType(GraphicsBase::SpriteNumbers::CAR)
+    , sprType(GraphicsBase::SpriteNumbers::SpriteTypes::car)
     , delta(0)
     , deltaSet(sizeof(delta) * 8, (unsigned char *) &delta)
 {
@@ -623,7 +626,9 @@ void CarSprite::update(uint32_t ticks)
 }
 
 CarSprite::DoorDeltaAnimation::DoorDeltaAnimation(uint8_t dId, bool dOpen)
-    : Util::Animation(4 + (dOpen ? 0 : 1), 5), doorId(dId), opening(dOpen)
+    : Util::Animation(4 + (dOpen ? 0 : 1), 5)
+    , doorId(dId)
+    , opening(dOpen)
 {
     if (!opening) {
         set(Util::Animation::PLAY_BACKWARD, Util::Animation::STOP);
@@ -635,7 +640,7 @@ CarSprite::DoorDeltaAnimation::DoorDeltaAnimation(uint8_t dId, bool dOpen)
 
 Car::Car(const glm::vec3 &_pos, float _rot, uint32_t id, uint8_t _type, int16_t _remap)
     : GameObject_common(_pos, _rot)
-    , CarSprite(0, -1, GraphicsBase::SpriteNumbers::CAR)
+    , CarSprite(0, -1, GraphicsBase::SpriteNumbers::SpriteTypes::car)
     , carInfo(ActiveStyle::Instance().get().findCarByModel(_type))
 {
     type = _type;
@@ -652,16 +657,16 @@ Car::Car(const glm::vec3 &_pos, float _rot, uint32_t id, uint8_t _type, int16_t 
 void Car::fixSpriteType()
 {
     if (carInfo.vtype == 3)
-        sprType = GraphicsBase::SpriteNumbers::BIKE;
+        sprType = GraphicsBase::SpriteNumbers::SpriteTypes::bike;
     else if (carInfo.vtype == 0)
-        sprType = GraphicsBase::SpriteNumbers::BUS;
+        sprType = GraphicsBase::SpriteNumbers::SpriteTypes::bus;
     else if (carInfo.vtype == 8)
-        sprType = GraphicsBase::SpriteNumbers::TRAIN;
+        sprType = GraphicsBase::SpriteNumbers::SpriteTypes::train;
 }
 
 Car::Car(OpenGTA::Map::ObjectPosition &op, uint32_t id)
     : GameObject_common(glm::vec3(INT2FLOAT_WRLD(op.x), 6.05f - INT2FLOAT_WRLD(op.z), INT2FLOAT_WRLD(op.y)))
-    , CarSprite(0, -1, GraphicsBase::SpriteNumbers::CAR)
+    , CarSprite(0, -1, GraphicsBase::SpriteNumbers::SpriteTypes::car)
     , carInfo(ActiveStyle::Instance().get().findCarByModel(op.type))
 {
     carId = id;
@@ -753,13 +758,13 @@ void Car::explode()
     SpriteManager::Instance().createExplosion(exp_pos);
     sprNum = 0;
     remap = -1;
-    sprType = GraphicsBase::SpriteNumbers::WCAR;
+    sprType = GraphicsBase::SpriteNumbers::SpriteTypes::wcar;
     delta = 0;
 }
 
 SpriteObject::SpriteObject(OpenGTA::Map::ObjectPosition &op, uint32_t id)
     : GameObject_common(glm::vec3(INT2FLOAT_WRLD(op.x), 6.05f - INT2FLOAT_WRLD(op.z), INT2FLOAT_WRLD(op.y)))
-    , Sprite(0, -1, GraphicsBase::SpriteNumbers::OBJECT)
+    , Sprite(0, -1, GraphicsBase::SpriteNumbers::SpriteTypes::object)
 {
     objId = id;
     GraphicsBase &style = ActiveStyle::Instance().get();
@@ -771,8 +776,13 @@ SpriteObject::SpriteObject(OpenGTA::Map::ObjectPosition &op, uint32_t id)
     isActive = true;
 }
 
-SpriteObject::SpriteObject(const glm::vec3 &pos, uint16_t spriteNum, OpenGTA::GraphicsBase::SpriteNumbers::SpriteTypes st)
-    : GameObject_common(pos), Sprite(spriteNum, -1, st)
+SpriteObject::SpriteObject(
+    const glm::vec3 &pos,
+    uint16_t spriteNum,
+    OpenGTA::GraphicsBase::SpriteNumbers::SpriteTypes st
+)
+    : GameObject_common(pos)
+    , Sprite(spriteNum, -1, st)
 {
     isActive = true;
     transform_ = rotationMatrix(pos, -rot);
@@ -797,7 +807,12 @@ void SpriteObject::update(uint32_t ticks)
 }
 
 Projectile::Projectile(unsigned char t, float r, const glm::vec3 &p, const glm::vec3 &d, uint32_t ticks, uint32_t o)
-    : GameObject_common(p, r), typeId(t), delta(d), endsAtTick(ticks), owner(o), lastUpdateAt(ticks)
+    : GameObject_common(p, r)
+    , typeId(t)
+    , delta(d)
+    , endsAtTick(ticks)
+    , owner(o)
+    , lastUpdateAt(ticks)
 {
     endsAtTick = lastUpdateAt + 1000;
 }

@@ -182,6 +182,8 @@ void handleKeyPress(SDL_Keysym *keysym, OpenGL::Camera &camera)
     const auto &style = OpenGTA::ActiveStyle::Instance().get();
     bool update_anim = false;
     switch (keysym->sym) {
+        using SpriteTypes = OpenGTA::GraphicsBase::SpriteNumbers::SpriteTypes;
+
         case SDLK_ESCAPE:
             done = true;
             break;
@@ -269,8 +271,8 @@ void handleKeyPress(SDL_Keysym *keysym, OpenGL::Camera &camera)
                 if (spr_type > 0) {
                     spr_type -= 1;
                 }
-            } while (style.spriteNumbers.countByType((OpenGTA::GraphicsBase::SpriteNumbers::SpriteTypes) spr_type) == 0);
-            ped.sprType = (OpenGTA::GraphicsBase::SpriteNumbers::SpriteTypes) spr_type;
+            } while (style.spriteNumbers.countByType((SpriteTypes) spr_type) == 0);
+            ped.sprType = (SpriteTypes) spr_type;
             frame_offset = 0;
             update_anim = true;
             break;
@@ -283,8 +285,8 @@ void handleKeyPress(SDL_Keysym *keysym, OpenGL::Camera &camera)
                 spr_type += 1;
                 if (spr_type > 20)
                     spr_type = (int) ped.sprType;
-            } while (style.spriteNumbers.countByType((OpenGTA::GraphicsBase::SpriteNumbers::SpriteTypes) spr_type) == 0);
-            ped.sprType = (OpenGTA::GraphicsBase::SpriteNumbers::SpriteTypes) spr_type;
+            } while (style.spriteNumbers.countByType((SpriteTypes) spr_type) == 0);
+            ped.sprType = (SpriteTypes) spr_type;
             frame_offset = 0;
             update_anim = true;
             break;

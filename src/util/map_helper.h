@@ -21,7 +21,6 @@ public:
     void setRects(const SDL_Rect &allowed, const SDL_Rect &denied);
     TupleOfUint8 getValidCoord();
     [[nodiscard]] bool isOnScreen(const glm::vec3 &p) const;
-    [[nodiscard]] bool isOffScreen(const glm::vec3 &p) const;
 
 private:
     SDL_Rect onScreen;

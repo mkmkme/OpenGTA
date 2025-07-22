@@ -38,11 +38,6 @@ bool SpriteCreationArea::isOnScreen(const glm::vec3 &p) const
         (p.z >= onScreen.y) && (p.z <= onScreen.y + onScreen.h);
 }
 
-bool SpriteCreationArea::isOffScreen(const glm::vec3 & /*p*/) const
-{
-    return false; // FIXME (mkmkme)
-}
-
 TupleOfUint8 SpriteCreationArea::getValidCoord()
 {
     std::uniform_int_distribution<unsigned> distrW { 0, static_cast<unsigned>(validRects.first.w) };

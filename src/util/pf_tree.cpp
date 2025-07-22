@@ -30,33 +30,31 @@ namespace PrefixFreeTree {
 
 Node::~Node()
 {
-    for (MapType::iterator i = map.begin(); i != map.end(); i++) {
-        delete i->second;
+    for (auto &i : map) {
+        delete i.second;
     }
-    map.clear();
 }
 
 Node &Node::insert(const char *str, size_t offset)
 {
     size_t str_len = strlen(str);
     if (offset < str_len) {
-        value_t node_val = str[offset];
+        value_t node_val = static_cast<unsigned char>(str[offset]);
         MapType::iterator i = map.find(node_val);
         offset++;
         if (i == map.end()) {
             map[node_val] = new Node();
             return map[node_val]->insert(str, offset);
-        } else {
-            if (i->second->isLeaf())
-                throw Util::InvalidFormat(
-                    "Cannot enter '{}' at offset {} as a leaf node already exists",
-                    str,
-                    offset
-                );
-            if ((offset == str_len) && (!i->second->isLeaf()))
-                throw Util::InvalidFormat("Cannot enter '{}' as a non-leaf node already exists", str);
-            return i->second->insert(str, offset);
         }
+        if (i->second->isLeaf())
+            throw Util::InvalidFormat(
+                "Cannot enter '{}' at offset {} as a leaf node already exists",
+                str,
+                offset
+            );
+        if ((offset == str_len) && (!i->second->isLeaf()))
+            throw Util::InvalidFormat("Cannot enter '{}' as a non-leaf node already exists", str);
+        return i->second->insert(str, offset);
     }
     return *this;
 }

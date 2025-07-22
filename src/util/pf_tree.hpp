@@ -31,11 +31,12 @@ namespace PrefixFreeTree {
 
 struct Node {
     ~Node();
-    typedef int value_t;
-    uint32_t leaf_value;
-    typedef std::map<value_t, Node *> MapType;
+    using value_t = int;
+    using MapType = std::map<value_t, Node *>;
+
+    value_t leaf_value;
     MapType map;
-    bool isLeaf() const { return (map.size() == 0); }
+    [[nodiscard]] bool isLeaf() const { return (map.size() == 0); }
     Node &insert(const char *str, size_t offset = 0);
 };
 
@@ -45,11 +46,11 @@ public:
     Walker()
         : Handler<T>(), Node(), curPos(this) {}
 
-    void push(int v)
+    void push(value_t v)
     {
-        if (checkMap(curPos->map))
+        if (checkMap(curPos->map, v))
             return;
-        if (checkMap(map))
+        if (checkMap(map, v))
             return;
         curPos = this;
     }
@@ -57,7 +58,7 @@ public:
 private:
     Node *curPos;
 
-    bool checkMap(const Node::MapType &m, int v)
+    bool checkMap(const Node::MapType &m, Node::value_t v)
     {
         auto it = m.find(v);
         if (it == m.end())

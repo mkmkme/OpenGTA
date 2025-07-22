@@ -35,7 +35,7 @@
 #include <util/log.h>
 #include <util/timer.h>
 
-#define INT2FLOAT_WRLD(c) (float(c >> 6) + float(c % 64) / 64.0f)
+#define INT2FLOAT_WRLD(c) (float(c >> 6) + (float(c % 64) / 64.0f))
 
 float slope_height_offset(unsigned char slope_type, float dx, float dz);
 
@@ -62,8 +62,7 @@ float GameObject_common::heightOverTerrain(const glm::vec3 &v)
         return 1.0f;
     }
     if (x < 0 || x > 255 || z < 0 || z > 255) {
-        // ERROR << "x = " << x << "(" << v.x << ") z = " << z << " (" << v.z << ")" << std::endl;
-        throw Util::OutOfRange("invalid x/z pos");
+        throw Util::OutOfRange("invalid x/z pos, x = {} ({}), z = {} ({})", x, v.x, z, v.z);
     }
     if (y > 20) {
         WARN("{} seems a bit high; going to 20", y);
@@ -133,16 +132,16 @@ Sprite::Animation::Animation(uint16_t foff, uint8_t num, float speed) noexcept
 {
 }
 
-Sprite::Sprite()
+Sprite::Sprite() noexcept
     : sprNum(0)
     , remap(-1)
     //, anim(SpriteManager::Instance().getAnimationById(0)),
     , animId()
-    , sprType(GraphicsBase::SpriteNumbers::SpriteTypes::arrow)
+    , sprType(SpriteTypes::arrow)
 {
 }
 
-Sprite::Sprite(uint16_t sprN, int16_t rem, GraphicsBase::SpriteNumbers::SpriteTypes sprT)
+Sprite::Sprite(uint16_t sprN, int16_t rem, SpriteTypes sprT) noexcept
     : sprNum(sprN)
     , remap(rem)
     , animId()
@@ -150,19 +149,19 @@ Sprite::Sprite(uint16_t sprN, int16_t rem, GraphicsBase::SpriteNumbers::SpriteTy
 {
 }
 
-Sprite::Sprite(const Sprite &other) = default;
+Sprite::Sprite(const Sprite &other) noexcept = default;
 
 void Sprite::switchToAnim(uint32_t newId)
 {
     DEBUG("switching to anim {}", newId);
-    anim = Animation(SpriteManager::Instance().getAnimationById(newId));
-    anim.set(Util::Animation::PLAY_FORWARD, Util::Animation::LOOP);
+    anim = SpriteManager::Instance().getAnimationById(newId);
+    anim.set(Util::Animation::Status::PlayForward, Util::Animation::OnDone::Loop);
     animId = newId;
 }
 
 Pedestrian::Pedestrian(const glm::vec3 &e, const glm::vec3 &p, uint32_t id, int16_t remapId) noexcept
     : GameObject_common(p)
-    , Sprite(0, remapId, GraphicsBase::SpriteNumbers::SpriteTypes::ped)
+    , Sprite(0, remapId, SpriteTypes::ped)
     , OBox(glm::translate(glm::mat4(1.0f), p), e * 0.5f)
     , m_control()
     , speedForces(0, 0, 0)
@@ -227,20 +226,20 @@ void Pedestrian::update(uint32_t ticks)
         case Move::Forward:
             if (m_control.getRunning()) {
                 if (animId != 3u + activeWeapon * 3)
-                    switchToAnim(3 + activeWeapon * 3);
+                    switchToAnim(3 + (activeWeapon * 3));
             } else {
                 if (animId != 2u + activeWeapon * 3)
-                    switchToAnim(2 + activeWeapon * 3);
+                    switchToAnim(2 + (activeWeapon * 3));
             }
             break;
         case Move::Stop:
             if (animId != 1u + activeWeapon * 3)
-                switchToAnim(1 + activeWeapon * 3);
+                switchToAnim(1 + (activeWeapon * 3));
             break;
         case Move::Backward:
             if (animId != 2u + activeWeapon * 3) {
-                switchToAnim(2 + activeWeapon * 3);
-                anim.set(Util::Animation::PLAY_BACKWARD, Util::Animation::LOOP);
+                switchToAnim(2 + (activeWeapon * 3));
+                anim.set(Util::Animation::Status::PlayBackward, Util::Animation::OnDone::Loop);
             }
     }
     anim.update(ticks);
@@ -448,10 +447,10 @@ void Pedestrian::die()
     DEBUG("DIE!!!");
     switchToAnim(42);
     if (isDead == 3) {
-        anim.set(Util::Animation::STOPPED, Util::Animation::STOP);
+        anim.set(Util::Animation::Status::Stopped, Util::Animation::OnDone::Stop);
         return;
     }
-    anim.set(Util::Animation::PLAY_FORWARD, Util::Animation::FCALLBACK);
+    anim.set(Util::Animation::Status::PlayForward, Util::Animation::OnDone::FCallback);
     anim.setCallback([this]() { die(); });
     isDead++;
 }
@@ -465,7 +464,7 @@ void Pedestrian::getShot(
 {
     isDead = 1;
     switchToAnim(45);
-    anim.set(Util::Animation::PLAY_FORWARD, Util::Animation::FCALLBACK);
+    anim.set(Util::Animation::Status::PlayForward, Util::Animation::OnDone::FCallback);
     anim.setCallback([this]() { die(); });
 }
 
@@ -533,17 +532,6 @@ void CarSprite::setSirenAnim(bool on)
 void CarSprite::update(uint32_t ticks)
 {
 
-// siren anim indices
-#define DSI_1 15
-#define DSI_2 16
-
-#define D_A_THEN_B(d, a, b)     \
-    ((d).get_item(a))           \
-    {                           \
-        (d).set_item(a, false); \
-        (d).set_item(b, true);  \
-    }
-
     // drive-anim
     if (animState.get_item(0)) {
     }
@@ -600,7 +588,7 @@ void CarSprite::update(uint32_t ticks)
                     deltaSet.set_item(i->getCurrentFrameNumber() + 23, true);
             }
         }
-        if (i->get() == Util::Animation::STOPPED) {
+        if (i->get() == Util::Animation::Status::Stopped) {
             auto j = i;
             i++;
             animState.set_item(j->doorId + 1, j->opening);
@@ -610,12 +598,14 @@ void CarSprite::update(uint32_t ticks)
     }
     if (animState.get_item(10)) {
         if (ticks - lt_siren > 500) {
-            if D_A_THEN_B (deltaSet, DSI_1, DSI_2)
-                else if D_A_THEN_B (deltaSet, DSI_2, DSI_1) else
-                {
-                    deltaSet.set_item(DSI_1, true);
-                    deltaSet.set_item(DSI_2, false);
-                }
+            // Siren animation indices, former DSI_1 and DSI_2
+            if (deltaSet.get_item(15)) {
+                deltaSet.set_item(15, false);
+                deltaSet.set_item(16, true);
+            } else {
+                deltaSet.set_item(15, true);
+                deltaSet.set_item(16, false);
+            }
             lt_siren = ticks;
         }
     }
@@ -627,10 +617,10 @@ CarSprite::DoorDeltaAnimation::DoorDeltaAnimation(uint8_t dId, bool dOpen)
     , opening(dOpen)
 {
     if (!opening) {
-        set(Util::Animation::PLAY_BACKWARD, Util::Animation::STOP);
-        jumpToFrame(4, Util::Animation::PLAY_BACKWARD);
+        set(Util::Animation::Status::PlayBackward, Util::Animation::OnDone::Stop);
+        jumpToFrame(4, Util::Animation::Status::PlayBackward);
     } else {
-        set(Util::Animation::PLAY_FORWARD, Util::Animation::STOP);
+        set(Util::Animation::Status::PlayForward, Util::Animation::OnDone::Stop);
     }
 }
 

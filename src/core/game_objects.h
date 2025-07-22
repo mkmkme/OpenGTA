@@ -43,17 +43,28 @@ struct GameObject_common {
     glm::vec3 pos;
     float rot;
     // uint8_t  activeState;
-    GameObject_common()
-        : pos(0, 0, 0), rot(0) {}
-    explicit GameObject_common(const glm::vec3 &p)
-        : pos(p), rot(0) {}
-    GameObject_common(const glm::vec3 &p, float r)
-        : pos(p), rot(r) {}
+    GameObject_common() noexcept
+        : pos(0, 0, 0)
+        , rot(0)
+    {
+    }
+    explicit GameObject_common(const glm::vec3 &p) noexcept
+        : pos(p)
+        , rot(0)
+    {
+    }
+    GameObject_common(const glm::vec3 &p, float r) noexcept
+        : pos(p)
+        , rot(r)
+    {
+    }
     float heightOverTerrain(const glm::vec3 &);
 };
 
 class Sprite {
 public:
+    using SpriteTypes = GraphicsBase::SpriteNumbers::SpriteTypes;
+
     struct Animation : public Util::Animation {
         Animation() noexcept;
         Animation(const Animation &other) noexcept;
@@ -63,14 +74,14 @@ public:
         // uint8_t  numFrames;
         float moveSpeed;
     };
-    Sprite();
-    Sprite(uint16_t sprN, int16_t rem, GraphicsBase::SpriteNumbers::SpriteTypes sprT);
-    Sprite(const Sprite &o);
+    Sprite() noexcept;
+    Sprite(uint16_t sprN, int16_t rem, SpriteTypes sprT) noexcept;
+    Sprite(const Sprite &o) noexcept;
     uint16_t sprNum;
     int16_t remap;
     Animation anim;
     uint32_t animId;
-    GraphicsBase::SpriteNumbers::SpriteTypes sprType;
+    SpriteTypes sprType;
     void switchToAnim(uint32_t newId);
 };
 
@@ -79,7 +90,7 @@ public:
     Pedestrian(const glm::vec3 &, const glm::vec3 &, uint32_t id, int16_t remapId = -1) noexcept;
     Pedestrian(const Pedestrian &o);
     uint32_t pedId;
-    [[nodiscard]] uint32_t id() const { return pedId; }
+    [[nodiscard]] uint32_t id() const noexcept { return pedId; }
     PedController m_control;
     void update(uint32_t ticks);
     uint32_t lastUpdateAt;

@@ -382,7 +382,7 @@ void Manager::createAnimation(const std::vector<uint16_t> &indices, uint16_t fps
 {
     Animation *anim = new Animation(indices, fps);
     guiAnimations.insert(std::make_pair(id, anim));
-    anim->set(Util::Animation::PLAY_FORWARD, Util::Animation::LOOP);
+    anim->set(Util::Animation::Status::PlayForward, Util::Animation::OnDone::Loop);
 }
 
 uint16_t Animation::getCurrentFrame()

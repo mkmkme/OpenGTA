@@ -20,6 +20,8 @@
  * 3. This notice may not be removed or altered from any source          *
  * distribution.                                                         *
  ************************************************************************/
+#include <random>
+
 #include <SDL2/SDL_opengl.h>
 #include <core/active-map.h>
 #include <core/active-style.h>
@@ -202,7 +204,12 @@ void SpriteManager::update(Uint32 ticks, LocalPlayer &player)
             int id = OpenGTA::TypeIdBlackBox::Instance().requestId();
             Sint16 remap = OpenGTA::ActiveStyle::Instance().get().getRandomPedRemapNumber();
             OpenGTA::Pedestrian p(glm::vec3(0.3f, 0.5f, 0.3f), pos, id, remap);
-            p.rot = 360 * (rand() / (RAND_MAX + 1.0));
+
+            static std::random_device rd;
+            static std::mt19937 gen(rd());
+            static std::uniform_real_distribution<> dis(0.0, 360.0);
+
+            p.rot = dis(gen);
             Instance().add(p);
             break;
         }
@@ -434,7 +441,7 @@ void SpriteManager::draw(Pedestrian &ped)
 void SpriteManager::drawExplosion(SpriteObject &obj)
 {
 
-    if (obj.anim.get() == Util::Animation::STOPPED) {
+    if (obj.anim.get() == Util::Animation::Status::Stopped) {
         obj.isActive = false;
         return;
     }
@@ -686,7 +693,7 @@ void SpriteManager::createExplosion(const glm::vec3 &center)
 {
     SpriteObject expl(center, 0, GraphicsBase::SpriteNumbers::SpriteTypes::ex);
     expl.anim = SpriteObject::Animation(getAnimationById(99));
-    expl.anim.set(Util::Animation::PLAY_FORWARD, Util::Animation::STOP);
+    expl.anim.set(Util::Animation::Status::PlayForward, Util::Animation::OnDone::Stop);
     add(expl);
 }
 

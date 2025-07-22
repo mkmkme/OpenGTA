@@ -36,21 +36,21 @@ namespace Util {
  */
 class Animation {
 public:
-    enum Status : uint8_t {
-        STOPPED = 0,
-        PLAY_FORWARD,
-        PLAY_BACKWARD,
+    enum class Status : uint8_t {
+        Stopped = 0,
+        PlayForward,
+        PlayBackward,
     };
-    enum OnDone : uint8_t {
-        STOP = 0,
-        REVERSE,
-        LOOP,
-        FCALLBACK,
+    enum class OnDone : uint8_t {
+        Stop = 0,
+        Reverse,
+        Loop,
+        FCallback,
     };
     Animation(uint16_t numFrames, uint16_t fps) noexcept;
     Animation(const Animation &o) noexcept;
-    [[nodiscard]] uint16_t getCurrentFrameNumber() const { return currentFrame; }
-    void set(Status doThis, OnDone done = STOP) noexcept
+    [[nodiscard]] uint16_t getCurrentFrameNumber() const noexcept { return currentFrame; }
+    void set(Status doThis, OnDone done = OnDone::Stop) noexcept
     {
         status = doThis;
         onDone = done;

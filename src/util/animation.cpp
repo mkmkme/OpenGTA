@@ -27,7 +27,7 @@
 namespace Util {
 Animation::Animation(uint16_t num, uint16_t fps) noexcept
 {
-    status = STOPPED;
+    status = Status::Stopped;
     numFrames = num;
     currentFrame = 0;
     delay = 1000 / fps;
@@ -48,16 +48,16 @@ Animation::Animation(const Animation &other) noexcept
 
 void Animation::update(uint32_t nowTicks)
 {
-    if (status == STOPPED)
+    if (status == Status::Stopped)
         return;
     if (lastChangeTicks == 0)
         lastChangeTicks = nowTicks;
     if (nowTicks < lastChangeTicks + delay)
         return;
     lastChangeTicks = nowTicks;
-    if (status == PLAY_FORWARD)
+    if (status == Status::PlayForward)
         flipFrame(true);
-    else if (status == PLAY_BACKWARD)
+    else if (status == Status::PlayBackward)
         flipFrame(false);
 }
 
@@ -86,23 +86,23 @@ void Animation::jumpToFrame(const uint16_t num, const Status andDo)
 
 void Animation::isDone()
 {
-    if (onDone == STOP) {
-        status = STOPPED;
+    if (onDone == OnDone::Stop) {
+        status = Status::Stopped;
         return;
     }
-    if (onDone == REVERSE) {
-        status = (status == PLAY_FORWARD) ? PLAY_BACKWARD : PLAY_FORWARD;
+    if (onDone == OnDone::Reverse) {
+        status = (status == Status::PlayForward) ? Status::PlayBackward : Status::PlayForward;
         return;
     }
-    if (onDone == LOOP) {
-        if (status == PLAY_FORWARD)
-            jumpToFrame(0, PLAY_FORWARD);
-        else if (status == PLAY_BACKWARD)
-            jumpToFrame(numFrames - 1, PLAY_BACKWARD);
+    if (onDone == OnDone::Loop) {
+        if (status == Status::PlayForward)
+            jumpToFrame(0, Status::PlayForward);
+        else if (status == Status::PlayBackward)
+            jumpToFrame(numFrames - 1, Status::PlayBackward);
         return;
     }
-    status = STOPPED;
-    if (onDone == FCALLBACK) {
+    status = Status::Stopped;
+    if (onDone == OnDone::FCallback) {
         if (callback)
             callback();
         else

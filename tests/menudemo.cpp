@@ -25,7 +25,7 @@ int global_Done = 0;
 void turn_anim_off(float)
 {
     GUI::AnimatedTextureObject *obj = (GUI::AnimatedTextureObject *) guiManager.findObject(2);
-    obj->animation->set(obj->animation->get(), Util::Animation::STOP);
+    obj->animation->set(obj->animation->get(), Util::Animation::OnDone::Stop);
     INFO("Stopped animation");
 }
 

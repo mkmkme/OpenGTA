@@ -35,14 +35,12 @@ public:
         : // fix for STYLE001.G24 water anim seems one frame longer than data
           // exists!
         Util::Animation(
-            (anim_data.frameCount == 11 && anim_data.which == 1
-                 ? anim_data.frameCount
-                 : anim_data.frameCount + 1),
+            (anim_data.frameCount == 11 && anim_data.which == 1 ? anim_data.frameCount : anim_data.frameCount + 1),
             5
         )
         , ad_ptr(anim_data)
     {
-        set(PLAY_FORWARD, LOOP);
+        set(Util::Animation::Status::PlayForward, Util::Animation::OnDone::Loop);
         /*
         INFO << "ANIM: " << int(anim_data->block) << " " <<
         int(anim_data->which)<< std::endl; for (int i= 0; i <
@@ -50,7 +48,7 @@ public:
         int(anim_data->frame[i]) << std::endl;
         }*/
     }
-    [[nodiscard]] inline uint8_t getFrame(uint8_t num) const noexcept { return ad_ptr.frame[num]; }
+    [[nodiscard]] uint8_t getFrame(uint8_t num) const noexcept { return ad_ptr.frame[num]; }
     LoadedAnim &ad_ptr;
 };
 

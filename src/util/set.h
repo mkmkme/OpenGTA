@@ -42,7 +42,7 @@ public:
     /** Constructor with defined size.
      * @param n the element count in an integer variable
      */
-    Set(int n);
+    explicit Set(int n);
     /** Copy constructor, copies internal data of another Set.
      * @param other reference to the other set
      *
@@ -79,16 +79,16 @@ public:
 
     /** Set2Number - least significant bits first.
      */
-    int as_int(int start, int len) const;
+    [[nodiscard]] int as_int(int start, int len) const;
 
     /** Set2Number - most significant bits first.
      */
-    int as_int2(int start, int len) const;
+    [[nodiscard]] int as_int2(int start, int len) const;
 
     /** Accessor for the last index.
      * @return n the element count
      */
-    int get_last() const;
+    [[nodiscard]] int get_last() const noexcept;
 
     /** Mutator for the contained data.
      * @param k the index of the item to change
@@ -100,7 +100,7 @@ public:
      * @param k item index to query
      * @return val either true (item in set) or false (not in set)
      */
-    bool get_item(int k) const;
+    [[nodiscard]] bool get_item(int k) const;
 
     /** Test set for inclusion with another.
      * the return value is either:
@@ -113,13 +113,13 @@ public:
      * @param other a reference to another Set
      * @return res an int value as listed above
      */
-    int compare(const Set &other) const;
+    [[nodiscard]] int compare(const Set &other) const noexcept;
 
     /** Returns the address of the internal storage data.
      * KNOW WHAT YOU ARE DOING WITH THIS
      * @return storage a char* to the entire storage block
      */
-    unsigned char *give_storage() const;
+    [[nodiscard]] unsigned char *give_storage() const noexcept;
 
     void print_set() const;
 

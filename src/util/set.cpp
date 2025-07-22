@@ -35,11 +35,11 @@ namespace Util {
 // some bits of binary magic from someone on IRC
 // by the name of Zhivago
 // only the 8-bit variants are used
-#define maskn(x, w) ((x) & ((1 << w) - 1))
+#define maskn(x, w) ((x) & ((1 << (w)) - 1))
 
-#define tstbn(a, x, w) ((a)[x >> w] & (1 << (maskn(x, w))))
-#define setbn(a, x, w) ((a)[x >> w] |= (1 << (maskn(x, w))))
-#define clrbn(a, x, w) ((a)[x >> w] &= ~(1 << (maskn(x, w))))
+#define tstbn(a, x, w) ((a)[(x) >> (w)] & (1 << (maskn(x, w))))
+#define setbn(a, x, w) ((a)[(x) >> (w)] |= (1 << (maskn(x, w))))
+#define clrbn(a, x, w) ((a)[(x) >> (w)] &= ~(1 << (maskn(x, w))))
 
 #define tstb8(a, x) tstbn((a), (x), 3)
 #define setb8(a, x) setbn((a), (x), 3)
@@ -50,12 +50,12 @@ namespace Util {
 #define clrb32(a, x) clrbn((a), (x), 5)
 
 // and something to move through an array to the correct byte
-#define mv2byte(a, k, p) \
-    if (k >= 8) {        \
-        p = a + k / 8;   \
-        k = k % 8;       \
-    } else {             \
-        p = a;           \
+#define mv2byte(a, k, p)     \
+    if ((k) >= 8) {          \
+        (p) = (a) + (k) / 8; \
+        (k) = (k) % 8;       \
+    } else {                 \
+        (p) = a;             \
     }
 
 // note: given a set of 1..N values
@@ -64,21 +64,21 @@ namespace Util {
 // to the existence of the index number in the set
 
 Set::Set()
+    : last(MAX_SET_COUNT)
+    , storage(new unsigned char[MAX_SET_COUNT / 8])
+    , ext_data(false)
 {
-    last = MAX_SET_COUNT;
-    storage = new unsigned char[MAX_SET_COUNT / 8];
     memset((void *) storage, 0, (size_t) MAX_SET_COUNT / 8);
-    ext_data = 0;
 }
 
 Set::Set(int n)
+    : last(n)
+    , ext_data(false)
 {
-    last = n;
     assert(n > 0);
-    int k = ((n % 8) > 0) ? n / 8 + 1 : n / 8;
+    int k = ((n % 8) > 0) ? (n / 8) + 1 : n / 8;
     storage = new unsigned char[k];
     memset((void *) storage, 0, (size_t) k);
-    ext_data = 0;
 }
 
 Set::Set(const Set &other)
@@ -86,23 +86,24 @@ Set::Set(const Set &other)
     last = other.get_last();
     unsigned char *os = other.give_storage();
     assert(last > 0);
-    int k = ((last % 8) > 0) ? last / 8 + 1 : last / 8;
+    int k = ((last % 8) > 0) ? (last / 8) + 1 : last / 8;
     storage = new unsigned char[k];
     memcpy(storage, os, k);
-    ext_data = 0;
+    ext_data = false;
 }
 
-Set::Set(int k, unsigned char *data)
+Set::Set(int n, unsigned char *data)
+    : last(n)
+    , storage(data)
+    , ext_data(true)
 {
-    storage = data;
-    last = k;
-    ext_data = 1;
 }
 
 Set::~Set()
 {
-    if (!ext_data && storage != NULL)
+    if (!ext_data) {
         delete[] storage;
+    }
 }
 
 void Set::set_data(int n, unsigned char *data)
@@ -110,6 +111,8 @@ void Set::set_data(int n, unsigned char *data)
     if (!ext_data) {
         throw Util::NotSupported("set_data() called on an instance with own data");
     }
+    last = n;
+    storage = data;
 }
 
 void Set::set_last(int n)
@@ -120,9 +123,9 @@ void Set::set_last(int n)
     last = n;
 }
 
-int Set::get_last() const
+int Set::get_last() const noexcept
 {
-    return (last);
+    return last;
 }
 
 void Set::print_set() const
@@ -150,14 +153,9 @@ void Set::set_item(int k, bool val)
         } else {
             clrb8(pos, k);
         }
-    } else
-#ifdef INTEGRATE_OGTA
-    {
-        throw Util::OutOfRange(std::to_string(k) + " >= " + std::to_string(last));
+    } else {
+        throw Util::OutOfRange("set_item out of range: {} >= {}", k, last);
     }
-#else
-        assert(k < last);
-#endif
 }
 
 bool Set::get_item(int k) const
@@ -167,14 +165,9 @@ bool Set::get_item(int k) const
         unsigned char *pos;
         mv2byte(storage, k, pos);
         b = tstb8(pos, k);
-    } else
-#ifdef INTEGRATE_OGTA
-    {
-        throw Util::OutOfRange(std::to_string(k) + " >= " + std::to_string(last));
+    } else {
+        throw Util::OutOfRange("get_item out of range: {} >= {}", k, last);
     }
-#else
-        assert(k < last);
-#endif
     return b;
 }
 
@@ -210,7 +203,7 @@ int Set::as_int2(int start, int len) const
     return t;
 }
 
-int Set::compare(const Set &other) const
+int Set::compare(const Set &other) const noexcept
 {
     int res = 0;
     unsigned char *oc;
@@ -261,12 +254,12 @@ int Set::compare(const Set &other) const
         } else
             res = 0;
     }
-    return (res);
+    return res;
 }
 
-unsigned char *Set::give_storage() const
+unsigned char *Set::give_storage() const noexcept
 {
-    return (storage);
+    return storage;
 }
 
 } // namespace Util

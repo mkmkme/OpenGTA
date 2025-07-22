@@ -22,10 +22,9 @@
  ************************************************************************/
 #ifndef UTIL_KEYHANDLER_H
 #define UTIL_KEYHANDLER_H
+#include <cstdint>
 #include <list>
 #include <vector>
-
-#include <stdint.h>
 
 #include <util/pf_tree.hpp>
 
@@ -39,7 +38,7 @@ namespace Util {
  */
 class KeyHandler {
 public:
-    virtual ~KeyHandler() {}
+    virtual ~KeyHandler() = default;
     virtual bool up(const uint32_t &key) = 0;
     virtual bool down(const uint32_t &key) = 0;
 };
@@ -48,25 +47,25 @@ public:
  */
 class IngameCommonKeys : public KeyHandler {
 public:
-    bool up(const uint32_t &key);
-    bool down(const uint32_t &key);
+    bool up(const uint32_t &key) final;
+    bool down(const uint32_t &key) final;
 };
 
 class MenuKeys : public KeyHandler {
 public:
-    bool up(const uint32_t &key);
-    bool down(const uint32_t &key);
+    bool up(const uint32_t &key) final;
+    bool down(const uint32_t &key) final;
 };
 
 class CheatKeys : public KeyHandler {
 public:
-    bool up(const uint32_t &key);
-    bool down(const uint32_t &key);
+    bool up(const uint32_t &key) final;
+    bool down(const uint32_t &key) final;
     template <typename T>
     struct Callback_Lua {
         void call(T);
     };
-    typedef PrefixFreeTree::Walker<uint32_t, Callback_Lua> TreeOfCheats;
+    using TreeOfCheats = PrefixFreeTree::Walker<uint32_t, Callback_Lua>;
 
 private:
     std::vector<uint32_t> cheat_fn_refs;
@@ -80,7 +79,7 @@ public:
     void removeHandler(KeyHandler *);
 
 private:
-    typedef std::list<KeyHandler *> ListOfHandlers;
+    using ListOfHandlers = std::list<KeyHandler *>;
     ListOfHandlers activeHandlers;
 };
 

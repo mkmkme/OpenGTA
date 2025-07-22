@@ -24,29 +24,29 @@
 #include <util/log.h>
 
 namespace Util {
-bool IngameCommonKeys::up(const uint32_t &key)
+bool IngameCommonKeys::up(const uint32_t & /*key*/)
 {
     bool handled = false;
     return handled;
 }
 
-bool IngameCommonKeys::down(const uint32_t &key)
+bool IngameCommonKeys::down(const uint32_t & /*key*/)
 {
     return false;
 }
 
 void KeyHandlerChain::up(const uint32_t &key)
 {
-    for (ListOfHandlers::iterator i = activeHandlers.begin(); i != activeHandlers.end(); ++i) {
-        if ((*i)->up(key))
+    for (auto &activeHandler : activeHandlers) {
+        if (activeHandler->up(key))
             return;
     }
 }
 
 void KeyHandlerChain::down(const uint32_t &key)
 {
-    for (ListOfHandlers::iterator i = activeHandlers.begin(); i != activeHandlers.end(); ++i) {
-        if ((*i)->down(key))
+    for (auto &activeHandler : activeHandlers) {
+        if (activeHandler->down(key))
             return;
     }
 }

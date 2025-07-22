@@ -8,7 +8,6 @@
 #include <physfs.h>
 
 #include <core/navdata.h>
-#include <core/numeric-types.h>
 
 #include <common/bitwise.h>
 #include <util/file-manager.h>
@@ -25,9 +24,9 @@ public:
     explicit Map(const std::string &filename);
 
     struct BlockInfo {
-        UInt16 typeMap;
-        UInt8 typeMapExt;
-        UInt8 left, right, top, bottom, lid;
+        uint16_t typeMap;
+        uint8_t typeMapExt;
+        uint8_t left, right, top, bottom, lid;
 
         [[nodiscard]] bool upOk() const noexcept { return Util::getBit(typeMap, 1); }
         [[nodiscard]] bool downOk() const noexcept { return Util::getBit(typeMap, 2); }
@@ -63,7 +62,10 @@ public:
         {
             return Util::getBit(typeMapExt, 3) && Util::getBit(typeMapExt, 1);
         }
-        [[nodiscard]] bool railStation() const noexcept { return Util::getBit(typeMapExt, 3) && Util::getBit(typeMapExt, 2); }
+        [[nodiscard]] bool railStation() const noexcept
+        {
+            return Util::getBit(typeMapExt, 3) && Util::getBit(typeMapExt, 2);
+        }
         [[nodiscard]] bool railStationTrain() const noexcept
         {
             return Util::getBit(typeMapExt, 3) && Util::getBit(typeMapExt, 2) && Util::getBit(typeMapExt, 1);
@@ -74,50 +76,50 @@ public:
         [[nodiscard]] bool railway() const noexcept { return Util::getBit(typeMapExt, 8); }
     };
     struct ObjectPosition {
-        UInt16 x, y, z;
-        UInt8 type;
-        UInt8 remap;
-        UInt16 rotation; // see: cds.doc
-        UInt16 pitch;
-        UInt16 roll;
+        uint16_t x, y, z;
+        uint8_t type;
+        uint8_t remap;
+        uint16_t rotation; // see: cds.doc
+        uint16_t pitch;
+        uint16_t roll;
     };
     struct Location {
-        UInt8 x;
-        UInt8 y;
-        UInt8 z;
+        uint8_t x;
+        uint8_t y;
+        uint8_t z;
 
         explicit Location(Util::PhysFSFile &pf);
     };
-    using LocationMap = std::multimap<UInt8, Location>;
+    using LocationMap = std::multimap<uint8_t, Location>;
     //...
-    UInt16 getNumBlocksAt(UInt8 x, UInt8 y);
-    UInt16 getNumBlocksAtNew(UInt8 x, UInt8 y);
-    BlockInfo *getBlockAt(UInt8 x, UInt8 y, UInt8 z);
-    BlockInfo *getBlockAtNew(UInt8 x, UInt8 y, UInt8 z);
-    BlockInfo *getBlockByInternalId(UInt16 id);
-    UInt16 getInternalIdAt(UInt8 x, UInt8 y, UInt8 z);
+    uint16_t getNumBlocksAt(uint8_t x, uint8_t y);
+    uint16_t getNumBlocksAtNew(uint8_t x, uint8_t y);
+    BlockInfo *getBlockAt(uint8_t x, uint8_t y, uint8_t z);
+    BlockInfo *getBlockAtNew(uint8_t x, uint8_t y, uint8_t z);
+    BlockInfo *getBlockByInternalId(uint16_t id);
+    uint16_t getInternalIdAt(uint8_t x, uint8_t y, uint8_t z);
     void dump();
     std::optional<NavData> nav;
     std::vector<ObjectPosition> objects;
-    UInt16 numObjects {};
-    const Location &getNearestLocationByType(UInt8 t, int x, int y);
+    uint16_t numObjects {};
+    const Location &getNearestLocationByType(uint8_t t, int x, int y);
     [[nodiscard]] const LocationMap &getLocationMap() const noexcept { return locations; }
 
 protected:
-    UInt32 base[GTA_MAP_MAXDIMENSION][GTA_MAP_MAXDIMENSION] {};
-    std::vector<UInt16> column;
+    uint32_t base[GTA_MAP_MAXDIMENSION][GTA_MAP_MAXDIMENSION] {};
+    std::vector<uint16_t> column;
     std::vector<BlockInfo> block;
     LocationMap locations;
 
 private:
     Util::PhysFSFile pf;
 
-    UInt8 styleNumber {};
-    UInt32 routeSize {};
-    UInt32 objectPosSize {};
-    UInt32 columnSize {};
-    UInt32 blockSize {};
-    UInt32 navDataSize {};
+    uint8_t styleNumber {};
+    uint32_t routeSize {};
+    uint32_t objectPosSize {};
+    uint32_t columnSize {};
+    uint32_t blockSize {};
+    uint32_t navDataSize {};
 
     void loadHeader();
     void loadBase();

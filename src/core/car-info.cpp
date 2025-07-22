@@ -1,5 +1,4 @@
 #include <core/car-info.h>
-#include <core/numeric-types.h>
 
 #include <util/file-manager.h>
 #include <util/log.h>
@@ -35,7 +34,7 @@ OpenGTA::CarInfo::CarInfo(Util::PhysFSFile &file)
     file.read(damagable);
     bytes_read_ += 4;
 
-    for (UInt16 &i : value)
+    for (uint16_t &i : value)
         file.read(i);
     bytes_read_ += 4 * 2;
 
@@ -44,7 +43,7 @@ OpenGTA::CarInfo::CarInfo(Util::PhysFSFile &file)
     file.read(moment);
     bytes_read_ += 2 + 4;
 
-    UInt32 fixed_tmp;
+    uint32_t fixed_tmp;
     file.read(fixed_tmp);
     // rbpMass = fixed_tmp / 65536
 

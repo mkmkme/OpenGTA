@@ -4,7 +4,6 @@
 
 #include <physfs.h>
 
-#include <core/numeric-types.h>
 #include <fmt/core.h>
 #include <fmt/format.h>
 
@@ -77,9 +76,7 @@ PhysFSFile::PhysFSFile(const std::string &filename)
         std::string filename_lower { string_lower(filename) };
         file = PHYSFS_openRead(filename_lower.c_str());
         if (file == nullptr)
-            throw FileNotFound(
-                filename + " with error: " + PHYSFS_getErrorByCode(PHYSFS_getLastErrorCode())
-            );
+            throw FileNotFound(filename + " with error: " + PHYSFS_getErrorByCode(PHYSFS_getLastErrorCode()));
     }
     ++global_context.fileCount;
 }
@@ -94,23 +91,23 @@ PhysFSFile::~PhysFSFile()
     }
 }
 
-template <BuiltinNumber T>
+template <std::integral T>
 void PhysFSFile::read(T &data) noexcept
 {
-    if constexpr (std::is_same_v<T, UInt8> || std::is_same_v<T, Int8>) {
+    if constexpr (std::is_same_v<T, uint8_t> || std::is_same_v<T, int8_t>) {
         PHYSFS_readBytes(file, static_cast<void *>(&data), 1);
-    } else if constexpr (std::is_same_v<T, Int16>) {
+    } else if constexpr (std::is_same_v<T, int16_t>) {
         PHYSFS_readSLE16(file, &data);
-    } else if constexpr (std::is_same_v<T, UInt16>) {
+    } else if constexpr (std::is_same_v<T, uint16_t>) {
         PHYSFS_readULE16(file, &data);
-    } else if constexpr (std::is_same_v<T, UInt32>) {
+    } else if constexpr (std::is_same_v<T, uint32_t>) {
         PHYSFS_readULE32(file, &data);
     } else {
         static_assert(false, "Unsupported type");
     }
 }
 
-template <BuiltinNumber T>
+template <std::integral T>
 T PhysFSFile::read() noexcept
 {
     T data;
@@ -118,13 +115,13 @@ T PhysFSFile::read() noexcept
     return data;
 }
 
-template <BuiltinNumber T>
+template <std::integral T>
 void PhysFSFile::read(std::span<T> &data) noexcept
 {
     PHYSFS_readBytes(file, data.data(), data.size_bytes());
 }
 
-Int64 PhysFSFile::read(void *buf, UInt64 len) noexcept
+int64_t PhysFSFile::read(void *buf, uint64_t len) noexcept
 {
     return PHYSFS_readBytes(file, buf, len);
 }
@@ -137,7 +134,7 @@ std::string PhysFSFile::readAll() noexcept
     return buf;
 }
 
-UInt32 PhysFSFile::length() const noexcept
+uint32_t PhysFSFile::length() const noexcept
 {
     return PHYSFS_fileLength(file);
 }
@@ -147,36 +144,36 @@ bool PhysFSFile::eof() const noexcept
     return PHYSFS_eof(file);
 }
 
-UInt64 PhysFSFile::tell() const noexcept
+uint64_t PhysFSFile::tell() const noexcept
 {
     return PHYSFS_tell(file);
 }
 
-void PhysFSFile::seek(UInt64 pos) noexcept
+void PhysFSFile::seek(uint64_t pos) noexcept
 {
     PHYSFS_seek(file, pos);
 }
 
-void PhysFSFile::ensurePosition(UInt64 pos)
+void PhysFSFile::ensurePosition(uint64_t pos)
 {
     const auto curPos = PHYSFS_tell(file);
     if (curPos != pos)
         throw std::runtime_error(fmt::format("File position mismatch: {} != {} (expected)", curPos, pos));
 }
 
-template void PhysFSFile::read<Int8>(Int8 &);
-template void PhysFSFile::read<UInt8>(UInt8 &);
-template void PhysFSFile::read<Int16>(Int16 &);
-template void PhysFSFile::read<UInt16>(UInt16 &);
-template void PhysFSFile::read<UInt32>(UInt32 &);
+template void PhysFSFile::read<int8_t>(int8_t &);
+template void PhysFSFile::read<uint8_t>(uint8_t &);
+template void PhysFSFile::read<int16_t>(int16_t &);
+template void PhysFSFile::read<uint16_t>(uint16_t &);
+template void PhysFSFile::read<uint32_t>(uint32_t &);
 
-template Int8 PhysFSFile::read<Int8>();
-template UInt8 PhysFSFile::read<UInt8>();
-template Int16 PhysFSFile::read<Int16>();
-template UInt16 PhysFSFile::read<UInt16>();
-template UInt32 PhysFSFile::read<UInt32>();
+template int8_t PhysFSFile::read<int8_t>();
+template uint8_t PhysFSFile::read<uint8_t>();
+template int16_t PhysFSFile::read<int16_t>();
+template uint16_t PhysFSFile::read<uint16_t>();
+template uint32_t PhysFSFile::read<uint32_t>();
 
-template void PhysFSFile::read<UInt8>(std::span<UInt8> &);
-template void PhysFSFile::read<UInt16>(std::span<UInt16> &);
+template void PhysFSFile::read<uint8_t>(std::span<uint8_t> &);
+template void PhysFSFile::read<uint16_t>(std::span<uint16_t> &);
 
 } // namespace Util

@@ -6,8 +6,6 @@
 
 #include <physfs.h>
 
-#include <core/numeric-types.h>
-
 #include <util/file-manager.h>
 
 namespace OpenGTA {
@@ -16,12 +14,12 @@ class ScriptParser {
 public:
     explicit ScriptParser(const std::string &file);
     virtual ~ScriptParser();
-    void loadLevel(UInt32 level);
+    void loadLevel(uint32_t level);
 
 private:
-    std::map<UInt32, Int64> levels;
+    std::map<uint32_t, int64_t> levels;
     Util::PhysFSFile pf;
-    Int64 sectionEndOffset(Int64 start);
+    int64_t sectionEndOffset(int64_t start);
 
 protected:
     std::string section_info;

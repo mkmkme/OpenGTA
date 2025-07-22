@@ -20,8 +20,8 @@
 
 namespace {
 
-constexpr UInt8 topHeaderSize = 28;
-constexpr UInt64 baseSize = 262144;
+constexpr uint8_t topHeaderSize = 28;
+constexpr uint64_t baseSize = 262144;
 
 } // namespace
 
@@ -64,10 +64,10 @@ Map::Map(const std::string &filename)
 
 void Map::loadHeader()
 {
-    auto vc = pf.read<UInt32>();
+    auto vc = pf.read<uint32_t>();
     pf.read(styleNumber);
-    auto sn = pf.read<UInt8>();
-    auto reserved = pf.read<UInt16>();
+    auto sn = pf.read<uint8_t>();
+    auto reserved = pf.read<uint16_t>();
     pf.read(routeSize);
     pf.read(objectPosSize);
     pf.read(columnSize);
@@ -96,7 +96,7 @@ void Map::loadBase()
 
 void Map::loadColumn()
 {
-    std::span<UInt16> columnSpan { column };
+    std::span<uint16_t> columnSpan { column };
     pf.read(columnSpan);
 }
 
@@ -148,16 +148,16 @@ void Map::loadObjects()
 void Map::loadRoutes()
 {
     // FIXME: missing
-    UInt32 _si = baseSize + columnSize + topHeaderSize + objectPosSize + blockSize;
+    uint32_t _si = baseSize + columnSize + topHeaderSize + objectPosSize + blockSize;
     pf.seek(_si);
-    UInt32 _counted = 0;
+    uint32_t _counted = 0;
     while (_counted < routeSize) {
-        UInt8 num_vertices = 0;
-        UInt8 route_type = 0;
+        uint8_t num_vertices = 0;
+        uint8_t route_type = 0;
         pf.read(num_vertices);
         pf.read(route_type);
         // INFO << "route-t " << int(route_type) << " with " << int(num_vertices) << " vertices" << std::endl;
-        UInt8 x, y, z;
+        uint8_t x, y, z;
         for (int i = 0; i < num_vertices; i++) {
             pf.read(x);
             pf.read(y);
@@ -172,7 +172,7 @@ void Map::loadRoutes()
 void Map::loadLocations()
 {
     // FIXME: missing
-    UInt32 _si = baseSize + columnSize + topHeaderSize + objectPosSize + routeSize + blockSize;
+    uint32_t _si = baseSize + columnSize + topHeaderSize + objectPosSize + routeSize + blockSize;
     pf.seek(_si);
     // police
     // hospital
@@ -180,7 +180,7 @@ void Map::loadLocations()
     // unused
     // fire
     // unused
-    UInt8 loc_type = 0;
+    uint8_t loc_type = 0;
     for (int i = 0; i < 36; ++i) {
         Location loc(pf);
         // skip dummy entries at 0,0,0
@@ -199,26 +199,26 @@ void Map::loadLocations()
 }
 void Map::loadNavData(size_t level_num)
 {
-    UInt32 _si = baseSize + columnSize + topHeaderSize + objectPosSize + routeSize + (3 * 6 * 6) + blockSize;
+    uint32_t _si = baseSize + columnSize + topHeaderSize + objectPosSize + routeSize + (3 * 6 * 6) + blockSize;
     pf.seek(_si);
     nav.emplace(navDataSize, pf, level_num);
 }
-UInt16 Map::getNumBlocksAt(UInt8 x, UInt8 y)
+uint16_t Map::getNumBlocksAt(uint8_t x, uint8_t y)
 {
     return column[base[y][x] / 2];
 }
-UInt16 Map::getNumBlocksAtNew(UInt8 x, UInt8 y)
+uint16_t Map::getNumBlocksAtNew(uint8_t x, uint8_t y)
 {
     return 6 - column[base[y][x] / 2];
 }
-Map::BlockInfo *Map::getBlockAt(UInt8 x, UInt8 y, UInt8 z)
+Map::BlockInfo *Map::getBlockAt(uint8_t x, uint8_t y, uint8_t z)
 {
-    UInt16 v = column[(base[y][x] / 2) + z];
+    uint16_t v = column[(base[y][x] / 2) + z];
     return &block[v];
 }
-Map::BlockInfo *Map::getBlockAtNew(UInt8 x, UInt8 y, UInt8 z)
+Map::BlockInfo *Map::getBlockAtNew(uint8_t x, uint8_t y, uint8_t z)
 {
-    UInt16 idx0 = 6 - column[base[y][x] / 2];
+    uint16_t idx0 = 6 - column[base[y][x] / 2];
     if (idx0 > z)
         idx0 -= z;
     else
@@ -226,11 +226,11 @@ Map::BlockInfo *Map::getBlockAtNew(UInt8 x, UInt8 y, UInt8 z)
     idx0 = column[(base[y][x] / 2) + idx0];
     return &block[idx0];
 }
-UInt16 Map::getInternalIdAt(UInt8 x, UInt8 y, UInt8 z)
+uint16_t Map::getInternalIdAt(uint8_t x, uint8_t y, uint8_t z)
 {
     return column[(base[y][x] / 2) + z];
 }
-Map::BlockInfo *Map::getBlockByInternalId(UInt16 id)
+Map::BlockInfo *Map::getBlockByInternalId(uint16_t id)
 {
     return &block[id];
 }
@@ -239,7 +239,7 @@ void Map::dump()
     for (int y = 0; y < GTA_MAP_MAXDIMENSION; y++) {
         for (int x = 0; x < GTA_MAP_MAXDIMENSION; x++) {
             fmt::print("{}, {}: {}||(", x, y, column[base[y][x] / 2]);
-            UInt16 ts = column[base[y][x] / 2];
+            uint16_t ts = column[base[y][x] / 2];
             fmt::print("(");
             for (int t = 1; t <= (6 - ts); t++) {
                 BlockInfo *info = &block[column[(base[y][x] / 2) + t]];
@@ -249,7 +249,7 @@ void Map::dump()
         }
     }
 }
-const Map::Location &Map::getNearestLocationByType(UInt8 t, int x, int y)
+const Map::Location &Map::getNearestLocationByType(uint8_t t, int x, int y)
 {
     INFO("{} at {} {}", int(t), x, y);
     auto i = locations.find(t);

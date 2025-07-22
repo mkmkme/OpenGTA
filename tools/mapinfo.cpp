@@ -35,7 +35,7 @@ int main(int argc, char *argv[])
 
     INFO("* {} *", sec->name);
 
-    UInt16 num_blocks = map.getNumBlocksAt(x, y);
+    uint16_t num_blocks = map.getNumBlocksAt(x, y);
     INFO("{} empty blocks", num_blocks);
     for (int c = 6 - num_blocks; c >= 1; c--) {
         std::cout << "block " << c << std::endl;

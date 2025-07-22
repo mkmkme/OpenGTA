@@ -18,8 +18,6 @@
 #include <util/log.h>
 #include <util/string_helpers.h>
 
-#include "core/numeric-types.h"
-
 namespace OpenGTA {
 Font::Font(const std::string &file)
 {
@@ -28,7 +26,7 @@ Font::Font(const std::string &file)
     chars.reserve(numChars);
     int ww = 0;
     int lw = 0;
-    for (UInt8 i = 0; i < numChars; i++) {
+    for (uint8_t i = 0; i < numChars; i++) {
         const auto &ch = chars.emplace_back(pf, charHeight);
         ww += ch.width;
         lw = std::max<int>(ch.width, lw);
@@ -43,9 +41,9 @@ Font::Font(const std::string &file)
     loadMapping(file);
 }
 
-UInt8 Font::readHeader(Util::PhysFSFile &pf)
+uint8_t Font::readHeader(Util::PhysFSFile &pf)
 {
-    UInt8 numChars;
+    uint8_t numChars;
     pf.read(numChars);
     pf.read(charHeight);
     INFO("Font contains {} characters of height {}", numChars, charHeight);
@@ -64,9 +62,9 @@ uint8_t Font::getMoveWidth(const char c)
     return chars[getIdByChar(c)].width;
 }
 
-std::vector<UInt8> Font::getCharacterBitmap(size_t num, unsigned int *width, unsigned int *height)
+std::vector<uint8_t> Font::getCharacterBitmap(size_t num, unsigned int *width, unsigned int *height)
 {
-    std::vector<UInt8> buffer;
+    std::vector<uint8_t> buffer;
     const unsigned int len = chars[num].width * charHeight;
     buffer.resize(len * 4);
     palette.apply(len, chars[num].rawData.data(), buffer.data(), true);
@@ -82,7 +80,7 @@ Font::Character::Character(Util::PhysFSFile &pf, uint8_t height) noexcept
     pf.read(width);
     size_t c = size_t(width) * size_t(height);
     // std::cout <<"width " << int(width) << " going to read " << c << " bytes" << std::endl;
-    rawData = std::vector<UInt8>(c);
+    rawData = std::vector<uint8_t>(c);
     pf.read(rawData.data(), c);
 }
 

@@ -25,14 +25,7 @@ uint32_t road = 0xdadadaff;
 uint32_t pavement = 0x8a9aa0ff;
 
 uint32_t map_color[] = {
-    0x000000ff,
-    water,
-    road,
-    pavement,
-    field,
-    building,
-    0xffffffff,
-    0xff0000ff,
+    0x000000ff, water, road, pavement, field, building, 0xffffffff, 0xff0000ff,
 };
 
 void save_map_level(OpenGTA::Map &map, size_t level, const char *out_prefix)
@@ -111,7 +104,7 @@ int main(int argc, char *argv[])
 
   for (int i = 0; i < 256; i++) {
     for (int j = 0; j < 256; j++) {
-      UInt16 emptycount = map.getNumBlocksAtNew(j,i);
+      uint16_t emptycount = map.getNumBlocksAtNew(j,i);
       int found_type = 0;
       //for (int c=6-emptycount; c > 0; c--) {
       for (int c = 0; c < emptycount ; ++c) {

@@ -1,8 +1,7 @@
 #pragma once
 
+#include <cstdint>
 #include <vector>
-
-#include <core/numeric-types.h>
 
 namespace Util {
 class PhysFSFile;
@@ -12,11 +11,11 @@ namespace OpenGTA {
 
 struct LoadedAnim {
     explicit LoadedAnim(Util::PhysFSFile &file);
-    UInt8 block {};
-    UInt8 which {};
-    UInt8 speed {};
-    UInt8 frameCount {};
-    std::vector<UInt8> frame;
+    uint8_t block {};
+    uint8_t which {};
+    uint8_t speed {};
+    uint8_t frameCount {};
+    std::vector<uint8_t> frame;
 };
 
 } // namespace OpenGTA

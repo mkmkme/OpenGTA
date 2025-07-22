@@ -27,8 +27,6 @@
 #include <string>
 #include <vector>
 
-#include <core/numeric-types.h>
-
 #include <graphics/pagedtexture.h>
 
 namespace ImageUtil {
@@ -53,9 +51,9 @@ struct NextPowerOfTwo {
 
 /** Run scale2x on 32bit input image.
  */
-std::vector<UInt8> scale2x_32bit(std::span<const UInt8> src, int src_width, int src_height);
+std::vector<uint8_t> scale2x_32bit(std::span<const uint8_t> src, int src_width, int src_height);
 
-std::vector<UInt8> scale2x_24bit(std::span<const UInt8> src, int src_width, int src_height);
+std::vector<uint8_t> scale2x_24bit(std::span<const uint8_t> src, int src_width, int src_height);
 
 using WidthHeightPair = std::pair<uint16_t, uint16_t>;
 // hardcoded data for known images
@@ -74,19 +72,13 @@ extern bool mipmapTextures;
 extern float supportedMaxAnisoDegree;
 
 // plain simple garden-variety create-a-texture; needs to be 2^k
-UInt32 createGLTexture(size_t w, size_t h, bool rgba, std::span<const UInt8> pixels);
+uint32_t createGLTexture(size_t w, size_t h, bool rgba, std::span<const uint8_t> pixels);
 
 // blitting a buffer into another; no checks done!
-void copyImage2Image(
-    uint8_t *dest,
-    const uint8_t *src,
-    uint16_t srcWidth,
-    uint16_t srcHeight,
-    uint16_t destWidth
-);
+void copyImage2Image(uint8_t *dest, const uint8_t *src, uint16_t srcWidth, uint16_t srcHeight, uint16_t destWidth);
 
 // texture-class instance from pixel data; does transform to 2^k if required
-OpenGL::PagedTexture createEmbeddedTexture(size_t w, size_t h, bool rgba, std::vector<UInt8> pixels);
+OpenGL::PagedTexture createEmbeddedTexture(size_t w, size_t h, bool rgba, std::vector<uint8_t> pixels);
 } // namespace ImageUtil
 
 #endif

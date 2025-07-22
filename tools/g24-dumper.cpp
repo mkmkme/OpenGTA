@@ -42,7 +42,7 @@ namespace OpenGTA {
 void dumpClut(const OpenGTA::Graphics24Bit &g24, const char *fname)
 {
     assert(g24.pagedClutSize % 1024 == 0);
-    const UInt32 num_pal = g24.paletteIndexSize / 2;
+    const uint32_t num_pal = g24.paletteIndexSize / 2;
 #if SDL_BYTEORDER == SDL_BIG_ENDIAN
 #define rmask 0xff000000
 #define gmask 0x00ff0000
@@ -58,8 +58,8 @@ void dumpClut(const OpenGTA::Graphics24Bit &g24, const char *fname)
     SDL_LockSurface(s);
     unsigned char *dst = static_cast<unsigned char *>(s->pixels);
 
-    for (UInt32 color = 0; color < 256; color++) {
-        for (UInt32 pal_id = 0; pal_id < num_pal; pal_id++) {
+    for (uint32_t color = 0; color < 256; color++) {
+        for (uint32_t pal_id = 0; pal_id < num_pal; pal_id++) {
             const auto clut_id = g24.palIndex[pal_id];
             const auto off = (65536 * (clut_id / 64)) + (4 * (clut_id % 64));
 

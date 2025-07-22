@@ -20,30 +20,28 @@
 
 namespace OpenGTA {
 
-bool Rect2D::isInside(UInt8 _x, UInt8 _y)
+bool Rect2D::isInside(uint8_t _x, uint8_t _y)
 {
-    if ((_x >= x) && (_y >= y) &&
-        (UInt16(_x) <= UInt16(x) + w) &&
-        (UInt16(_y) <= UInt16(y) + h)) {
+    if ((_x >= x) && (_y >= y) && (uint16_t(_x) <= uint16_t(x) + w) && (uint16_t(_y) <= uint16_t(y) + h)) {
         lastSubLocation = subLocation(_x, _y);
         return true;
     }
     return false;
 }
 
-UInt16 Rect2D::getSize() const noexcept
+uint16_t Rect2D::getSize() const noexcept
 {
     return w * h;
 }
 
 // 0 = central, 1 = north, 2 = south, 4 = east, 8 = west
-UInt8 Rect2D::subLocation(UInt8 _x, UInt8 _y) const
+uint8_t Rect2D::subLocation(uint8_t _x, uint8_t _y) const
 {
-    UInt8 in_x = _x - x; // offset in rect; assume: x <= _x
-    UInt8 in_y = _y - y;
+    uint8_t in_x = _x - x; // offset in rect; assume: x <= _x
+    uint8_t in_y = _y - y;
     float rel_x = float(in_x) / w;
     float rel_y = float(in_y) / h;
-    UInt8 res = 0;
+    uint8_t res = 0;
     const float oneThird = 1.0f / 3.0f;
     const float twoThirds = 2.0f / 3.0f;
     if (rel_x <= oneThird)
@@ -144,13 +142,13 @@ std::string NavData::_ne;
 std::string NavData::_sw;
 std::string NavData::_se;
 
-NavData::NavData(UInt32 size, Util::PhysFSFile &pf, size_t level_num)
+NavData::NavData(uint32_t size, Util::PhysFSFile &pf, size_t level_num)
 {
     if (size % 35) {
         throw Util::InvalidFormat("Navdata size: {} % 35 != 0", size);
         // throw std::string("Invalid NavData size in mapfile");
     }
-    UInt32 c = size / 35;
+    uint32_t c = size / 35;
 
     MessageDB &msg = MainMsgLookup::Instance().get();
     _c = msg.getText("c");
@@ -162,7 +160,7 @@ NavData::NavData(UInt32 size, Util::PhysFSFile &pf, size_t level_num)
     _ne = msg.getText("ne");
     _sw = msg.getText("sw");
     _se = msg.getText("se");
-    for (UInt32 i = 0; i < c; ++i) {
+    for (uint32_t i = 0; i < c; ++i) {
         Sector sec { pf };
         if (sec.getSize() == 0) { // workaround for 'NYC.CMP' (empty sectors)
             WARN("skipping zero size sector");
@@ -191,7 +189,7 @@ NavData::NavData(UInt32 size, Util::PhysFSFile &pf, size_t level_num)
 
 NavData::~NavData() = default;
 
-NavData::Sector *NavData::getSectorAt(UInt8 x, UInt8 y)
+NavData::Sector *NavData::getSectorAt(uint8_t x, uint8_t y)
 {
     for (auto &area : areas) {
         if (area.second.isInside(x, y))

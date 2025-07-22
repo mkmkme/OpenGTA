@@ -31,7 +31,7 @@ void IniScriptBridge::reset() const
     lua_settop(L, 0);
 }
 
-void IniScriptBridge::loadLevel(UInt32 level)
+void IniScriptBridge::loadLevel(uint32_t level)
 {
     reset();
     ScriptParser::loadLevel(level);

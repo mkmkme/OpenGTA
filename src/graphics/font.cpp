@@ -116,7 +116,7 @@ FontQuad DrawableFont::createDrawableCharacter(char c)
     while (glheight < h)
         glheight <<= 1;
 
-    std::vector<UInt8> dst(glwidth * glheight * 4);
+    std::vector<uint8_t> dst(glwidth * glheight * 4);
     unsigned char *t = dst.data();
     const unsigned char *r = src.data();
     for (unsigned int i = 0; i < h; i++) {

@@ -170,7 +170,7 @@ void CityView::loadMap(const std::string &map, const std::string &style_f)
 
     // safeguard against double car entries (in nyc.cmp)
     Util::MapOfPair2Int d_car_map;
-    for (UInt16 oc = 0; oc < loadedMap->numObjects; oc++) {
+    for (uint16_t oc = 0; oc < loadedMap->numObjects; oc++) {
         const auto &op = loadedMap->objects[oc];
         if (op.remap >= 128) {
             if (Util::item_count(d_car_map, op.x, op.y) == 0)
@@ -203,8 +203,8 @@ void CityView::setPosition(GLfloat x, GLfloat y, GLfloat z)
     scene_is_dirty = true;
     // INFO << "Position: " << x << ", " << z << " (" << y << ")" << std::endl;
     if (loadedMap) {
-        auto _x = std::clamp(UInt8(x), UInt8(0), UInt8(254));
-        auto _y = std::clamp(UInt8(z), UInt8(0), UInt8(254));
+        auto _x = std::clamp(uint8_t(x), uint8_t(0), uint8_t(254));
+        auto _y = std::clamp(uint8_t(z), uint8_t(0), uint8_t(254));
         current_sector = loadedMap->nav->getSectorAt(_x, _y);
     }
 

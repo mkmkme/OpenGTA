@@ -1,19 +1,17 @@
 #pragma once
 
+#include <concepts>
+#include <cstdint>
 #include <span>
 #include <string>
 
-#include <core/numeric-types.h>
+#include <physfs.h>
 
 namespace Util {
 
 class PhysFSContext {
 public:
-    explicit PhysFSContext(
-        const char *argv0,
-        bool mount_base_dir = true,
-        bool mount_gtadata = true
-    ) noexcept;
+    explicit PhysFSContext(const char *argv0, bool mount_base_dir = true, bool mount_gtadata = true) noexcept;
     ~PhysFSContext();
 
     void tryMount(const char *path, bool append_to_path = true) noexcept;
@@ -29,24 +27,24 @@ public:
     explicit PhysFSFile(const std::string &filename);
     ~PhysFSFile();
 
-    [[nodiscard]] UInt32 length() const noexcept;
-    [[nodiscard]] UInt64 tell() const noexcept;
+    [[nodiscard]] uint32_t length() const noexcept;
+    [[nodiscard]] uint64_t tell() const noexcept;
     [[nodiscard]] bool eof() const noexcept;
 
-    void seek(UInt64 pos) noexcept;
+    void seek(uint64_t pos) noexcept;
 
-    void ensurePosition(UInt64 pos);
+    void ensurePosition(uint64_t pos);
 
-    template <BuiltinNumber T>
+    template <std::integral T>
     void read(T &data) noexcept;
 
-    template <BuiltinNumber T>
+    template <std::integral T>
     T read() noexcept;
 
-    template <BuiltinNumber T>
+    template <std::integral T>
     void read(std::span<T> &data) noexcept;
 
-    Int64 read(void *buf, UInt64 len) noexcept;
+    int64_t read(void *buf, uint64_t len) noexcept;
 
     std::string readAll() noexcept;
 

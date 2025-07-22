@@ -15,7 +15,7 @@ OpenGTA::LoadedAnim::LoadedAnim(Util::PhysFSFile &styleFile)
 
     frame.reserve(frameCount);
     for (int i = 0; i < frameCount; i++) {
-        UInt8 tmp = 0;
+        uint8_t tmp = 0;
         styleFile.read(tmp);
         frame.push_back(tmp);
     }

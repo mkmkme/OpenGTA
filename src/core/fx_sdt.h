@@ -40,12 +40,12 @@ public:
     ~SoundsDB();
     void load(const std::string &sdt_file);
     struct Entry {
-        Entry(UInt32, UInt32, UInt32);
-        UInt32 rawStart;
-        UInt32 rawSize;
-        UInt32 sampleRate;
+        Entry(uint32_t, uint32_t, uint32_t);
+        uint32_t rawStart;
+        uint32_t rawSize;
+        uint32_t sampleRate;
     };
-    using KeyType = UInt16;
+    using KeyType = uint16_t;
     Entry &getEntry(KeyType key);
     unsigned char *getBuffered(KeyType key);
 

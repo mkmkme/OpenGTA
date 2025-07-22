@@ -8,8 +8,8 @@
  *                                                                       *
  * This notice may not be removed or altered.                            *
  ************************************************************************/
-#include <cstring>
 #include <array>
+#include <cstring>
 
 #include <core/read_ini.h>
 
@@ -23,7 +23,7 @@ ScriptParser::ScriptParser(const std::string &file)
     INFO("* Loading script {} ...", file);
     std::array<char, 1024 + 1> buffer;
     std::array<char, 10> numbuf;
-    Int64 fd_off = 0;
+    int64_t fd_off = 0;
     while (!pf.eof()) {
         memset(buffer.data(), 0, buffer.size());
         const auto fd_off_add = pf.read(buffer.data(), buffer.size() - 1);
@@ -36,7 +36,7 @@ ScriptParser::ScriptParser(const std::string &file)
                 memset(numbuf.data(), 0, 10);
                 strncpy(numbuf.data(), found_str + 1, found_str_end - found_str - 1);
                 // std::cout << numbuf << ": " << fd_off + found_str_end - buf_ptr + 2 << std::endl;
-                const auto level = static_cast<UInt32>(strtol(numbuf.data(), nullptr, 10));
+                const auto level = static_cast<uint32_t>(strtol(numbuf.data(), nullptr, 10));
                 levels[level] = fd_off + found_str_end - buf_ptr + 2;
             }
             if ((found_str) && (!found_str_end)) {
@@ -76,9 +76,9 @@ ScriptParser::ScriptParser(const std::string &file)
 
 ScriptParser::~ScriptParser() = default;
 
-Int64 ScriptParser::sectionEndOffset(Int64 start)
+int64_t ScriptParser::sectionEndOffset(int64_t start)
 {
-    Int64 offset = pf.length();
+    int64_t offset = pf.length();
     for (const auto &level : levels) {
         if (level.second > start && level.second < offset)
             offset = level.second;
@@ -86,7 +86,7 @@ Int64 ScriptParser::sectionEndOffset(Int64 start)
     return offset;
 }
 
-void ScriptParser::loadLevel(UInt32 level)
+void ScriptParser::loadLevel(uint32_t level)
 {
     auto i = levels.find(level);
     if (i == levels.end()) {
@@ -98,8 +98,8 @@ void ScriptParser::loadLevel(UInt32 level)
 
     const size_t buf_len = 255; // +1
     char buffer[buf_len + 1];
-    UInt16 read_bytes = 255;
-    UInt16 offset = 0;
+    uint16_t read_bytes = 255;
+    uint16_t offset = 0;
     size_t num_lines_read = 0;
     bool first_part_of_section = true;
     while (pf.tell() < end_of_section) {
@@ -144,7 +144,7 @@ void ScriptParser::loadLevel(UInt32 level)
         // std::cout << uint32(line_start) - uint32(buffer) << std::endl;
         const auto start_casted = reinterpret_cast<uintptr_t>(line_start);
         const auto buffer_casted = reinterpret_cast<uintptr_t>(buffer);
-        const auto begin_rest = static_cast<UInt32>(start_casted - buffer_casted);
+        const auto begin_rest = static_cast<uint32_t>(start_casted - buffer_casted);
         offset = buf_len - begin_rest;
         memmove(buffer, &buffer[begin_rest], buf_len - begin_rest);
         read_bytes = buf_len - offset;

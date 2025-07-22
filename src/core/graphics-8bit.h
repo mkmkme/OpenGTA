@@ -3,7 +3,6 @@
 #include <memory>
 
 #include <core/graphics-base.h>
-#include <core/numeric-types.h>
 
 namespace Util {
 class PhysFSFile;
@@ -28,7 +27,7 @@ public:
      */
     class RGBPalette {
     private:
-        std::array<UInt8, 256 * 3> data {};
+        std::array<uint8_t, 256 * 3> data {};
 
     public:
         /** Empty constructor.
@@ -59,18 +58,18 @@ public:
         void apply(unsigned int len, const unsigned char *src, unsigned char *dst, bool rgba = false);
     };
 
-    std::span<const UInt8> getSide(UInt8 idx, unsigned int palIdx, bool rgba) override;
-    std::span<const UInt8> getLid(UInt8 idx, unsigned int palIdx, bool rgba) override;
-    std::span<const UInt8> getAux(UInt8 idx, unsigned int palIdx, bool rgba) override;
+    std::span<const uint8_t> getSide(uint8_t idx, unsigned int palIdx, bool rgba) override;
+    std::span<const uint8_t> getLid(uint8_t idx, unsigned int palIdx, bool rgba) override;
+    std::span<const uint8_t> getAux(uint8_t idx, unsigned int palIdx, bool rgba) override;
 
-    std::vector<UInt8> getSpriteBitmap(size_t id, int remap, uint32_t delta) override;
+    std::vector<uint8_t> getSpriteBitmap(size_t id, int remap, uint32_t delta) override;
 
     void dump();
 
 private:
-    UInt32 paletteSize {};
-    UInt32 remapSize {};
-    UInt32 remapIndexSize {};
+    uint32_t paletteSize {};
+    uint32_t remapSize {};
+    uint32_t remapIndexSize {};
 
 protected:
     void loadHeader();
@@ -84,8 +83,8 @@ protected:
     void loadSpriteNumbers();
     void applyRemap(unsigned int len, unsigned int which, unsigned char *buffer);
     std::unique_ptr<RGBPalette> masterRGB_;
-    UInt8 remapTables[256][256] {};
-    UInt8 remapIndex[256][4] {};
+    uint8_t remapTables[256][256] {};
+    uint8_t remapIndex[256][4] {};
 };
 
 } // namespace OpenGTA

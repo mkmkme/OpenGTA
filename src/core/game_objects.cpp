@@ -54,9 +54,9 @@ float GameObject_common::heightOverTerrain(const glm::vec3 &v)
     x = floor(v.x);
     y = floor(v.y);
     z = floor(v.z);
-    UInt8 x_b, z_b;
-    x_b = (UInt8) x;
-    z_b = (UInt8) z;
+    uint8_t x_b, z_b;
+    x_b = (uint8_t) x;
+    z_b = (uint8_t) z;
     if (y < 0.0f) {
         // ERROR << "Below level! at coords: " << v.x << ", " << v.y << ", " << v.z << std::endl;
         return 1.0f;
@@ -73,7 +73,7 @@ float GameObject_common::heightOverTerrain(const glm::vec3 &v)
     while (y >= map.getNumBlocksAtNew(x_b, z_b) && y > 0.0f)
         y -= 1.0f;
     while (y < map.getNumBlocksAtNew(x_b, z_b) && y > 0.0f) {
-        OpenGTA::Map::BlockInfo *block = map.getBlockAtNew(x_b, z_b, (UInt8) y);
+        OpenGTA::Map::BlockInfo *block = map.getBlockAtNew(x_b, z_b, (uint8_t) y);
         assert(block);
         if (block->blockType() > 0) {
             float bz = slope_height_offset(block->slopeType(), v.x - x, v.z - z);
@@ -86,7 +86,7 @@ float GameObject_common::heightOverTerrain(const glm::vec3 &v)
     }
     y = floor(v.y) + 1.0f;
     while (y < map.getNumBlocksAtNew(x_b, z_b) && y > 0.0f) {
-        OpenGTA::Map::BlockInfo *block = map.getBlockAtNew(x_b, z_b, (UInt8) y);
+        OpenGTA::Map::BlockInfo *block = map.getBlockAtNew(x_b, z_b, (uint8_t) y);
         assert(block);
         if (block->blockType() > 0) {
             float bz = slope_height_offset(block->slopeType(), v.x - x, v.z - z);
@@ -331,8 +331,8 @@ void Pedestrian::tryMove(glm::vec3 nPos)
         else
             nPos.y -= hot - 0.1f;
     }
-    if (y < map.getNumBlocksAtNew(UInt8(x), UInt8(z)) && y > 0.0f) {
-        OpenGTA::Map::BlockInfo *block = map.getBlockAtNew(UInt8(x), UInt8(z), UInt8(y));
+    if (y < map.getNumBlocksAtNew(uint8_t(x), uint8_t(z)) && y > 0.0f) {
+        OpenGTA::Map::BlockInfo *block = map.getBlockAtNew(uint8_t(x), uint8_t(z), uint8_t(y));
         assert(block);
         if (block->left && graphics.isBlockingSide(block->left)) {
             if (block->isFlat()) {
@@ -374,8 +374,8 @@ void Pedestrian::tryMove(glm::vec3 nPos)
             } else if (pos.z - z - 1 < 0 && pos.z - z - 1 > -0.2f)
                 nPos.z = (nPos.z > pos.z) ? pos.z : nPos.z;
         }
-        if (x >= 1 && y < map.getNumBlocksAtNew(UInt8(x - 1), UInt8(z))) {
-            block = map.getBlockAtNew(UInt8(x - 1), UInt8(z), UInt8(y));
+        if (x >= 1 && y < map.getNumBlocksAtNew(uint8_t(x - 1), uint8_t(z))) {
+            block = map.getBlockAtNew(uint8_t(x - 1), uint8_t(z), uint8_t(y));
             if (block->right && !block->isFlat()) {
 #ifdef DEBUG_OLD_PED_BLOCK
                 DEBUG("xblock right: {} tex: {}", pos.x - x, int(block->right));
@@ -385,8 +385,8 @@ void Pedestrian::tryMove(glm::vec3 nPos)
                 }
             }
         }
-        if (x < 255 && y < map.getNumBlocksAtNew(UInt8(x + 1), UInt8(z))) {
-            block = map.getBlockAtNew(UInt8(x + 1), UInt8(z), UInt8(y));
+        if (x < 255 && y < map.getNumBlocksAtNew(uint8_t(x + 1), uint8_t(z))) {
+            block = map.getBlockAtNew(uint8_t(x + 1), uint8_t(z), uint8_t(y));
             if (block->left && graphics.isBlockingSide(block->left)) {
 #ifdef DEBUG_OLD_PED_BLOCK
                 DEBUG("xblock left: {} tex: {}", x + 1 - pos.x, int(block->left));
@@ -400,8 +400,8 @@ void Pedestrian::tryMove(glm::vec3 nPos)
                 }
             }
         }
-        if (z >= 1 && y < map.getNumBlocksAtNew(UInt8(x), UInt8(z - 1))) {
-            block = map.getBlockAtNew(UInt8(x), UInt8(z - 1), UInt8(y));
+        if (z >= 1 && y < map.getNumBlocksAtNew(uint8_t(x), uint8_t(z - 1))) {
+            block = map.getBlockAtNew(uint8_t(x), uint8_t(z - 1), uint8_t(y));
             if (block->bottom && !block->isFlat()) {
 #ifdef DEBUG_OLD_PED_BLOCK
                 DEBUG("zblock bottom: {} tex: {}", pos.z - z, int(block->bottom));
@@ -411,8 +411,8 @@ void Pedestrian::tryMove(glm::vec3 nPos)
                 }
             }
         }
-        if (z < 255 && y < map.getNumBlocksAtNew(UInt8(x), UInt8(z + 1))) {
-            block = map.getBlockAtNew(UInt8(x), UInt8(z + 1), UInt8(y));
+        if (z < 255 && y < map.getNumBlocksAtNew(uint8_t(x), uint8_t(z + 1))) {
+            block = map.getBlockAtNew(uint8_t(x), uint8_t(z + 1), uint8_t(y));
             if (block->top && graphics.isBlockingSide(block->top)) {
 #ifdef DEBUG_OLD_PED_BLOCK
                 DEBUG("zblock top: {} tex: {}", z + 1 - pos.z, int(block->top));

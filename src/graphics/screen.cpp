@@ -261,7 +261,7 @@ void Screen::setFlatProjection()
 void Screen::makeScreenshot(const char *filename)
 {
     INFO("saving screen as: {}", filename);
-    std::vector<UInt8> pixels(width_ * height_ * 3);
+    std::vector<uint8_t> pixels(width_ * height_ * 3);
 
     glReadBuffer(GL_FRONT);
     glReadPixels(0, 0, width_, height_, GL_RGB, GL_UNSIGNED_BYTE, reinterpret_cast<GLvoid *>(pixels.data()));
@@ -269,7 +269,7 @@ void Screen::makeScreenshot(const char *filename)
     SDL_Surface *image = SDL_CreateRGBSurface(SDL_SWSURFACE, width_, height_, 24, 255U << 0, 255U << 8, 255U << 16, 0);
     SDL_LockSurface(image);
 
-    auto *imagepixels = reinterpret_cast<UInt8 *>(image->pixels);
+    auto *imagepixels = reinterpret_cast<uint8_t *>(image->pixels);
     for (int y = (height_ - 1); y >= 0; --y) {
         const auto row_begin = pixels.begin() + y * width_ * 3;
         const auto row_end = row_begin + width_ * 3;

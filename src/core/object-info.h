@@ -1,7 +1,6 @@
 #pragma once
 
-#include <core/numeric-types.h>
-
+#include <cstdint>
 namespace Util {
 class PhysFSFile;
 }
@@ -10,10 +9,10 @@ namespace OpenGTA {
 
 struct ObjectInfo {
     explicit ObjectInfo(Util::PhysFSFile &file);
-    UInt32 width {}, height {}, depth {};
-    UInt16 sprNum {}, weight {}, aux {};
-    Int8 status {};
-    UInt8 numInto {};
+    uint32_t width {}, height {}, depth {};
+    uint16_t sprNum {}, weight {}, aux {};
+    int8_t status {};
+    uint8_t numInto {};
     // PHYSFS_uint16 into[255]; // FIXME: MAX_INTO ???
 };
 

@@ -9,11 +9,11 @@ public:
     explicit Graphics24Bit(const std::string &style);
     ~Graphics24Bit() override;
 
-    std::span<const UInt8> getSide(UInt8 idx, unsigned int palIdx, bool rgba) override;
-    std::span<const UInt8> getLid(UInt8 idx, unsigned int palIdx, bool rgba) override;
-    std::span<const UInt8> getAux(UInt8 idx, unsigned int palIdx, bool rgba) override;
+    std::span<const uint8_t> getSide(uint8_t idx, unsigned int palIdx, bool rgba) override;
+    std::span<const uint8_t> getLid(uint8_t idx, unsigned int palIdx, bool rgba) override;
+    std::span<const uint8_t> getAux(uint8_t idx, unsigned int palIdx, bool rgba) override;
 
-    std::vector<UInt8> getSpriteBitmap(size_t id, int remap, UInt32 delta) override;
+    std::vector<uint8_t> getSpriteBitmap(size_t id, int remap, uint32_t delta) override;
 
     friend void dumpClut(const Graphics24Bit &g24, const char *fname);
 
@@ -27,25 +27,19 @@ protected:
     void loadSpriteGraphics();
     void loadSpriteNumbers();
 
-    void applyClut(
-        unsigned char *src,
-        unsigned char *dst,
-        size_t len,
-        UInt16 clutIdx,
-        bool rgba
-    );
+    void applyClut(unsigned char *src, unsigned char *dst, size_t len, uint16_t clutIdx, bool rgba);
 
 private:
-    UInt32 clutSize {};
-    UInt32 pagedClutSize {};
-    UInt32 tileclutSize {};
-    UInt32 spriteclutSize {};
-    UInt32 newcarclutSize {};
-    UInt32 fontclutSize {};
-    UInt32 paletteIndexSize {};
+    uint32_t clutSize {};
+    uint32_t pagedClutSize {};
+    uint32_t tileclutSize {};
+    uint32_t spriteclutSize {};
+    uint32_t newcarclutSize {};
+    uint32_t fontclutSize {};
+    uint32_t paletteIndexSize {};
 
     unsigned char *rawClut;
-    UInt16 *palIndex;
+    uint16_t *palIndex;
 };
 
 } // namespace OpenGTA

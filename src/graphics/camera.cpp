@@ -4,7 +4,6 @@
 #include <graphics/camera.h>
 #include <graphics/screen.h>
 
-
 #ifdef _WIN32
 #include <Windows.h>
 #endif
@@ -52,17 +51,7 @@ void Camera::update_game()
 
     center += -delta;
     eye += -delta;
-    gluLookAt(
-        eye.x,
-        eye.y,
-        eye.z,
-        center.x,
-        center.y,
-        center.z,
-        up.x,
-        up.y,
-        up.z
-    );
+    gluLookAt(eye.x, eye.y, eye.z, center.x, center.y, center.z, up.x, up.y, up.z);
 }
 
 void Camera::setFollowMode(const glm::vec3 &target)
@@ -97,12 +86,8 @@ void Camera::update(Uint32 ticks, OpenGL::Screen &screen)
     }
 
     OpenGTA::Map &map = OpenGTA::ActiveMap::Instance().get();
-    if (y < map.getNumBlocksAtNew(UInt8(x), UInt8(z)) && y > 0.0f) {
-        OpenGTA::Map::BlockInfo *block = map.getBlockAtNew(
-            UInt8(x),
-            UInt8(z),
-            UInt8(y)
-        );
+    if (y < map.getNumBlocksAtNew(uint8_t(x), uint8_t(z)) && y > 0.0f) {
+        OpenGTA::Map::BlockInfo *block = map.getBlockAtNew(uint8_t(x), uint8_t(z), uint8_t(y));
         if (block->blockType() > 0 && block->blockType() <= 5) {
             float bz = slope_height_offset(block->slopeType(), eye.x - x, eye.z - z);
             if (block->slopeType() == 0 && (block->blockType() != 5 && block->blockType() != 6))
@@ -134,12 +119,8 @@ void Camera::update(Uint32 ticks, OpenGL::Screen &screen)
 #endif
     }
     y -= 1;
-    if (y < map.getNumBlocksAtNew(UInt8(x), UInt8(z)) && y > 0.0f) {
-        OpenGTA::Map::BlockInfo *block = map.getBlockAtNew(
-            UInt8(x),
-            UInt8(z),
-            UInt8(y)
-        );
+    if (y < map.getNumBlocksAtNew(uint8_t(x), uint8_t(z)) && y > 0.0f) {
+        OpenGTA::Map::BlockInfo *block = map.getBlockAtNew(uint8_t(x), uint8_t(z), uint8_t(y));
         if (block->blockType() == 5 || block->blockType() == 6) {
             float bz = slope_height_offset(block->slopeType(), eye.x - x, eye.z - z);
             // INFO << eye.y << ", " << y << " bz " << bz << std::endl;
@@ -191,17 +172,7 @@ void Camera::update(Uint32 ticks, OpenGL::Screen &screen)
         if (doRotate)
             rotateAround(glm::vec3(center.x, 0, center.z), 0, 0.01f, 0);
     }
-    gluLookAt(
-        eye.x,
-        eye.y,
-        eye.z,
-        center.x,
-        center.y,
-        center.z,
-        up.x,
-        up.y,
-        up.z
-    );
+    gluLookAt(eye.x, eye.y, eye.z, center.x, center.y, center.z, up.x, up.y, up.z);
 }
 
 void Camera::setRotating(bool demo)

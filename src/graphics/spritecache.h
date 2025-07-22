@@ -39,11 +39,11 @@ namespace OpenGL {
 
 struct SpriteIdentifier;
 struct SpriteIdentifier {
-    UInt16 sprNum = 0;
-    Int16 remap = -1;
-    UInt32 delta = 0;
+    uint16_t sprNum = 0;
+    int16_t remap = -1;
+    uint32_t delta = 0;
     SpriteIdentifier() = default;
-    SpriteIdentifier(UInt16, Int16, UInt32);
+    SpriteIdentifier(uint16_t, int16_t, uint32_t);
     SpriteIdentifier(const SpriteIdentifier &other);
     auto operator<=>(const SpriteIdentifier &) const = default;
 };
@@ -66,33 +66,21 @@ public:
     void clearAll();
     [[nodiscard]] bool getScale2x() const;
     void setScale2x(bool enabled);
-    bool has(UInt16 sprNum);
-    bool has(UInt16 sprNum, Int16 remap);
+    bool has(uint16_t sprNum);
+    bool has(uint16_t sprNum, int16_t remap);
     bool has(const SpriteIdentifier &si);
-    PagedTexture &get(UInt16 sprNum);
-    PagedTexture &get(UInt16 sprNum, Int16 remap);
+    PagedTexture &get(uint16_t sprNum);
+    PagedTexture &get(uint16_t sprNum, int16_t remap);
     PagedTexture &get(const SpriteIdentifier &si);
-    void add(UInt16 sprNum, PagedTexture &t);
-    void add(UInt16 sprNum, Int16 remap, PagedTexture &t);
+    void add(uint16_t sprNum, PagedTexture &t);
+    void add(uint16_t sprNum, int16_t remap, PagedTexture &t);
     void add(const SpriteIdentifier &si, PagedTexture &t);
-    PagedTexture create(
-        UInt16 sprNum,
-        OpenGTA::GraphicsBase::SpriteNumbers::SpriteTypes,
-        Int16 remap
-    );
-    PagedTexture create(
-        UInt16 sprNum,
-        OpenGTA::GraphicsBase::SpriteNumbers::SpriteTypes,
-        Int16 remap,
-        UInt32 delta
-    );
+    PagedTexture create(uint16_t sprNum, OpenGTA::GraphicsBase::SpriteNumbers::SpriteTypes, int16_t remap);
+    PagedTexture
+    create(uint16_t sprNum, OpenGTA::GraphicsBase::SpriteNumbers::SpriteTypes, int16_t remap, uint32_t delta);
 
-    [[nodiscard]] OpenGL::PagedTexture createSprite(
-        size_t sprite_num,
-        Int16 remap,
-        UInt32 delta,
-        const OpenGTA::SpriteInfo &info
-    ) const;
+    [[nodiscard]] OpenGL::PagedTexture
+    createSprite(size_t sprite_num, int16_t remap, uint32_t delta, const OpenGTA::SpriteInfo &info) const;
 
 private:
     using SpriteMapType = std::map<SpriteIdentifier, PagedTexture>;

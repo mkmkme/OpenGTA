@@ -371,7 +371,7 @@ void SpriteManager::draw(SpriteObject &obj)
     GL_OBJ_COMMON(obj);
     GraphicsBase &style = ActiveStyle::Instance().get();
     OpenGL::PagedTexture t;
-    UInt16 sprNum =
+    uint16_t sprNum =
         style.spriteNumbers.reIndex(obj.sprNum + obj.anim.firstFrameOffset + obj.anim.currentFrame, obj.sprType);
 
     const SpriteInfo &info = style.getSprite(sprNum);
@@ -407,7 +407,7 @@ void SpriteManager::draw(Pedestrian &ped)
 
     GraphicsBase &style = ActiveStyle::Instance().get();
     OpenGL::PagedTexture t;
-    UInt16 sprNum =
+    uint16_t sprNum =
         style.spriteNumbers.reIndex(ped.sprNum + ped.anim.firstFrameOffset + ped.anim.currentFrame, ped.sprType);
 
     const SpriteInfo &info = style.getSprite(sprNum);
@@ -452,7 +452,7 @@ void SpriteManager::drawExplosion(SpriteObject &obj)
 
     GraphicsBase &style = ActiveStyle::Instance().get();
 
-    UInt16 sprNum =
+    uint16_t sprNum =
         style.spriteNumbers.reIndex(obj.sprNum + obj.anim.firstFrameOffset + obj.anim.currentFrame, obj.sprType);
 
     float w, h;
@@ -573,7 +573,7 @@ void SpriteManager::drawExplosion(SpriteObject &obj)
    GraphicsBase & style = ActiveStyle::Instance().get();
 
    OpenGL::PagedTexture t;
-   UInt16 sprNum = style.spriteNumbers.reIndex(train.sprNum,
+   uint16_t sprNum = style.spriteNumbers.reIndex(train.sprNum,
    train.sprType);
 
    GraphicsBase::SpriteInfo * info = style.getSprite(sprNum);

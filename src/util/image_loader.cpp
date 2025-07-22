@@ -24,7 +24,6 @@
 
 #include <SDL2/SDL_surface.h> // WITH_SDL_IMAGE
 #include <core/graphics-8bit.h>
-#include <core/numeric-types.h>
 
 #include "util/file-manager.h"
 #include <util/errors.h>
@@ -113,7 +112,7 @@ OpenGL::PagedTexture loadImageRAW(const std::string &name)
         throw Util::UnknownKey(name + " - RAW file size unknown");
     }
 
-    std::vector<UInt8> buffer(nbytes);
+    std::vector<uint8_t> buffer(nbytes);
     pf.read(buffer.data(), buffer.size());
 
     return createEmbeddedTexture(whp.first, whp.second, false, std::move(buffer));
@@ -130,13 +129,13 @@ OpenGL::PagedTexture loadImageRATWithPalette(const std::string &name, const std:
         WARN("aborting image load");
         throw Util::UnknownKey(name + " - RAT file size unknown");
     }
-    std::vector<UInt8> lb1(nbytes);
+    std::vector<uint8_t> lb1(nbytes);
     pf.read(lb1.data(), lb1.size());
 
     pf = Util::PhysFSFile { palette_file };
     OpenGTA::Graphics8Bit::RGBPalette rgb { pf };
 
-    std::vector<UInt8> lb2(nbytes * 3);
+    std::vector<uint8_t> lb2(nbytes * 3);
     rgb.apply(nbytes, lb1.data(), lb2.data(), false);
 
     return createEmbeddedTexture(whp.first, whp.second, false, std::move(lb2));
@@ -165,7 +164,7 @@ OpenGL::PagedTexture loadImageSDL(const std::string &name)
 #endif
 
 #define GL_SILENCE_DEPRECATION
-UInt32 createGLTexture(size_t w, size_t h, bool rgba, std::span<const UInt8> pixels)
+uint32_t createGLTexture(size_t w, size_t h, bool rgba, std::span<const uint8_t> pixels)
 {
     GLuint tex;
     glGenTextures(1, &tex);
@@ -195,13 +194,7 @@ UInt32 createGLTexture(size_t w, size_t h, bool rgba, std::span<const UInt8> pix
     return tex;
 }
 
-void copyImage2Image(
-    uint8_t *dest,
-    const uint8_t *src,
-    uint16_t srcWidth,
-    uint16_t srcHeight,
-    uint16_t destWidth
-)
+void copyImage2Image(uint8_t *dest, const uint8_t *src, uint16_t srcWidth, uint16_t srcHeight, uint16_t destWidth)
 {
     uint8_t *d = dest;
     uint32_t srcOff = 0;
@@ -212,16 +205,16 @@ void copyImage2Image(
     }
 }
 
-OpenGL::PagedTexture createEmbeddedTexture(size_t w, size_t h, bool rgba, std::vector<UInt8> pixels)
+OpenGL::PagedTexture createEmbeddedTexture(size_t w, size_t h, bool rgba, std::vector<uint8_t> pixels)
 {
 
     NextPowerOfTwo npot(w, h);
-    std::vector<UInt8> buff;
+    std::vector<uint8_t> buff;
 
-    if (npot.w != UInt32(w) || npot.h != UInt32(h)) {
-        UInt32 bpp = (rgba ? 4 : 3);
-        UInt32 bufSize = npot.w * npot.h * bpp;
-        std::vector<UInt8> tmp(bufSize);
+    if (npot.w != uint32_t(w) || npot.h != uint32_t(h)) {
+        uint32_t bpp = (rgba ? 4 : 3);
+        uint32_t bufSize = npot.w * npot.h * bpp;
+        std::vector<uint8_t> tmp(bufSize);
         copyImage2Image(tmp.data(), pixels.data(), w * bpp, h, npot.w * bpp);
         buff = std::move(tmp);
     }
@@ -246,12 +239,12 @@ inline void writeInt24(uint8_t *x, int i) noexcept
 
 } // namespace
 
-std::vector<UInt8> scale2x_24bit(std::span<const UInt8> src, const int src_width, const int src_height)
+std::vector<uint8_t> scale2x_24bit(std::span<const uint8_t> src, const int src_width, const int src_height)
 {
     const int srcpitch = src_width * 3;
     const int dstpitch = src_width * 6;
 
-    std::vector<UInt8> dstpix(src_width * src_height * 3 * 4);
+    std::vector<uint8_t> dstpix(src_width * src_height * 3 * 4);
     const auto *srcraw = src.data();
     auto *dstpixraw = dstpix.data();
     int E0, E1, E2, E3, B, D, E, F, H;
@@ -277,12 +270,12 @@ std::vector<UInt8> scale2x_24bit(std::span<const UInt8> src, const int src_width
     return dstpix;
 }
 
-std::vector<UInt8> scale2x_32bit(std::span<const UInt8> src, const int src_width, const int src_height)
+std::vector<uint8_t> scale2x_32bit(std::span<const uint8_t> src, const int src_width, const int src_height)
 {
     const int srcpitch = src_width * 4;
     const int dstpitch = src_width * 8;
 
-    std::vector<UInt8> dstpix(src_width * src_height * 4 * 4);
+    std::vector<uint8_t> dstpix(src_width * src_height * 4 * 4);
     auto *dstpixraw = dstpix.data();
     const auto *srcraw = src.data();
     uint32_t E0, E1, E2, E3, B, D, E, F, H;

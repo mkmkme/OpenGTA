@@ -31,8 +31,10 @@
 #include <util/log.h>
 
 namespace OpenGL {
-SpriteIdentifier::SpriteIdentifier(UInt16 num, Int16 map, UInt32 d)
-    : sprNum(num), remap(map), delta(d)
+SpriteIdentifier::SpriteIdentifier(uint16_t num, int16_t map, uint32_t d)
+    : sprNum(num)
+    , remap(map)
+    , delta(d)
 {
 }
 SpriteIdentifier::SpriteIdentifier(const SpriteIdentifier &other) = default;
@@ -79,7 +81,7 @@ void SpriteCache::clearAll()
     loadedSprites.clear();
 }
 
-bool SpriteCache::has(UInt16 sprNum)
+bool SpriteCache::has(uint16_t sprNum)
 {
     auto i = loadedSprites.find(SpriteIdentifier(sprNum, -1, 0));
     if (i != loadedSprites.end())
@@ -88,7 +90,7 @@ bool SpriteCache::has(UInt16 sprNum)
     return false;
 }
 
-bool SpriteCache::has(UInt16 sprNum, Int16 remap)
+bool SpriteCache::has(uint16_t sprNum, int16_t remap)
 {
     auto i = loadedSprites.find(SpriteIdentifier(sprNum, remap, 0));
     if (i != loadedSprites.end())
@@ -106,14 +108,14 @@ bool SpriteCache::has(const SpriteIdentifier &si)
     return false;
 }
 
-PagedTexture &SpriteCache::get(UInt16 sprNum)
+PagedTexture &SpriteCache::get(uint16_t sprNum)
 {
     auto i = loadedSprites.find(SpriteIdentifier(sprNum, -1, 0));
     assert(i != loadedSprites.end());
     return i->second;
 }
 
-PagedTexture &SpriteCache::get(UInt16 sprNum, Int16 remap)
+PagedTexture &SpriteCache::get(uint16_t sprNum, int16_t remap)
 {
     auto i = loadedSprites.find(SpriteIdentifier(sprNum, remap, 0));
     assert(i != loadedSprites.end());
@@ -127,7 +129,7 @@ PagedTexture &SpriteCache::get(const SpriteIdentifier &si)
     return i->second;
 }
 
-void SpriteCache::add(UInt16 sprNum, Int16 remap, PagedTexture &t)
+void SpriteCache::add(uint16_t sprNum, int16_t remap, PagedTexture &t)
 {
     loadedSprites.insert(std::make_pair(SpriteIdentifier(sprNum, remap, 0), t));
 }
@@ -137,15 +139,12 @@ void SpriteCache::add(const SpriteIdentifier &si, PagedTexture &t)
     loadedSprites.insert(std::make_pair(si, t));
 }
 
-PagedTexture SpriteCache::create(
-    UInt16 sprNum,
-    OpenGTA::GraphicsBase::SpriteNumbers::SpriteTypes st,
-    Int16 remap = -1
-)
+PagedTexture
+SpriteCache::create(uint16_t sprNum, OpenGTA::GraphicsBase::SpriteNumbers::SpriteTypes st, int16_t remap = -1)
 {
     /*
     OpenGTA::GraphicsBase & style = OpenGTA::ActiveStyle::Instance().get();
-    UInt16 real_num = style.spriteNumbers.reIndex(sprNum, st);
+    uint16_t real_num = style.spriteNumbers.reIndex(sprNum, st);
 
     OpenGTA::GraphicsBase::SpriteInfo* info = style.getSprite(real_num);
     assert(info);
@@ -158,14 +157,14 @@ PagedTexture SpriteCache::create(
 }
 
 PagedTexture SpriteCache::create(
-    UInt16 sprNum,
+    uint16_t sprNum,
     OpenGTA::GraphicsBase::SpriteNumbers::SpriteTypes st,
-    Int16 remap,
-    UInt32 delta
+    int16_t remap,
+    uint32_t delta
 )
 {
     OpenGTA::GraphicsBase &style = OpenGTA::ActiveStyle::Instance().get();
-    UInt16 real_num = style.spriteNumbers.reIndex(sprNum, st);
+    uint16_t real_num = style.spriteNumbers.reIndex(sprNum, st);
 
     OpenGTA::SpriteInfo &info = style.getSprite(real_num);
 
@@ -176,12 +175,7 @@ PagedTexture SpriteCache::create(
 }
 
 OpenGL::PagedTexture
-SpriteCache::createSprite(
-    size_t sprite_num,
-    Int16 remap,
-    UInt32 delta,
-    const OpenGTA::SpriteInfo &info
-) const
+SpriteCache::createSprite(size_t sprite_num, int16_t remap, uint32_t delta, const OpenGTA::SpriteInfo &info) const
 {
     INFO("creating new sprite: {} remap: {}", sprite_num, remap);
     auto src_smart = OpenGTA::ActiveStyle::Instance().get().getSpriteBitmap(sprite_num, remap, delta);
@@ -225,7 +219,7 @@ SpriteCache::createSprite(
     }
 #endif
     ImageUtil::NextPowerOfTwo npot(info.w, info.h);
-    std::vector<UInt8> dst(npot.w * npot.h * 4);
+    std::vector<uint8_t> dst(npot.w * npot.h * 4);
 
     ImageUtil::copyImage2Image(dst.data(), src, info.w * 4, info.h, npot.w * 4);
 

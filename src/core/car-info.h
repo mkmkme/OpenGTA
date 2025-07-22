@@ -1,8 +1,7 @@
 #pragma once
 
 #include <array>
-
-#include <core/numeric-types.h>
+#include <cstdint>
 
 namespace Util {
 class PhysFSFile;
@@ -11,48 +10,48 @@ class PhysFSFile;
 namespace OpenGTA {
 
 struct DoorInfo {
-    Int16 rpx, rpy;
-    Int16 object;
-    Int16 delta;
+    int16_t rpx, rpy;
+    int16_t object;
+    int16_t delta;
 };
 
 struct HlsInfo {
-    Int16 h, l, s;
+    int16_t h, l, s;
 };
 
 struct CarInfo {
     explicit CarInfo(Util::PhysFSFile &file);
-    [[nodiscard]] UInt32 bytes_read() const noexcept { return bytes_read_; }
-    Int16 width {}, height {}, depth {};
-    Int16 sprNum {};
-    Int16 weightDescriptor {};
-    Int16 maxSpeed {}, minSpeed {};
-    Int16 acceleration {}, braking {};
-    Int16 grip {}, handling {};
+    [[nodiscard]] uint32_t bytes_read() const noexcept { return bytes_read_; }
+    int16_t width {}, height {}, depth {};
+    int16_t sprNum {};
+    int16_t weightDescriptor {};
+    int16_t maxSpeed {}, minSpeed {};
+    int16_t acceleration {}, braking {};
+    int16_t grip {}, handling {};
     // ... remaps
     std::array<HlsInfo, 12> remap24 {};
-    std::array<UInt8, 12> remap8 {};
-    UInt8 vtype {};
-    UInt8 model {};
-    UInt8 turning {};
-    UInt8 damagable {};
-    std::array<UInt16, 4> value {};
-    Int8 cx {}, cy {};
-    UInt32 moment {};
-    Int16 turnRatio {};
-    Int16 driveWheelOffset {};
-    Int16 steeringWheelOffset {};
-    UInt8 convertible {};
-    UInt8 engine {};
-    UInt8 radio {};
-    UInt8 horn {};
-    UInt8 soundFunction {};
-    UInt8 fastChangeFlag {};
-    Int16 numDoors;
+    std::array<uint8_t, 12> remap8 {};
+    uint8_t vtype {};
+    uint8_t model {};
+    uint8_t turning {};
+    uint8_t damagable {};
+    std::array<uint16_t, 4> value {};
+    int8_t cx {}, cy {};
+    uint32_t moment {};
+    int16_t turnRatio {};
+    int16_t driveWheelOffset {};
+    int16_t steeringWheelOffset {};
+    uint8_t convertible {};
+    uint8_t engine {};
+    uint8_t radio {};
+    uint8_t horn {};
+    uint8_t soundFunction {};
+    uint8_t fastChangeFlag {};
+    int16_t numDoors;
     std::array<DoorInfo, 4> door {}; // FIXME: MAX_DOORS
 
 private:
-    UInt32 bytes_read_ = 0;
+    uint32_t bytes_read_ = 0;
 };
 
 } // namespace OpenGTA

@@ -10,10 +10,9 @@
  ************************************************************************/
 #ifndef NAVDATA_H
 #define NAVDATA_H
+#include <cstdint>
 #include <map>
 #include <string>
-
-#include <core/numeric-types.h>
 
 namespace Util {
 class PhysFSFile;
@@ -38,18 +37,18 @@ public:
      * @param y
      * @note If the point is inside 'lastSubLocation' is updated before returning.
      */
-    bool isInside(UInt8, UInt8);
+    bool isInside(uint8_t, uint8_t);
     /** Calculate north/south/east/west/central of point (which has to be inside).
      * @param x
      * @param y
      * @return uint8 bitfield
      */
-    [[nodiscard]] UInt8 subLocation(UInt8, UInt8) const;
-    [[nodiscard]] UInt16 getSize() const noexcept;
+    [[nodiscard]] uint8_t subLocation(uint8_t, uint8_t) const;
+    [[nodiscard]] uint16_t getSize() const noexcept;
 
 protected:
-    UInt8 x = 0, y = 0;
-    UInt8 w = 0, h = 0;
+    uint8_t x = 0, y = 0;
+    uint8_t w = 0, h = 0;
     /** Last sub-area location.
      * 0 = central
      * 1 = north
@@ -58,7 +57,7 @@ protected:
      * 8 = west
      * ... valid combinations of the last four
      */
-    UInt8 lastSubLocation {};
+    uint8_t lastSubLocation {};
 };
 
 /** Container of all named sectors.
@@ -77,7 +76,7 @@ public:
          * 1) see $LANGUAGE.FXT file for actual name
          * 2) probably sound?
          */
-        UInt8 sam {}; // sample number
+        uint8_t sam {}; // sample number
         std::string name;
         /** Returns the name prefixed with sub-area location.
          */
@@ -86,14 +85,14 @@ public:
     private:
         bool isADummy {};
     };
-    NavData(UInt32 size, Util::PhysFSFile &pf, size_t level_num);
+    NavData(uint32_t size, Util::PhysFSFile &pf, size_t level_num);
     ~NavData();
-    Sector *getSectorAt(UInt8, UInt8);
+    Sector *getSectorAt(uint8_t, uint8_t);
     static std::string _c, _n, _s, _w, _e, _nw, _ne, _sw, _se;
 
 private:
     void clear();
-    using SectorMapType = std::multimap<UInt16, Sector>;
+    using SectorMapType = std::multimap<uint16_t, Sector>;
     SectorMapType areas;
 };
 } // namespace OpenGTA

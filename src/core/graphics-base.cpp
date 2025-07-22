@@ -13,7 +13,7 @@
 using namespace OpenGTA;
 using namespace Util;
 
-UInt16 GraphicsBase::SpriteNumbers::countByType(const SpriteTypes &t) const
+uint16_t GraphicsBase::SpriteNumbers::countByType(const SpriteTypes &t) const
 {
     switch (t) {
 #define CASE_COUNT(_name)    \
@@ -35,7 +35,7 @@ GraphicsBase::GraphicsBase(const std::string &style)
         sideTexBlockMove.set_item(i, true);
 }
 
-bool GraphicsBase::isBlockingSide(UInt8 id) const
+bool GraphicsBase::isBlockingSide(uint8_t id) const
 {
     return sideTexBlockMove.get_item(id);
 }
@@ -68,7 +68,7 @@ void GraphicsBase::setDeltaHandling(bool delta_as_set)
 
 GraphicsBase::~GraphicsBase() = default;
 
-bool GraphicsBase::isAnimatedBlock(UInt8 area_code, UInt8 id)
+bool GraphicsBase::isAnimatedBlock(uint8_t area_code, uint8_t id)
 {
     return std::ranges::any_of(animations, [&](const auto &anim) {
         return anim.which == area_code && anim.block == id;
@@ -82,7 +82,7 @@ const char *GraphicsBase::getSpriteName(int t)
     return (t < 0 || t >= types.size()) ? "???" : types[t];
 }
 
-CarInfo &GraphicsBase::findCarByModel(UInt8 model)
+CarInfo &GraphicsBase::findCarByModel(uint8_t model)
 {
     for (auto &car : carInfos) {
         if (car.model == model)
@@ -104,7 +104,7 @@ unsigned int GraphicsBase::getPedRemapNumberType(unsigned int _type)
     return _type;
 }
 
-UInt8 GraphicsBase::getFormat() const
+uint8_t GraphicsBase::getFormat() const
 {
     if (_topHeaderSize == 52)
         return 0;
@@ -113,9 +113,9 @@ UInt8 GraphicsBase::getFormat() const
     throw Util::InvalidFormat("graphics-base header size");
 }
 
-UInt16 GraphicsBase::SpriteNumbers::reIndex(const UInt16 &id, const SpriteTypes &t) const
+uint16_t GraphicsBase::SpriteNumbers::reIndex(const uint16_t &id, const SpriteTypes &t) const
 {
-    UInt16 ret = id;
+    uint16_t ret = id;
     switch (t) {
 #define CASE_ACCUMULATE(_name, _to_add_name) \
     case SpriteTypes::_name:                 \
@@ -150,15 +150,15 @@ UInt16 GraphicsBase::SpriteNumbers::reIndex(const UInt16 &id, const SpriteTypes 
 
 void GraphicsBase::loadAnim()
 {
-    UInt64 st = static_cast<UInt64>(_topHeaderSize) + sideSize + lidSize + auxSize + auxBlockTrailSize;
+    uint64_t st = static_cast<uint64_t>(_topHeaderSize) + sideSize + lidSize + auxSize + auxBlockTrailSize;
     styleFile.seek(st);
-    UInt8 numAnim;
+    uint8_t numAnim;
     styleFile.read(numAnim);
     for (int i = 0; i < numAnim; i++)
         animations.emplace_back(styleFile);
 }
 
-void GraphicsBase::loadObjectInfo_shared(UInt64 offset)
+void GraphicsBase::loadObjectInfo_shared(uint64_t offset)
 {
     styleFile.ensurePosition(offset);
     assert(objectInfoSize % 20 == 0);
@@ -168,11 +168,11 @@ void GraphicsBase::loadObjectInfo_shared(UInt64 offset)
         objectInfos.emplace_back(styleFile);
 }
 
-void GraphicsBase::loadCarInfo_shared(UInt64 offset)
+void GraphicsBase::loadCarInfo_shared(uint64_t offset)
 {
     styleFile.ensurePosition(offset);
 
-    UInt32 bytes_read = 0;
+    uint32_t bytes_read = 0;
     while (bytes_read < carInfoSize) {
         CarInfo car { styleFile };
         bytes_read += car.bytes_read();
@@ -181,7 +181,7 @@ void GraphicsBase::loadCarInfo_shared(UInt64 offset)
     assert(bytes_read == carInfoSize);
 }
 
-void GraphicsBase::loadSpriteNumbers_shared(UInt64 offset)
+void GraphicsBase::loadSpriteNumbers_shared(uint64_t offset)
 {
 
     styleFile.ensurePosition(offset);
@@ -195,12 +195,12 @@ void GraphicsBase::loadTileTextures()
 {
     styleFile.ensurePosition(_topHeaderSize);
 
-    UInt64 ts = sideSize + lidSize + auxSize;
+    uint64_t ts = sideSize + lidSize + auxSize;
     rawTiles.resize(ts);
     styleFile.read(rawTiles.data(), rawTiles.size());
 }
 
-void GraphicsBase::handleDeltas(const SpriteInfo &info, unsigned char *buffer, UInt32 delta)
+void GraphicsBase::handleDeltas(const SpriteInfo &info, unsigned char *buffer, uint32_t delta)
 {
     const unsigned int b_offset = 256 * info.yoffset + info.xoffset;
     if (delta_is_a_set) {
@@ -236,26 +236,26 @@ void GraphicsBase::handleDeltas(const SpriteInfo &info, unsigned char *buffer, U
 void GraphicsBase::applyDelta(
     const SpriteInfo &spriteInfo,
     unsigned char *buffer,
-    UInt32 page_offset,
+    uint32_t page_offset,
     const DeltaInfo &deltaInfo,
     bool mirror
 )
 {
     unsigned char *b = buffer + page_offset;
     unsigned char *delta = deltaInfo.ptr;
-    Int32 length_to_go = deltaInfo.size;
+    int32_t length_to_go = deltaInfo.size;
 
     if (mirror) {
-        UInt32 doff = 0;
+        uint32_t doff = 0;
         while (length_to_go > 0) {
-            UInt16 *offset = (UInt16 *) delta;
+            uint16_t *offset = (uint16_t *) delta;
             doff += *offset;
             delta += 2;
             unsigned char this_length = *delta;
             ++delta;
-            UInt32 noff = page_offset + doff;
-            UInt32 _y = noff / 256 * 256;
-            UInt32 _x = doff % 256;
+            uint32_t noff = page_offset + doff;
+            uint32_t _y = noff / 256 * 256;
+            uint32_t _x = doff % 256;
             for (int i = 0; i < this_length; i++)
                 *(buffer + _y + spriteInfo.xoffset + spriteInfo.w - _x - i - 1) = *(delta + i);
             length_to_go -= (this_length + 3);
@@ -266,7 +266,7 @@ void GraphicsBase::applyDelta(
     }
 
     while (length_to_go > 0) {
-        UInt16 *offset = (UInt16 *) delta;
+        uint16_t *offset = (uint16_t *) delta;
         b += *offset;
         delta += 2;
         unsigned char this_length = *delta;
@@ -278,7 +278,7 @@ void GraphicsBase::applyDelta(
     }
 }
 
-void GraphicsBase::prepareSideTexture(UInt32 idx, std::span<UInt8> dst)
+void GraphicsBase::prepareSideTexture(uint32_t idx, std::span<uint8_t> dst)
 {
     ++idx;
     auto dstIterator = dst.begin();
@@ -290,7 +290,7 @@ void GraphicsBase::prepareSideTexture(UInt32 idx, std::span<UInt8> dst)
     }
 }
 
-void GraphicsBase::prepareLidTexture(UInt32 idx, std::span<UInt8> dst)
+void GraphicsBase::prepareLidTexture(uint32_t idx, std::span<uint8_t> dst)
 {
     auto tilesIterator = rawTiles.begin();
     auto dstIterator = dst.begin();
@@ -303,7 +303,7 @@ void GraphicsBase::prepareLidTexture(UInt32 idx, std::span<UInt8> dst)
     }
 }
 
-void GraphicsBase::prepareAuxTexture(UInt32 idx, std::span<UInt8> dst)
+void GraphicsBase::prepareAuxTexture(uint32_t idx, std::span<uint8_t> dst)
 {
     auto tilesIterator = rawTiles.begin();
     auto dstIterator = dst.begin();
@@ -316,7 +316,7 @@ void GraphicsBase::prepareAuxTexture(UInt32 idx, std::span<UInt8> dst)
     }
 }
 
-std::span<const UInt8> GraphicsBase::getTmpBuffer(bool rgba = false) const
+std::span<const uint8_t> GraphicsBase::getTmpBuffer(bool rgba = false) const
 {
     if (rgba)
         return tileTmpRGBA;

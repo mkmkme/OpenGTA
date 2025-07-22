@@ -34,7 +34,7 @@
 #include <iostream>
 #endif
 namespace OpenGTA {
-SoundsDB::Entry::Entry(UInt32 r1, UInt32 r2, UInt32 sr)
+SoundsDB::Entry::Entry(uint32_t r1, uint32_t r2, uint32_t sr)
 {
     rawStart = r1;
     rawSize = r2;
@@ -49,8 +49,8 @@ SoundsDB::SoundsDB(const std::string &sdt_file)
         throw Util::InvalidFormat("SDT filesize {} % 12 != 0", uint32_t(num_e));
     }
     num_e /= 12;
-    UInt32 r1, r2, sr;
-    for (UInt32 i = 0; i < num_e; i++) {
+    uint32_t r1, r2, sr;
+    for (uint32_t i = 0; i < num_e; i++) {
         dataFile.read(r1);
         dataFile.read(r2);
         dataFile.read(sr);

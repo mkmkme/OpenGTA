@@ -52,7 +52,8 @@ SDL_Surface *image = nullptr;
 
 void display_image(SDL_Surface *s)
 {
-    SDL_Window *window = SDL_CreateWindow("Display Image", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 640, 480, SDL_WINDOW_SHOWN);
+    SDL_Window *window =
+        SDL_CreateWindow("Display Image", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 640, 480, SDL_WINDOW_SHOWN);
     SDL_Renderer *renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
     SDL_Texture *texture = SDL_CreateTextureFromSurface(renderer, s);
     SDL_RenderClear(renderer);
@@ -75,7 +76,7 @@ void display_image(SDL_Surface *s)
     }
 }
 
-SDL_Surface *get_image(std::span<const UInt8> rp, unsigned int w, unsigned int h)
+SDL_Surface *get_image(std::span<const uint8_t> rp, unsigned int w, unsigned int h)
 {
 #if SDL_BYTEORDER == SDL_BIG_ENDIAN
 #define rmask 0xff000000
@@ -190,8 +191,8 @@ int main(int argc, char *argv[])
                 break;
             case 3:
                 const auto &sprite = graphics.getSprite(idx);
-                std::cout << "Sprite is " << int(sprite.w) << "x" << int(sprite.h) << " with "
-                          << int(sprite.deltaCount) << " deltas" << std::endl;
+                std::cout << "Sprite is " << int(sprite.w) << "x" << int(sprite.h) << " with " << int(sprite.deltaCount)
+                          << " deltas" << std::endl;
                 auto sbitmap = graphics.getSpriteBitmap(idx, remap, delta);
                 image = get_image(sbitmap, sprite.w, sprite.h);
 #ifdef DUMP_DELTA_DEBUG

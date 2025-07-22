@@ -13,7 +13,7 @@ public:
     explicit IniScriptBridge(const std::string &file);
     ~IniScriptBridge() override;
     lua_State *L;
-    void loadLevel(UInt32 level);
+    void loadLevel(uint32_t level);
 
 protected:
     void reset() const;

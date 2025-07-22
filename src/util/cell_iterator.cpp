@@ -20,16 +20,15 @@
  * 3. This notice may not be removed or altered from any source          *
  * distribution.                                                         *
  ************************************************************************/
+#include <numbers>
+
 #include <core/map.h>
 #include <glm/geometric.hpp>
 
 #include <util/cell_iterator.h>
 #include <util/log.h>
 
-
-namespace {
-constexpr double pi = 3.14159265358979323846;
-}
+using std::numbers::pi;
 
 namespace Util {
 float xz_angle(const glm::vec3 &from, const glm::vec3 &to)

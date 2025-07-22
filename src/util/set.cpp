@@ -25,6 +25,8 @@
 #include <cstdlib>
 #include <cstring>
 
+#include <fmt/base.h>
+
 #include <util/errors.h>
 #include <util/set.h>
 
@@ -106,23 +108,14 @@ Set::~Set()
 void Set::set_data(int n, unsigned char *data)
 {
     if (!ext_data) {
-#ifdef INTEGRATE_OGTA
         throw Util::NotSupported("set_data() called on an instance with own data");
-#else
-        fprintf(stderr, "Set::Err: set_data() called on an instance with own data\n");
-#endif
-        return;
     }
 }
 
 void Set::set_last(int n)
 {
     if (n > last) {
-#ifdef INTEGRATE_OGTA
-        throw Util::OutOfRange(std::to_string(n) + " > " + std::to_string(last));
-#else
-        printf("%i is larger than previous last n (%i), aborting\n", n, last);
-#endif
+        throw Util::OutOfRange("{} is larger than previous last n ({}), aborting", n, last);
     }
     last = n;
 }
@@ -135,24 +128,24 @@ int Set::get_last() const
 void Set::print_set() const
 {
     bool first = true;
-    printf("{");
+    fmt::print("{{");
     for (int i = 0; i < last; i++) {
         if (get_item(i)) {
             if (!first)
-                printf(", ");
-            printf("%d", i);
+                fmt::print(", ");
+            fmt::print("{}", i);
             first = false;
         }
     }
-    printf("}\n");
+    fmt::println("}}");
 }
 
 void Set::set_item(int k, bool val)
 {
     if (k < last) {
-        unsigned char *pos = NULL;
+        unsigned char *pos = nullptr;
         mv2byte(storage, k, pos);
-        if (val == true) {
+        if (val) {
             setb8(pos, k);
         } else {
             clrb8(pos, k);
@@ -188,18 +181,13 @@ bool Set::get_item(int k) const
 int Set::as_int(int start, int len) const
 {
     if (start < 0 || start > last || start + len > last) {
-#ifdef INTEGRATE_OGTA
-        throw Util::OutOfRange(std::format("invalid query: {} length {} with data-length {}", start, len, last));
-#else
-        fprintf(stderr, "Set::Err: queried index out of range (%i, %i ; %i)\n", start, len, last);
-        return -1;
-#endif
+        throw Util::OutOfRange("invalid query: {} length {} with data-length {}", start, len, last);
     }
     int v = 0;
     int t = 0;
     for (int i = 0; i < len; i++) {
         if (get_item(i + start)) {
-            v = (int) 1 << i;
+            v = 1 << i;
             t += v;
         }
     }
@@ -209,18 +197,13 @@ int Set::as_int(int start, int len) const
 int Set::as_int2(int start, int len) const
 {
     if (start < 0 || start > last || start + len > last) {
-#ifdef INTEGRATE_OGTA
-        throw Util::OutOfRange(std::format("invalid query: {} length {} with data-length {}", start, len, last));
-#else
-        fprintf(stderr, "Set::Err: queried index out of range (%i, %i ; %i)\n", start, len, last);
-        return -1;
-#endif
+        throw Util::OutOfRange("invalid query: {} length {} with data-length {}", start, len, last);
     }
     int v = 0;
     int t = 0;
     for (int i = 0; i < len; i++) {
         if (get_item(i + start)) {
-            v = (int) 1 << (len - i - 1);
+            v = 1 << (len - i - 1);
             t += v;
         }
     }

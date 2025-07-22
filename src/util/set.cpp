@@ -176,12 +176,10 @@ int Set::as_int(int start, int len) const
     if (start < 0 || start > last || start + len > last) {
         throw Util::OutOfRange("invalid query: {} length {} with data-length {}", start, len, last);
     }
-    int v = 0;
     int t = 0;
     for (int i = 0; i < len; i++) {
         if (get_item(i + start)) {
-            v = 1 << i;
-            t += v;
+            t += 1 << i;
         }
     }
     return t;

@@ -94,7 +94,7 @@ Move PedController::getMove() const
     return Move::Stop;
 }
 
-bool PedController::getFireWeapon()
+bool PedController::getFireWeapon() const
 {
     return dataSet.get_item(6);
 }
@@ -104,7 +104,7 @@ void PedController::setRunning(bool yes)
     dataSet.set_item(7, yes);
 }
 
-bool PedController::getRunning()
+bool PedController::getRunning() const
 {
     return dataSet.get_item(7);
 }
@@ -114,15 +114,9 @@ void PedController::toggleRunning()
     dataSet.set_item(7, !dataSet.get_item(7));
 }
 
-unsigned char PedController::getActiveWeapon()
+unsigned char PedController::getActiveWeapon() const
 {
-    // 0 .. k
-    unsigned char r = 0;
-    for (int j = 0; j < 3; ++j) {
-        if (dataSet.get_item(j + 8))
-            r += (1 << j);
-    }
-    return r;
+    return dataSet.as_int(8, 3);
 }
 
 void PedController::setActiveWeapon(unsigned char k)

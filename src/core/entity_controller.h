@@ -75,13 +75,13 @@ public:
     void setJump(bool press = true);
     void setFireWeapon(bool press = true);
     void releaseFireWeapon() { setFireWeapon(false); }
-    bool getFireWeapon();
+    [[nodiscard]] bool getFireWeapon() const;
 
     void setActiveWeapon(unsigned char);
-    unsigned char getActiveWeapon();
+    [[nodiscard]] unsigned char getActiveWeapon() const;
 
     void setRunning(bool yes = true);
-    bool getRunning();
+    [[nodiscard]] bool getRunning() const;
     void toggleRunning();
 
     // weapons, equip, shoot

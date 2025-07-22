@@ -27,11 +27,15 @@
 namespace OpenGTA {
 EntityController::EntityController()
     : rawData(0)
-    , dataSet(sizeof(rawData) * 8, (unsigned char *) &rawData) {}
+    , dataSet(sizeof(rawData) * 8, (unsigned char *) &rawData)
+{
+}
 
 EntityController::EntityController(const EntityController &other)
     : rawData(other.rawData)
-    , dataSet(sizeof(rawData) * 8, (unsigned char *) &rawData) {}
+    , dataSet(sizeof(rawData) * 8, (unsigned char *) &rawData)
+{
+}
 
 void PedController::setTurnLeft(bool press)
 {
@@ -68,26 +72,26 @@ void PedController::setFireWeapon(bool press)
     dataSet.set_item(6, press);
 }
 
-signed char PedController::getTurn()
+Turn PedController::getTurn() const
 {
     if (dataSet.get_item(0) && dataSet.get_item(1)) // special: straight ahead
-        return 0;
+        return Turn::Straight;
     if (dataSet.get_item(0))
-        return 1;
-    else if (dataSet.get_item(1))
-        return -1;
-    return 0;
+        return Turn::Left;
+    if (dataSet.get_item(1))
+        return Turn::Right;
+    return Turn::Straight;
 }
 
-signed char PedController::getMove()
+Move PedController::getMove() const
 {
     if (dataSet.get_item(2) && dataSet.get_item(3)) // special: evens out
-        return 0;
+        return Move::Stop;
     if (dataSet.get_item(2))
-        return 1;
-    else if (dataSet.get_item(3))
-        return -1;
-    return 0;
+        return Move::Forward;
+    if (dataSet.get_item(3))
+        return Move::Backward;
+    return Move::Stop;
 }
 
 bool PedController::getFireWeapon()

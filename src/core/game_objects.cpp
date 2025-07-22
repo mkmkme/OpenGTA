@@ -224,7 +224,7 @@ void Pedestrian::update(uint32_t ticks)
     }
     activeWeapon = chooseWeapon;
     switch (m_control.getMove()) {
-        case 1:
+        case Move::Forward:
             if (m_control.getRunning()) {
                 if (animId != 3u + activeWeapon * 3)
                     switchToAnim(3 + activeWeapon * 3);
@@ -233,11 +233,11 @@ void Pedestrian::update(uint32_t ticks)
                     switchToAnim(2 + activeWeapon * 3);
             }
             break;
-        case 0:
+        case Move::Stop:
             if (animId != 1u + activeWeapon * 3)
                 switchToAnim(1 + activeWeapon * 3);
             break;
-        case -1:
+        case Move::Backward:
             if (animId != 2u + activeWeapon * 3) {
                 switchToAnim(2 + activeWeapon * 3);
                 anim.set(Util::Animation::PLAY_BACKWARD, Util::Animation::LOOP);
@@ -248,15 +248,15 @@ void Pedestrian::update(uint32_t ticks)
     // INFO << "delta = " << delta  << " t: " << ticks << " lt: " << lastUpdateAt << std::endl;
     moveDelta = glm::vec3();
     switch (m_control.getTurn()) {
-        case -1:
+        case Turn::Right:
             rot -= 0.2f * delta;
             // INFO << "rot: "<< rot << std::endl;
             break;
-        case 1:
+        case Turn::Left:
             rot += 0.2f * delta;
             // INFO << "rot: "<< rot << std::endl;
             break;
-        case 0:
+        case Turn::Straight:
             break;
     }
     if (rot >= 360.0f)
@@ -265,19 +265,15 @@ void Pedestrian::update(uint32_t ticks)
         rot += 360.0f;
     using std::numbers::pi;
     switch (m_control.getMove()) {
-        case -1:
+        case Move::Backward:
             moveDelta.x -= sin(rot * pi / 180.0f) * anim.moveSpeed * delta;
             moveDelta.z -= cos(rot * pi / 180.0f) * anim.moveSpeed * delta;
             break;
-        case 1: // FIXME (mkmkme): seems to be identical with 2??
-                // moveDelta.x += sin(rot * pi / 180.0f) * anim.moveSpeed * delta;
-                // moveDelta.z += cos(rot * pi / 180.0f) * anim.moveSpeed * delta;
-                // break;
-        case 2:
+        case Move::Forward:
             moveDelta.x += sin(rot * pi / 180.0f) * anim.moveSpeed * delta;
             moveDelta.z += cos(rot * pi / 180.0f) * anim.moveSpeed * delta;
             break;
-        case 0:
+        case Move::Stop:
             break;
     }
     if (pedId == 0xffffffff) {

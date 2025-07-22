@@ -32,7 +32,7 @@ class EntityController {
 public:
     EntityController();
 
-    typedef uint32_t Storage_T;
+    using Storage_T = uint32_t;
 
 protected:
     EntityController(const EntityController &other);
@@ -42,27 +42,39 @@ protected:
 
 class ControllerWithMemory : public EntityController {
 public:
-    ControllerWithMemory()
-        : EntityController() {}
+    using EntityController::EntityController;
 };
 
 class Pedestrian;
+
+enum class Turn : uint8_t {
+    Straight = 0,
+    Left = 1,
+    Right = 2,
+};
+
+enum class Move : uint8_t {
+    Stop = 0,
+    Forward = 1,
+    Backward = 2,
+};
+
 class PedController : public ControllerWithMemory {
 public:
     void setTurnLeft(bool press = true);
-    inline void releaseTurnLeft() { setTurnLeft(false); }
+    void releaseTurnLeft() { setTurnLeft(false); }
     void setTurnRight(bool press = true);
-    inline void releaseTurnRight() { setTurnRight(false); }
-    signed char getTurn();
+    void releaseTurnRight() { setTurnRight(false); }
+    [[nodiscard]] Turn getTurn() const;
     void setMoveForward(bool press = true);
-    inline void releaseMoveForward() { setMoveForward(false); }
+    void releaseMoveForward() { setMoveForward(false); }
     void setMoveBack(bool press = true);
-    inline void releaseMoveBack() { setMoveBack(false); }
-    signed char getMove();
+    void releaseMoveBack() { setMoveBack(false); }
+    [[nodiscard]] Move getMove() const;
     void setAction(bool press = true);
     void setJump(bool press = true);
     void setFireWeapon(bool press = true);
-    inline void releaseFireWeapon() { setFireWeapon(false); }
+    void releaseFireWeapon() { setFireWeapon(false); }
     bool getFireWeapon();
 
     void setActiveWeapon(unsigned char);

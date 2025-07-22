@@ -100,7 +100,7 @@ public:
     std::optional<NavData> nav;
     std::vector<ObjectPosition> objects;
     UInt16 numObjects {};
-    const Location &getNearestLocationByType(uint8_t t, uint8_t x, uint8_t y);
+    const Location &getNearestLocationByType(UInt8 t, int x, int y);
     [[nodiscard]] const LocationMap &getLocationMap() const noexcept { return locations; }
 
 protected:

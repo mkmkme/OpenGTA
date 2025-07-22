@@ -249,20 +249,18 @@ void Map::dump()
         }
     }
 }
-const Map::Location &Map::getNearestLocationByType(uint8_t t, uint8_t x, uint8_t y)
+const Map::Location &Map::getNearestLocationByType(UInt8 t, int x, int y)
 {
-    INFO("{} at {} {}", int(t), int(x), int(y));
+    INFO("{} at {} {}", int(t), x, y);
     auto i = locations.find(t);
     auto j = i;
     if (i == locations.end())
         throw Util::UnknownKey("location-type {} not found in map", int(t));
-    int _x(x);
-    int _y(y);
     int min_d = 255 * 255;
 
     while (i != locations.end()) {
         INFO("{}: {} {}", int(i->first), int(i->second.x), int(i->second.y));
-        int d = abs(_x - i->second.x) + abs(_y - i->second.y);
+        int d = abs(x - i->second.x) + abs(y - i->second.y);
         if (d < min_d) {
             min_d = d;
             j = i;

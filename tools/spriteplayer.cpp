@@ -51,8 +51,6 @@ const glm::vec3 _p(4, 0.01f, 4);
 OpenGTA::Pedestrian ped(glm::vec3(0.5f, 0.5f, 0.5f), glm::vec3(4, 0.01f, 4), 0xffffffff);
 OpenGTA::SpriteObject::Animation pedAnim(0, 0);
 
-OpenGL::DrawableFont m_font;
-
 int frame_offset = 0;
 int first_offset = 0;
 int second_offset = 0;
@@ -124,7 +122,7 @@ std::string_view vtype2name(int vt)
     return "";
 }
 
-void drawScene(Uint32 ticks, OpenGL::Screen &screen, OpenGL::Camera &camera)
+void drawScene(Uint32 ticks, OpenGL::Screen &screen, OpenGL::Camera &camera, OpenGL::DrawableFont &font)
 {
     GL_CHECKERROR;
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -154,7 +152,7 @@ void drawScene(Uint32 ticks, OpenGL::Screen &screen, OpenGL::Camera &camera)
         } else {
             sprite_info = "not a model: " + std::to_string(car_model);
         }
-        m_font.drawString(sprite_info);
+        font.drawString(sprite_info);
         glPopMatrix();
     } else {
         if (play_anim && ticks > play_anim_time + 200) {
@@ -171,7 +169,7 @@ void drawScene(Uint32 ticks, OpenGL::Screen &screen, OpenGL::Camera &camera)
         glPushMatrix();
         glTranslatef(10, 10, 0);
         std::string sprite_info = std::string { spr_type_name(spr_type) } + " offset " + std::to_string(frame_offset);
-        m_font.drawString(sprite_info);
+        font.drawString(sprite_info);
         glPopMatrix();
     }
 
@@ -358,7 +356,7 @@ void usage(const char *a0)
     );
 }
 
-void main_loop(OpenGL::Screen &screen, OpenGL::Camera &camera)
+void main_loop(OpenGL::Screen &screen, OpenGL::Camera &camera, OpenGL::DrawableFont &font)
 {
     SDL_Event event;
 
@@ -379,7 +377,7 @@ void main_loop(OpenGL::Screen &screen, OpenGL::Camera &camera)
             }
         }
         const auto now_ticks = SDL_GetTicks();
-        drawScene(now_ticks, screen, camera);
+        drawScene(now_ticks, screen, camera, font);
     }
 }
 
@@ -408,8 +406,7 @@ int main(int argc, char *argv[])
     OpenGTA::ActiveStyle::Instance().get().setDeltaHandling(true);
     OpenGTA::MainMsgLookup::Instance().load("ENGLISH.FXT");
 
-    m_font.loadFont("F_MTEXT.FON");
-    m_font.setScale(1);
+    OpenGL::DrawableFont font { "F_MTEXT.FON", 1 };
     glClearColor(1, 1, 1, 1);
     if (playWithCar) {
         car = std::make_unique<OpenGTA::Car>(_p, 0, 0, car_model);
@@ -425,7 +422,7 @@ int main(int argc, char *argv[])
     camera.setVectors({ 4, 5, 4 }, { 4, 0.0f, 4.0f }, { 0, 0, -1 });
     camera.setFollowMode(ped.pos);
 
-    main_loop(screen, camera);
+    main_loop(screen, camera, font);
 
     SDL_Quit();
 

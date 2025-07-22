@@ -53,21 +53,21 @@ public:
 
     Pedestrian &add(const Pedestrian &ped);
     Pedestrian &getPed(uint32_t id);
-    inline void removePed(uint32_t id) { _peds.erase(id); }
-    inline std::map<uint32_t, Pedestrian> &getPeds() { return _peds; }
+    void removePed(uint32_t id) { _peds.erase(id); }
+    [[nodiscard]] std::map<uint32_t, Pedestrian> &getPeds() { return _peds; }
 
     Car &add(const Car &car);
     Car &getCar(uint32_t id);
-    inline void removeCar(uint32_t id) { _cars.erase(id); }
-    inline std::map<uint32_t, Car> &getCars() { return _cars; }
+    void removeCar(uint32_t id) { _cars.erase(id); }
+    [[nodiscard]] std::map<uint32_t, Car> &getCars() { return _cars; }
 
     SpriteObject &add(const SpriteObject &obj);
     SpriteObject &getObject(uint32_t id);
-    inline void removeObject(uint32_t id) { _objects.erase(id); }
-    inline std::map<uint32_t, SpriteObject> &getObjects() { return _objects; }
+    void removeObject(uint32_t id) { _objects.erase(id); }
+    [[nodiscard]] std::map<uint32_t, SpriteObject> &getObjects() { return _objects; }
 
-    [[nodiscard]] inline bool getDrawTexBorder() const noexcept { return (_drawMode & 2); }
-    [[nodiscard]] inline bool getDrawBBox() const noexcept { return (_drawMode & 4); }
+    [[nodiscard]] bool getDrawTexBorder() const noexcept { return (_drawMode & 2); }
+    [[nodiscard]] bool getDrawBBox() const noexcept { return (_drawMode & 4); }
     void setDrawTexture(bool v);
     void setDrawTexBorder(bool v);
     void setDrawBBox(bool v);

@@ -445,7 +445,7 @@ void car_toggle(OpenGTA::LocalPlayer &player)
         }
     }
     assert(j != cars.end());
-    auto &car = j->second;
+    const auto &car = j->second;
     fmt::print("{} {} {}, {}\n", car.id(), car.pos.x, car.pos.y, car.pos.z);
     glm::vec3 p_door(car.carInfo.door[0].rpx / 64.0f, 0, car.carInfo.door[0].rpy / 64.0f);
 

@@ -24,29 +24,21 @@
 #include <cstring>
 #include <memory>
 
-#include <core/font.h>
-
 #include <graphics/font.h>
 #include <util/errors.h>
 
 #include "base.h"
 
 namespace OpenGL {
-DrawableFont::DrawableFont() noexcept
+DrawableFont::DrawableFont(const std::string &filename, unsigned int scale) noexcept
+    : fontSource(std::make_unique<OpenGTA::Font>(filename))
+    , texCache(std::make_unique<TextureCache<char>>(("FontTextures: " + filename).c_str()))
+    , srcName(filename)
+    , scale(scale)
 {
-    fontSource = nullptr;
-    texCache = nullptr;
-    scale = 1;
 }
-DrawableFont::~DrawableFont()
-{
-    cleanup();
-}
-void DrawableFont::setScale(unsigned int newScale)
-{
-    scale = newScale;
-    clearCached();
-}
+DrawableFont::~DrawableFont() = default;
+
 void DrawableFont::clearCached()
 {
     drawables.clear();
@@ -56,14 +48,7 @@ void DrawableFont::resetTextures()
     clearCached();
     texCache->clearAll();
 }
-void DrawableFont::loadFont(const std::string &filename)
-{
-    cleanup();
-    fontSource = std::make_unique<OpenGTA::Font>(filename);
-    texCache = std::make_unique<TextureCache<char>>(("FontTextures: " + filename).c_str());
-    srcName.clear();
-    srcName = filename;
-}
+
 void DrawableFont::cleanup()
 {
     clearCached();

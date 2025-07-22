@@ -20,9 +20,10 @@
  * 3. This notice may not be removed or altered from any source          *
  * distribution.                                                         *
  ************************************************************************/
-#include <cassert>
 
 #include <core/font_cache.h>
+
+#include <graphics/font.h>
 
 namespace OpenGTA {
 
@@ -30,13 +31,9 @@ OpenGL::DrawableFont &FontCache::getFont(const std::string &file, uint32_t scale
 {
     auto i = loaded_fonts_.find({ file, scale });
     if (i == loaded_fonts_.end()) {
-        auto fnt = std::make_unique<OpenGL::DrawableFont>();
-        fnt->setScale(scale);
-        fnt->loadFont(file);
-        auto [it, inserted] = loaded_fonts_.insert({ FontIdentifier { file, scale }, std::move(fnt) });
-        assert(inserted);
-        i = it;
+        OpenGL::DrawableFont fnt(file, scale);
+        i = loaded_fonts_.emplace(FontIdentifier { .filename = file, .scale = scale }, std::move(fnt)).first;
     }
-    return *i->second;
+    return i->second;
 }
 } // namespace OpenGTA

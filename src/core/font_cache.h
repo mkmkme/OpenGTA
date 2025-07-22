@@ -23,7 +23,6 @@
 #pragma once
 
 #include <map>
-#include <memory>
 #include <string>
 
 #include <graphics/font.h>
@@ -50,6 +49,6 @@ private:
         const uint32_t scale;
         auto operator<=>(const FontIdentifier &) const = default;
     };
-    std::map<FontIdentifier, std::unique_ptr<OpenGL::DrawableFont>> loaded_fonts_;
+    std::map<FontIdentifier, OpenGL::DrawableFont> loaded_fonts_;
 };
 } // namespace OpenGTA

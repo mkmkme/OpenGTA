@@ -25,22 +25,20 @@
 #include <memory>
 #include <string>
 
+#include <core/font.h>
+
 #include <graphics/base.h>
 #include <graphics/texturecache.h>
-
-namespace OpenGTA {
-class Font;
-}
 
 namespace OpenGL {
 class DrawableFont {
 public:
-    DrawableFont() noexcept;
+    DrawableFont(const std::string &filename, unsigned int scale) noexcept;
     ~DrawableFont();
-    void loadFont(const std::string &filename);
+    DrawableFont(const DrawableFont &) = delete;
+    DrawableFont(DrawableFont &&) = default;
     GLfloat drawString(const std::string &text);
     GLfloat drawString_r2l(const std::string &text);
-    void setScale(unsigned int newScale);
     uint16_t getHeight();
     void resetTextures();
 

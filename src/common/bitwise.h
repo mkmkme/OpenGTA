@@ -5,24 +5,20 @@
 #include <cstddef>
 #include <cstdint>
 
-namespace {
-
 consteval size_t getBitCount(size_t byteCount)
 {
     return byteCount * 8;
 }
 
-} // namespace
-
 namespace Util {
 
-inline constexpr bool getBit(const std::unsigned_integral auto value, uint8_t bit)
+constexpr bool getBit(const std::unsigned_integral auto value, uint8_t bit)
 {
     assert(bit >= 1 && bit <= getBitCount(sizeof(value)));
     return (value >> (bit - 1)) & 1;
 }
 
-inline constexpr void setBit(std::unsigned_integral auto *value, uint8_t bit, bool set)
+constexpr void setBit(std::unsigned_integral auto *value, uint8_t bit, bool set)
 {
     assert(bit >= 1 && bit <= getBitCount(sizeof(value)));
     if (set)

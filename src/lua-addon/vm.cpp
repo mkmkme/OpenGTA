@@ -10,15 +10,15 @@
 
 using namespace Util;
 
-// namespace OpenGTA::Globals {
-// extern int DONE;
-// } // namespace OpenGTA::Globals
-
-extern int global_Done;
+namespace OpenGTA::Globals {
+extern int done;
+} // namespace OpenGTA::Globals
 
 namespace OpenGTA::Script {
 LuaVM::LuaVM(OpenGL::Screen &screen, OpenGL::Camera &camera)
-    : L(nullptr), screen_(screen), camera_(camera)
+    : L(nullptr)
+    , screen_(screen)
+    , camera_(camera)
 {
     L = luaL_newstate();
     if (L == nullptr)
@@ -40,8 +40,7 @@ LuaVM::~LuaVM()
 
 int vm_quit([[maybe_unused]] lua_State *L)
 {
-    // OpenGTA::Globals::DONE = true;
-    global_Done = 1;
+    OpenGTA::Globals::done = true;
     return 0;
 }
 

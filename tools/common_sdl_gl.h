@@ -11,6 +11,5 @@ void initGL();
 // SDL_Surface* createRGBASurface(int w, int h);
 
 extern int videoFlags;
-extern int global_Done;
 
 #endif

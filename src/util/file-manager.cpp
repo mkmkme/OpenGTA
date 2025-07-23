@@ -24,6 +24,10 @@ namespace Util {
 
 PhysFSContext::PhysFSContext(const char *argv0, bool mount_base_dir, bool mount_gtadata) noexcept
 {
+    if (global_context.isInitialized) {
+        WARN("PhysFS already initialized");
+        return;
+    }
     PHYSFS_init(argv0);
     if (mount_base_dir)
         mountBaseDir();
@@ -68,10 +72,11 @@ bool PhysFSContext::exists(const char *filename) const noexcept
 }
 
 PhysFSFile::PhysFSFile(const std::string &filename)
-    : file { PHYSFS_openRead(filename.c_str()) }
 {
     if (!global_context.isInitialized)
         throw std::runtime_error("PhysFS not initialized");
+
+    file = PHYSFS_openRead(filename.c_str());
     if (file == nullptr) {
         std::string filename_lower { string_lower(filename) };
         file = PHYSFS_openRead(filename_lower.c_str());

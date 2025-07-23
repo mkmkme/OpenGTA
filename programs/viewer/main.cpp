@@ -60,15 +60,10 @@
 #include <util/gui.h>
 #include <util/log.h>
 
-// namespace OpenGTA::Globals {
-// extern int DONE;
-// extern int RESTART;
-// } // namespace OpenGTA::Globals
-
-// int OpenGTA::Globals::DONE = 0;
-// int OpenGTA::Globals::RESTART = 0;
-int global_Done = 0;
-int global_Restart = 0;
+namespace OpenGTA::Globals {
+extern bool done;
+extern bool restart;
+} // namespace OpenGTA::Globals
 
 class OpenGTAViewer {
 public:
@@ -793,8 +788,7 @@ void OpenGTAViewer::handleKeyPress(SDL_Keysym *keysym)
     mapPos[2] = cp[2];
     switch (keysym->sym) {
         case SDLK_ESCAPE:
-            // OpenGTA::Globals::DONE = 1;
-            global_Done = 1;
+            OpenGTA::Globals::done = true;
             break;
         case SDLK_LEFT:
             mapPos[0] -= 1.0f;
@@ -1065,7 +1059,7 @@ void OpenGTAViewer::run()
     bool vm_tick_ok = true;
     script_last_tick = last_tick;
 
-    while (!global_Done) {
+    while (!OpenGTA::Globals::done) {
         while (SDL_PollEvent(&event)) {
             switch (event.type) {
                 case SDL_WINDOWEVENT_FOCUS_GAINED:
@@ -1086,7 +1080,7 @@ void OpenGTAViewer::run()
                     screen_.resize(event.window.data1, event.window.data2);
                     break;
                 case SDL_QUIT:
-                    global_Done = 1;
+                    OpenGTA::Globals::done = true;
                     break;
                 case SDL_MOUSEBUTTONDOWN:
                     guiManager_.receive(event.button, screen_.height());

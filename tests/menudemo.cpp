@@ -20,7 +20,10 @@
 #include <util/timer.h>
 
 GUI::Manager guiManager;
-int global_Done = 0;
+
+namespace OpenGTA::Globals {
+extern bool done;
+} // namespace OpenGTA::Globals
 
 void turn_anim_off(float)
 {
@@ -107,7 +110,7 @@ void handleKeyPress(SDL_Keysym *keysym)
 {
     switch (keysym->sym) {
         case SDLK_ESCAPE:
-            global_Done = 1;
+            OpenGTA::Globals::done = true;
             break;
         default:
             break;
@@ -134,7 +137,7 @@ void run_main(OpenGL::Screen &screen)
     t.update();
     // Uint32 now_ticks = SDL_GetTicks();
     Uint32 now_ticks = t.getRealTime();
-    while (!global_Done) {
+    while (!OpenGTA::Globals::done) {
         while (SDL_PollEvent(&event)) {
             switch (event.type) {
                 case SDL_KEYDOWN:
@@ -152,7 +155,7 @@ void run_main(OpenGL::Screen &screen)
                     }
                     break;
                 case SDL_QUIT:
-                    global_Done = 1;
+                    OpenGTA::Globals::done = true;
                     break;
                 default:
                     break;

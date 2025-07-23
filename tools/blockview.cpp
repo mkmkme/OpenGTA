@@ -20,7 +20,9 @@ uint8_t which = 0;
 float r = 0;
 bool wireframe = true;
 
-int global_Done;
+namespace OpenGTA::Globals {
+extern bool done;
+}
 
 const size_t numBlockTypes = 53;
 const size_t numFaces = 5;
@@ -39,7 +41,7 @@ void handleKeyPress(SDL_keysym *keysym)
 {
     switch (keysym->sym) {
         case SDLK_ESCAPE:
-            global_Done = 1;
+            OpenGTA::Globals::done = true;
             break;
         case SDLK_LEFT:
             r -= 10;
@@ -81,18 +83,10 @@ void drawScene(OpenGL::Screen &screen, OpenGL::Camera &camera)
     else
         glBegin(GL_QUADS);
     for (int j = 0; j < 4; j++) {
-        glVertex3f(
-            SLOPE_RAW_DATA[which][0][j][0],
-            SLOPE_RAW_DATA[which][0][j][1],
-            SLOPE_RAW_DATA[which][0][j][2]
-        );
+        glVertex3f(SLOPE_RAW_DATA[which][0][j][0], SLOPE_RAW_DATA[which][0][j][1], SLOPE_RAW_DATA[which][0][j][2]);
     }
     if (wireframe)
-        glVertex3f(
-            SLOPE_RAW_DATA[which][0][0][0],
-            SLOPE_RAW_DATA[which][0][0][1],
-            SLOPE_RAW_DATA[which][0][0][2]
-        );
+        glVertex3f(SLOPE_RAW_DATA[which][0][0][0], SLOPE_RAW_DATA[which][0][0][1], SLOPE_RAW_DATA[which][0][0][2]);
     glEnd();
 
     glColor3f(0.1f, 0.5f, 1);
@@ -103,18 +97,10 @@ void drawScene(OpenGL::Screen &screen, OpenGL::Camera &camera)
         else
             glBegin(GL_QUADS);
         for (int j = 0; j < 4; j++) {
-            glVertex3f(
-                SLOPE_RAW_DATA[which][2][j][0],
-                SLOPE_RAW_DATA[which][2][j][1],
-                SLOPE_RAW_DATA[which][2][j][2]
-            );
+            glVertex3f(SLOPE_RAW_DATA[which][2][j][0], SLOPE_RAW_DATA[which][2][j][1], SLOPE_RAW_DATA[which][2][j][2]);
         }
         if (wireframe)
-            glVertex3f(
-                SLOPE_RAW_DATA[which][2][0][0],
-                SLOPE_RAW_DATA[which][2][0][1],
-                SLOPE_RAW_DATA[which][2][0][2]
-            );
+            glVertex3f(SLOPE_RAW_DATA[which][2][0][0], SLOPE_RAW_DATA[which][2][0][1], SLOPE_RAW_DATA[which][2][0][2]);
         glEnd();
     }
 
@@ -126,11 +112,7 @@ void drawScene(OpenGL::Screen &screen, OpenGL::Camera &camera)
         else
             glBegin(GL_QUADS);
         for (int j = 0; j < 4; j++) {
-            glVertex3f(
-                SLOPE_RAW_DATA[which][1][j][0],
-                SLOPE_RAW_DATA[which][1][j][1],
-                SLOPE_RAW_DATA[which][1][j][2]
-            );
+            glVertex3f(SLOPE_RAW_DATA[which][1][j][0], SLOPE_RAW_DATA[which][1][j][1], SLOPE_RAW_DATA[which][1][j][2]);
         }
         if (wireframe)
             glVertex3f(SLOPE_RAW_DATA[which][1][0][0], SLOPE_RAW_DATA[which][1][0][1], SLOPE_RAW_DATA[which][1][0][2]);
@@ -145,18 +127,10 @@ void drawScene(OpenGL::Screen &screen, OpenGL::Camera &camera)
         else
             glBegin(GL_QUADS);
         for (int j = 0; j < 4; j++) {
-            glVertex3f(
-                SLOPE_RAW_DATA[which][3][j][0],
-                SLOPE_RAW_DATA[which][3][j][1],
-                SLOPE_RAW_DATA[which][3][j][2]
-            );
+            glVertex3f(SLOPE_RAW_DATA[which][3][j][0], SLOPE_RAW_DATA[which][3][j][1], SLOPE_RAW_DATA[which][3][j][2]);
         }
         if (wireframe)
-            glVertex3f(
-                SLOPE_RAW_DATA[which][3][0][0],
-                SLOPE_RAW_DATA[which][3][0][1],
-                SLOPE_RAW_DATA[which][3][0][2]
-            );
+            glVertex3f(SLOPE_RAW_DATA[which][3][0][0], SLOPE_RAW_DATA[which][3][0][1], SLOPE_RAW_DATA[which][3][0][2]);
         glEnd();
     }
 
@@ -168,18 +142,10 @@ void drawScene(OpenGL::Screen &screen, OpenGL::Camera &camera)
         else
             glBegin(GL_QUADS);
         for (int j = 0; j < 4; j++) {
-            glVertex3f(
-                SLOPE_RAW_DATA[which][4][j][0],
-                SLOPE_RAW_DATA[which][4][j][1],
-                SLOPE_RAW_DATA[which][4][j][2]
-            );
+            glVertex3f(SLOPE_RAW_DATA[which][4][j][0], SLOPE_RAW_DATA[which][4][j][1], SLOPE_RAW_DATA[which][4][j][2]);
         }
         if (wireframe)
-            glVertex3f(
-                SLOPE_RAW_DATA[which][4][0][0],
-                SLOPE_RAW_DATA[which][4][0][1],
-                SLOPE_RAW_DATA[which][4][0][2]
-            );
+            glVertex3f(SLOPE_RAW_DATA[which][4][0][0], SLOPE_RAW_DATA[which][4][0][1], SLOPE_RAW_DATA[which][4][0][2]);
         glEnd();
     }
 
@@ -206,7 +172,7 @@ void run_main(OpenGL::Screen &screen, OpenGL::Camera &camera)
     glPolygonMode(GL_FRONT, GL_FILL);
     glEnable(GL_CULL_FACE);
 
-    while (!global_Done) {
+    while (!OpenGTA::Globals::done) {
         while (SDL_PollEvent(&event)) {
             switch (event.type) {
                 case SDL_ACTIVEEVENT:
@@ -221,7 +187,7 @@ void run_main(OpenGL::Screen &screen, OpenGL::Camera &camera)
                 case SDL_VIDEORESIZE:
                     break;
                 case SDL_QUIT:
-                    global_Done = 1;
+                    OpenGTA::Globals::done = true;
                     break;
                 case SDL_MOUSEMOTION:
                     break;

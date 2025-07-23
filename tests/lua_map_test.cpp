@@ -17,7 +17,6 @@
 
 std::string map_filename;
 const char *script_file;
-int global_Done;
 
 int main(int argc, char *argv[])
 {

@@ -12,6 +12,7 @@ add_library(ogta_core_ OBJECT
     font.cpp
     font_cache.cpp
     game_objects.cpp
+    globals.cpp
     graphics-base.cpp
     graphics-24bit.cpp
     graphics-8bit.cpp

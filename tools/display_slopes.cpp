@@ -23,7 +23,10 @@
 #include "common_sdl_gl.h"
 
 GLfloat mapPos[2] = { 0.0f, 0.0f };
-int global_Done = 0;
+
+namespace OpenGTA::Globals {
+extern bool done;
+}
 
 OpenGTA::Map *map = NULL;
 
@@ -55,7 +58,7 @@ void handleKeyPress(SDL_Keysym *keysym)
 {
     switch (keysym->sym) {
         case SDLK_ESCAPE:
-            global_Done = 1;
+            OpenGTA::Globals::done = true;
             break;
         case SDLK_LEFT:
             mapPos[0] -= 1.0f;
@@ -435,7 +438,7 @@ void run_main(const char *argv0)
     // glEnable(GL_CULL_FACE);
     map = new OpenGTA::Map("NYC.CMP");
 
-    while (!global_Done) {
+    while (!OpenGTA::Globals::done) {
         while (SDL_PollEvent(&event)) {
             switch (event.type) {
                 case SDL_WINDOWEVENT:
@@ -451,7 +454,7 @@ void run_main(const char *argv0)
                     handleKeyPress(&event.key.keysym);
                     break;
                 case SDL_QUIT:
-                    global_Done = 1;
+                    OpenGTA::Globals::done = true;
                     break;
                 default:
                     break;

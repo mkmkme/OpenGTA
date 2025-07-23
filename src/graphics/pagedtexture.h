@@ -29,9 +29,15 @@ namespace OpenGL {
 
 struct TexCoord {
     TexCoord(GLfloat a, GLfloat b)
-        : u(a), v(b) {}
+        : u(a)
+        , v(b)
+    {
+    }
     TexCoord()
-        : u(0.0f), v(0.0f) {}
+        : u(0.0f)
+        , v(0.0f)
+    {
+    }
     GLfloat u;
     GLfloat v;
 };
@@ -56,11 +62,19 @@ public:
         coords[1].v = d;
     }
     PagedTexture()
-        : inPage(0) {}
+        : inPage(0)
+    {
+    }
     PagedTexture(const PagedTexture &other)
-        : inPage(other.inPage) { _copyCoords(other); }
+        : inPage(other.inPage)
+    {
+        _copyCoords(other);
+    }
     PagedTexture &operator=(const PagedTexture &other)
     {
+        if (this == &other) {
+            return *this;
+        }
         inPage = other.inPage;
         _copyCoords(other);
         return *this;

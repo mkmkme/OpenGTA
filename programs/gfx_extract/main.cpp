@@ -20,7 +20,6 @@
  * 3. This notice may not be removed or altered from any source          *
  * distribution.                                                         *
  ************************************************************************/
-#include <iostream>
 
 #ifdef _MSC_VER
 #define SDL_MAIN_HANDLED
@@ -100,8 +99,9 @@ SDL_Surface *get_image(std::span<const uint8_t> rp, unsigned int w, unsigned int
 
 int main(int argc, char *argv[])
 {
+    Util::enableBacktraces();
     const Util::PhysFSContext pfs(argv[0]);
-    std::string file;
+    std::string file = "STYLE001.G24";
     SDL_Init(SDL_INIT_VIDEO);
 
     int c = 0;
@@ -159,67 +159,61 @@ int main(int argc, char *argv[])
     }
 
     if (file.empty()) {
-        std::cerr << "Error: no data file selected" << std::endl;
+        fmt::println(stderr, "Error: no data file selected");
         return 1;
     }
     if (!pfs.exists(file.data())) {
-        std::cerr << "File does not exist in searchpath: " << file << std::endl;
+        fmt::println(stderr, "File does not exist in searchpath: {}", file);
         return 1;
     }
-    try {
-        // exception handling of the constructor doesn't work here; urgh...
-        OpenGTA::ActiveStyle::Instance().load(file);
-        OpenGTA::GraphicsBase &graphics = OpenGTA::ActiveStyle::Instance().get();
-        if (delta_set)
-            graphics.setDeltaHandling(true);
+    // exception handling of the constructor doesn't work here; urgh...
+    OpenGTA::ActiveStyle::Instance().load(file);
+    OpenGTA::GraphicsBase &graphics = OpenGTA::ActiveStyle::Instance().get();
+    if (delta_set)
+        graphics.setDeltaHandling(true);
 
-        if (!mode)
-            return 0;
+    if (!mode)
+        return 0;
 
-        switch (section) {
-            case 0:
-                graphics.getSide(idx, 0, rgba);
-                image = get_image(graphics.getTmpBuffer(rgba), 64, 64);
-                break;
-            case 1:
-                graphics.getLid(idx, 0, rgba);
-                image = get_image(graphics.getTmpBuffer(rgba), 64, 64);
-                break;
-            case 2:
-                graphics.getAux(idx, 0, rgba);
-                image = get_image(graphics.getTmpBuffer(rgba), 64, 64);
-                break;
-            case 3:
-                const auto &sprite = graphics.getSprite(idx);
-                std::cout << "Sprite is " << int(sprite.w) << "x" << int(sprite.h) << " with " << int(sprite.deltaCount)
-                          << " deltas" << std::endl;
-                auto sbitmap = graphics.getSpriteBitmap(idx, remap, delta);
-                image = get_image(sbitmap, sprite.w, sprite.h);
+    switch (section) {
+        case 0:
+            graphics.getSide(idx, 0, rgba);
+            image = get_image(graphics.getTmpBuffer(rgba), 64, 64);
+            break;
+        case 1:
+            graphics.getLid(idx, 0, rgba);
+            image = get_image(graphics.getTmpBuffer(rgba), 64, 64);
+            break;
+        case 2:
+            graphics.getAux(idx, 0, rgba);
+            image = get_image(graphics.getTmpBuffer(rgba), 64, 64);
+            break;
+        case 3:
+            const auto &sprite = graphics.getSprite(idx);
+            fmt::println("Sprite is {} x {} with {} deltas", sprite.w, sprite.h, sprite.deltaCount);
+            auto sbitmap = graphics.getSpriteBitmap(idx, remap, delta);
+            image = get_image(sbitmap, sprite.w, sprite.h);
 #ifdef DUMP_DELTA_DEBUG
-                if (delta && !delta_set) {
-                    std::cout << "dumping delta" << std::endl;
-                    OpenGTA::GraphicsBase::DeltaInfo &dinfo = sprite->delta[delta - 1];
-                    int dump_fd = open("delta.raw", O_WRONLY | O_CREAT | O_TRUNC, S_IRUSR | S_IWUSR);
-                    write(dump_fd, dinfo.ptr, dinfo.size);
-                    close(dump_fd);
-                }
+            if (delta && !delta_set) {
+                std::cout << "dumping delta" << std::endl;
+                OpenGTA::GraphicsBase::DeltaInfo &dinfo = sprite->delta[delta - 1];
+                int dump_fd = open("delta.raw", O_WRONLY | O_CREAT | O_TRUNC, S_IRUSR | S_IWUSR);
+                write(dump_fd, dinfo.ptr, dinfo.size);
+                close(dump_fd);
+            }
 #endif
-                break;
-        }
+            break;
+    }
 
-        if (!image) {
-            std::cerr << "Error: image pointer is NULL; aborting" << std::endl;
-            return 1;
-        }
-        if (mode & 1) {
-            display_image(image);
-        }
-        if (mode & 2) {
-            SDL_SaveBMP(image, "out.bmp");
-        }
-    } catch (const Util::Exception &e) {
-        std::cerr << "Exception occured: " << e.what() << std::endl;
+    if (!image) {
+        fmt::println(stderr, "Error: image pointer is NULL; aborting");
         return 1;
+    }
+    if (mode & 1) {
+        display_image(image);
+    }
+    if (mode & 2) {
+        SDL_SaveBMP(image, "out.bmp");
     }
 
     if (image)

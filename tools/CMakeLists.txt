@@ -12,15 +12,16 @@ target_link_libraries(spriteplayer PRIVATE
 
 # TODO: fix this
 add_executable(slopeview  EXCLUDE_FROM_ALL display_slopes.cpp common_sdl_gl.cpp)
-target_link_libraries(slopeview PRIVATE SDL2::SDL2 OpenGL::GLU physfs)
 target_include_directories(slopeview PRIVATE ${OpenGTA_SOURCE_DIR}/src)
 
-# target_link_libraries(slopeview
-#     ogta
-#     ogta-util
-#     SDL2::SDL2
-#     OpenGL::GLU
-#     physfs)
+target_link_libraries(slopeview
+    ogta::core
+    ogta::graphics
+    ogta::util
+    SDL2::SDL2
+    OpenGL::GLU
+    fmt::fmt
+    physfs)
 
 add_executable(g24-dumper g24-dumper.cpp)
 target_include_directories(g24-dumper PRIVATE ${PHYSFS_INCLUDE_DIR})

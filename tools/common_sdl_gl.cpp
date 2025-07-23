@@ -1,7 +1,9 @@
-#include <iostream>
 
 #include <SDL.h>
 #include <SDL_opengl.h>
+#include <SDL_surface.h>
+
+#include <GL/glu.h>
 
 #include <util/log.h>
 
@@ -38,54 +40,64 @@ int resize(int w, int h)
 
 void initVideo(int w, int h, int bpp)
 {
-    const SDL_VideoInfo *videoInfo;
-    /*
+    SDL_DisplayMode videoInfo;
     SDL_Rect **modes;
     int i;
 
-    videoInfo = SDL_GetVideoInfo( );
-    modes=SDL_ListModes(videoInfo->vfmt, SDL_FULLSCREEN|SDL_HWSURFACE);
-    if(modes == (SDL_Rect **)0){
-    printf("No modes available!\n");
-    exit(1);
+    if (SDL_GetCurrentDisplayMode(0, &videoInfo) != 0) {
+        printf("VideoInfo query failed: %s\n", SDL_GetError());
+        exit(1);
     }
 
-    if(modes == (SDL_Rect **)-1){
-      printf("All resolutions available.\n");
+    // SDL_ListModes is deprecated, switching to using SDL_GetNumDisplayModes and SDL_GetDisplayMode
+    int mode_count = SDL_GetNumDisplayModes(0);
+    if (mode_count < 1) {
+        printf("No modes available!\n");
+        exit(1);
     }
-    else{
-      printf("Available Modes\n");
-      for(i=0;modes[i];++i)
-        printf("  %d x %d\n", modes[i]->w, modes[i]->h);
-    }
-    */
 
-    if (!videoInfo)
-        ERROR("VideoInfo query failed");
-    videoFlags = SDL_OPENGL;
+    printf("Available Modes %d\n", mode_count);
+    for (i = 0; i < mode_count; ++i) {
+        if (SDL_GetDisplayMode(0, i, &videoInfo) != 0) {
+            printf("Could not get display mode for video display #%d: %s\n", i, SDL_GetError());
+        } else {
+            printf("%d: %d x %d\n", i, videoInfo.w, videoInfo.h);
+        }
+    }
+
+    // if (modes == (SDL_Rect **) -1) {
+    //     printf("All resolutions available.\n");
+    // } else {
+    //     printf("Available Modes %d\n", mode_count);
+    //     for (i = 0; i < mode_count; ++i)
+    //         printf("%d: %d x %d\n", i, modes[i]->w, modes[i]->h);
+    // }
+
+    videoFlags = SDL_WINDOW_OPENGL;
     videoFlags |= SDL_GL_DOUBLEBUFFER;
-    videoFlags |= SDL_HWPALETTE;
+    // Removed SDL_HWPALETTE due to undeclared identifier
     // videoFlags |= SDL_RESIZABLE;
     // videoFlags |= SDL_FULLSCREEN;
 
-    if (videoInfo->hw_available) {
-        INFO("Using HWSURFACE");
-        videoFlags |= SDL_HWSURFACE;
-    } else {
-        INFO("Using SWSURFACE");
-        videoFlags |= SDL_SWSURFACE;
-    }
-    if (videoInfo->blit_hw) {
-        INFO("Using HWACCEL");
-        videoFlags |= SDL_HWACCEL;
-    }
+    // if (videoInfo->hw_available) {
+    //     INFO("Using HWSURFACE");
+    //     videoFlags |= SDL_HWSURFACE;
+    // } else {
+    //     INFO("Using SWSURFACE");
+    //     videoFlags |= SDL_SWSURFACE;
+    // }
+    videoFlags |= SDL_SWSURFACE;
+    // if (videoInfo->blit_hw) {
+    //     INFO("Using HWACCEL");
+    //     videoFlags |= SDL_HWACCEL;
+    // }
     SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
 
-    screen = SDL_SetVideoMode(w, h, bpp, videoFlags);
-    if (!screen)
-        ERROR("SDL failed to generate requested VideoSurface!");
+    // screen = SDL_SetVideoMode(w, h, bpp, videoFlags);
+    // if (!screen)
+    //     ERROR("SDL failed to generate requested VideoSurface!");
 
-    resize(w, h);
+    // resize(w, h);
 }
 
 void initGL()

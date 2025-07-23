@@ -1,22 +1,37 @@
+#include <SDL_keycode.h>
+#include <SDL_video.h>
+
+#include "graphics/screen.h"
+#include "util/errors.h"
+
+#include "core/active-style.h"
+#include "core/main-msg-lookup.h"
 #define SDL_MAIN_HANDLED
 
 #include <cmath>
 #include <iostream>
+
+#include <GL/glu.h>
+#include <core/map.h>
+
+#include <util/file-manager.h>
 // #include <SDL_image.h>
-#include <SDL_opengl.h>
+#include <SDL2/SDL_opengl.h>
 
 #include <util/log.h>
 
 #include "common_sdl_gl.h"
 
-SDL_Surface *screen = nullptr;
 GLfloat mapPos[2] = { 0.0f, 0.0f };
+int global_Done = 0;
 
 OpenGTA::Map *map = NULL;
 
 float slope_raw_data[45][5][4][3] = {
 #include <data/slope1_data.h>
 };
+
+int city_num = 0;
 
 float lid_normal_data[45][3] = {
 #include <data/lid_normal_data.h>
@@ -36,7 +51,7 @@ void on_exit()
     std::cout << "Goodbye" << std::endl;
 }
 
-void handleKeyPress(SDL_keysym *keysym)
+void handleKeyPress(SDL_Keysym *keysym)
 {
     switch (keysym->sym) {
         case SDLK_ESCAPE:
@@ -68,13 +83,14 @@ void handleKeyPress(SDL_keysym *keysym)
         case ',':
             angle -= 1.0f;
             break;
-        case '+':
+        case SDLK_PLUS:
+        case SDLK_EQUALS:
             slope_idx++;
             if (slope_idx > 44)
                 slope_idx = 44;
             printf("now %i\n", slope_idx);
             break;
-        case '-':
+        case SDLK_MINUS:
             slope_idx--;
             if (slope_idx < 0)
                 slope_idx = 0;
@@ -91,16 +107,16 @@ void draw_slope(float size, int which)
     float green = 0.7;
     float blue = 0.3;
 #if 0
-  
+
   float x1,x2,y1,y2,z1,z2 = 0.0f;
   x1 = slope_raw_data[which][0][0][0] - slope_raw_data[which][0][1][0];
   y1 = slope_raw_data[which][0][0][1] - slope_raw_data[which][0][1][1];
   z1 = slope_raw_data[which][0][0][2] - slope_raw_data[which][0][1][2];
-  
+
   x2 = slope_raw_data[which][0][1][0] - slope_raw_data[which][0][2][0];
   y2 = slope_raw_data[which][0][1][1] - slope_raw_data[which][0][2][1];
   z2 = slope_raw_data[which][0][1][2] - slope_raw_data[which][0][2][2];
-  
+
   float nx,ny,nz,vLen = 0.0f;
   nx = (y1 * z2) - (z1 * y2);
   ny = (z1 * x2) - (x1 * z2);
@@ -199,159 +215,159 @@ void draw_slope(float size, int which)
             glVertex3f(slope_raw_data[which][i][j][0], slope_raw_data[which][i][j][1], slope_raw_data[which][i][j][2]);
         }
         glEnd();
-#if 0
-    if (i == 0) {
-      glBegin(GL_LINES);
-        glColor3f(0.0f, 0.0f, 0.5f);
-      glVertex3f(0.5f, 1.0f, -0.5f);
-        glColor3f(1.0f, 1.0f, 1.0f);
-      glVertex3f(0.5f+nx, 1.0f+ny, -0.5f+nz);
-      glEnd();
-    }
-    if (i == 1) {
-      glBegin(GL_LINES);
-        glColor3f(0.0f, 0.5f, 0.0f);
-      glVertex3f(0.5f, 0.5f, 0.0f);
-        glColor3f(1.0f, 1.0f, 1.0f);
-      glVertex3f(0.5f, 0.5f, 1.0f);
-      glEnd();
-    }
-    if (i == 2) {
-      glBegin(GL_LINES);
-        glColor3f(0.5f, 0.0f, 0.0f);
-      glVertex3f(0.5f, 0.5f, -1.0f);
-        glColor3f(1.0f, 1.0f, 1.0f);
-      glVertex3f(0.5f, 0.5f, -2.0f);
-      glEnd();
-    }
-    if (i == 3) {
-      glBegin(GL_LINES);
-        glColor3f(0.0f, 0.5f, 0.5f);
-      glVertex3f(0.0f, 0.5f, -0.5f);
-        glColor3f(1.0f, 1.0f, 1.0f);
-      glVertex3f(-1.0f, 0.5f, -0.5f);
-      glEnd();
-    }
-    if (i == 4) {
-      glBegin(GL_LINES);
-        glColor3f(0.5f, 0.5f, 0.0f);
-      glVertex3f(1.0f, 0.5f, -0.5f);
-        glColor3f(1.0f, 1.0f, 1.0f);
-      glVertex3f(2.0f, 0.5f, -0.5f);
-      glEnd();
-    }
+#if 1
+        if (i == 0) {
+            glBegin(GL_LINES);
+            glColor3f(0.0f, 0.0f, 0.5f);
+            glVertex3f(0.5f, 1.0f, -0.5f);
+            glColor3f(1.0f, 1.0f, 1.0f);
+            glVertex3f(0.5f + nx, 1.0f + ny, -0.5f + nz);
+            glEnd();
+        }
+        if (i == 1) {
+            glBegin(GL_LINES);
+            glColor3f(0.0f, 0.5f, 0.0f);
+            glVertex3f(0.5f, 0.5f, 0.0f);
+            glColor3f(1.0f, 1.0f, 1.0f);
+            glVertex3f(0.5f, 0.5f, 1.0f);
+            glEnd();
+        }
+        if (i == 2) {
+            glBegin(GL_LINES);
+            glColor3f(0.5f, 0.0f, 0.0f);
+            glVertex3f(0.5f, 0.5f, -1.0f);
+            glColor3f(1.0f, 1.0f, 1.0f);
+            glVertex3f(0.5f, 0.5f, -2.0f);
+            glEnd();
+        }
+        if (i == 3) {
+            glBegin(GL_LINES);
+            glColor3f(0.0f, 0.5f, 0.5f);
+            glVertex3f(0.0f, 0.5f, -0.5f);
+            glColor3f(1.0f, 1.0f, 1.0f);
+            glVertex3f(-1.0f, 0.5f, -0.5f);
+            glEnd();
+        }
+        if (i == 4) {
+            glBegin(GL_LINES);
+            glColor3f(0.5f, 0.5f, 0.0f);
+            glVertex3f(1.0f, 0.5f, -0.5f);
+            glColor3f(1.0f, 1.0f, 1.0f);
+            glVertex3f(2.0f, 0.5f, -0.5f);
+            glEnd();
+        }
 #endif
     }
 }
 
-#if 0
-void draw_cube(float size) {
-  /* thanks to lesson 6 at Nehe */
+#if 1
+void draw_cube(float size)
+{
+    /* thanks to lesson 6 at Nehe */
 
-  glDisable(GL_TEXTURE_2D);
-  glBegin(GL_QUADS);
-  glColor3f(1.0f, 0.0f, 1.0f);
-  // Front Face
-  glTexCoord2f(0.0f, 0.0f);
-  glNormal3f(0.0f, 1.0f, 0.0f);
-  glVertex3f(-size, -size,  size);// Bottom Left Of The Texture and Quad
-  glTexCoord2f(1.0f, 0.0f); 
-  glVertex3f( size, -size,  size);// Bottom Right Of The Texture and Quad
-  glTexCoord2f(1.0f, 1.0f); 
-  glVertex3f( size,  size,  size);// Top Right Of The Texture and Quad
-  glTexCoord2f(0.0f, 1.0f); 
-  glVertex3f(-size,  size,  size);// Top Left Of The Texture and Quad
+    glDisable(GL_TEXTURE_2D);
+    glBegin(GL_QUADS);
+    glColor3f(1.0f, 0.0f, 1.0f);
+    // Front Face
+    glTexCoord2f(0.0f, 0.0f);
+    glNormal3f(0.0f, 1.0f, 0.0f);
+    glVertex3f(-size, -size, size); // Bottom Left Of The Texture and Quad
+    glTexCoord2f(1.0f, 0.0f);
+    glVertex3f(size, -size, size); // Bottom Right Of The Texture and Quad
+    glTexCoord2f(1.0f, 1.0f);
+    glVertex3f(size, size, size); // Top Right Of The Texture and Quad
+    glTexCoord2f(0.0f, 1.0f);
+    glVertex3f(-size, size, size); // Top Left Of The Texture and Quad
 
-  glColor3f(1.0f, 0.0f, 0.0f);
-  // Back Face
-  glTexCoord2f(1.0f, 0.0f); 
-  glNormal3f(0.0f, -1.0f, 0.0f);
-  glVertex3f(-size, -size, -size);// Bottom Right Of The Texture and Quad
-  glTexCoord2f(1.0f, 1.0f); 
-  glVertex3f(-size,  size, -size);// Top Right Of The Texture and Quad
-  glTexCoord2f(0.0f, 1.0f); 
-  glVertex3f( size,  size, -size);// Top Left Of The Texture and Quad
-  glTexCoord2f(0.0f, 0.0f);
-  glVertex3f( size, -size, -size);// Bottom Left Of The Texture and Quad
-  glColor3f(1.0f, 1.0f, 1.0f);
-  // Top Face
-  glTexCoord2f(0.0f, 1.0f); 
-  glNormal3f(0.0f, 0.0f, 1.0f);
-  glVertex3f(-size,  size, -size);// Top Left Of The Texture and Quad
-  glTexCoord2f(0.0f, 0.0f); 
-  glVertex3f(-size,  size,  size);// Bottom Left Of The Texture and Quad
-  glTexCoord2f(1.0f, 0.0f); 
-  glVertex3f( size,  size,  size);// Bottom Right Of The Texture and Quad
-  glTexCoord2f(1.0f, 1.0f);
-  glVertex3f( size,  size, -size);// Top Right Of The Texture and Quad
-  // Bottom Face
-  glColor3f(1.0f, 1.0f, 1.0f);
-  glTexCoord2f(1.0f, 1.0f);
-  glNormal3f(0.0f, 0.0f, -1.0f);
-  glVertex3f(-size, -size, -size);// Top Right Of The Texture and Quad
-  glTexCoord2f(0.0f, 1.0f); 
-  glVertex3f( size, -size, -size);// Top Left Of The Texture and Quad
-  glTexCoord2f(0.0f, 0.0f); 
-  glVertex3f( size, -size,  size);// Bottom Left Of The Texture and Quad
-  glTexCoord2f(1.0f, 0.0f); 
-  glVertex3f(-size, -size,  size);// Bottom Right Of The Texture and Quad
-  // Right face
-  glColor3f(1.0f, 1.0f, 1.0f);
-  glTexCoord2f(1.0f, 0.0f); 
-  glNormal3f(1.0f, 0.0f, 0.0f);
-  glVertex3f( size, -size, -size);// Bottom Right Of The Texture and Quad
-  glTexCoord2f(1.0f, 1.0f); 
-  glVertex3f( size,  size, -size);// Top Right Of The Texture and Quad
-  glTexCoord2f(0.0f, 1.0f);
-  glVertex3f( size,  size,  size);// Top Left Of The Texture and Quad
-  glTexCoord2f(0.0f, 0.0f);
-  glVertex3f( size, -size,  size);// Bottom Left Of The Texture and Quad
-  // Left Face
-  glColor3f(1.0f, 1.0f, 1.0f);
-  glTexCoord2f(0.0f, 0.0f); 
-  glNormal3f(-1.0f, 0.0f, 0.0f);
-  glVertex3f(-size, -size, -size);// Bottom Left Of The Texture and Quad
-  glTexCoord2f(1.0f, 0.0f);
-  glVertex3f(-size, -size,  size);// Bottom Right Of The Texture and Quad
-  glTexCoord2f(1.0f, 1.0f);
-  glVertex3f(-size,  size,  size);// Top Right Of The Texture and Quad
-  glTexCoord2f(0.0f, 1.0f);
-  glVertex3f(-size,  size, -size);// Top Left Of The Texture and Quad
-  glEnd();
+    glColor3f(1.0f, 0.0f, 0.0f);
+    // Back Face
+    glTexCoord2f(1.0f, 0.0f);
+    glNormal3f(0.0f, -1.0f, 0.0f);
+    glVertex3f(-size, -size, -size); // Bottom Right Of The Texture and Quad
+    glTexCoord2f(1.0f, 1.0f);
+    glVertex3f(-size, size, -size); // Top Right Of The Texture and Quad
+    glTexCoord2f(0.0f, 1.0f);
+    glVertex3f(size, size, -size); // Top Left Of The Texture and Quad
+    glTexCoord2f(0.0f, 0.0f);
+    glVertex3f(size, -size, -size); // Bottom Left Of The Texture and Quad
+    glColor3f(1.0f, 1.0f, 1.0f);
+    // Top Face
+    glTexCoord2f(0.0f, 1.0f);
+    glNormal3f(0.0f, 0.0f, 1.0f);
+    glVertex3f(-size, size, -size); // Top Left Of The Texture and Quad
+    glTexCoord2f(0.0f, 0.0f);
+    glVertex3f(-size, size, size); // Bottom Left Of The Texture and Quad
+    glTexCoord2f(1.0f, 0.0f);
+    glVertex3f(size, size, size); // Bottom Right Of The Texture and Quad
+    glTexCoord2f(1.0f, 1.0f);
+    glVertex3f(size, size, -size); // Top Right Of The Texture and Quad
+    // Bottom Face
+    glColor3f(1.0f, 1.0f, 1.0f);
+    glTexCoord2f(1.0f, 1.0f);
+    glNormal3f(0.0f, 0.0f, -1.0f);
+    glVertex3f(-size, -size, -size); // Top Right Of The Texture and Quad
+    glTexCoord2f(0.0f, 1.0f);
+    glVertex3f(size, -size, -size); // Top Left Of The Texture and Quad
+    glTexCoord2f(0.0f, 0.0f);
+    glVertex3f(size, -size, size); // Bottom Left Of The Texture and Quad
+    glTexCoord2f(1.0f, 0.0f);
+    glVertex3f(-size, -size, size); // Bottom Right Of The Texture and Quad
+    // Right face
+    glColor3f(1.0f, 1.0f, 1.0f);
+    glTexCoord2f(1.0f, 0.0f);
+    glNormal3f(1.0f, 0.0f, 0.0f);
+    glVertex3f(size, -size, -size); // Bottom Right Of The Texture and Quad
+    glTexCoord2f(1.0f, 1.0f);
+    glVertex3f(size, size, -size); // Top Right Of The Texture and Quad
+    glTexCoord2f(0.0f, 1.0f);
+    glVertex3f(size, size, size); // Top Left Of The Texture and Quad
+    glTexCoord2f(0.0f, 0.0f);
+    glVertex3f(size, -size, size); // Bottom Left Of The Texture and Quad
+    // Left Face
+    glColor3f(1.0f, 1.0f, 1.0f);
+    glTexCoord2f(0.0f, 0.0f);
+    glNormal3f(-1.0f, 0.0f, 0.0f);
+    glVertex3f(-size, -size, -size); // Bottom Left Of The Texture and Quad
+    glTexCoord2f(1.0f, 0.0f);
+    glVertex3f(-size, -size, size); // Bottom Right Of The Texture and Quad
+    glTexCoord2f(1.0f, 1.0f);
+    glVertex3f(-size, size, size); // Top Right Of The Texture and Quad
+    glTexCoord2f(0.0f, 1.0f);
+    glVertex3f(-size, size, -size); // Top Left Of The Texture and Quad
+    glEnd();
 }
 #endif
 
-void drawScene()
+void drawScene(OpenGL::Screen &screen)
 {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glLoadIdentity();
     gluLookAt(5.0f, 5.0f, 5.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f);
     glTranslatef(mapPos[0], mapPos[1], 0.0f);
-    /*
-      for (int i=0; i<50; i++) {
-      glPushMatrix();
-      glTranslatef(0.0f, float(i), 0.0f);
-      for (int j=0; j<50; j++) {
-        glTranslatef(1.0f, 0.0f, 0.0f);
-        float step_col = 0.0f;
-        glColor3f(0.2f+step_col, 0.2f+step_col, 1.0f-step_col);
-        PHYSFS_uint16 emptycount = map->getNumBlocksAt(j,i);
+    for (int i = 0; i < 50; i++) {
         glPushMatrix();
-        for(int c=0; c < 6 - emptycount; c++) {
-          draw_cube(0.5f);
-          glTranslatef(0.0f, 0.0f, 1.0f);
-          step_col += 0.2;
-          glColor3f(0.2f+step_col, 0.1f+step_col, 1.0f-step_col);
+        glTranslatef(0.0f, float(i), 0.0f);
+        for (int j = 0; j < 50; j++) {
+            glTranslatef(1.0f, 0.0f, 0.0f);
+            float step_col = 0.0f;
+            glColor3f(0.2f + step_col, 0.2f + step_col, 1.0f - step_col);
+            PHYSFS_uint16 emptycount = map->getNumBlocksAt(j, i);
+            glPushMatrix();
+            for (int c = 0; c < 6 - emptycount; c++) {
+                draw_cube(0.5f);
+                glTranslatef(0.0f, 0.0f, 1.0f);
+                step_col += 0.2;
+                glColor3f(0.2f + step_col, 0.1f + step_col, 1.0f - step_col);
+            }
+            glPopMatrix();
         }
         glPopMatrix();
-      }
-      glPopMatrix();
-      }*/
+    }
     // draw_cube(1.0f);
     glRotatef(angle, 0, 1, 0);
     glEnable(GL_TEXTURE_2D);
     draw_slope(1.0f, slope_idx);
-    SDL_GL_SwapBuffers();
+    SDL_GL_SwapWindow(screen.get());
 }
 
 GLuint createGLTexture(GLsizei w, GLsizei h, const void *pixels)
@@ -372,13 +388,18 @@ GLuint createGLTexture(GLsizei w, GLsizei h, const void *pixels)
     return tex;
 }
 
-void run_main()
+void run_main(const char *argv0)
 {
     SDL_Event event;
     int paused = 0;
 
-    PHYSFS_init("mapview");
-    PHYSFS_mount(PHYSFS_getBaseDir(), nullptr, 1);
+    Util::PhysFSContext physfs { argv0 };
+
+    OpenGTA::ActiveStyle::Instance().load("STYLE001.G24");
+    OpenGTA::ActiveStyle::Instance().get().setDeltaHandling(true);
+    OpenGTA::MainMsgLookup::Instance().load("ENGLISH.FXT");
+    OpenGL::Screen screen;
+    screen.activate(640, 480);
 
     /*
       SDL_Surface * tex = IMG_Load("lid.jpg");
@@ -412,25 +433,22 @@ void run_main()
 
     glCullFace(GL_BACK);
     // glEnable(GL_CULL_FACE);
-    // map = new OpenGTA::Map("NYC.CMP");
+    map = new OpenGTA::Map("NYC.CMP");
 
     while (!global_Done) {
         while (SDL_PollEvent(&event)) {
             switch (event.type) {
-                case SDL_ACTIVEEVENT:
-                    if (event.active.gain == 0)
+                case SDL_WINDOWEVENT:
+                    if (event.window.event == SDL_WINDOWEVENT_FOCUS_LOST)
                         paused = 1;
-                    else
+                    else if (event.window.event == SDL_WINDOWEVENT_FOCUS_GAINED)
                         paused = 0;
+                    else if (event.window.event == SDL_WINDOWEVENT_RESIZED) {
+                        screen.resize(event.window.data1, event.window.data2);
+                    }
                     break;
                 case SDL_KEYDOWN:
                     handleKeyPress(&event.key.keysym);
-                    break;
-                case SDL_VIDEORESIZE:
-                    screen = SDL_SetVideoMode(event.resize.w, event.resize.h, 32, videoFlags);
-                    if (!screen)
-                        ERROR("Failed to set video mode after resize event");
-                    resize(event.resize.w, event.resize.h);
                     break;
                 case SDL_QUIT:
                     global_Done = 1;
@@ -440,7 +458,7 @@ void run_main()
             }
         }
         if (!paused)
-            drawScene();
+            drawScene(screen);
     }
     glDeleteTextures(1, &lid);
     glDeleteTextures(1, &north);
@@ -451,18 +469,15 @@ void run_main()
 
 int main(int argc, char *argv[])
 {
-    if (SDL_Init(SDL_INIT_VIDEO) < 0) {
-        std::cerr << "Fatal error initialising SDL!" << std::endl;
-        return 1;
-    }
+    Util::enableBacktraces();
     atexit(on_exit);
     if (argc == 2) {
         city_num = atoi(argv[1]);
     }
-    SDL_EnableKeyRepeat(100, SDL_DEFAULT_REPEAT_INTERVAL);
+    // SDL_EnableKeyRepeat(100, SDL_DEFAULT_REPEAT_INTERVAL);
     initVideo(1024, 768, 32);
     initGL();
 
-    run_main();
-    exit(0);
+    run_main(argv[0]);
+    return 0;
 }

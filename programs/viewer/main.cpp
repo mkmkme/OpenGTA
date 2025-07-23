@@ -193,11 +193,10 @@ void create_ingame_gui(GUI::Manager &gm, OpenGL::Screen &screen)
 {
     assert(!wantedLevel);
     {
-        SDL_Rect r;
-        r.h = 32;
-        r.x = screen.width() / 2 - 50;
-        r.y = screen.height() - r.h;
-        r.w = 100;
+        SDL_Rect r { .x = static_cast<int>((screen.width() / 2) - 50),
+                     .y = static_cast<int>(screen.height() - 32),
+                     .w = 100,
+                     .h = 32 };
         SDL_Rect rs { .x = 0, .y = 0, .w = 16, .h = 16 };
         gm.cacheStyleArrowSprite(16, -1);
         gm.cacheStyleArrowSprite(17, -1);
@@ -251,7 +250,7 @@ ParseArgsResult parse_args(int argc, char **argv) noexcept
 {
     cxxopts::Options options { "viewer", "Demo program for OpenGTA" };
     // clang-format off
-    options.positional_help("[CITY_NUMBER]").add_options()
+    options.add_options()
         ("s", "Path to Lua script to execute", cxxopts::value<std::string>(script_file))
         ("a", "Anisotropic filter degree: 1.0 = disabled", cxxopts::value<float>(anisotropic_filter_degree))
         ("c", "Color mode: 0 = 8bit GRY, 1 = 24bit G24", cxxopts::value<bool>(highcolor_data))
@@ -265,11 +264,10 @@ ParseArgsResult parse_args(int argc, char **argv) noexcept
         ("v", "Vertical sync: 0 = disable, 1 = try with SDL", cxxopts::value<int>(vsync_config))
         ("V,version", "Print version and exit")
         ("x", "Scale2x sprites: 0 = disable, 1 = enable", cxxopts::value<int>(config_scale2x))
+        ("city", "City number", cxxopts::value<int>(city_num))
         ("help", "Print help and exit")
         ;
     // clang-format on
-
-    //    options.parse_positional({"city"});
 
     try {
         auto result = options.parse(argc, argv);
@@ -703,8 +701,7 @@ OpenGTAViewer::OpenGTAViewer(std::string_view progname)
     lua_State *L = luaVM_.getInternalState();
     if (lua_type(L, 1) == LUA_TTABLE) {
         float tmpFloat;
-        if (luaVM_.tryGetFloat("gl_anisotropic_textures", tmpFloat) &&
-            ImageUtil::supportedMaxAnisoDegree >= tmpFloat)
+        if (luaVM_.tryGetFloat("gl_anisotropic_textures", tmpFloat) && ImageUtil::supportedMaxAnisoDegree >= tmpFloat)
             ImageUtil::supportedMaxAnisoDegree = tmpFloat;
 
         if (highcolor_data)
@@ -762,12 +759,10 @@ void OpenGTAViewer::createPedAt(const glm::vec3 &v)
 void OpenGTAViewer::showGammaConfig()
 {
     if (gamma_slide) {
-        SDL_Rect r {
-            .x = static_cast<int>(screen_.width() / 2),
-            .y = static_cast<int>(screen_.height() / 2),
-            .w = 200,
-            .h = 30
-        };
+        SDL_Rect r { .x = static_cast<int>(screen_.width() / 2),
+                     .y = static_cast<int>(screen_.height() / 2),
+                     .w = 200,
+                     .h = 30 };
 
         auto *sb = new GUI::ScrollBar(GUI::GAMMA_SCROLLBAR_ID, r);
         sb->color.r = sb->color.g = sb->color.b = 180;
@@ -778,13 +773,7 @@ void OpenGTAViewer::showGammaConfig()
         guiManager_.add(sb, 90);
 
         r.y += 40;
-        auto *l = new GUI::Label(
-            GUI::GAMMA_LABEL_ID,
-            r,
-            "Gamma: " + std::to_string(screen_gamma),
-            "F_MTEXT.FON",
-            1
-        );
+        auto *l = new GUI::Label(GUI::GAMMA_LABEL_ID, r, "Gamma: " + std::to_string(screen_gamma), "F_MTEXT.FON", 1);
         guiManager_.add(l, 80);
 
         OpenGL::Screen::setSystemMouseCursor(true);
@@ -841,20 +830,12 @@ void OpenGTAViewer::handleKeyPress(SDL_Keysym *keysym)
                 city->setViewMode(false);
                 auto p = camera_.getEye();
                 createPedAt(p);
-                camera_.setVectors(
-                    { p.x, 10, p.z },
-                    { p.x, 9.0f, p.z },
-                    { 0, 0, -1 }
-                );
+                camera_.setVectors({ p.x, 10, p.z }, { p.x, 9.0f, p.z }, { 0, 0, -1 });
                 camera_.setFollowMode(OpenGTA::SpriteManager::Instance().getPed(0xffffffff).pos);
                 camera_.setCamGravity(true);
             } else {
                 // SDL_EnableKeyRepeat( 100, SDL_DEFAULT_REPEAT_INTERVAL );
-                camera_.setVectors(
-                    camera_.getEye(),
-                    camera_.getEye() + glm::vec3(1, -1, 1),
-                    glm::vec3(0, 1, 0)
-                );
+                camera_.setVectors(camera_.getEye(), camera_.getEye() + glm::vec3(1, -1, 1), glm::vec3(0, 1, 0));
                 camera_.setCamGravity(false);
                 camera_.releaseFollowMode();
                 OpenGTA::SpriteManager::Instance().removePed(0xffffffff);
@@ -1066,11 +1047,7 @@ void OpenGTAViewer::run()
         city->setVisibleRange(city_blocks_area);
     city->setPosition(mapPos[0], mapPos[1], mapPos[2]);
 
-    camera_.setVectors(
-        glm::vec3(12, 20, 12),
-        glm::vec3(13.0f, 19.0f, 13.0f),
-        glm::vec3(0, 1, 0)
-    );
+    camera_.setVectors(glm::vec3(12, 20, 12), glm::vec3(13.0f, 19.0f, 13.0f), glm::vec3(0, 1, 0));
 
 #ifdef TIMER_OPENSTEER_CLOCK
     Timer &timer = Timer::Instance();

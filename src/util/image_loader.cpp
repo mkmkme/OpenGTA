@@ -239,6 +239,13 @@ inline void writeInt24(uint8_t *x, int i) noexcept
 
 } // namespace
 
+// Converting
+//    B
+//  D E F
+//    H
+// To
+//   E0 E1
+//   E2 E3
 std::vector<uint8_t> scale2x_24bit(std::span<const uint8_t> src, const int src_width, const int src_height)
 {
     const int srcpitch = src_width * 3;
@@ -261,10 +268,10 @@ std::vector<uint8_t> scale2x_24bit(std::span<const uint8_t> src, const int src_w
             E2 = D == H && D != B && H != F ? D : E;
             E3 = H == F && D != H && B != F ? F : E;
 
-            writeInt24((dstpixraw + looph * 2 * dstpitch + loopw * 2 * 3), E0);
-            writeInt24((dstpixraw + looph * 2 * dstpitch + (loopw * 2 + 1) * 3), E1);
-            writeInt24((dstpixraw + (looph * 2 + 1) * dstpitch + loopw * 2 * 3), E2);
-            writeInt24((dstpixraw + (looph * 2 + 1) * dstpitch + (loopw * 2 + 1) * 3), E3);
+            writeInt24((dstpixraw + (looph * 2 * dstpitch) + (loopw * 2 * 3)), E0);
+            writeInt24((dstpixraw + (looph * 2 * dstpitch) + ((loopw * 2 + 1) * 3)), E1);
+            writeInt24((dstpixraw + ((looph * 2 + 1) * dstpitch) + (loopw * 2 * 3)), E2);
+            writeInt24((dstpixraw + ((looph * 2 + 1) * dstpitch) + ((loopw * 2 + 1) * 3)), E3);
         }
     }
     return dstpix;
@@ -292,10 +299,10 @@ std::vector<uint8_t> scale2x_32bit(std::span<const uint8_t> src, const int src_w
             E2 = D == H && D != B && H != F ? D : E;
             E3 = H == F && D != H && B != F ? F : E;
 
-            *(uint32_t *) (dstpixraw + looph * 2 * dstpitch + loopw * 2 * 4) = E0;
-            *(uint32_t *) (dstpixraw + looph * 2 * dstpitch + (loopw * 2 + 1) * 4) = E1;
-            *(uint32_t *) (dstpixraw + (looph * 2 + 1) * dstpitch + loopw * 2 * 4) = E2;
-            *(uint32_t *) (dstpixraw + (looph * 2 + 1) * dstpitch + (loopw * 2 + 1) * 4) = E3;
+            *(uint32_t *) (dstpixraw + (looph * 2 * dstpitch) + (loopw * 2 * 4)) = E0;
+            *(uint32_t *) (dstpixraw + (looph * 2 * dstpitch) + ((loopw * 2 + 1) * 4)) = E1;
+            *(uint32_t *) (dstpixraw + ((looph * 2 + 1) * dstpitch) + (loopw * 2 * 4)) = E2;
+            *(uint32_t *) (dstpixraw + ((looph * 2 + 1) * dstpitch) + ((loopw * 2 + 1) * 4)) = E3;
         }
     }
     return dstpix;

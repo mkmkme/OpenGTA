@@ -92,7 +92,7 @@ int interpolateToPosition(lua_State *L)
     auto x = float(luaL_checknumber(L, 1));
     auto y = float(luaL_checknumber(L, 2));
     auto z = float(luaL_checknumber(L, 3));
-    Uint32 msecInterval = Uint32(luaL_checkinteger(L, 4));
+    auto msecInterval = uint32_t(luaL_checkinteger(L, 4));
     c->interpolate(glm::vec3(x, y, z), 1, msecInterval);
     return 0;
 }
@@ -100,7 +100,9 @@ int interpolateToPosition(lua_State *L)
 } // namespace
 
 OpenGTA::Script::LuaCamera::LuaCamera(OpenGL::Camera &c)
-    : camera_(c) {}
+    : camera_(c)
+{
+}
 
 int OpenGTA::Script::LuaCamera::registerFunctions(lua_State *L)
 {

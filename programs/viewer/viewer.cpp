@@ -716,9 +716,9 @@ void Viewer::run()
         }
 #ifdef TIMER_OPENSTEER_CLOCK
         timer.update();
-        Uint32 now_ticks = timer.getRealTime();
+        uint32_t now_ticks = timer.getRealTime();
 #else
-        Uint32 now_ticks = SDL_GetTicks();
+        uint32_t now_ticks = SDL_GetTicks();
 #endif
         OpenGTA::SpriteManager::Instance().update(now_ticks, localPlayer_);
         city_->getBlockAnimCtrl().update(now_ticks);

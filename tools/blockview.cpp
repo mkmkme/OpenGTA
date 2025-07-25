@@ -10,8 +10,8 @@
 #include <util/file-manager.h>
 #include <util/log.h>
 
-Uint32 arg_screen_w = 0;
-Uint32 arg_screen_h = 0;
+uint32_t arg_screen_w = 0;
+uint32_t arg_screen_h = 0;
 std::string map_file("NYC.CMP");
 glm::vec3 e(3, 3, 3);
 glm::vec3 c(0.5f, 0.5f, 0.5f);

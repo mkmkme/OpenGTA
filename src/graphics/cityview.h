@@ -61,7 +61,7 @@ public:
     void setVisibleRange(int);
     [[nodiscard]] int getVisibleRange() const { return visibleRange; }
     void getTerrainHeight(GLfloat x, GLfloat &y, GLfloat z);
-    void draw(Uint32 ticks);
+    void draw(uint32_t ticks);
     NavData::Sector *getCurrentSector() noexcept { return current_sector; }
     OpenGL::PagedTexture renderMap2Texture();
 
@@ -110,7 +110,7 @@ protected:
     bool scene_is_dirty { true };
     int texFlipTest { 0 };
 
-    Uint32 lastCacheEmptyTicks { 0 };
+    uint32_t lastCacheEmptyTicks { 0 };
 
     NavData::Sector *current_sector { nullptr };
 

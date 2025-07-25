@@ -67,7 +67,7 @@ void Camera::releaseFollowMode()
     gameCamMode = false;
 }
 
-void Camera::update(Uint32 ticks, OpenGL::Screen &screen)
+void Camera::update(uint32_t ticks, OpenGL::Screen &screen)
 {
     if (gameCamMode) {
         update_game();
@@ -263,7 +263,7 @@ void Camera::moveByMouse(OpenGL::Screen &screen)
     rotateView(0, -rot_x, 0);
 }
 
-void Camera::interpolate(const glm::vec3 &to, const Uint32 &start, const Uint32 &end)
+void Camera::interpolate(const glm::vec3 &to, uint32_t start, uint32_t end)
 {
     interpolateFrom = eye;
     interpolateTo = to;

@@ -79,11 +79,12 @@ public:
     void update(uint32_t nowTicks);
 
 private:
-    bool isInside(Object &o, Uint16 x, Uint16 y) const;
-
     using AnimationMap = std::map<uint16_t, Animation *>;
-    AnimationMap guiAnimations;
     using GuiObjectList = std::list<Object *>;
+
+    [[nodiscard]] bool isInside(const Object &o, uint16_t x, uint16_t y) const noexcept;
+
+    AnimationMap guiAnimations;
     std::map<uint8_t, GuiObjectList> guiLayers;
     std::map<size_t, OpenGL::PagedTexture> texCache;
 };
@@ -114,7 +115,7 @@ struct Object {
     void copyRect(const SDL_Rect &src);
     void copyColor(const SDL_Color &src);
     virtual void draw(Manager &manager);
-    virtual void update(Uint32 ticks) {}
+    virtual void update(uint32_t ticks) {}
     virtual void receive(SDL_MouseButtonEvent &mb_event) {}
     void draw_border() const;
 };
@@ -181,7 +182,7 @@ struct Pager : public Object {
 
     OpenGL::DrawableFont &font;
     size_t texId;
-    void update(Uint32 ticks) override;
+    void update(uint32_t ticks) override;
     void draw(Manager &manager) override;
     std::string lastMsg;
     int offset;

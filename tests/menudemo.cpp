@@ -136,7 +136,7 @@ void run_main(OpenGL::Screen &screen)
     Timer &t = Timer::Instance();
     t.update();
     // Uint32 now_ticks = SDL_GetTicks();
-    Uint32 now_ticks = t.getRealTime();
+    uint32_t now_ticks = t.getRealTime();
     while (!OpenGTA::Globals::done) {
         while (SDL_PollEvent(&event)) {
             switch (event.type) {

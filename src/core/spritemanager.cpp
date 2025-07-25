@@ -147,7 +147,7 @@ SpriteObject &SpriteManager::getObject(uint32_t id)
     throw Util::UnknownKey(id);
 }
 
-void SpriteManager::update(Uint32 ticks, LocalPlayer &player)
+void SpriteManager::update(uint32_t ticks, LocalPlayer &player)
 {
     size_t num_peds, num_cars, num_obj;
     num_peds = 0;
@@ -646,7 +646,7 @@ void SpriteManager::removeDeadPeds()
     }
 }
 
-SpriteObject::Animation &SpriteManager::getAnimationById(const Uint32 &id)
+SpriteObject::Animation &SpriteManager::getAnimationById(uint32_t id)
 {
     if (auto it = animations.find(id); it != animations.end()) {
         return it->second;
@@ -655,7 +655,7 @@ SpriteObject::Animation &SpriteManager::getAnimationById(const Uint32 &id)
     return animations.begin()->second;
 }
 
-void SpriteManager::registerAnimation(const Uint32 &id, const SpriteObject::Animation &anim)
+void SpriteManager::registerAnimation(uint32_t id, const SpriteObject::Animation &anim)
 {
     animations.insert(std::make_pair(id, anim));
 }
@@ -683,8 +683,8 @@ void SpriteManager::createProjectile(
     float r,
     const glm::vec3 &p,
     const glm::vec3 &d,
-    Uint32 &ticks,
-    Uint32 &owner
+    uint32_t ticks,
+    uint32_t owner
 )
 {
     activeProjectiles.emplace_back(typeId, r, p, d, ticks, owner);

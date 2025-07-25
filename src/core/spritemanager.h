@@ -81,19 +81,20 @@ public:
 
     void drawExplosion(SpriteObject &);
 
-    void update(Uint32 ticks, OpenGTA::LocalPlayer &player);
+    void update(uint32_t ticks, OpenGTA::LocalPlayer &player);
 
-    SpriteObject::Animation &getAnimationById(const Uint32 &id);
-    void registerAnimation(const Uint32 &id, const SpriteObject::Animation &anim);
+    SpriteObject::Animation &getAnimationById(uint32_t id);
+    void registerAnimation(uint32_t id, const SpriteObject::Animation &anim);
 
     void createExplosion(const glm::vec3 &center);
-    void createProjectile(uint8_t typeId, float, const glm::vec3 &p, const glm::vec3 &d, Uint32 &ticks, Uint32 &owner);
+    void
+    createProjectile(uint8_t typeId, float, const glm::vec3 &p, const glm::vec3 &d, uint32_t ticks, uint32_t owner);
 
     // TrainSystem   trainSystem;
     Util::SpriteCreationArea creationArea;
 
 protected:
-    std::map<Uint32, SpriteObject::Animation> animations;
+    std::map<uint32_t, SpriteObject::Animation> animations;
     std::list<Projectile> activeProjectiles;
 
 private:

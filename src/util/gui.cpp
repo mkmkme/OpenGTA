@@ -205,7 +205,7 @@ void Pager::draw(Manager &manager)
         draw_border();
 }
 
-void Pager::update(Uint32 /*ticks*/)
+void Pager::update(uint32_t /*ticks*/)
 {
     offset -= 1;
 
@@ -340,7 +340,7 @@ void Manager::removeById(const size_t id)
     //   ERROR << "failed to find object " << id << " - cannot remove it" << std::endl;
 }
 
-bool Manager::isInside(Object &obj, Uint16 x, Uint16 y) const
+bool Manager::isInside(const Object &obj, uint16_t x, uint16_t y) const noexcept
 {
     return (obj.rect.x <= x) && (x <= obj.rect.x + obj.rect.w) && (obj.rect.y <= y) && (y <= obj.rect.y + obj.rect.h);
 }

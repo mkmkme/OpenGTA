@@ -194,7 +194,7 @@ void CityView::createLevelObject(OpenGTA::Map::ObjectPosition *obj)
         s_man.add(car);
     } else {
         SpriteObject gobj(*obj, id);
-        s_man.add(gobj);
+        s_man.add(std::move(gobj));
     }
 }
 
@@ -333,7 +333,7 @@ OpenGL::PagedTexture CityView::renderMap2Texture()
         return OpenGL::PagedTexture(txtnumber, 0, 0, 1, 1);
     */
     uint32_t img_size = gl_h * gl_h * 3;
-    std::vector<Uint8> img_buf(img_size);
+    std::vector<uint8_t> img_buf(img_size);
     uint8_t *img_buf_raw = img_buf.data();
 
     glReadBuffer(GL_BACK);
@@ -373,7 +373,7 @@ OpenGL::PagedTexture CityView::renderMap2Texture()
     return { tex, 0, 0, f_h, f_h };
 }
 
-void CityView::draw(Uint32 ticks)
+void CityView::draw(uint32_t ticks)
 {
     Util::Log::glCheckError();
 

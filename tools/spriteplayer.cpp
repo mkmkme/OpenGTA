@@ -94,7 +94,7 @@ std::string_view vtype2name(int vt)
     return "";
 }
 
-void drawScene(Uint32 ticks, OpenGL::Screen &screen, OpenGL::Camera &camera, OpenGL::DrawableFont &font)
+void drawScene(uint32_t ticks, OpenGL::Screen &screen, OpenGL::Camera &camera, OpenGL::DrawableFont &font)
 {
     GL_CHECKERROR;
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);

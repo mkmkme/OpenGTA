@@ -26,11 +26,11 @@ public:
     void translateTo(const glm::vec3 &e);
     void setVectors(const glm::vec3 &e, const glm::vec3 &c, const glm::vec3 &u);
     void moveByMouse(OpenGL::Screen &screen);
-    void interpolate(const glm::vec3 &to, const Uint32 &start, const Uint32 &end);
+    void interpolate(const glm::vec3 &to, uint32_t start, uint32_t end);
     void setFollowMode(const glm::vec3 &target);
     void releaseFollowMode();
 
-    void update(Uint32 ticks, OpenGL::Screen &screen);
+    void update(uint32_t ticks, OpenGL::Screen &screen);
     glm::vec3 &getEye() { return eye; }
     glm::vec3 &getCenter() { return center; }
     glm::vec3 &getUp() { return up; }
@@ -51,7 +51,7 @@ private:
 
     glm::vec3 interpolateFrom;
     glm::vec3 interpolateTo;
-    Uint32 interpolateStart;
-    Uint32 interpolateEnd;
+    uint32_t interpolateStart;
+    uint32_t interpolateEnd;
 };
 } // namespace OpenGL

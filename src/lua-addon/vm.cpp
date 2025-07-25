@@ -11,7 +11,7 @@
 using namespace Util;
 
 namespace OpenGTA::Globals {
-extern int done;
+extern bool done;
 } // namespace OpenGTA::Globals
 
 namespace OpenGTA::Script {

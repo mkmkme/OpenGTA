@@ -1,0 +1,29 @@
+set(OGTA_DEFAULT_SCREEN_WIDTH
+    800
+    CACHE STRING "Default screen width")
+set(OGTA_DEFAULT_SCREEN_HEIGHT
+    600
+    CACHE STRING "Default screen height")
+
+set(OGTA_DEFAULT_SCREEN_VSYNC
+    2
+    CACHE
+      STRING
+      "Default screen vsync mode: 0 - disabled, 1 - SDL_GL_SWAP_CONTROL, 2 - native call"
+)
+
+set(OGTA_DEFAULT_DATA_PATH
+    "gtadata.zip"
+    CACHE STRING "OpenGTA default data path")
+set(OGTA_DEFAULT_MOD_PATH
+    ""
+    CACHE STRING "OpenGTA default mod path")
+set(OGTA_DEFAULT_HOME_PATH
+    ""
+    CACHE STRING "OpenGTA default home path")
+
+option(OGTA_DO_SCALE2X "Enable scale 2x" TRUE)
+option(OGTA_WITH_SOUND "Enable sound" ${SDL_MIXER_FOUND})
+option(OGTA_DEFAULT_GRAPHICS_G24 "Use G24 graphics by default" TRUE)
+option(OGTA_HAVE_SDL_VSYNC "" TRUE)
+option(OGTA_LOG_USE_ANSI_COLORS "Use ANSI colors for log output" TRUE)

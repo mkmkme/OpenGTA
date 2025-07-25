@@ -11,8 +11,8 @@
 #include <unistd.h>
 #endif
 
-namespace Util::Log {
-const char *glErrorName(int k)
+namespace {
+std::string_view glErrorName(int k)
 {
     switch (k) {
         case GL_NO_ERROR:
@@ -31,12 +31,14 @@ const char *glErrorName(int k)
             return "Unknown-GL-Error";
     }
 }
+} // namespace
 
+namespace Util::Log {
 void glCheckError(std::source_location loc)
 {
     auto err = glGetError();
     if (err != GL_NO_ERROR) {
-        OpenGTA::log::error(loc, "OpenGL error: {}", Util::Log::glErrorName(err));
+        OpenGTA::log::error(loc, "OpenGL error: {}", glErrorName(err));
     }
 }
 

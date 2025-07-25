@@ -1,12 +1,14 @@
 #pragma once
 
-#include <compare>
 #include <filesystem>
 #include <source_location>
+#include <utility>
 
-#include <fmt/base.h>
+#ifdef OGTA_USE_FMT_COLOR
 #include <fmt/color.h>
-#include <fmt/core.h>
+#endif
+#include <fmt/base.h>
+#include <fmt/format.h>
 
 #ifdef WIN32
 #undef ERROR
@@ -17,56 +19,75 @@
 
 namespace OpenGTA::log {
 
-enum class Level : uint8_t { error,
-                             warn,
-                             info,
-                             debug,
-};
-
-inline std::strong_ordering operator<=>(Level lhs, Level rhs) noexcept
-{
-    return static_cast<int>(lhs) <=> static_cast<int>(rhs);
-}
+enum class Level : uint8_t { error, warn, info, debug };
 
 inline Level level = Level::info;
 
 template <Level lvl, typename... Args>
 struct Logger {
-    explicit Logger(fmt::format_string<Args...> fmt, Args &&...args, std::source_location loc = std::source_location::current())
+    constexpr explicit Logger(
+        fmt::format_string<Args...> fmt,
+        Args &&...args,
+        std::source_location loc = std::source_location::current()
+    )
     {
         if (level < lvl)
             return;
 
-        auto symbol = '?';
-        auto color = fmt::color::white;
+#ifdef OGTA_USE_FMT_COLOR
+        constexpr fmt::color color = []() constexpr {
+            if constexpr (lvl == Level::error) {
+                return fmt::color::red;
+            } else if constexpr (lvl == Level::warn) {
+                return fmt::color::yellow;
+            } else if constexpr (lvl == Level::info) {
+                return fmt::color::green;
+            } else if constexpr (lvl == Level::debug) {
+                return fmt::color::blue;
+            } else {
+                return fmt::color::white;
+            }
+        }();
+#endif
 
-        if constexpr (lvl == Level::error) {
-            symbol = 'E';
-            color = fmt::color::red;
-        } else if constexpr (lvl == Level::warn) {
-            symbol = 'W';
-            color = fmt::color::yellow;
-        } else if constexpr (lvl == Level::info) {
-            symbol = 'I';
-            color = fmt::color::green;
-        } else if constexpr (lvl == Level::debug) {
-            symbol = 'D';
-            color = fmt::color::blue;
-        }
+        constexpr char symbol = []() constexpr {
+            if constexpr (lvl == Level::error) {
+                return 'E';
+            } else if constexpr (lvl == Level::warn) {
+                return 'W';
+            } else if constexpr (lvl == Level::info) {
+                return 'I';
+            } else if constexpr (lvl == Level::debug) {
+                return 'D';
+            } else {
+                return '?';
+            }
+        }();
 
         const auto path = std::filesystem::path(loc.file_name());
 
-        fmt::println("[{}]({}:{}) {}", fmt::styled(symbol, fmt::fg(color)), path.filename().string(), loc.line(), fmt::format(fmt, std::forward<Args>(args)...));
+        fmt::println(
+            "[{}]({}:{}) {}",
+#ifdef OGTA_USE_FMT_COLOR
+            fmt::styled(symbol, fmt::fg(color)),
+#else
+            symbol,
+#endif
+            path.filename().string(),
+            loc.line(),
+            fmt::format(fmt, std::forward<Args>(args)...)
+        );
     }
 
-    explicit Logger(std::source_location loc, fmt::format_string<Args...> fmt, Args &&...args)
-        : Logger(fmt, std::forward<Args>(args)..., loc) {}
+    constexpr explicit Logger(std::source_location loc, fmt::format_string<Args...> fmt, Args &&...args)
+        : Logger(fmt, std::forward<Args>(args)..., loc)
+    {
+    }
 };
 
 // Deduction guide for Logger
 template <Level L = {}, typename... Args>
-Logger(fmt::format_string<Args...>, Args &&...)
-    -> Logger<L, Args...>;
+Logger(fmt::format_string<Args...>, Args &&...) -> Logger<L, Args...>;
 
 template <typename... Args>
 using error = Logger<Level::error, Args...>;
@@ -80,18 +101,17 @@ using debug = Logger<Level::debug, Args...>;
 } // namespace OpenGTA::log
 
 namespace Util::Log {
-const char *glErrorName(int k);
 void glCheckError(std::source_location loc = std::source_location::current());
 } // namespace Util::Log
 
 // TODO: Remove these aliases in the future
 template <typename... Args>
-using ERROR = OpenGTA::log::Logger<OpenGTA::log::Level::error, Args...>;
+using ERROR = OpenGTA::log::error<Args...>;
 template <typename... Args>
-using WARN = OpenGTA::log::Logger<OpenGTA::log::Level::warn, Args...>;
+using WARN = OpenGTA::log::warn<Args...>;
 template <typename... Args>
-using INFO = OpenGTA::log::Logger<OpenGTA::log::Level::info, Args...>;
+using INFO = OpenGTA::log::info<Args...>;
 template <typename... Args>
-using DEBUG = OpenGTA::log::Logger<OpenGTA::log::Level::debug, Args...>;
+using DEBUG = OpenGTA::log::debug<Args...>;
 
-#define GL_CHECKERROR Util::Log::glCheckError()
+#define GL_CHECKERROR Util::Log::glCheckError() // TODO: remove

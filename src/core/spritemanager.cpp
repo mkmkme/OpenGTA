@@ -284,27 +284,27 @@ void SpriteManager::clear()
     glVertex3f(-w / 2, 0.0f, -h / 2);           \
     glEnd()
 
-void SpriteManager::draw(Car &car)
+void SpriteManager::draw(const Car &car)
 {
     GL_OBJ_COMMON(car);
     GraphicsBase &style = ActiveStyle::Instance().get();
     OpenGL::PagedTexture t;
-    const auto sprNum = style.spriteNumbers.reIndex(car.sprNum, car.sprType);
+    const auto sprNum = style.spriteNumbers.reIndex(car.getSpriteNumber(), car.getSpriteType());
     //+ car.anim.firstFrameOffset + car.anim.currentFrame, car.sprType);
 
     const SpriteInfo &info = style.getSprite(sprNum);
     float w = float(info.w) / 64.0f;
     float h = float(info.h) / 64.0f;
-    OpenGL::SpriteIdentifier si(sprNum, car.remap, car.delta);
+    OpenGL::SpriteIdentifier si(sprNum, car.getRemap(), car.getDelta());
     if (OpenGL::SpriteCache::Instance().has(si))
         t = OpenGL::SpriteCache::Instance().get(si);
     else {
         t = OpenGL::SpriteCache::Instance().create(
-            car.sprNum, // +
-                        // car.anim.firstFrameOffset + car.anim.currentFrame,
-            car.sprType,
-            car.remap,
-            car.delta
+            car.getSpriteNumber(), // +
+                                   // car.anim.firstFrameOffset + car.anim.currentFrame,
+            car.getSpriteType(),
+            car.getRemap(),
+            car.getDelta()
         );
     }
 
@@ -312,7 +312,7 @@ void SpriteManager::draw(Car &car)
 
     glDisable(GL_TEXTURE_2D);
     glBegin(GL_POINTS);
-    glVertex3f(car.carInfo.door[0].rpx / 64.0f, 0.1f, car.carInfo.door[0].rpy / 64.0f);
+    glVertex3f(car.getCarInfo().door[0].rpx / 64.0f, 0.1f, car.getCarInfo().door[0].rpy / 64.0f);
     glEnd();
     glEnable(GL_TEXTURE_2D);
 

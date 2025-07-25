@@ -169,13 +169,13 @@ void handleKeyPress(SDL_Keysym *keysym, OpenGL::Camera &camera)
             if (car_delta > 0)
                 car_delta -= 1;
             if (car)
-                car->delta = car_delta;
+                car->setDelta(car_delta);
             break;
         case 'l':
             if (car_delta < 32)
                 car_delta += 1;
             if (car) {
-                car->delta = car_delta;
+                car->setDelta(car_delta);
             }
             break;
         case '=':
@@ -186,7 +186,7 @@ void handleKeyPress(SDL_Keysym *keysym, OpenGL::Camera &camera)
             break;
         case '1':
             if (playWithCar) {
-                if (car->animState.get_item(1))
+                if (car->getAnimState().get_item(1))
                     car->closeDoor(0);
                 else
                     car->openDoor(0);
@@ -194,7 +194,7 @@ void handleKeyPress(SDL_Keysym *keysym, OpenGL::Camera &camera)
             break;
         case '2':
             if (playWithCar) {
-                if (car->animState.get_item(2))
+                if (car->getAnimState().get_item(2))
                     car->closeDoor(1);
                 else
                     car->openDoor(1);
@@ -202,7 +202,7 @@ void handleKeyPress(SDL_Keysym *keysym, OpenGL::Camera &camera)
             break;
         case '3':
             if (playWithCar) {
-                if (car->animState.get_item(3))
+                if (car->getAnimState().get_item(3))
                     car->closeDoor(2);
                 else
                     car->openDoor(2);
@@ -210,7 +210,7 @@ void handleKeyPress(SDL_Keysym *keysym, OpenGL::Camera &camera)
             break;
         case '4':
             if (playWithCar) {
-                if (car->animState.get_item(4))
+                if (car->getAnimState().get_item(4))
                     car->closeDoor(3);
                 else
                     car->openDoor(3);

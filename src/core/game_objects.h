@@ -63,7 +63,7 @@ struct GameObject_common {
 
 class Sprite {
 public:
-    using SpriteTypes = GraphicsBase::SpriteNumbers::SpriteType;
+    using SpriteType = GraphicsBase::SpriteNumbers::SpriteType;
 
     struct Animation : public Util::Animation {
         Animation() noexcept;
@@ -75,13 +75,13 @@ public:
         float moveSpeed;
     };
     Sprite() noexcept;
-    Sprite(uint16_t sprN, int16_t rem, SpriteTypes sprT) noexcept;
+    Sprite(uint16_t sprN, int16_t rem, SpriteType sprT) noexcept;
     Sprite(const Sprite &o) noexcept;
     uint16_t sprNum;
     int16_t remap;
     Animation anim;
     uint32_t animId;
-    SpriteTypes sprType;
+    SpriteType sprType;
     void switchToAnim(uint32_t newId);
 };
 
@@ -122,14 +122,17 @@ public:
         bool opening;
     };
     CarSprite();
-    CarSprite(uint16_t sprN, int16_t rem, GraphicsBase::SpriteNumbers::SpriteType sprT);
+    CarSprite(uint16_t sprN, int16_t rem, Sprite::SpriteType sprT);
     CarSprite(const CarSprite &o);
-    uint16_t sprNum;
-    int16_t remap;
-    GraphicsBase::SpriteNumbers::SpriteType sprType;
-    uint32_t delta;
-    Util::Set deltaSet;
-    Util::Set animState;
+
+    [[nodiscard]] uint16_t getSpriteNumber() const noexcept { return sprNum; }
+    [[nodiscard]] Sprite::SpriteType getSpriteType() const noexcept { return sprType; }
+    [[nodiscard]] uint16_t getRemap() const noexcept { return remap; }
+    [[nodiscard]] uint32_t getDelta() const noexcept { return delta; }
+    void setDelta(uint32_t d) noexcept { delta = d; }
+
+    [[nodiscard]] const Util::Set &getAnimState() const noexcept { return animState; }
+
     void setDamage(uint8_t k);
     void openDoor(uint8_t k);
     void closeDoor(uint8_t k);
@@ -137,10 +140,18 @@ public:
     [[nodiscard]] bool assertDeltaById(uint8_t k) const;
     virtual void update(uint32_t ticks);
 
+protected:
+    uint16_t sprNum;
+    int16_t remap;
+    Sprite::SpriteType sprType;
+    uint32_t delta;
+
 private:
     using DoorAnimList = std::list<DoorDeltaAnimation>;
     DoorAnimList doorAnims;
     uint32_t lt_siren {};
+    Util::Set deltaSet;
+    Util::Set animState;
 };
 
 class Car : public GameObject_common, public CarSprite, public OBox {
@@ -152,6 +163,9 @@ public:
     [[nodiscard]] uint32_t id() const { return carId; }
     CarInfo &carInfo;
     uint8_t type;
+
+    [[nodiscard]] const CarInfo &getCarInfo() const noexcept { return carInfo; }
+
     void update(uint32_t ticks) override;
     void damageAt(const glm::vec3 &hit, uint32_t dmg);
     void explode();

@@ -139,11 +139,11 @@ Sprite::Sprite() noexcept
     , remap(-1)
     //, anim(SpriteManager::Instance().getAnimationById(0)),
     , animId()
-    , sprType(SpriteTypes::arrow)
+    , sprType(SpriteType::arrow)
 {
 }
 
-Sprite::Sprite(uint16_t sprN, int16_t rem, SpriteTypes sprT) noexcept
+Sprite::Sprite(uint16_t sprN, int16_t rem, SpriteType sprT) noexcept
     : sprNum(sprN)
     , remap(rem)
     , animId()
@@ -163,7 +163,7 @@ void Sprite::switchToAnim(uint32_t newId)
 
 Pedestrian::Pedestrian(const glm::vec3 &e, const glm::vec3 &p, uint32_t id, int16_t remapId) noexcept
     : GameObject_common(p)
-    , Sprite(0, remapId, SpriteTypes::ped)
+    , Sprite(0, remapId, SpriteType::ped)
     , OBox(glm::translate(glm::mat4(1.0f), p), e * 0.5f)
     , m_control()
     , speedForces(0, 0, 0)

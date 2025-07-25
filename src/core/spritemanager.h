@@ -74,7 +74,7 @@ public:
     void drawBBoxOutline(const OBox &);
     void drawTextureOutline(const float &, const float &);
 
-    void draw(Car &);
+    void draw(const Car &);
     void draw(Pedestrian &);
     void draw(SpriteObject &);
     void draw(Projectile &);

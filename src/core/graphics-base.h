@@ -11,6 +11,7 @@
 #ifndef OPENGTA_MAIN_H
 #define OPENGTA_MAIN_H
 
+#include <cstdint>
 #include <vector>
 
 #include <physfs.h>

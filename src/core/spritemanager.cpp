@@ -132,9 +132,9 @@ Car &SpriteManager::getCar(uint32_t id)
     throw Util::UnknownKey(id);
 }
 
-SpriteObject &SpriteManager::add(const SpriteObject &obj)
+SpriteObject &SpriteManager::add(SpriteObject &&obj)
 {
-    auto [it, inserted] = _objects.insert({ obj.id(), obj });
+    auto [it, inserted] = _objects.insert({ obj.id(), std::move(obj) });
     assert(inserted);
     return it->second;
 }
@@ -695,7 +695,7 @@ void SpriteManager::createExplosion(const glm::vec3 &center)
     SpriteObject expl(center, 0, GraphicsBase::SpriteNumbers::SpriteTypes::ex);
     expl.anim = SpriteObject::Animation(getAnimationById(99));
     expl.anim.set(Util::Animation::Status::PlayForward, Util::Animation::OnDone::Stop);
-    add(expl);
+    add(std::move(expl));
 }
 
 } // namespace OpenGTA

@@ -61,7 +61,7 @@ public:
     void removeCar(uint32_t id) { _cars.erase(id); }
     [[nodiscard]] std::map<uint32_t, Car> &getCars() { return _cars; }
 
-    SpriteObject &add(const SpriteObject &obj);
+    SpriteObject &add(SpriteObject &&obj);
     SpriteObject &getObject(uint32_t id);
     void removeObject(uint32_t id) { _objects.erase(id); }
     [[nodiscard]] std::map<uint32_t, SpriteObject> &getObjects() { return _objects; }

@@ -165,7 +165,7 @@ class SpriteObject : public GameObject_common, public Sprite, public OBox {
 public:
     SpriteObject(OpenGTA::Map::ObjectPosition &, uint32_t id);
     SpriteObject(const glm::vec3 &pos, uint16_t spriteNum, GraphicsBase::SpriteNumbers::SpriteTypes st);
-    SpriteObject(const SpriteObject &o);
+    SpriteObject(SpriteObject &&o) noexcept;
     uint32_t objId {};
     [[nodiscard]] uint32_t id() const { return objId; }
     void update(uint32_t ticks);

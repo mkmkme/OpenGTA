@@ -776,13 +776,11 @@ SpriteObject::SpriteObject(
     transform_ = rotationMatrix(pos, -rot);
 }
 
-SpriteObject::SpriteObject(const SpriteObject &other)
+SpriteObject::SpriteObject(SpriteObject &&other) noexcept
     : GameObject_common(other)
     , Sprite(other)
     , OBox(other)
-    ,
-
-    objId(other.objId)
+    , objId(other.objId)
 {
     transform_ = rotationMatrix(pos, -rot);
 

@@ -20,6 +20,8 @@
  * 3. This notice may not be removed or altered from any source          *
  * distribution.                                                         *
  ************************************************************************/
+#include <numbers>
+
 #include <core/active-map.h>
 #include <core/active-style.h>
 #include <core/ai.h>
@@ -176,7 +178,7 @@ Pedestrian::Pedestrian(const glm::vec3 &e, const glm::vec3 &p, uint32_t id, int1
     inGroundContact = false;
 }
 
-Pedestrian::Pedestrian(const Pedestrian &other)
+Pedestrian::Pedestrian(Pedestrian &&other) noexcept
     : GameObject_common(other)
     , Sprite(other)
     , OBox(other)

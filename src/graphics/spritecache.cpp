@@ -42,7 +42,7 @@ SpriteIdentifier::SpriteIdentifier(const SpriteIdentifier &other) = default;
 
 SpriteCache::SpriteCache()
 {
-#ifdef DO_SCALE2X
+#ifdef OGTA_DO_SCALE2X
     doScale2x = true;
 #else
     doScale2x = false;
@@ -51,7 +51,7 @@ SpriteCache::SpriteCache()
 
 void SpriteCache::setScale2x(bool enabled)
 {
-#ifndef DO_SCALE2X
+#ifndef OGTA_DO_SCALE2X
     if (enabled) {
         // FIXME: for some reason I can not catch this exception, thus it only prints
         // throw E_NOTSUPPORTED("Scale2x feature disabled at compile time");
@@ -229,7 +229,7 @@ SpriteCache::createSprite(size_t sprite_num, int16_t remap, uint32_t delta, cons
 
     ImageUtil::copyImage2Image(dst, src, info.w * 4, info.h, npot.w * 4);
 
-#ifdef DO_SCALE2X
+#ifdef OGTA_DO_SCALE2X
     if (doScale2x) {
         dst = ImageUtil::scale2x_32bit(dst, npot.w, npot.h);
     }
@@ -244,7 +244,7 @@ SpriteCache::createSprite(size_t sprite_num, int16_t remap, uint32_t delta, cons
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-#ifdef DO_SCALE2X
+#ifdef OGTA_DO_SCALE2X
     if (doScale2x)
       glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, glwidth*2, glheight*2, 0, GL_RGBA, GL_UNSIGNED_BYTE, dst);
     else

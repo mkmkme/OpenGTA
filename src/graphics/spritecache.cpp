@@ -38,8 +38,6 @@ SpriteIdentifier::SpriteIdentifier(uint16_t num, int16_t map, uint32_t d)
     , delta(d)
 {
 }
-SpriteIdentifier::SpriteIdentifier(const SpriteIdentifier &other) = default;
-
 SpriteCache::SpriteCache()
 {
 #ifdef OGTA_DO_SCALE2X

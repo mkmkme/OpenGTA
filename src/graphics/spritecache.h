@@ -37,14 +37,12 @@ class SpriteInfo;
 
 namespace OpenGL {
 
-struct SpriteIdentifier;
 struct SpriteIdentifier {
     uint16_t sprNum = 0;
     int16_t remap = -1;
     uint32_t delta = 0;
     SpriteIdentifier() = default;
     SpriteIdentifier(uint16_t, int16_t, uint32_t);
-    SpriteIdentifier(const SpriteIdentifier &other);
     auto operator<=>(const SpriteIdentifier &) const = default;
 };
 

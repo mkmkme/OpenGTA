@@ -62,14 +62,14 @@ public:
     }
 
     void clearAll();
-    [[nodiscard]] bool getScale2x() const;
-    void setScale2x(bool enabled);
-    bool has(uint16_t sprNum);
-    bool has(uint16_t sprNum, int16_t remap);
-    bool has(const SpriteIdentifier &si);
-    PagedTexture &get(uint16_t sprNum);
-    PagedTexture &get(uint16_t sprNum, int16_t remap);
-    PagedTexture &get(const SpriteIdentifier &si);
+    [[nodiscard]] bool getScale2x() const noexcept { return doScale2x; }
+    void setScale2x(bool enabled) noexcept;
+    bool has(uint16_t sprNum) noexcept;
+    bool has(uint16_t sprNum, int16_t remap) noexcept;
+    bool has(const SpriteIdentifier &si) noexcept;
+    PagedTexture &get(uint16_t sprNum) noexcept;
+    PagedTexture &get(uint16_t sprNum, int16_t remap) noexcept;
+    PagedTexture &get(const SpriteIdentifier &si) noexcept;
     void add(uint16_t sprNum, PagedTexture &t);
     void add(uint16_t sprNum, int16_t remap, PagedTexture &t);
     void add(const SpriteIdentifier &si, PagedTexture &t);

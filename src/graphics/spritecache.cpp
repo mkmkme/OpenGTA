@@ -47,7 +47,7 @@ SpriteCache::SpriteCache()
 #endif
 }
 
-void SpriteCache::setScale2x(bool enabled)
+void SpriteCache::setScale2x(bool enabled) noexcept
 {
 #ifndef OGTA_DO_SCALE2X
     if (enabled) {
@@ -57,16 +57,11 @@ void SpriteCache::setScale2x(bool enabled)
         return;
     }
 #endif
-    if (loadedSprites.begin() == loadedSprites.end()) {
+    if (loadedSprites.empty()) {
         doScale2x = enabled;
     } else {
         ERROR("scale2x cannot be set during game - ignoring request");
     }
-}
-
-bool SpriteCache::getScale2x() const
-{
-    return doScale2x;
 }
 
 SpriteCache::~SpriteCache()
@@ -82,7 +77,7 @@ void SpriteCache::clearAll()
     loadedSprites.clear();
 }
 
-bool SpriteCache::has(uint16_t sprNum)
+bool SpriteCache::has(uint16_t sprNum) noexcept
 {
     auto i = loadedSprites.find(SpriteIdentifier(sprNum, -1, 0));
     if (i != loadedSprites.end())
@@ -91,7 +86,7 @@ bool SpriteCache::has(uint16_t sprNum)
     return false;
 }
 
-bool SpriteCache::has(uint16_t sprNum, int16_t remap)
+bool SpriteCache::has(uint16_t sprNum, int16_t remap) noexcept
 {
     auto i = loadedSprites.find(SpriteIdentifier(sprNum, remap, 0));
     if (i != loadedSprites.end())
@@ -100,7 +95,7 @@ bool SpriteCache::has(uint16_t sprNum, int16_t remap)
     return false;
 }
 
-bool SpriteCache::has(const SpriteIdentifier &si)
+bool SpriteCache::has(const SpriteIdentifier &si) noexcept
 {
     auto i = loadedSprites.find(si);
     if (i != loadedSprites.end())
@@ -109,21 +104,21 @@ bool SpriteCache::has(const SpriteIdentifier &si)
     return false;
 }
 
-PagedTexture &SpriteCache::get(uint16_t sprNum)
+PagedTexture &SpriteCache::get(uint16_t sprNum) noexcept
 {
     auto i = loadedSprites.find(SpriteIdentifier(sprNum, -1, 0));
     assert(i != loadedSprites.end());
     return i->second;
 }
 
-PagedTexture &SpriteCache::get(uint16_t sprNum, int16_t remap)
+PagedTexture &SpriteCache::get(uint16_t sprNum, int16_t remap) noexcept
 {
     auto i = loadedSprites.find(SpriteIdentifier(sprNum, remap, 0));
     assert(i != loadedSprites.end());
     return i->second;
 }
 
-PagedTexture &SpriteCache::get(const SpriteIdentifier &si)
+PagedTexture &SpriteCache::get(const SpriteIdentifier &si) noexcept
 {
     auto i = loadedSprites.find(si);
     assert(i != loadedSprites.end());
@@ -229,8 +224,8 @@ SpriteCache::createSprite(size_t sprite_num, int16_t remap, uint32_t delta, cons
     }
 #endif
 
-    GLuint texid = (doScale2x) ? ImageUtil::createGLTexture(npot.w * 2, npot.h * 2, true, dst)
-                               : ImageUtil::createGLTexture(npot.w, npot.h, true, dst);
+    GLuint texid = doScale2x ? ImageUtil::createGLTexture(npot.w * 2, npot.h * 2, true, dst)
+                             : ImageUtil::createGLTexture(npot.w, npot.h, true, dst);
 #if 0
     glGenTextures(1, &texid);
     glBindTexture(GL_TEXTURE_2D, texid);

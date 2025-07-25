@@ -1,8 +1,7 @@
+#include "lua-addon/ini_bridge.h"
+
 #include <cassert>
 #include <cstring>
-
-#include <lua-addon/ini_bridge.h>
-#include <util/log.h>
 
 namespace OpenGTA::Script {
 

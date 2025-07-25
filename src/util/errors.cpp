@@ -1,5 +1,7 @@
 #include "util/errors.h"
 
+#include <iostream>
+
 #include "util/log.h"
 
 namespace Util {

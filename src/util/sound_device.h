@@ -23,7 +23,7 @@
 #ifndef UTIL_SOUND_DEVICE_H
 #define UTIL_SOUND_DEVICE_H
 
-#include <core/config.h>
+#include "base/config.h"
 
 #ifdef WITH_SOUND
 

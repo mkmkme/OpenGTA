@@ -23,7 +23,7 @@
 #ifndef SOUND_MUSIC_PLAYER_H
 #define SOUND_MUSIC_PLAYER_H
 
-#include <core/config.h>
+#include "base/config.h"
 
 #ifdef WITH_SOUND
 

@@ -20,15 +20,16 @@
  * 3. This notice may not be removed or altered from any source          *
  * distribution.                                                         *
  ************************************************************************/
+#include "graphics/spritecache.h"
+
 #include <cassert>
 
-#include <core/active-style.h>
-#include <core/config.h>
-#include <core/sprite-info.h>
+#include "util/image_loader.h"
+#include "util/log.h"
 
-#include <graphics/spritecache.h>
-#include <util/image_loader.h>
-#include <util/log.h>
+#include "base/config.h"
+#include "core/active-style.h"
+#include "core/sprite-info.h"
 
 namespace OpenGL {
 SpriteIdentifier::SpriteIdentifier(uint16_t num, int16_t map, uint32_t d)

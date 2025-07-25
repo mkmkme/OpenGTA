@@ -5,7 +5,7 @@
 
 // #include "lua-addon/vm.h"
 
-#include "core/config.h"
+#include "base/config.h"
 
 namespace OpenGTA {
 

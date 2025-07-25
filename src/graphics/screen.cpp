@@ -20,12 +20,13 @@
  * 3. This notice may not be removed or altered from any source          *
  * distribution.                                                         *
  ************************************************************************/
-#include <core/config.h>
+#include "graphics/screen.h"
 
-#include <graphics/screen.h>
-#include <util/errors.h>
-#include <util/image_loader.h>
-#include <util/log.h>
+#include "util/errors.h"
+#include "util/image_loader.h"
+#include "util/log.h"
+
+#include "base/config.h"
 #ifdef _WIN32
 #include <Windows.h>
 #elif defined(__APPLE__)
@@ -39,7 +40,6 @@
 #endif
 
 #include <cassert>
-#include <string>
 
 #include <SDL2/SDL.h>
 

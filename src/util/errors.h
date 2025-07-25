@@ -1,6 +1,8 @@
 #pragma once
 
 #include <format>
+
+#include "base/config.h"
 #ifdef OGTA_STD_STACKTRACE_AVAILABLE
 #include <stacktrace>
 #endif

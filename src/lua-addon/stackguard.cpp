@@ -1,7 +1,8 @@
+#include "lua-addon/stackguard.h"
+
 #include <cassert>
 
-#include <lua-addon/stackguard.h>
-#include <util/log.h>
+#include "util/log.h"
 
 namespace Util {
 LuaStackguard::LuaStackguard(lua_State *L)

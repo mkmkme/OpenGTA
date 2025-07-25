@@ -29,7 +29,7 @@
 
 #include "graphics/pagedtexture.h"
 
-#include "core/config.h"
+#include "base/config.h"
 
 namespace ImageUtil {
 

@@ -4,6 +4,8 @@
 #include <source_location>
 #include <utility>
 
+#include "base/config.h"
+
 #ifdef OGTA_USE_FMT_COLOR
 #include <fmt/color.h>
 #endif

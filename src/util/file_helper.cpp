@@ -20,17 +20,17 @@
  * 3. This notice may not be removed or altered from any source          *
  * distribution.                                                         *
  ************************************************************************/
+#include "util/file_helper.h"
+
 #include <cassert>
 #include <map>
 
 #include <physfs.h>
 
-#include <core/config.h>
+#include "util/errors.h"
+#include "util/log.h"
 
-#include <util/errors.h>
-#include <util/file_helper.h>
-#include <util/log.h>
-#include <util/string_helpers.h>
+#include "base/config.h"
 
 namespace {
 

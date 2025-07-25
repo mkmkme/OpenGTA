@@ -1,7 +1,7 @@
 #ifndef SOUND_SYSTEM_H
 #define SOUND_SYSTEM_H
 
-#include <core/config.h>
+#include "base/config.h"
 
 #ifdef WITH_SOUND
 #include "sound_device.h"

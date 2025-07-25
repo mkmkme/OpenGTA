@@ -23,7 +23,7 @@
 #ifndef SOUND_FX_CACHE_H
 #define SOUND_FX_CACHE_H
 
-#include <core/config.h>
+#include "base/config.h"
 
 #ifdef WITH_SOUND
 
@@ -40,7 +40,10 @@ struct ChunkId {
     std::string src_file;
     size_t idx_in_file;
     ChunkId(const std::string &file, const size_t idx)
-        : src_file(file), idx_in_file(idx) {}
+        : src_file(file)
+        , idx_in_file(idx)
+    {
+    }
     bool operator==(const ChunkId &o) const { return (idx_in_file == o.idx_in_file && src_file == o.src_file); }
     bool operator<(const ChunkId &o) const
     {
@@ -57,9 +60,17 @@ struct ChunkData {
     Mix_Chunk *chunk;
     size_t ref;
     ChunkData(Uint8 *m, Mix_Chunk *c, size_t r = 1)
-        : mem_buf(m), chunk(c), ref(r) {}
+        : mem_buf(m)
+        , chunk(c)
+        , ref(r)
+    {
+    }
     ChunkData(const ChunkData &o)
-        : mem_buf(o.mem_buf), chunk(o.chunk), ref(o.ref) {}
+        : mem_buf(o.mem_buf)
+        , chunk(o.chunk)
+        , ref(o.ref)
+    {
+    }
 };
 
 class AudioChunkCache {

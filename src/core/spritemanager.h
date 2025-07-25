@@ -51,7 +51,7 @@ public:
     void clear();
     void removeDeadPeds();
 
-    Pedestrian &add(const Pedestrian &ped);
+    Pedestrian &add(Pedestrian ped);
     Pedestrian &getPed(uint32_t id);
     void removePed(uint32_t id) { _peds.erase(id); }
     [[nodiscard]] std::map<uint32_t, Pedestrian> &getPeds() { return _peds; }

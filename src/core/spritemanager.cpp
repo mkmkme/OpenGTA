@@ -101,9 +101,10 @@ SpriteManager::SpriteManager()
 }
 SpriteManager::~SpriteManager() = default;
 
-Pedestrian &SpriteManager::add(const Pedestrian &ped)
+Pedestrian &SpriteManager::add(Pedestrian ped)
 {
-    auto [it, inserted] = _peds.insert({ ped.id(), ped });
+    const auto id = ped.id();
+    auto [it, inserted] = _peds.insert({ id, std::move(ped) });
     assert(inserted);
     return it->second;
 }
@@ -210,7 +211,7 @@ void SpriteManager::update(Uint32 ticks, LocalPlayer &player)
             static std::uniform_real_distribution<> dis(0.0, 360.0);
 
             p.rot = dis(gen);
-            Instance().add(p);
+            Instance().add(std::move(p));
             break;
         }
     }

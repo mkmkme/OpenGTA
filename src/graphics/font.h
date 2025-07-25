@@ -20,31 +20,30 @@
  * 3. This notice may not be removed or altered from any source          *
  * distribution.                                                         *
  ************************************************************************/
-#ifndef M_OPENGL_FONT_H
-#define M_OPENGL_FONT_H
+#pragma once
+
 #include <memory>
 #include <string>
 
-#include <core/font.h>
+#include "graphics/base.h"
+#include "graphics/texturecache.h"
 
-#include <graphics/base.h>
-#include <graphics/texturecache.h>
+#include "core/font.h"
 
 namespace OpenGL {
 class DrawableFont {
 public:
     DrawableFont(const std::string &filename, unsigned int scale) noexcept;
-    ~DrawableFont();
     DrawableFont(const DrawableFont &) = delete;
-    DrawableFont(DrawableFont &&) = default;
+    DrawableFont(DrawableFont &&) noexcept = default;
     GLfloat drawString(const std::string &text);
     GLfloat drawString_r2l(const std::string &text);
-    uint16_t getHeight();
-    void resetTextures();
+    [[nodiscard]] uint16_t getHeight() const noexcept { return scale * fontSource->getCharHeight(); }
+    void resetTextures() noexcept;
 
 private:
-    void cleanup();
-    void clearCached();
+    void cleanup() noexcept;
+    void clearCached() noexcept;
     FontQuad createDrawableCharacter(char c);
     std::unique_ptr<OpenGTA::Font> fontSource;
     std::string srcName;
@@ -53,5 +52,3 @@ private:
     unsigned int scale;
 };
 } // namespace OpenGL
-
-#endif

@@ -37,19 +37,19 @@ DrawableFont::DrawableFont(const std::string &filename, unsigned int scale) noex
     , scale(scale)
 {
 }
-DrawableFont::~DrawableFont() = default;
 
-void DrawableFont::clearCached()
+void DrawableFont::clearCached() noexcept
 {
     drawables.clear();
 }
-void DrawableFont::resetTextures()
+
+void DrawableFont::resetTextures() noexcept
 {
     clearCached();
     texCache->clearAll();
 }
 
-void DrawableFont::cleanup()
+void DrawableFont::cleanup() noexcept
 {
     clearCached();
     fontSource.reset();
@@ -94,11 +94,6 @@ GLfloat DrawableFont::drawString_r2l(const std::string &text)
         }
     }
     return move;
-}
-
-uint16_t DrawableFont::getHeight()
-{
-    return scale * fontSource->getCharHeight();
 }
 
 FontQuad DrawableFont::createDrawableCharacter(char c)

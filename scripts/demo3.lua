@@ -1,9 +1,8 @@
 pos = {
-  x = 214,
-  y = 13, -- this is Z (up) in GTA
-  z = 51
+    x = 214,
+    y = 13, -- this is Z (up) in GTA
+    z = 51
 }
-
 
 screen.setFullscreen(true)
 city_view:setTopDownView(false)
@@ -22,10 +21,10 @@ tick_count = 0
 next_move_tick = 30
 
 function game_tick()
-  if tick_count == next_move_tick then
-    x, y, z = camera.getEye()
-    camera.interpolateToPosition(x+math.random()*40-20, y, z + math.random()*40-20, 2000)
-    next_move_tick = next_move_tick + 50
-  end
-  tick_count = tick_count + 1
+    if tick_count == next_move_tick then
+        x, y, z = camera.getEye()
+        camera.interpolateToPosition(x + math.random() * 40 - 20, y, z + math.random() * 40 - 20, 2000)
+        next_move_tick = next_move_tick + 50
+    end
+    tick_count = tick_count + 1
 end

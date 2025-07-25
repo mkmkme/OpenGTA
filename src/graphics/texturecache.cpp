@@ -20,13 +20,13 @@
  * 3. This notice may not be removed or altered from any source          *
  * distribution.                                                         *
  ************************************************************************/
-// #include <limits>
-#include <graphics/texturecache.h>
-#include <util/log.h>
+#include "graphics/texturecache.h"
+
+#include "util/log.h"
 
 namespace OpenGL {
 template <typename key_type>
-TextureCache<key_type>::TextureCache(const char *with_name)
+TextureCache<key_type>::TextureCache(const char *with_name) noexcept
     : m_name(with_name)
 {
     instance_id = instance_count++;
@@ -36,7 +36,7 @@ TextureCache<key_type>::TextureCache(const char *with_name)
     minClearElements = 50;
 }
 template <typename key_type>
-TextureCache<key_type>::TextureCache()
+TextureCache<key_type>::TextureCache() noexcept
 {
     instance_id = instance_count++;
     m_name = "TextureCache_" + std::to_string(instance_count);
@@ -55,7 +55,7 @@ TextureCache<key_type>::~TextureCache()
 }
 
 template <typename key_type>
-void TextureCache<key_type>::clearAll()
+void TextureCache<key_type>::clearAll() noexcept
 {
     for (auto &c : cached) {
         GLuint tid = c.second.texId;
@@ -65,14 +65,14 @@ void TextureCache<key_type>::clearAll()
 }
 
 template <typename key_type>
-void TextureCache<key_type>::status()
+void TextureCache<key_type>::status() noexcept
 {
     INFO("* {} status: {} textures total, position = game_id : usage_count", m_name, cached.size());
     printStats();
 }
 
 template <typename key_type>
-void TextureCache<key_type>::sink()
+void TextureCache<key_type>::sink() noexcept
 {
     constexpr auto MAX_4 = std::numeric_limits<unsigned int>::max() / 4;
     constexpr auto MAX_2 = std::numeric_limits<unsigned int>::max() / 2;
@@ -93,7 +93,7 @@ void TextureCache<key_type>::sink()
 }
 
 template <typename key_type>
-void TextureCache<key_type>::clear()
+void TextureCache<key_type>::clear() noexcept
 {
     if (clearMagic == 0)
         return;
@@ -116,7 +116,7 @@ void TextureCache<key_type>::clear()
 }
 
 template <typename key_type>
-void TextureCache<key_type>::clearStats()
+void TextureCache<key_type>::clearStats() noexcept
 {
     for (auto &[key, value] : cached) {
         value.refCount = 0;
@@ -124,7 +124,7 @@ void TextureCache<key_type>::clearStats()
 }
 
 template <typename key_type>
-void TextureCache<key_type>::printStats()
+void TextureCache<key_type>::printStats() noexcept
 {
     size_t c = 1;
     size_t c_active = 0;
@@ -139,7 +139,7 @@ void TextureCache<key_type>::printStats()
 }
 
 template <typename key_type>
-GLuint TextureCache<key_type>::getTextureWithId(key_type id)
+GLuint TextureCache<key_type>::getTextureWithId(key_type id) noexcept
 {
     if (matchingCachedQuery(id)) {
         last_query_result->refCount++;
@@ -149,10 +149,10 @@ GLuint TextureCache<key_type>::getTextureWithId(key_type id)
     if (i == cached.end()) {
         ERROR("{} failed to find texture {}", m_name, int(id));
         return 0;
-    } else {
-        cacheQuery(id, &i->second);
-        i->second.refCount++;
     }
+    cacheQuery(id, &i->second);
+    i->second.refCount++;
+
     /*
      * if (i->second->isAnimated) {
      AnimControl->lookup(i->second)
@@ -162,7 +162,7 @@ GLuint TextureCache<key_type>::getTextureWithId(key_type id)
 }
 
 template <typename key_type>
-bool TextureCache<key_type>::hasTexture(key_type id)
+bool TextureCache<key_type>::hasTexture(key_type id) noexcept
 {
     if (matchingCachedQuery(id))
         return true; // last_query_result;
@@ -174,7 +174,7 @@ bool TextureCache<key_type>::hasTexture(key_type id)
 }
 
 template <typename key_type>
-void TextureCache<key_type>::setToAlpha(key_type id)
+void TextureCache<key_type>::setToAlpha(key_type id) noexcept
 {
     auto i = cached.find(id);
     if (i == cached.end()) {
@@ -185,7 +185,7 @@ void TextureCache<key_type>::setToAlpha(key_type id)
 }
 
 template <typename key_type>
-void TextureCache<key_type>::setToAnimated(key_type id)
+void TextureCache<key_type>::setToAnimated(key_type id) noexcept
 {
     auto i = cached.find(id);
     if (i == cached.end()) {
@@ -207,7 +207,7 @@ void TextureCache<key_type>::addTexture(key_type id, GLuint texId)
 }
 
 template <typename key_type>
-void TextureCache<key_type>::cacheQuery(key_type id, texTuple *pos)
+void TextureCache<key_type>::cacheQuery(key_type id, texTuple *pos) noexcept
 {
     has_cached_query = true;
     last_query_id = id;
@@ -215,19 +215,19 @@ void TextureCache<key_type>::cacheQuery(key_type id, texTuple *pos)
 }
 
 template <typename key_type>
-bool TextureCache<key_type>::matchingCachedQuery(key_type id)
+bool TextureCache<key_type>::matchingCachedQuery(key_type id) const noexcept
 {
     return ((has_cached_query) && (id == last_query_id));
 }
 
 template <typename key_type>
-void TextureCache<key_type>::setClearMagic(uint32_t removeLesser)
+void TextureCache<key_type>::setClearMagic(uint32_t removeLesser) noexcept
 {
     clearMagic = removeLesser;
 }
 
 template <typename key_type>
-void TextureCache<key_type>::setMinClearElements(uint32_t minElements)
+void TextureCache<key_type>::setMinClearElements(uint32_t minElements) noexcept
 {
     minClearElements = minElements;
 }

@@ -41,13 +41,13 @@ public:
      *
      * Name will be set to TextureCache_N, where N is the current instance count.
      */
-    TextureCache();
+    TextureCache() noexcept;
 
     /** Constructor with a name.
      *
      * Set a name for this instance; to clarify status output with multiple caches.
      */
-    explicit TextureCache(const char *with_name);
+    explicit TextureCache(const char *with_name) noexcept;
 
     /** Just a simple destructor, nothing see here... move along.
      *
@@ -62,14 +62,14 @@ public:
      * @return true if texture is found
      * @return false otherwise
      */
-    bool hasTexture(key_type id);
+    bool hasTexture(key_type id) noexcept;
 
     /** Maps internal id to GLuint texture id.
      *
      * @param id from map/block info
      * @return texture id
      */
-    GLuint getTextureWithId(key_type id);
+    GLuint getTextureWithId(key_type id) noexcept;
 
     /** Adds a texture to the cache and maps to internal id.
      *
@@ -82,22 +82,22 @@ public:
      *
      * This doesn't do anything; you can just check for hasAlpha later on.
      */
-    void setToAlpha(key_type id);
+    void setToAlpha(key_type id) noexcept;
 
     /** probably stupid idea/going to go away
      */
-    void setToAnimated(key_type id);
+    void setToAnimated(key_type id) noexcept;
 
     /** Dumps some status info to stdout.
      */
-    void status();
+    void status() noexcept;
 
     /** Iterate over stored textures and modify refCount.
      *
      * This is optional functionality; you may skip this. If you don't,
      * call this *before* each rendering pass.
      */
-    void sink();
+    void sink() noexcept;
 
     /** Remove unused textures from cache and video memory.
      *
@@ -105,17 +105,20 @@ public:
      *
      * Handle with care, this code is experimental.
      */
-    void clear();
+    void clear() noexcept;
 
-    void clearAll();
+    void clearAll() noexcept;
 
-    void clearStats();
-    void printStats();
+    void clearStats() noexcept;
+    void printStats() noexcept;
 
-    void setClearMagic(uint32_t removeLesser);
-    void setMinClearElements(uint32_t minElements);
+    void setClearMagic(uint32_t removeLesser) noexcept;
+    void setMinClearElements(uint32_t minElements) noexcept;
 
 protected:
+    struct texTuple;
+    using CacheMapType = std::map<key_type, texTuple>;
+
     unsigned int clearMagic;
     unsigned int minClearElements;
 
@@ -125,7 +128,6 @@ protected:
         bool hasAlpha;
         bool isAnimated;
     };
-    using CacheMapType = std::map<key_type, texTuple>;
     CacheMapType cached;
     std::string m_name;
     static unsigned int instance_count;
@@ -133,8 +135,8 @@ protected:
     bool has_cached_query;
     key_type last_query_id;
     texTuple *last_query_result;
-    bool matchingCachedQuery(key_type id);
-    void cacheQuery(key_type id, texTuple *pos);
+    [[nodiscard]] bool matchingCachedQuery(key_type id) const noexcept;
+    void cacheQuery(key_type id, texTuple *pos) noexcept;
 };
 
 } // namespace OpenGL

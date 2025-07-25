@@ -20,9 +20,10 @@
  * 3. This notice may not be removed or altered from any source          *
  * distribution.                                                         *
  ************************************************************************/
-#include <util/animation.h>
-#include <util/errors.h>
-#include <util/log.h>
+#include "util/animation.h"
+
+#include "util/errors.h"
+#include "util/log.h"
 
 namespace Util {
 Animation::Animation(uint16_t num, uint16_t fps) noexcept
@@ -103,8 +104,3 @@ void Animation::isDone()
     }
 }
 } // namespace Util
-
-void AnimCallback()
-{
-    WARN("EmptyAnimCallback called");
-}

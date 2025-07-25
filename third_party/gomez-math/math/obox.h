@@ -45,18 +45,10 @@
 class OBox {
 public:
     OBox() = default;
-    OBox(const glm::mat4 &m, const glm::vec3 &extent)
-    {
-        set(m, extent);
-    }
-    OBox(const glm::mat4 &m, const glm::vec3 &low, const glm::vec3 &high)
-    {
-        set(m, low, high);
-    }
-    OBox(const OBox &other)
-    {
-        set(other.transform_, other.extent_);
-    }
+    OBox(const glm::mat4 &m, const glm::vec3 &extent) { set(m, extent); }
+    OBox(const glm::mat4 &m, const glm::vec3 &low, const glm::vec3 &high) { set(m, low, high); }
+    OBox(const OBox &other) = default;
+    OBox(OBox &&other) noexcept = default;
 
     void set(const glm::mat4 &m, const glm::vec3 &extent)
     {
@@ -70,14 +62,8 @@ public:
         extent_ = 0.5f * (high - low);
     }
 
-    [[nodiscard]] glm::vec3 getSize() const
-    {
-        return 2.0f * extent_;
-    }
-    [[nodiscard]] glm::vec3 getCenterPoint() const
-    {
-        return { transform_[3][0], transform_[3][1], transform_[3][2] };
-    }
+    [[nodiscard]] glm::vec3 getSize() const { return 2.0f * extent_; }
+    [[nodiscard]] glm::vec3 getCenterPoint() const { return { transform_[3][0], transform_[3][1], transform_[3][2] }; }
 
     [[nodiscard]] bool isPointInBox(const glm::vec3 &p) const;
     bool isBoxInBox(OBox &box) const;
@@ -87,15 +73,9 @@ public:
 
     void lineCrossBox(const glm::vec3 &l1, const glm::vec3 &l2, glm::vec3 &isecLocalSpace) const;
 
-    [[nodiscard]] inline const glm::mat4 &transform() const
-    {
-        return transform_;
-    }
+    [[nodiscard]] const glm::mat4 &transform() const noexcept { return transform_; }
 
-    [[nodiscard]] inline const glm::vec3 &extent() const
-    {
-        return extent_;
-    }
+    [[nodiscard]] const glm::vec3 &extent() const noexcept { return extent_; }
 
     [[nodiscard]] glm::vec3 transformCoords(const glm::vec3 &orig) const;
 

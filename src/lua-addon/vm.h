@@ -1,10 +1,9 @@
 #ifndef OPENGTA_SCRIPT_VM_H
 #define OPENGTA_SCRIPT_VM_H
 
-#include <graphics/cityview.h>
-#include <lua-addon/camera.h>
-#include <lua-addon/lua.h>
-#include <lua-addon/screen.h>
+#include "graphics/cityview.h"
+#include "lua-addon/camera.h"
+#include "lua-addon/screen.h"
 
 namespace OpenGL {
 class Screen;

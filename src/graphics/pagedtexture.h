@@ -33,13 +33,9 @@ struct TexCoord {
         , v(b)
     {
     }
-    TexCoord()
-        : u(0.0f)
-        , v(0.0f)
-    {
-    }
-    GLfloat u;
-    GLfloat v;
+    TexCoord() = default;
+    GLfloat u {};
+    GLfloat v {};
 };
 
 struct PagedTexture {

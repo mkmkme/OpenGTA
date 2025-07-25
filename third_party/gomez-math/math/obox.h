@@ -45,25 +45,24 @@
 class OBox {
 public:
     OBox() = default;
-    OBox(const glm::mat4 &m, const glm::vec3 &extent) { set(m, extent); }
-    OBox(const glm::mat4 &m, const glm::vec3 &low, const glm::vec3 &high) { set(m, low, high); }
+    OBox(glm::mat4 m, glm::vec3 extent)
+        : transform_(m)
+        , extent_(extent)
+    {
+    }
+    OBox(glm::mat4 m, glm::vec3 low, glm::vec3 high)
+        : transform_(glm::translate(m, 0.5f * (low + high)))
+        , extent_(0.5f * (high - low))
+    {
+    }
     OBox(const OBox &other) = default;
     OBox(OBox &&other) noexcept = default;
 
-    void set(const glm::mat4 &m, const glm::vec3 &extent)
+    [[nodiscard]] glm::vec3 getSize() const noexcept { return 2.0f * extent_; }
+    [[nodiscard]] glm::vec3 getCenterPoint() const noexcept
     {
-        transform_ = m;
-        extent_ = extent;
+        return { transform_[3][0], transform_[3][1], transform_[3][2] };
     }
-    void set(const glm::mat4 &m, const glm::vec3 &low, const glm::vec3 &high)
-    {
-        transform_ = m;
-        transform_ = glm::translate(transform_, 0.5f * (low + high));
-        extent_ = 0.5f * (high - low);
-    }
-
-    [[nodiscard]] glm::vec3 getSize() const { return 2.0f * extent_; }
-    [[nodiscard]] glm::vec3 getCenterPoint() const { return { transform_[3][0], transform_[3][1], transform_[3][2] }; }
 
     [[nodiscard]] bool isPointInBox(const glm::vec3 &p) const;
     bool isBoxInBox(OBox &box) const;

@@ -3,13 +3,14 @@
 #include <lua.h>
 
 #include <fmt/base.h>
+#include <fmt/format.h>
 
 #include "base/config.h"
 
 namespace OpenGTA::Util {
 void printVersionInfo() noexcept
 {
-#define PRINT_FORMATTED(name, value) fmt::print("{:<19}{}\n", name, value)
+#define PRINT_FORMATTED(name, value) fmt::print("{:<24}{}\n", name, value)
 
     PRINT_FORMATTED("OpenGTA version:", OGTA_VERSION_INFO);
     PRINT_FORMATTED("Lua version:", LUA_RELEASE);
@@ -39,6 +40,11 @@ void printVersionInfo() noexcept
 #ifdef OGTA_DEFAULT_MOD_PATH
     PRINT_FORMATTED("mod-path", "[" OGTA_DEFAULT_MOD_PATH "]");
 #endif
+
+    PRINT_FORMATTED(
+        "default window size:",
+        fmt::format("{}x{}", OGTA_DEFAULT_SCREEN_WIDTH, OGTA_DEFAULT_SCREEN_HEIGHT)
+    );
 
 #ifdef OGTA_DEFAULT_GRAPHICS_G24
     PRINT_FORMATTED("default graphics:", "G24 - 24 bit");

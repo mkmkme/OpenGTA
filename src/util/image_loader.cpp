@@ -172,9 +172,7 @@ OpenGL::PagedTexture loadImageSDL(const std::string &name)
 uint32_t createGLTexture(size_t w, size_t h, bool rgba, std::span<const uint8_t> pixels)
 {
     GLuint tex;
-    fmt::println("before glGenTextures");
     glGenTextures(1, &tex);
-    fmt::println("after glGenTextures");
     glBindTexture(GL_TEXTURE_2D, tex);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     if (!mipmapTextures)

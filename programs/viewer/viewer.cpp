@@ -125,8 +125,6 @@ void Viewer::createPedAt(const glm::vec3 &v)
     OpenGTA::Pedestrian &pr = OpenGTA::SpriteManager::Instance().add(std::move(p));
     pr.switchToAnim(1);
     localPlayer_.setCtrl(pr.m_control);
-
-    createIngameUI();
 }
 
 void Viewer::showGammaConfig()
@@ -667,6 +665,8 @@ void Viewer::run()
     city_->setPosition(map_position_[0], map_position_[1], map_position_[2]);
 
     camera_.setVectors(glm::vec3(12, 20, 12), glm::vec3(13.0f, 19.0f, 13.0f), glm::vec3(0, 1, 0));
+
+    createIngameUI();
 
 #ifdef TIMER_OPENSTEER_CLOCK
     Timer &timer = Timer::Instance();

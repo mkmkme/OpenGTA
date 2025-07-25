@@ -14,17 +14,10 @@ struct CityInfo {
     std::string name;
     std::string style;
 
-    [[nodiscard]] std::string getMapFile() const noexcept
-    {
-        // fmt::println(stderr, "getMapFile: {}\n", name);
-        // return fmt::format("{}.CMP", name);
-        return "NYC.CMP";
-    }
+    [[nodiscard]] std::string getMapFile() const noexcept { return fmt::format("{}.CMP", name); }
     [[nodiscard]] std::string getStyleFile(bool highcolor) const noexcept
     {
-        // const std::string_view suffix = highcolor ? "G24" : "GRY";
-        // return fmt::format("{}.{}", style, suffix);
-        return "STYLE001.G24";
+        return fmt::format("{}.{}", style, highcolor ? "G24" : "GRY");
     }
 };
 
@@ -101,7 +94,7 @@ ViewerConfig::ParseArgsResult ViewerConfig::parseArgs(int argc, char **argv)
                 ERROR("City {} not found, falling back to NYC", city_name);
                 city_id_ = 0;
             } else {
-                city_id_ = std::distance(cities.begin(), it);
+                city_id_ = it - cities.data();
             }
         }
 

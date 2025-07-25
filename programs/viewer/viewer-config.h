@@ -61,7 +61,7 @@ private:
 
     // args end
 
-    size_t city_id_;
+    size_t city_id_ = 0;
 
 #ifdef OGTA_DEFAULT_GRAPHICS_G24
     bool highcolor_data_ = true;
@@ -70,10 +70,10 @@ private:
 #endif
 
     // lua config
-    float fov_;
-    float near_plane_;
-    float far_plane_;
-    float screen_gamma_;
+    float fov_ {};
+    float near_plane_ {};
+    float far_plane_ {};
+    float screen_gamma_ {};
 };
 
 } // namespace OpenGTA

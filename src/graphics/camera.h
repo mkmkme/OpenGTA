@@ -34,6 +34,9 @@ public:
     glm::vec3 &getEye() { return eye; }
     glm::vec3 &getCenter() { return center; }
     glm::vec3 &getUp() { return up; }
+    [[nodiscard]] const glm::vec3 &getEye() const { return eye; }
+    [[nodiscard]] const glm::vec3 &getCenter() const { return center; }
+    [[nodiscard]] const glm::vec3 &getUp() const { return up; }
 
 private:
     void update_game();

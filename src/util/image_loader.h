@@ -66,9 +66,7 @@ OpenGL::PagedTexture loadImageRAW(const std::string &name);
 // OpenGL::PagedTexture loadImageRAT(const std::string & name);
 // load a palette image using palette file
 OpenGL::PagedTexture loadImageRATWithPalette(const std::string &name, const std::string &palette_file);
-#ifdef OGTA_WITH_SDL_IMAGE
 OpenGL::PagedTexture loadImageSDL(const std::string &name);
-#endif
 
 extern bool mipmapTextures;
 extern float supportedMaxAnisoDegree;

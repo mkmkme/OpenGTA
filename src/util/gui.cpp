@@ -284,12 +284,10 @@ ImageUtil::WidthHeightPair Manager::cacheStyleArrowSprite(const size_t id, int r
     return ImageUtil::WidthHeightPair(info.w, info.h);
 }
 
-#ifdef OGTA_WITH_SDL_IMAGE
 void Manager::cacheImageSDL(const std::string &file, size_t id)
 {
     texCache.insert({ id, ImageUtil::loadImageSDL(file) });
 }
-#endif
 
 void Manager::add(Object *obj, uint8_t onLevel)
 {

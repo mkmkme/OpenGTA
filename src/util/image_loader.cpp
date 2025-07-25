@@ -28,7 +28,7 @@
 #include <SDL_image.h>
 #include <physfs.h>
 
-#include <SDL2/SDL_surface.h> // WITH_SDL_IMAGE
+#include <SDL2/SDL_surface.h>
 
 #include "util/errors.h"
 #include "util/file-manager.h"
@@ -145,7 +145,6 @@ OpenGL::PagedTexture loadImageRATWithPalette(const std::string &name, const std:
     return createEmbeddedTexture(whp.first, whp.second, false, std::move(lb2));
 }
 
-#ifdef OGTA_WITH_SDL_IMAGE
 OpenGL::PagedTexture loadImageSDL(const std::string &name)
 {
     SDL_RWops *rwops = PHYSFSRWOPS_openRead(name.c_str());
@@ -166,7 +165,6 @@ OpenGL::PagedTexture loadImageSDL(const std::string &name)
     GLuint texture = createGLTexture(npot.w, npot.h, bpp == 4, buffer);
     return OpenGL::PagedTexture(texture, 0, 0, GLfloat(surface->w) / npot.w, GLfloat(surface->h) / npot.h);
 }
-#endif
 
 #define GL_SILENCE_DEPRECATION
 uint32_t createGLTexture(size_t w, size_t h, bool rgba, std::span<const uint8_t> pixels)

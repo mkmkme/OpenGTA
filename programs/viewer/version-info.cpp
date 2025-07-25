@@ -20,12 +20,6 @@ void printVersionInfo() noexcept
     PRINT_FORMATTED("sound support:", "no");
 #endif
 
-#ifdef OGTA_WITH_SDL_IMAGE
-    PRINT_FORMATTED("SDL_image support:", "yes");
-#else
-    PRINT_FORMATTED("SDL_image support:", "no");
-#endif
-
 #ifdef OGTA_HAVE_SDL_VSYNC
     PRINT_FORMATTED("vsync support:", "yes");
 #else

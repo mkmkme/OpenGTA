@@ -68,9 +68,8 @@ public:
     void clearCache();
     void cacheImageRAW(const std::string &file, size_t id);
     void cacheImageRAT(const std::string &file, const std::string &palette, size_t id);
-#ifdef OGTA_WITH_SDL_IMAGE
     void cacheImageSDL(const std::string &file, size_t id);
-#endif
+
     ImageUtil::WidthHeightPair cacheStyleArrowSprite(size_t id, int remap);
     const OpenGL::PagedTexture &getCachedImage(size_t id);
     void receive(SDL_MouseButtonEvent &mb_event, uint32_t height);

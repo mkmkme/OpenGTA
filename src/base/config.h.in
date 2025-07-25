@@ -17,7 +17,6 @@
 #cmakedefine OGTA_DO_SCALE2X
 #cmakedefine OGTA_LOG_USE_ANSI_COLORS
 #cmakedefine OGTA_WITH_SOUND
-#cmakedefine OGTA_WITH_SDL_IMAGE
 #cmakedefine OGTA_USE_FMT_COLOR
 #cmakedefine01 OGTA_HAVE_SDL_VSYNC
 #cmakedefine OGTA_DEFAULT_GRAPHICS_G24

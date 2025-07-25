@@ -15,6 +15,7 @@
 #include "core/main-msg-lookup.h"
 #include "core/spritemanager.h"
 #include "helpers.h"
+#include "viewer-config.h"
 
 namespace OpenGTA {
 
@@ -52,9 +53,10 @@ void Viewer::screenGammaCallback(float v)
         l->text = "Gamma: " + std::to_string(v);
 }
 
-Viewer::Viewer(std::string_view progname)
-    : luaVM_ { screen_, camera_ }
-    , physfs_context_ { progname.data() }
+Viewer::Viewer(ViewerConfig &&config)
+    : config_ { std::move(config) }
+    , luaVM_ { screen_, camera_ }
+    , physfs_context_ { config_.getProgName().data() }
 {
 }
 
@@ -110,11 +112,6 @@ void Viewer::initialize()
     fps_label_ = new GUI::Label(rect, "", "F_MTEXT.FON", 1);
     // fps_label->borderColor.r = fps_label->borderColor.unused = 200;
     guiManager_.add(fps_label_, 5);
-}
-
-ViewerConfig::ParseArgsResult Viewer::parseArgs(int argc, char **argv) noexcept
-{
-    return config_.parseArgs(argc, argv);
 }
 
 void Viewer::createPedAt(const glm::vec3 &v)

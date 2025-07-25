@@ -42,6 +42,8 @@ ViewerConfig::ViewerConfig() = default;
 
 ViewerConfig::ParseArgsResult ViewerConfig::parseArgs(int argc, char **argv)
 {
+    progname_ = argv[0];
+
     cxxopts::Options options { "viewer", "Demo program for OpenGTA" };
     // clang-format off
     options.add_options()

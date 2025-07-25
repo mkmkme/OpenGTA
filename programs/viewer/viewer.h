@@ -20,13 +20,12 @@ namespace OpenGTA {
 
 class Viewer {
 public:
-    explicit Viewer(std::string_view progname);
+    explicit Viewer(ViewerConfig &&config);
 
     void run();
     void quit();
 
     void screenGammaCallback(float v);
-    ViewerConfig::ParseArgsResult parseArgs(int argc, char **argv) noexcept;
 
 private:
     void initialize();

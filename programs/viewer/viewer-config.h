@@ -22,6 +22,8 @@ public:
     ParseArgsResult parseArgs(int argc, char **argv);
     void tryParseLuaConfig(Script::LuaVM &luaVM) noexcept;
 
+    [[nodiscard]] std::string_view getProgName() const noexcept { return progname_; }
+
     [[nodiscard]] std::string getMapFile() const noexcept;
     [[nodiscard]] std::string getStyleFile() const noexcept;
 
@@ -38,6 +40,8 @@ public:
     [[nodiscard]] float getScreenGamma() const noexcept { return screen_gamma_; }
 
 private:
+    std::string_view progname_;
+
     // args start
     std::string script_file_;
     float anisotropic_filter_degree_ = 2.0f;

@@ -30,11 +30,11 @@
 int main(int argc, char *argv[]) // NOLINT(bugprone-exception-escape)
 {
     Util::enableBacktraces();
-    OpenGTA::Viewer app { argv[0] };
 
+    OpenGTA::ViewerConfig config;
     if (argc > 1) {
         using enum OpenGTA::ViewerConfig::ParseArgsResult;
-        const auto result = app.parseArgs(argc, argv);
+        const auto result = config.parseArgs(argc, argv);
         switch (result) {
             case ExitSuccess:
                 return 0;
@@ -45,6 +45,7 @@ int main(int argc, char *argv[]) // NOLINT(bugprone-exception-escape)
         }
     }
 
+    OpenGTA::Viewer app { std::move(config) };
     app.run();
     app.quit();
 

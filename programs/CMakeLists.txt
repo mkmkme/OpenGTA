@@ -1,4 +1,9 @@
-add_executable(viewer viewer/main.cpp)
+add_executable(viewer
+    viewer/helpers.cpp
+    viewer/main.cpp
+    viewer/version-info.cpp
+    viewer/viewer.cpp
+    viewer/viewer-config.cpp)
 target_include_directories(viewer PRIVATE ${PHYSFS_INCLUDE_DIR})
 target_link_libraries(viewer PRIVATE
     ogta::core

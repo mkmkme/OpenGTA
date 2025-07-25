@@ -76,9 +76,10 @@ namespace OpenGL {
 Screen::Screen()
     : window_ { nullptr }
     , video_flags_ { SDL_WINDOW_OPENGL | SDL_GL_DOUBLEBUFFER } // FIXME: review the need of the last one
-    , vsync_mode_ { VSyncMode { DEFAULT_SCREEN_VSYNC } }
-    , width_ { DEFAULT_SCREEN_WIDTH }
-    , height_ { DEFAULT_SCREEN_HEIGHT }
+    // FIXME: the below need to be args
+    , vsync_mode_ { OGTA_DEFAULT_SCREEN_VSYNC ? VSyncMode::SDL : VSyncMode::NoSync }
+    , width_ { OGTA_DEFAULT_SCREEN_WIDTH }
+    , height_ { OGTA_DEFAULT_SCREEN_HEIGHT }
     , field_of_view_ { 60.0f }
     , near_plane_ { 0.1f }
     , far_plane_ { 250.0f }

@@ -63,10 +63,6 @@ public:
 
     struct Animation : public Util::Animation {
         Animation() noexcept;
-        Animation(Animation &&other) noexcept;
-        Animation &operator=(Animation &&other) noexcept;
-        Animation(const Animation &other) noexcept;
-        Animation &operator=(const Animation &other) noexcept;
         Animation(uint16_t foff, uint8_t num) noexcept;
         Animation(uint16_t foff, uint8_t num, float speed) noexcept;
         uint16_t firstFrameOffset;

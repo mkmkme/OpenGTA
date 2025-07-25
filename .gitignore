@@ -1,8 +1,7 @@
 /build
-/build-asan
-/build-debug
-/build-release
+/build-*
 /gtadata.zip
 /.cache
+/.version
 /.vs
 /vcpkg_installed

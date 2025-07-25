@@ -748,6 +748,7 @@ void Viewer::run()
         }
     }
 
+    config_.saveLuaConfig(luaVM_);
     luaVM_.runFile("scripts/dump_config.lua");
 }
 

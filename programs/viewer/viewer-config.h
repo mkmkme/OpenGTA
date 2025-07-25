@@ -3,15 +3,11 @@
 #include <cstdint>
 #include <string>
 
-// #include "lua-addon/vm.h"
+#include "lua-addon/vm.h"
 
 #include "base/config.h"
 
 namespace OpenGTA {
-
-namespace Script {
-class LuaVM;
-}
 
 class ViewerConfig {
 public:
@@ -21,6 +17,8 @@ public:
 
     ParseArgsResult parseArgs(int argc, char **argv);
     void tryParseLuaConfig(Script::LuaVM &luaVM) noexcept;
+
+    void saveLuaConfig(Script::LuaVM &luaVM) const noexcept;
 
     [[nodiscard]] std::string_view getProgName() const noexcept { return progname_; }
 

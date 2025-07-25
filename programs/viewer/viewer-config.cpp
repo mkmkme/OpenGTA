@@ -3,8 +3,11 @@
 #include <algorithm>
 #include <array>
 
+#include <lua.h>
+
 #include <cxxopts.hpp>
 
+#include "lua-addon/stackguard.h"
 #include "util/log.h"
 
 #include "version-info.h"
@@ -107,33 +110,87 @@ ViewerConfig::ParseArgsResult ViewerConfig::parseArgs(int argc, char **argv)
 
 void ViewerConfig::tryParseLuaConfig(Script::LuaVM &luaVM) noexcept
 {
-    // auto *L = luaVM.getInternalState();
+    auto *L = luaVM.getInternalState();
 
-    // lua_getglobal(L, "config");
-    // if (lua_type(L, 1) == LUA_TTABLE) {
-    //     luaVM.tryGetBool("use_g24_graphics", highcolor_data_);
-    //     luaVM.tryGetUInt("screen_width", window_width_);
-    //     luaVM.tryGetUInt("screen_height", window_height_);
-    //     luaVM.tryGetBool("screen_vsync", vsync_);
-    //     luaVM.tryGetBool("full_screen", fullscreen_);
+    lua_getglobal(L, "config");
+    if (lua_type(L, 1) == LUA_TTABLE) {
+        luaVM.tryGetBool("use_g24_graphics", highcolor_data_);
+        luaVM.tryGetUInt("screen_width", window_width_);
+        luaVM.tryGetUInt("screen_height", window_height_);
+        luaVM.tryGetBool("screen_vsync", vsync_);
+        luaVM.tryGetBool("full_screen", fullscreen_);
 
-    //     luaVM.tryGetFloat("gl_field_of_view", fov_);
-    //     luaVM.tryGetFloat("gl_near_plane", near_plane_);
-    //     luaVM.tryGetFloat("gl_far_plane", far_plane_);
-    //     luaVM.tryGetBool("gl_mipmap_textures", mipmap_textures_);
+        luaVM.tryGetFloat("gl_field_of_view", fov_);
+        luaVM.tryGetFloat("gl_near_plane", near_plane_);
+        luaVM.tryGetFloat("gl_far_plane", far_plane_);
+        luaVM.tryGetBool("gl_mipmap_textures", mipmap_textures_);
 
-    //     luaVM.tryGetBool("scale2x_sprites", scale2x_);
+        luaVM.tryGetBool("scale2x_sprites", scale2x_);
 
-    //     luaVM.tryGetFloat("gl_anisotropic_textures", anisotropic_filter_degree_);
+        luaVM.tryGetFloat("gl_anisotropic_textures", anisotropic_filter_degree_);
 
-    //     if (highcolor_data_) {
-    //         luaVM.tryGetFloat("screen_gamma_g24", screen_gamma_);
-    //     } else {
-    //         luaVM.tryGetFloat("screen_gamma_gry", screen_gamma_);
-    //     }
-    // }
-    // lua_settop(L, 0);
-    // // can't check for gl-extensions now
+        if (highcolor_data_) {
+            luaVM.tryGetFloat("screen_gamma_g24", screen_gamma_);
+        } else {
+            luaVM.tryGetFloat("screen_gamma_gry", screen_gamma_);
+        }
+    }
+    lua_settop(L, 0);
+    // can't check for gl-extensions now
+}
+
+void ViewerConfig::saveLuaConfig(Script::LuaVM &luaVM) const noexcept
+{
+    auto *L = luaVM.getInternalState();
+    ::Util::LuaStackguard guard(L);
+
+    lua_createtable(L, 0, 4);
+
+    lua_pushboolean(L, highcolor_data_);
+    lua_setfield(L, -2, "use_g24_graphics");
+
+    lua_pushinteger(L, window_width_);
+    lua_setfield(L, -2, "screen_width");
+
+    lua_pushinteger(L, window_height_);
+    lua_setfield(L, -2, "screen_height");
+
+    lua_pushboolean(L, vsync_);
+    lua_setfield(L, -2, "screen_vsync");
+
+    lua_pushboolean(L, fullscreen_);
+    lua_setfield(L, -2, "full_screen");
+
+    lua_pushnumber(L, fov_);
+    lua_setfield(L, -2, "gl_field_of_view");
+
+    lua_pushnumber(L, near_plane_);
+    lua_setfield(L, -2, "gl_near_plane");
+
+    lua_pushnumber(L, far_plane_);
+    lua_setfield(L, -2, "gl_far_plane");
+
+    lua_pushboolean(L, mipmap_textures_);
+    lua_setfield(L, -2, "gl_mipmap_textures");
+
+    lua_pushboolean(L, scale2x_);
+    lua_setfield(L, -2, "scale2x_sprites");
+
+    lua_pushnumber(L, anisotropic_filter_degree_);
+    lua_setfield(L, -2, "gl_anisotropic_textures");
+
+    if (highcolor_data_) {
+        lua_pushnumber(L, screen_gamma_);
+        lua_setfield(L, -2, "screen_gamma_g24");
+    } else {
+        lua_pushnumber(L, screen_gamma_);
+        lua_setfield(L, -2, "screen_gamma_gry");
+    }
+
+    lua_pushvalue(L, -1);
+    lua_setglobal(L, "config");
+
+    lua_settop(L, 0);
 }
 
 std::string ViewerConfig::getMapFile() const noexcept

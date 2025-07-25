@@ -9,7 +9,7 @@ class Screen;
 namespace OpenGTA::Script {
 class LuaScreen {
 public:
-    LuaScreen(OpenGL::Screen &s);
+    explicit LuaScreen(OpenGL::Screen &s);
     int registerFunctions(lua_State *L);
 
 private:

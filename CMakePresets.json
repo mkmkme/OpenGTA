@@ -24,6 +24,24 @@
             }
         },
         {
+            "name": "vcpkg-msan",
+            "inherits": "vcpkg",
+            "binaryDir": "${sourceDir}/build-msan",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Debug",
+                "SANITIZE": "memory"
+            }
+        },
+        {
+            "name": "vcpkg-ubsan",
+            "inherits": "vcpkg",
+            "binaryDir": "${sourceDir}/build-ubsan",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Debug",
+                "SANITIZE": "undefined"
+            }
+        },
+        {
             "name": "default",
             "generator": "Ninja",
             "binaryDir": "${sourceDir}/build"

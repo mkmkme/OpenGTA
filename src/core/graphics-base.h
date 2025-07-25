@@ -66,21 +66,21 @@ public:
 #define DECLARE_SPRITE_NUMBER(name) uint16_t name;
         SPRITE_TYPES(DECLARE_SPRITE_NUMBER)
 
-        enum class SpriteTypes : uint8_t {
+        enum class SpriteType : uint8_t {
 
 #define DECLARE_SPRITE_TYPE(name) name,
             SPRITE_TYPES(DECLARE_SPRITE_TYPE)
 
         };
 
-        [[nodiscard]] uint16_t reIndex(const uint16_t &id, const enum SpriteTypes &st) const;
-        [[nodiscard]] uint16_t countByType(const SpriteTypes &t) const;
+        [[nodiscard]] uint16_t reIndex(uint16_t id, SpriteType st) const;
+        [[nodiscard]] uint16_t countByType(const SpriteType &t) const;
     };
 
     bool isAnimatedBlock(uint8_t area_code, uint8_t id);
 
     static const char *getSpriteName(int t);
-    static const char *getSpriteName(SpriteNumbers::SpriteTypes t) { return getSpriteName(static_cast<int>(t)); }
+    static const char *getSpriteName(SpriteNumbers::SpriteType t) { return getSpriteName(static_cast<int>(t)); }
 
     void prepareSideTexture(uint32_t idx, std::span<uint8_t> dst);
     void prepareLidTexture(uint32_t idx, std::span<uint8_t> dst);

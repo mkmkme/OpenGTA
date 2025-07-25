@@ -560,22 +560,22 @@ void CityView::drawObject(OpenGTA::Map::ObjectPosition *obj)
     float y = float(obj->y >> 6) + (float(obj->y % 64) / 64.0f);
     float z = float(obj->z >> 6) + (float(obj->z % 64) / 64.0f);
     size_t spriteNumAbs, sprNum;
-    GraphicsBase::SpriteNumbers::SpriteTypes st;
+    GraphicsBase::SpriteNumbers::SpriteType st;
     if (obj->remap >= 128) { // car
         CarInfo &cinfo = style->findCarByModel(obj->type);
         sprNum = cinfo.sprNum;
-        spriteNumAbs = style->spriteNumbers.reIndex(cinfo.sprNum, GraphicsBase::SpriteNumbers::SpriteTypes::car);
+        spriteNumAbs = style->spriteNumbers.reIndex(cinfo.sprNum, GraphicsBase::SpriteNumbers::SpriteType::car);
         const SpriteInfo &info = style->getSprite(spriteNumAbs);
         w = float(info.w) / 64.0f;
         h = float(info.h) / 64.0f;
-        st = GraphicsBase::SpriteNumbers::SpriteTypes::car;
+        st = GraphicsBase::SpriteNumbers::SpriteType::car;
     } else {
         sprNum = style->objectInfos[obj->type].sprNum;
-        spriteNumAbs = style->spriteNumbers.reIndex(sprNum, GraphicsBase::SpriteNumbers::SpriteTypes::object);
+        spriteNumAbs = style->spriteNumbers.reIndex(sprNum, GraphicsBase::SpriteNumbers::SpriteType::object);
         const SpriteInfo &info = style->getSprite(spriteNumAbs);
         w = float(info.w) / 64.0f;
         h = float(info.h) / 64.0f;
-        st = GraphicsBase::SpriteNumbers::SpriteTypes::object;
+        st = GraphicsBase::SpriteNumbers::SpriteType::object;
     }
 
     OpenGL::PagedTexture t;

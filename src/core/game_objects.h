@@ -63,7 +63,7 @@ struct GameObject_common {
 
 class Sprite {
 public:
-    using SpriteTypes = GraphicsBase::SpriteNumbers::SpriteTypes;
+    using SpriteTypes = GraphicsBase::SpriteNumbers::SpriteType;
 
     struct Animation : public Util::Animation {
         Animation() noexcept;
@@ -122,11 +122,11 @@ public:
         bool opening;
     };
     CarSprite();
-    CarSprite(uint16_t sprN, int16_t rem, GraphicsBase::SpriteNumbers::SpriteTypes sprT);
+    CarSprite(uint16_t sprN, int16_t rem, GraphicsBase::SpriteNumbers::SpriteType sprT);
     CarSprite(const CarSprite &o);
     uint16_t sprNum;
     int16_t remap;
-    GraphicsBase::SpriteNumbers::SpriteTypes sprType;
+    GraphicsBase::SpriteNumbers::SpriteType sprType;
     uint32_t delta;
     Util::Set deltaSet;
     Util::Set animState;
@@ -164,7 +164,7 @@ private:
 class SpriteObject : public GameObject_common, public Sprite, public OBox {
 public:
     SpriteObject(OpenGTA::Map::ObjectPosition &, uint32_t id);
-    SpriteObject(const glm::vec3 &pos, uint16_t spriteNum, GraphicsBase::SpriteNumbers::SpriteTypes st);
+    SpriteObject(const glm::vec3 &pos, uint16_t spriteNum, GraphicsBase::SpriteNumbers::SpriteType st);
     SpriteObject(SpriteObject &&o) noexcept;
     uint32_t objId {};
     [[nodiscard]] uint32_t id() const { return objId; }

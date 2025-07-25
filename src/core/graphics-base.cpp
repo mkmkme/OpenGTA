@@ -1,6 +1,5 @@
 #include <algorithm>
 #include <cassert>
-#include <cstddef>
 #include <random>
 
 #include <core/graphics-base.h>
@@ -13,11 +12,11 @@
 using namespace OpenGTA;
 using namespace Util;
 
-uint16_t GraphicsBase::SpriteNumbers::countByType(const SpriteTypes &t) const
+uint16_t GraphicsBase::SpriteNumbers::countByType(const SpriteType &t) const
 {
     switch (t) {
-#define CASE_COUNT(_name)    \
-    case SpriteTypes::_name: \
+#define CASE_COUNT(_name)   \
+    case SpriteType::_name: \
         return _name;
 
         SPRITE_TYPES(CASE_COUNT)
@@ -113,12 +112,12 @@ uint8_t GraphicsBase::getFormat() const
     throw Util::InvalidFormat("graphics-base header size");
 }
 
-uint16_t GraphicsBase::SpriteNumbers::reIndex(const uint16_t &id, const SpriteTypes &t) const
+uint16_t GraphicsBase::SpriteNumbers::reIndex(uint16_t id, SpriteType t) const
 {
     uint16_t ret = id;
     switch (t) {
 #define CASE_ACCUMULATE(_name, _to_add_name) \
-    case SpriteTypes::_name:                 \
+    case SpriteType::_name:                  \
         ret += (_to_add_name);               \
         /* fallthrough */
 
@@ -142,7 +141,7 @@ uint16_t GraphicsBase::SpriteNumbers::reIndex(const uint16_t &id, const SpriteTy
         CASE_ACCUMULATE(box, boat)
         CASE_ACCUMULATE(boat, digits)
         CASE_ACCUMULATE(digits, arrow)
-        case SpriteTypes::arrow:
+        case SpriteType::arrow:
             break;
     }
     return ret;

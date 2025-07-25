@@ -473,7 +473,7 @@ void Pedestrian::getShot(
 CarSprite::CarSprite()
     : sprNum(0)
     , remap(-1)
-    , sprType(GraphicsBase::SpriteNumbers::SpriteTypes::car)
+    , sprType(GraphicsBase::SpriteNumbers::SpriteType::car)
     , delta(0)
     , deltaSet(sizeof(delta) * 8, (unsigned char *) &delta)
 {
@@ -489,7 +489,7 @@ CarSprite::CarSprite(const CarSprite &o)
 {
 }
 
-CarSprite::CarSprite(uint16_t sprN, int16_t rem, GraphicsBase::SpriteNumbers::SpriteTypes sprT)
+CarSprite::CarSprite(uint16_t sprN, int16_t rem, GraphicsBase::SpriteNumbers::SpriteType sprT)
     : sprNum(sprN)
     , remap(rem)
     , sprType(sprT)
@@ -628,7 +628,7 @@ CarSprite::DoorDeltaAnimation::DoorDeltaAnimation(uint8_t dId, bool dOpen)
 
 Car::Car(const glm::vec3 &_pos, float _rot, uint32_t id, uint8_t _type, int16_t _remap)
     : GameObject_common(_pos, _rot)
-    , CarSprite(0, -1, GraphicsBase::SpriteNumbers::SpriteTypes::car)
+    , CarSprite(0, -1, GraphicsBase::SpriteNumbers::SpriteType::car)
     , carInfo(ActiveStyle::Instance().get().findCarByModel(_type))
 {
     type = _type;
@@ -645,16 +645,16 @@ Car::Car(const glm::vec3 &_pos, float _rot, uint32_t id, uint8_t _type, int16_t 
 void Car::fixSpriteType()
 {
     if (carInfo.vtype == 3)
-        sprType = GraphicsBase::SpriteNumbers::SpriteTypes::bike;
+        sprType = GraphicsBase::SpriteNumbers::SpriteType::bike;
     else if (carInfo.vtype == 0)
-        sprType = GraphicsBase::SpriteNumbers::SpriteTypes::bus;
+        sprType = GraphicsBase::SpriteNumbers::SpriteType::bus;
     else if (carInfo.vtype == 8)
-        sprType = GraphicsBase::SpriteNumbers::SpriteTypes::train;
+        sprType = GraphicsBase::SpriteNumbers::SpriteType::train;
 }
 
 Car::Car(OpenGTA::Map::ObjectPosition &op, uint32_t id)
     : GameObject_common(glm::vec3(INT2FLOAT_WRLD(op.x), 6.05f - INT2FLOAT_WRLD(op.z), INT2FLOAT_WRLD(op.y)))
-    , CarSprite(0, -1, GraphicsBase::SpriteNumbers::SpriteTypes::car)
+    , CarSprite(0, -1, GraphicsBase::SpriteNumbers::SpriteType::car)
     , carInfo(ActiveStyle::Instance().get().findCarByModel(op.type))
 {
     carId = id;
@@ -746,13 +746,13 @@ void Car::explode()
     SpriteManager::Instance().createExplosion(exp_pos);
     sprNum = 0;
     remap = -1;
-    sprType = GraphicsBase::SpriteNumbers::SpriteTypes::wcar;
+    sprType = GraphicsBase::SpriteNumbers::SpriteType::wcar;
     delta = 0;
 }
 
 SpriteObject::SpriteObject(OpenGTA::Map::ObjectPosition &op, uint32_t id)
     : GameObject_common(glm::vec3(INT2FLOAT_WRLD(op.x), 6.05f - INT2FLOAT_WRLD(op.z), INT2FLOAT_WRLD(op.y)))
-    , Sprite(0, -1, GraphicsBase::SpriteNumbers::SpriteTypes::object)
+    , Sprite(0, -1, GraphicsBase::SpriteNumbers::SpriteType::object)
 {
     objId = id;
     GraphicsBase &style = ActiveStyle::Instance().get();
@@ -767,7 +767,7 @@ SpriteObject::SpriteObject(OpenGTA::Map::ObjectPosition &op, uint32_t id)
 SpriteObject::SpriteObject(
     const glm::vec3 &pos,
     uint16_t spriteNum,
-    OpenGTA::GraphicsBase::SpriteNumbers::SpriteTypes st
+    OpenGTA::GraphicsBase::SpriteNumbers::SpriteType st
 )
     : GameObject_common(pos)
     , Sprite(spriteNum, -1, st)

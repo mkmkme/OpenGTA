@@ -63,7 +63,7 @@ void dump(const std::string &style_file)
             style.objectInfos[i].depth,
             style.objectInfos[i].sprNum,
             style.spriteNumbers
-                .reIndex(style.objectInfos[i].sprNum, OpenGTA::GraphicsBase::SpriteNumbers::SpriteTypes::object),
+                .reIndex(style.objectInfos[i].sprNum, OpenGTA::GraphicsBase::SpriteNumbers::SpriteType::object),
             style.objectInfos[i].weight,
             style.objectInfos[i].aux,
             int(style.objectInfos[i].status),

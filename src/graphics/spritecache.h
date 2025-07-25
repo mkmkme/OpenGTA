@@ -75,9 +75,9 @@ public:
     void add(uint16_t sprNum, PagedTexture &t);
     void add(uint16_t sprNum, int16_t remap, PagedTexture &t);
     void add(const SpriteIdentifier &si, PagedTexture &t);
-    PagedTexture create(uint16_t sprNum, OpenGTA::GraphicsBase::SpriteNumbers::SpriteTypes, int16_t remap);
+    PagedTexture create(uint16_t sprNum, OpenGTA::GraphicsBase::SpriteNumbers::SpriteType, int16_t remap);
     PagedTexture
-    create(uint16_t sprNum, OpenGTA::GraphicsBase::SpriteNumbers::SpriteTypes, int16_t remap, uint32_t delta);
+    create(uint16_t sprNum, OpenGTA::GraphicsBase::SpriteNumbers::SpriteType, int16_t remap, uint32_t delta);
 
     [[nodiscard]] OpenGL::PagedTexture
     createSprite(size_t sprite_num, int16_t remap, uint32_t delta, const OpenGTA::SpriteInfo &info) const;

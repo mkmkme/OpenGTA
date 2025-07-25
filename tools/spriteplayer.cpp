@@ -155,7 +155,7 @@ void handleKeyPress(SDL_Keysym *keysym, OpenGL::Camera &camera)
     const auto &style = OpenGTA::ActiveStyle::Instance().get();
     bool update_anim = false;
     switch (keysym->sym) {
-        using SpriteTypes = OpenGTA::GraphicsBase::SpriteNumbers::SpriteTypes;
+        using SpriteTypes = OpenGTA::GraphicsBase::SpriteNumbers::SpriteType;
 
         case SDLK_ESCAPE:
             done = true;

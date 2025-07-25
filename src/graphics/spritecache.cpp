@@ -143,7 +143,7 @@ void SpriteCache::add(const SpriteIdentifier &si, PagedTexture &t)
 }
 
 PagedTexture
-SpriteCache::create(uint16_t sprNum, OpenGTA::GraphicsBase::SpriteNumbers::SpriteTypes st, int16_t remap = -1)
+SpriteCache::create(uint16_t sprNum, OpenGTA::GraphicsBase::SpriteNumbers::SpriteType st, int16_t remap = -1)
 {
     /*
     OpenGTA::GraphicsBase & style = OpenGTA::ActiveStyle::Instance().get();
@@ -159,12 +159,8 @@ SpriteCache::create(uint16_t sprNum, OpenGTA::GraphicsBase::SpriteNumbers::Sprit
     return create(sprNum, st, remap, 0);
 }
 
-PagedTexture SpriteCache::create(
-    uint16_t sprNum,
-    OpenGTA::GraphicsBase::SpriteNumbers::SpriteTypes st,
-    int16_t remap,
-    uint32_t delta
-)
+PagedTexture
+SpriteCache::create(uint16_t sprNum, OpenGTA::GraphicsBase::SpriteNumbers::SpriteType st, int16_t remap, uint32_t delta)
 {
     OpenGTA::GraphicsBase &style = OpenGTA::ActiveStyle::Instance().get();
     uint16_t real_num = style.spriteNumbers.reIndex(sprNum, st);

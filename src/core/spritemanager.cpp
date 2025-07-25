@@ -365,7 +365,7 @@ void SpriteManager::drawTextureOutline(const float &w, const float &h)
 
 void SpriteManager::draw(SpriteObject &obj)
 {
-    if (obj.sprType == GraphicsBase::SpriteNumbers::SpriteTypes::ex) {
+    if (obj.sprType == GraphicsBase::SpriteNumbers::SpriteType::ex) {
         drawExplosion(obj);
         return;
     }
@@ -692,7 +692,7 @@ void SpriteManager::createProjectile(
 
 void SpriteManager::createExplosion(const glm::vec3 &center)
 {
-    SpriteObject expl(center, 0, GraphicsBase::SpriteNumbers::SpriteTypes::ex);
+    SpriteObject expl(center, 0, GraphicsBase::SpriteNumbers::SpriteType::ex);
     expl.anim = SpriteObject::Animation(getAnimationById(99));
     expl.anim.set(Util::Animation::Status::PlayForward, Util::Animation::OnDone::Stop);
     add(std::move(expl));

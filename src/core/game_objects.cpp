@@ -50,7 +50,7 @@ glm::mat4 rotationMatrix(const glm::vec3 &p, float rot)
 } // namespace
 
 namespace OpenGTA {
-float GameObject_common::heightOverTerrain(const glm::vec3 &v)
+float GameObject_common::heightOverTerrain(const glm::vec3 &v) const
 {
     float x, y, z;
     x = floor(v.x);

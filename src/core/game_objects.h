@@ -43,11 +43,7 @@ struct GameObject_common {
     glm::vec3 pos;
     float rot;
     // uint8_t  activeState;
-    GameObject_common() noexcept
-        : pos(0, 0, 0)
-        , rot(0)
-    {
-    }
+    GameObject_common() noexcept = default;
     explicit GameObject_common(const glm::vec3 &p) noexcept
         : pos(p)
         , rot(0)
@@ -58,7 +54,7 @@ struct GameObject_common {
         , rot(r)
     {
     }
-    float heightOverTerrain(const glm::vec3 &);
+    [[nodiscard]] float heightOverTerrain(const glm::vec3 &) const;
 };
 
 class Sprite {

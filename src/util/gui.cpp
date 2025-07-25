@@ -1,14 +1,14 @@
-#include <core/active-style.h>
-#include <core/localplayer.h>
-#include <core/sprite-info.h>
+#include "util/gui.h"
 
-#include <graphics/screen.h>
-#include <graphics/spritecache.h>
-#include <util/errors.h>
-#include <util/gui.h>
-#include <util/log.h>
+#include <cassert>
 
-extern float screen_gamma;
+#include "graphics/spritecache.h"
+#include "util/errors.h"
+#include "util/log.h"
+
+#include "core/active-style.h"
+#include "core/sprite-info.h"
+
 namespace GUI {
 Object::Object(const SDL_Rect &r)
     : id(0)
@@ -284,10 +284,10 @@ ImageUtil::WidthHeightPair Manager::cacheStyleArrowSprite(const size_t id, int r
     return ImageUtil::WidthHeightPair(info.w, info.h);
 }
 
-#ifdef WITH_SDL_IMAGE
-void Manager::cacheImageSDL(const std::string &file, size_t k)
+#ifdef OGTA_WITH_SDL_IMAGE
+void Manager::cacheImageSDL(const std::string &file, size_t id)
 {
-    texCache.insert(std::make_pair<size_t, OpenGL::PagedTexture>(k, ImageUtil::loadImageSDL(file)));
+    texCache.insert({ id, ImageUtil::loadImageSDL(file) });
 }
 #endif
 

@@ -68,7 +68,7 @@ public:
     void clearCache();
     void cacheImageRAW(const std::string &file, size_t id);
     void cacheImageRAT(const std::string &file, const std::string &palette, size_t id);
-#ifdef WITH_SDL_IMAGE
+#ifdef OGTA_WITH_SDL_IMAGE
     void cacheImageSDL(const std::string &file, size_t id);
 #endif
     ImageUtil::WidthHeightPair cacheStyleArrowSprite(size_t id, int remap);
@@ -91,7 +91,8 @@ private:
 class Animation : public Util::Animation {
 public:
     Animation(const std::vector<uint16_t> &_indices, const uint16_t fps)
-        : Util::Animation(_indices.size(), fps), indices(_indices)
+        : Util::Animation(_indices.size(), fps)
+        , indices(_indices)
     {
     }
     std::vector<uint16_t> indices;
@@ -120,20 +121,28 @@ struct Object {
 
 struct TexturedObject : public Object {
     TexturedObject(const SDL_Rect &r, const size_t texid)
-        : Object(r), texId(texid) {}
+        : Object(r)
+        , texId(texid)
+    {
+    }
     TexturedObject(size_t Id, const SDL_Rect &r, const size_t texid)
-        : Object(Id, r), texId(texid) {}
+        : Object(Id, r)
+        , texId(texid)
+    {
+    }
     size_t texId;
     void draw(Manager &manager) override;
 };
 
 struct AnimatedTextureObject : public Object {
     AnimatedTextureObject(const SDL_Rect &r, const size_t animid)
-        : Object(r), animId(animid)
+        : Object(r)
+        , animId(animid)
     {
     }
     AnimatedTextureObject(size_t Id, const SDL_Rect &r, const size_t animid)
-        : Object(Id, r), animId(animid)
+        : Object(Id, r)
+        , animId(animid)
     {
     }
     size_t animId;
@@ -145,11 +154,15 @@ struct Label : public Object {
     Label(const SDL_Rect &r, std::string s, const std::string &fontFile, const size_t fontScale)
         : Object(r)
         , font(OpenGTA::FontCache::Instance().getFont(fontFile, fontScale))
-        , text(std::move(s)) {}
+        , text(std::move(s))
+    {
+    }
     Label(const size_t Id, const SDL_Rect &r, std::string s, const std::string &fontFile, const size_t fontScale)
         : Object(Id, r)
         , font(OpenGTA::FontCache::Instance().getFont(fontFile, fontScale))
-        , text(std::move(s)) {}
+        , text(std::move(s))
+    {
+    }
 
     OpenGL::DrawableFont &font;
     std::string text;
@@ -162,7 +175,9 @@ struct Pager : public Object {
         : Object(Id, r)
         , font(OpenGTA::FontCache::Instance().getFont(fontFile, fontScale))
         , texId(texid)
-        , offset(r.w - 5) {}
+        , offset(r.w - 5)
+    {
+    }
 
     OpenGL::DrawableFont &font;
     size_t texId;
@@ -201,7 +216,10 @@ struct ScrollBar : public Object {
 template <class Child_T, typename V>
 struct Number2Status : public Object {
     Number2Status(const size_t Id, const SDL_Rect &r, const SDL_Rect &ir, const size_t vId)
-        : Object(Id, r), item(r, vId), number(0), innerRect(ir)
+        : Object(Id, r)
+        , item(r, vId)
+        , number(0)
+        , innerRect(ir)
     {
     }
     Child_T item;
@@ -214,11 +232,11 @@ struct Number2Status : public Object {
 using ImageStatusDisplay = Number2Status<TexturedObject, int32_t>;
 using AnimStatusDisplay = Number2Status<AnimatedTextureObject, int32_t>;
 
-static const uint32_t GAMMA_SCROLLBAR_ID = 100;
-static const uint32_t GAMMA_LABEL_ID = 101;
+static constexpr uint32_t GAMMA_SCROLLBAR_ID = 100;
+static constexpr uint32_t GAMMA_LABEL_ID = 101;
 
-static const uint32_t CASH_ID = 200;
-static const uint32_t WANTED_LEVEL_ID = 201;
+static constexpr uint32_t CASH_ID = 200;
+static constexpr uint32_t WANTED_LEVEL_ID = 201;
 
 template <class Child_T, typename V>
 inline void Number2Status<Child_T, V>::draw(Manager &manager)

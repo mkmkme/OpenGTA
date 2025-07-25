@@ -67,7 +67,10 @@ public:
 
     struct Animation : public Util::Animation {
         Animation() noexcept;
+        Animation(Animation &&other) noexcept;
+        Animation &operator=(Animation &&other) noexcept;
         Animation(const Animation &other) noexcept;
+        Animation &operator=(const Animation &other) noexcept;
         Animation(uint16_t foff, uint8_t num) noexcept;
         Animation(uint16_t foff, uint8_t num, float speed) noexcept;
         uint16_t firstFrameOffset;
@@ -77,12 +80,24 @@ public:
     Sprite() noexcept;
     Sprite(uint16_t sprN, int16_t rem, SpriteType sprT) noexcept;
     Sprite(const Sprite &o) noexcept;
-    uint16_t sprNum;
-    int16_t remap;
-    Animation anim;
-    uint32_t animId;
-    SpriteType sprType;
     void switchToAnim(uint32_t newId);
+
+    [[nodiscard]] uint16_t getSpriteNumber() const noexcept { return sprNum; }
+    [[nodiscard]] SpriteType getSpriteType() const noexcept { return sprType; }
+    [[nodiscard]] uint16_t getRemap() const noexcept { return remap; }
+    void setRemap(uint16_t rm) noexcept { remap = rm; }
+    [[nodiscard]] const Animation &getAnimation() const noexcept { return anim; }
+    [[nodiscard]] Animation &getAnimation() noexcept { return anim; }
+    void setAnimation(Animation &&a) noexcept { anim = std::move(a); }
+
+protected:
+    uint32_t animId;
+    Animation anim;
+    SpriteType sprType;
+    uint16_t sprNum;
+
+private:
+    int16_t remap;
 };
 
 class Pedestrian : public GameObject_common, public Sprite, public OBox {
@@ -111,6 +126,8 @@ public:
     };
     AiData aiData;
     glm::vec3 moveDelta;
+
+    void setSpriteType(SpriteType st) noexcept { sprType = st; }
 };
 
 class CarSprite {
@@ -148,6 +165,7 @@ protected:
 
 private:
     using DoorAnimList = std::list<DoorDeltaAnimation>;
+
     DoorAnimList doorAnims;
     uint32_t lt_siren {};
     Util::Set deltaSet;

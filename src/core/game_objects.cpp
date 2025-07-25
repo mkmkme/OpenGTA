@@ -110,15 +110,10 @@ Sprite::Animation::Animation() noexcept
 {
 }
 
-Sprite::Animation::Animation(const Animation &other) noexcept
-    : // Util::Animation(other.numFrames, 1000 / other.delay),
-    Util::Animation(other)
-    , firstFrameOffset(other.firstFrameOffset)
-    // , numFrames(other.numFrames)
-    , moveSpeed(other.moveSpeed)
-{
-    set(other.get(), other.getDone());
-}
+Sprite::Animation::Animation(Animation &&other) noexcept = default;
+Sprite::Animation &Sprite::Animation::operator=(Animation &&other) noexcept = default;
+Sprite::Animation::Animation(const Animation &other) noexcept = default;
+Sprite::Animation &Sprite::Animation::operator=(const Animation &other) noexcept = default;
 
 Sprite::Animation::Animation(uint16_t foff, uint8_t num) noexcept
     : Util::Animation(num, 7)

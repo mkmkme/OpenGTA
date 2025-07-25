@@ -75,9 +75,9 @@ public:
     void drawTextureOutline(const float &, const float &);
 
     void draw(const Car &);
-    void draw(Pedestrian &);
+    void draw(const Pedestrian &);
     void draw(SpriteObject &);
-    void draw(Projectile &);
+    void draw(const Projectile &);
 
     void drawExplosion(SpriteObject &);
 

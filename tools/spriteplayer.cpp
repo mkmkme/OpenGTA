@@ -49,7 +49,6 @@ bool done = false;
 std::unique_ptr<OpenGTA::Car> car;
 const glm::vec3 _p(4, 0.01f, 4);
 OpenGTA::Pedestrian ped(glm::vec3(0.5f, 0.5f, 0.5f), glm::vec3(4, 0.01f, 4), 0xffffffff);
-OpenGTA::SpriteObject::Animation pedAnim(0, 0);
 
 int frame_offset = 0;
 int first_offset = 0;
@@ -65,7 +64,7 @@ int car_remap = -1;
 bool playWithCar = false;
 uint32_t car_delta = 0;
 
-int spr_type = (int) ped.sprType;
+int spr_type = (int) ped.getSpriteType();
 
 void safe_try_model(uint8_t model_id)
 {
@@ -131,7 +130,7 @@ void drawScene(uint32_t ticks, OpenGL::Screen &screen, OpenGL::Camera &camera, O
             now_frame++;
             if (now_frame > second_offset)
                 now_frame = first_offset;
-            ped.anim.firstFrameOffset = now_frame;
+            ped.getAnimation().firstFrameOffset = now_frame;
             play_anim_time = ticks;
         }
         OpenGTA::SpriteManager::Instance().draw(ped);
@@ -155,7 +154,7 @@ void handleKeyPress(SDL_Keysym *keysym, OpenGL::Camera &camera)
     const auto &style = OpenGTA::ActiveStyle::Instance().get();
     bool update_anim = false;
     switch (keysym->sym) {
-        using SpriteTypes = OpenGTA::GraphicsBase::SpriteNumbers::SpriteType;
+        using SpriteType = OpenGTA::GraphicsBase::SpriteNumbers::SpriteType;
 
         case SDLK_ESCAPE:
             done = true;
@@ -230,7 +229,7 @@ void handleKeyPress(SDL_Keysym *keysym, OpenGL::Camera &camera)
             if (playWithCar && car_model < 88) {
                 car_model += 1;
             }
-            if (frame_offset < style.spriteNumbers.countByType(ped.sprType) - 1) {
+            if (frame_offset < style.spriteNumbers.countByType(ped.getSpriteType()) - 1) {
                 frame_offset += 1;
             }
             update_anim = true;
@@ -244,8 +243,8 @@ void handleKeyPress(SDL_Keysym *keysym, OpenGL::Camera &camera)
                 if (spr_type > 0) {
                     spr_type -= 1;
                 }
-            } while (style.spriteNumbers.countByType((SpriteTypes) spr_type) == 0);
-            ped.sprType = (SpriteTypes) spr_type;
+            } while (style.spriteNumbers.countByType((SpriteType) spr_type) == 0);
+            ped.setSpriteType((SpriteType) spr_type);
             frame_offset = 0;
             update_anim = true;
             break;
@@ -257,9 +256,9 @@ void handleKeyPress(SDL_Keysym *keysym, OpenGL::Camera &camera)
             do {
                 spr_type += 1;
                 if (spr_type > 20)
-                    spr_type = (int) ped.sprType;
-            } while (style.spriteNumbers.countByType((SpriteTypes) spr_type) == 0);
-            ped.sprType = (SpriteTypes) spr_type;
+                    spr_type = (int) ped.getSpriteType();
+            } while (style.spriteNumbers.countByType((SpriteType) spr_type) == 0);
+            ped.setSpriteType((SpriteType) spr_type);
             frame_offset = 0;
             update_anim = true;
             break;
@@ -300,8 +299,7 @@ void handleKeyPress(SDL_Keysym *keysym, OpenGL::Camera &camera)
             break;
     }
     if (update_anim) {
-        pedAnim.firstFrameOffset = frame_offset;
-        ped.anim = pedAnim;
+        ped.setAnimation(OpenGTA::SpriteObject::Animation(frame_offset, 0));
         if (playWithCar)
             safe_try_model(car_model);
     }

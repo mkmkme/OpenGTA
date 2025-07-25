@@ -117,8 +117,8 @@ void Viewer::initialize()
 void Viewer::createPedAt(const glm::vec3 &v)
 {
     OpenGTA::Pedestrian p({ 0.2f, 0.5f, 0.2f }, v, 0xffffffff);
-    p.remap = OpenGTA::ActiveStyle::Instance().get().getRandomPedRemapNumber();
-    INFO("using remap: {}", p.remap);
+    p.setRemap(OpenGTA::ActiveStyle::Instance().get().getRandomPedRemapNumber());
+    INFO("using remap: {}", p.getRemap());
     OpenGTA::Pedestrian &pr = OpenGTA::SpriteManager::Instance().add(std::move(p));
     pr.switchToAnim(1);
     localPlayer_.setCtrl(pr.m_control);

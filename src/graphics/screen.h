@@ -21,8 +21,7 @@
  * 3. This notice may not be removed or altered from any source          *
  * distribution.                                                         *
  ************************************************************************/
-#ifndef GL_SCREEN_H
-#define GL_SCREEN_H
+#pragma once
 
 #include <SDL2/SDL_video.h>
 namespace OpenGL {
@@ -34,7 +33,7 @@ enum class VSyncMode : uint8_t {
 
 class Screen final {
 public:
-    Screen();
+    Screen() noexcept;
     ~Screen();
 
     Screen(const Screen &copy) = delete;
@@ -42,13 +41,13 @@ public:
     Screen(Screen &&move) = delete;
     Screen &operator=(Screen &&move) = delete;
 
-    void set3DProjection();
-    void setFlatProjection();
-    void setFullScreenFlag(bool v);
-    void toggleFullscreen();
+    void set3DProjection() const noexcept;
+    void setFlatProjection() const noexcept;
+    void setFullScreenFlag(bool v) noexcept;
+    void toggleFullscreen() noexcept;
     void activate(uint32_t w = 0, uint32_t h = 0);
-    void resize(uint32_t w, uint32_t h);
-    static void setSystemMouseCursor(bool visible);
+    void resize(uint32_t w, uint32_t h) noexcept;
+    static void setSystemMouseCursor(bool visible) noexcept;
     [[nodiscard]] uint32_t width() const noexcept { return width_; }
     [[nodiscard]] uint32_t height() const noexcept { return height_; }
     [[nodiscard]] bool fullscreen() const noexcept { return video_flags_ & SDL_WINDOW_FULLSCREEN; }
@@ -56,8 +55,8 @@ public:
     [[nodiscard]] float nearPlane() const noexcept { return near_plane_; }
     [[nodiscard]] float farPlane() const noexcept { return far_plane_; }
     [[nodiscard]] SDL_Window *get() noexcept { return window_; }
-    void makeScreenshot(const char *filename);
-    void setupGlVars(float fov, float near_p, float far_p);
+    void makeScreenshot(const char *filename) const noexcept;
+    void setupGlVars(float fov, float near_p, float far_p) noexcept;
     void setVSyncMode(VSyncMode mode) noexcept { vsync_mode_ = mode; }
 
 private:
@@ -74,5 +73,3 @@ private:
     float far_plane_;
 };
 } // namespace OpenGL
-
-#endif

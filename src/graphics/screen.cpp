@@ -73,7 +73,7 @@ inline void checkAndClearSDLError(const char *context) noexcept
 
 namespace OpenGL {
 
-Screen::Screen()
+Screen::Screen() noexcept
     : window_ { nullptr }
     , video_flags_ { SDL_WINDOW_OPENGL | SDL_GL_DOUBLEBUFFER } // FIXME: review the need of the last one
     // FIXME: the below need to be args
@@ -98,19 +98,19 @@ void Screen::activate(uint32_t w, uint32_t h)
     setSystemMouseCursor(false);
 }
 
-void Screen::setupGlVars(float fov, float near_p, float far_p)
+void Screen::setupGlVars(float fov, float near_p, float far_p) noexcept
 {
     field_of_view_ = fov;
     near_plane_ = near_p;
     far_plane_ = far_p;
 }
 
-void Screen::setSystemMouseCursor(bool visible)
+void Screen::setSystemMouseCursor(bool visible) noexcept
 {
     SDL_ShowCursor(visible ? SDL_ENABLE : SDL_DISABLE);
 }
 
-void Screen::setFullScreenFlag(bool v)
+void Screen::setFullScreenFlag(bool v) noexcept
 {
     if ((v && fullscreen()) || (!v && !fullscreen()))
         return;
@@ -130,7 +130,7 @@ Screen::~Screen()
     }
 }
 
-void Screen::toggleFullscreen()
+void Screen::toggleFullscreen() noexcept
 {
     if (video_flags_ & SDL_WINDOW_FULLSCREEN)
         video_flags_ ^= SDL_WINDOW_FULLSCREEN;
@@ -228,7 +228,7 @@ void Screen::initGL()
     GL_CHECKERROR;
 }
 
-void Screen::resize(uint32_t w, uint32_t h)
+void Screen::resize(uint32_t w, uint32_t h) noexcept
 {
     if (h == 0)
         h = 1;
@@ -240,7 +240,7 @@ void Screen::resize(uint32_t w, uint32_t h)
     GL_CHECKERROR;
 }
 
-void Screen::set3DProjection()
+void Screen::set3DProjection() const noexcept
 {
     float ratio = float(width_) / float(height_);
     glMatrixMode(GL_PROJECTION);
@@ -250,7 +250,7 @@ void Screen::set3DProjection()
     glLoadIdentity();
 }
 
-void Screen::setFlatProjection()
+void Screen::setFlatProjection() const noexcept
 {
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
@@ -259,7 +259,7 @@ void Screen::setFlatProjection()
     glLoadIdentity();
 }
 
-void Screen::makeScreenshot(const char *filename)
+void Screen::makeScreenshot(const char *filename) const noexcept
 {
     INFO("saving screen as: {}", filename);
     std::vector<uint8_t> pixels(width_ * height_ * 3);

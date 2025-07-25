@@ -20,26 +20,27 @@
  * 3. This notice may not be removed or altered from any source          *
  * distribution.                                                         *
  ************************************************************************/
+#include "graphics/cityview.h"
+
 #include <algorithm>
 #include <cassert>
 
-#include <core/active-map.h>
-#include <core/active-style.h>
-#include <core/blockanim.h>
-#include <core/blockdata.h>
-#include <core/car-info.h>
-#include <core/graphics-base.h>
-#include <core/localplayer.h>
-#include <core/sprite-info.h>
-#include <core/spritemanager.h>
+#include "graphics/camera.h"
+#include "graphics/screen.h"
+#include "graphics/spritecache.h"
+#include "util/image_loader.h"
+#include "util/log.h"
+#include "util/map_helper.h"
 
-#include <graphics/camera.h>
-#include <graphics/cityview.h>
-#include <graphics/screen.h>
-#include <graphics/spritecache.h>
-#include <util/image_loader.h>
-#include <util/log.h>
-#include <util/map_helper.h>
+#include "core/active-map.h"
+#include "core/active-style.h"
+#include "core/blockanim.h"
+#include "core/blockdata.h"
+#include "core/car-info.h"
+#include "core/graphics-base.h"
+#include "core/id_sys.h"
+#include "core/sprite-info.h"
+#include "core/spritemanager.h"
 
 #ifdef __APPLE__
 #include <OpenGL/glu.h>
@@ -800,6 +801,7 @@ void CityView::drawBlock(OpenGTA::Map::BlockInfo *bi)
         }                                                         \
     } while (false)
 
+    using OpenGTA::BlockData::slope_raw_data;
     if (drawLinesBlockType)
 
         // handle flat/transparent case
@@ -820,7 +822,7 @@ void CityView::drawBlock(OpenGTA::Map::BlockInfo *bi)
                         GLTEX_HELPER;
                         scene_rendered_vertices += 1;
                         glVertex3f(
-                            SLOPE_RAW_DATA[which][0][j][0],
+                            slope_raw_data[which][0][j][0],
                             SLOPE_RAW_DATA[which][0][j][1],
                             SLOPE_RAW_DATA[which][0][j][2]
                         );

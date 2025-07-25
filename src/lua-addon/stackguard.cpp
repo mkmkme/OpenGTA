@@ -4,12 +4,10 @@
 #include <util/log.h>
 
 namespace Util {
-LuaStackguard::LuaStackguard(const char *f, int l, lua_State *L)
+LuaStackguard::LuaStackguard(lua_State *L)
 {
     assert(L);
     m_state = L;
-    i_file = f;
-    i_line = l;
     m_top = lua_gettop(m_state);
 }
 

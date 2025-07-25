@@ -23,6 +23,12 @@ target_link_libraries(slopeview
     fmt::fmt
     physfs)
 
+add_executable(gltexture-segfault gltexture-segfault.cpp)
+target_link_libraries(gltexture-segfault PRIVATE
+    OpenGL::GLU
+    fmt::fmt
+    )
+
 add_executable(g24-dumper g24-dumper.cpp)
 target_include_directories(g24-dumper PRIVATE ${PHYSFS_INCLUDE_DIR})
 target_link_libraries(g24-dumper PRIVATE

@@ -389,7 +389,7 @@ void Graphics8Bit::RGBPalette::apply(unsigned int len, const unsigned char *src,
     size_t dst_idx = 0;
     for (unsigned int i = 0; i < len; i++) {
         const auto tmp = src[src_idx] * 3;
-        std::copy_n(data.begin() + tmp, 3, dst + dst_idx);
+        std::ranges::copy_n(data.begin() + tmp, 3, dst + dst_idx);
         dst_idx += 3;
         if (rgba) {
             dst[dst_idx] = (src[src_idx] == 0) ? 0x00 : 0xff;

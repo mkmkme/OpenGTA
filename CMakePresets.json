@@ -15,6 +15,15 @@
             }
         },
         {
+            "name": "vcpkg-asan",
+            "inherits": "vcpkg",
+            "binaryDir": "${sourceDir}/build-asan",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Debug",
+                "SANITIZE": "address"
+            }
+        },
+        {
             "name": "default",
             "generator": "Ninja",
             "binaryDir": "${sourceDir}/build"

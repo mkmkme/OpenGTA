@@ -51,10 +51,12 @@ SpriteCache::SpriteCache()
 void SpriteCache::setScale2x(bool enabled)
 {
 #ifndef DO_SCALE2X
-    if (enabled)
+    if (enabled) {
         // FIXME: for some reason I can not catch this exception, thus it only prints
         // throw E_NOTSUPPORTED("Scale2x feature disabled at compile time");
         ERROR("scale2x feature disabled at compile time - ignoring request");
+        return;
+    }
 #endif
     if (loadedSprites.begin() == loadedSprites.end()) {
         doScale2x = enabled;
@@ -178,8 +180,7 @@ OpenGL::PagedTexture
 SpriteCache::createSprite(size_t sprite_num, int16_t remap, uint32_t delta, const OpenGTA::SpriteInfo &info) const
 {
     INFO("creating new sprite: {} remap: {}", sprite_num, remap);
-    auto src_smart = OpenGTA::ActiveStyle::Instance().get().getSpriteBitmap(sprite_num, remap, delta);
-    unsigned char *src = src_smart.data();
+    auto src = OpenGTA::ActiveStyle::Instance().get().getSpriteBitmap(sprite_num, remap, delta);
 #if 0
     if (sprite_num == 257) {
       info->w = 72;
@@ -219,9 +220,13 @@ SpriteCache::createSprite(size_t sprite_num, int16_t remap, uint32_t delta, cons
     }
 #endif
     ImageUtil::NextPowerOfTwo npot(info.w, info.h);
-    std::vector<uint8_t> dst(npot.w * npot.h * 4);
+    size_t dstSize = npot.w * npot.h * 4;
+    if (doScale2x) {
+        dstSize *= 4;
+    }
+    std::vector<uint8_t> dst(dstSize);
 
-    ImageUtil::copyImage2Image(dst.data(), src, info.w * 4, info.h, npot.w * 4);
+    ImageUtil::copyImage2Image(dst, src, info.w * 4, info.h, npot.w * 4);
 
 #ifdef DO_SCALE2X
     if (doScale2x) {

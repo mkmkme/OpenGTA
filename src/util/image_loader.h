@@ -27,7 +27,9 @@
 #include <string>
 #include <vector>
 
-#include <graphics/pagedtexture.h>
+#include "graphics/pagedtexture.h"
+
+#include "core/config.h"
 
 namespace ImageUtil {
 
@@ -64,7 +66,7 @@ OpenGL::PagedTexture loadImageRAW(const std::string &name);
 // OpenGL::PagedTexture loadImageRAT(const std::string & name);
 // load a palette image using palette file
 OpenGL::PagedTexture loadImageRATWithPalette(const std::string &name, const std::string &palette_file);
-#ifdef WITH_SDL_IMAGE
+#ifdef OGTA_WITH_SDL_IMAGE
 OpenGL::PagedTexture loadImageSDL(const std::string &name);
 #endif
 
@@ -75,7 +77,13 @@ extern float supportedMaxAnisoDegree;
 uint32_t createGLTexture(size_t w, size_t h, bool rgba, std::span<const uint8_t> pixels);
 
 // blitting a buffer into another; no checks done!
-void copyImage2Image(uint8_t *dest, const uint8_t *src, uint16_t srcWidth, uint16_t srcHeight, uint16_t destWidth);
+void copyImage2Image(
+    std::span<uint8_t> dest,
+    std::span<const uint8_t> src,
+    uint16_t srcWidth,
+    uint16_t srcHeight,
+    uint16_t destWidth
+);
 
 // texture-class instance from pixel data; does transform to 2^k if required
 OpenGL::PagedTexture createEmbeddedTexture(size_t w, size_t h, bool rgba, std::vector<uint8_t> pixels);

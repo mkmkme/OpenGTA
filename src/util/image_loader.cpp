@@ -20,18 +20,23 @@
  * 3. This notice may not be removed or altered from any source          *
  * distribution.                                                         *
  ************************************************************************/
+#include "util/image_loader.h"
+
+#include <cassert>
+#include <cstdint>
+
+#include <SDL_image.h>
 #include <physfs.h>
 
 #include <SDL2/SDL_surface.h> // WITH_SDL_IMAGE
-#include <core/graphics-8bit.h>
 
+#include "util/errors.h"
 #include "util/file-manager.h"
-#include <util/errors.h>
-#include <util/file_helper.h>
-#include <util/image_loader.h>
-#include <util/log.h>
-#include <util/physfsrwops.h>
-#include <util/string_helpers.h>
+#include "util/log.h"
+#include "util/physfsrwops.h"
+#include "util/string_helpers.h"
+
+#include "core/graphics-8bit.h"
 #ifdef _WIN32
 #include <Windows.h>
 #elif defined(__APPLE__)
@@ -44,7 +49,6 @@
 #else
 #include <GL/glu.h>
 #endif
-// #include <SDL2/SDL_opengl.h>
 
 namespace ImageUtil {
 using OpenGL::PagedTexture;
@@ -141,20 +145,21 @@ OpenGL::PagedTexture loadImageRATWithPalette(const std::string &name, const std:
     return createEmbeddedTexture(whp.first, whp.second, false, std::move(lb2));
 }
 
-#ifdef WITH_SDL_IMAGE
+#ifdef OGTA_WITH_SDL_IMAGE
 OpenGL::PagedTexture loadImageSDL(const std::string &name)
 {
     SDL_RWops *rwops = PHYSFSRWOPS_openRead(name.c_str());
     SDL_Surface *surface = IMG_Load_RW(rwops, 1);
-    assert(surface);
+    assert(surface != nullptr);
 
     NextPowerOfTwo npot(surface->w, surface->h);
     uint16_t bpp = surface->format->BytesPerPixel;
 
-    auto buff_smart = std::make_unique<uint8_t>(npot.w * npot.h * bpp);
-    auto buffer = buff_smart.get();
+    std::vector<uint8_t> buffer(npot.w * npot.h * bpp);
     SDL_LockSurface(surface);
-    copyImage2Image(buffer, (uint8_t *) surface->pixels, surface->pitch, surface->h, npot.w * bpp);
+    std::span<uint8_t> pixels_span { static_cast<uint8_t *>(surface->pixels),
+                                     static_cast<size_t>(surface->pitch * surface->h) };
+    copyImage2Image(buffer, pixels_span, surface->pitch, surface->h, npot.w * bpp);
     SDL_UnlockSurface(surface);
     SDL_FreeSurface(surface);
 
@@ -167,7 +172,9 @@ OpenGL::PagedTexture loadImageSDL(const std::string &name)
 uint32_t createGLTexture(size_t w, size_t h, bool rgba, std::span<const uint8_t> pixels)
 {
     GLuint tex;
+    fmt::println("before glGenTextures");
     glGenTextures(1, &tex);
+    fmt::println("after glGenTextures");
     glBindTexture(GL_TEXTURE_2D, tex);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     if (!mipmapTextures)
@@ -194,12 +201,18 @@ uint32_t createGLTexture(size_t w, size_t h, bool rgba, std::span<const uint8_t>
     return tex;
 }
 
-void copyImage2Image(uint8_t *dest, const uint8_t *src, uint16_t srcWidth, uint16_t srcHeight, uint16_t destWidth)
+void copyImage2Image(
+    std::span<uint8_t> dest,
+    std::span<const uint8_t> src,
+    uint16_t srcWidth,
+    uint16_t srcHeight,
+    uint16_t destWidth
+)
 {
-    uint8_t *d = dest;
+    auto d = dest.begin();
     uint32_t srcOff = 0;
     for (uint16_t j = 0; j < srcHeight; ++j) {
-        memcpy(d, src + srcOff, srcWidth);
+        std::ranges::copy_n(src.begin() + srcOff, srcWidth, d);
         srcOff += srcWidth;
         d += destWidth;
     }
@@ -215,7 +228,7 @@ OpenGL::PagedTexture createEmbeddedTexture(size_t w, size_t h, bool rgba, std::v
         uint32_t bpp = (rgba ? 4 : 3);
         uint32_t bufSize = npot.w * npot.h * bpp;
         std::vector<uint8_t> tmp(bufSize);
-        copyImage2Image(tmp.data(), pixels.data(), w * bpp, h, npot.w * bpp);
+        copyImage2Image(tmp, pixels, w * bpp, h, npot.w * bpp);
         buff = std::move(tmp);
     }
 

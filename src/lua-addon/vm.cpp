@@ -178,6 +178,19 @@ bool LuaVM::tryGetInt(const char *key, int &buf) noexcept
     return true;
 }
 
+bool LuaVM::tryGetUInt(const char *key, uint32_t &buf) noexcept
+{
+    LGUARD(L);
+    lua_getfield(L, -1, key);
+    if (!lua_isnumber(L, -1))
+        return false;
+    int tmp = luaL_checkinteger(L, -1);
+    if (tmp < 0)
+        return false;
+    buf = tmp;
+    return true;
+}
+
 void LuaVM::setFloat(const char *key, float v)
 {
     lua_pushnumber(L, v);

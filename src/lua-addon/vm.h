@@ -39,6 +39,7 @@ public:
     void setInt(const char *, int);
     int getInt(const char *);
     bool tryGetInt(const char *, int &) noexcept;
+    bool tryGetUInt(const char *, uint32_t &) noexcept;
     void setFloat(const char *, float);
     float getFloat(const char *);
     bool tryGetFloat(const char *, float &) noexcept;

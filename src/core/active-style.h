@@ -11,7 +11,6 @@ class ActiveStyle {
 public:
     ActiveStyle(const ActiveStyle &copy) = delete;
     ActiveStyle &operator=(const ActiveStyle &copy) = delete;
-    ~ActiveStyle() = default;
 
     GraphicsBase &get();
     void load(const std::string &file);

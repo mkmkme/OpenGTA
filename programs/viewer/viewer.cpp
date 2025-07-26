@@ -571,26 +571,25 @@ void Viewer::handleKeyPress(SDL_Keysym *keysym)
 
 void Viewer::handleKeyUp(SDL_Keysym *keysym)
 {
-    auto &pctrl = localPlayer_.getCtrl();
     switch (keysym->sym) {
         case 'w':
         case 's':
             camera_.setSpeed(0.0f);
             break;
         case 'j':
-            pctrl.releaseTurnLeft();
+            localPlayer_.getCtrl().releaseTurnLeft();
             break;
         case 'l':
-            pctrl.releaseTurnRight();
+            localPlayer_.getCtrl().releaseTurnRight();
             break;
         case 'i':
-            pctrl.releaseMoveForward();
+            localPlayer_.getCtrl().releaseMoveForward();
             break;
         case 'k':
-            pctrl.releaseMoveBack();
+            localPlayer_.getCtrl().releaseMoveBack();
             break;
         case SDLK_LCTRL:
-            pctrl.setFireWeapon(false);
+            localPlayer_.getCtrl().setFireWeapon(false);
             break;
         default:
             break;

@@ -695,9 +695,7 @@ void Viewer::run()
                     paused_ = true;
                     break;
                 case SDL_KEYDOWN:
-                    if (event.key.repeat == 0) {
-                        handleKeyPress(&event.key.keysym);
-                    }
+                    handleKeyPress(&event.key.keysym);
                     break;
                 case SDL_KEYUP:
                     handleKeyUp(&event.key.keysym);

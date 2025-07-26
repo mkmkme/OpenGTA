@@ -534,6 +534,7 @@ void Viewer::handleKeyPress(SDL_Keysym *keysym)
             printPosition();
             break;
         case '+':
+        case '=':
             map_position_[1] += 1.0f;
             camera_.translateBy(glm::vec3(0, 1, 0));
             break;

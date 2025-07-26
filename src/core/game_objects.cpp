@@ -141,8 +141,6 @@ Sprite::Sprite(uint16_t sprN, int16_t rem, SpriteType sprT) noexcept
 {
 }
 
-Sprite::Sprite(const Sprite &other) noexcept = default;
-
 void Sprite::switchToAnim(uint32_t newId)
 {
     DEBUG("switching to anim {}", newId);

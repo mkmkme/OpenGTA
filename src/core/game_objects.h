@@ -71,7 +71,6 @@ public:
     };
     Sprite() noexcept;
     Sprite(uint16_t sprN, int16_t rem, SpriteType sprT) noexcept;
-    Sprite(const Sprite &o) noexcept;
     void switchToAnim(uint32_t newId);
 
     [[nodiscard]] uint16_t getSpriteNumber() const noexcept { return sprNum; }

@@ -21,26 +21,24 @@
  * 3. This notice may not be removed or altered from any source          *
  * distribution.                                                         *
  ************************************************************************/
-#include <array>
 #include <memory>
 
-#ifdef _MSC_VER
 #define SDL_MAIN_HANDLED
-#endif
 
 #include <SDL2/SDL_opengl.h>
-#include <core/active-style.h>
-#include <core/game_objects.h>
-#include <core/graphics-base.h>
-#include <core/main-msg-lookup.h>
-#include <core/spritemanager.h>
 
-#include <graphics/camera.h>
-#include <graphics/font.h>
-#include <graphics/screen.h>
-#include <util/errors.h>
-#include <util/file-manager.h>
-#include <util/log.h>
+#include "graphics/camera.h"
+#include "graphics/font.h"
+#include "graphics/screen.h"
+#include "util/errors.h"
+#include "util/file-manager.h"
+#include "util/log.h"
+
+#include "core/active-style.h"
+#include "core/game_objects.h"
+#include "core/graphics-base.h"
+#include "core/main-msg-lookup.h"
+#include "core/spritemanager.h"
 
 using namespace std::string_view_literals;
 
@@ -76,6 +74,7 @@ void safe_try_model(uint8_t model_id)
     }
 }
 
+// TODO: enum class
 std::string_view vtype2name(int vt)
 {
     switch (vt) {

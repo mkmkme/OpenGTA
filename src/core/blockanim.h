@@ -57,7 +57,7 @@ public:
     BlockAnimCtrl() = default;
     explicit BlockAnimCtrl(std::vector<LoadedAnim> &v);
     void update(uint32_t ticks);
-    std::optional<BlockAnim> getAnim(uint8_t area, uint8_t id);
+    [[nodiscard]] std::optional<BlockAnim> getAnim(uint8_t area, uint8_t id) const noexcept;
 
 private:
     std::vector<BlockAnim> anims_;

@@ -31,7 +31,7 @@ BlockAnimCtrl::BlockAnimCtrl(std::vector<LoadedAnim> &v)
     }
 }
 
-std::optional<BlockAnim> BlockAnimCtrl::getAnim(uint8_t area, uint8_t id)
+std::optional<BlockAnim> BlockAnimCtrl::getAnim(uint8_t area, uint8_t id) const noexcept
 {
     for (const auto &anim : anims_) {
         if ((anim.ad_ptr.which == area) && (anim.ad_ptr.block == id))

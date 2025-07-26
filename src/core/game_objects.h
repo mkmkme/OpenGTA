@@ -93,6 +93,8 @@ private:
 
 class Pedestrian : public GameObject_common, public Sprite, public OBox {
 public:
+    using InventoryMap = std::map<uint8_t, uint32_t>;
+
     Pedestrian(const glm::vec3 &, const glm::vec3 &, uint32_t id, int16_t remapId = -1) noexcept;
     Pedestrian(Pedestrian &&o) noexcept;
     uint32_t pedId;
@@ -107,7 +109,6 @@ public:
     uint8_t isDead;
     void getShot(uint32_t shooterId, uint32_t dmg, bool front = true);
     void die();
-    using InventoryMap = std::map<uint8_t, uint32_t>;
     InventoryMap inventory;
     uint8_t activeWeapon;
     uint32_t aiMode = 0;

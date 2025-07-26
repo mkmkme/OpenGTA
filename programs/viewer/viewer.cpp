@@ -572,6 +572,10 @@ void Viewer::handleKeyUp(SDL_Keysym *keysym)
 {
     auto &pctrl = localPlayer_.getCtrl();
     switch (keysym->sym) {
+        case 'w':
+        case 's':
+            camera_.setSpeed(0.0f);
+            break;
         case 'j':
             pctrl.releaseTurnLeft();
             break;

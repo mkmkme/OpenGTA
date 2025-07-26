@@ -48,10 +48,6 @@ public:
         FCallback,
     };
     Animation(uint16_t numFrames, uint16_t fps) noexcept;
-    Animation(const Animation &o) noexcept;
-    Animation(Animation &&o) noexcept;
-    Animation &operator=(const Animation &o) noexcept;
-    Animation &operator=(Animation &&o) noexcept;
     [[nodiscard]] uint16_t getCurrentFrameNumber() const noexcept { return currentFrame; }
     void set(Status doThis, OnDone done = OnDone::Stop) noexcept
     {

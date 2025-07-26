@@ -35,11 +35,6 @@ Animation::Animation(uint16_t num, uint16_t fps) noexcept
     lastChangeTicks = 0;
 }
 
-Animation::Animation(Animation &&other) noexcept = default;
-Animation &Animation::operator=(Animation &&other) noexcept = default;
-Animation::Animation(const Animation &other) noexcept = default;
-Animation &Animation::operator=(const Animation &other) noexcept = default;
-
 void Animation::update(uint32_t nowTicks)
 {
     if (status == Status::Stopped)

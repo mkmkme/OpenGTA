@@ -1,4 +1,4 @@
-add_executable(spriteplayer spriteplayer/main.cpp)
+add_executable(spriteplayer spriteplayer/main.cpp spriteplayer/spriteplayer.cpp)
 target_include_directories(spriteplayer PRIVATE ${PHYSFS_INCLUDE_DIR})
 target_link_libraries(
   spriteplayer PRIVATE ogta::core ogta::graphics ogta::util OpenGL::GLU

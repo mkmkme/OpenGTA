@@ -137,6 +137,7 @@ public:
     [[nodiscard]] uint16_t getSpriteNumber() const noexcept { return sprNum; }
     [[nodiscard]] Sprite::SpriteType getSpriteType() const noexcept { return sprType; }
     [[nodiscard]] uint16_t getRemap() const noexcept { return remap; }
+    void setRemap(uint16_t r) noexcept { remap = r; }
     [[nodiscard]] uint32_t getDelta() const noexcept { return delta; }
     void setDelta(uint32_t d) noexcept { delta = d; }
 

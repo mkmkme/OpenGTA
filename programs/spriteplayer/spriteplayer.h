@@ -37,9 +37,7 @@ private:
     bool texsprite_toggle_ { false };
     bool base_background_ { true };
     int car_model_ { 0 };
-    int car_remap_ { -1 };
     bool play_with_car_ { false };
-    uint32_t car_delta_ { 0 };
 
     std::optional<Car> car_;
     Pedestrian ped_ { glm::vec3 { 0.5f, 0.5f, 0.5f }, PED_POS, 0xffffffff };

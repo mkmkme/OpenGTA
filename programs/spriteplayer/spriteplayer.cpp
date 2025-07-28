@@ -148,16 +148,21 @@ void SpritePlayer::handleKeyPress(SDL_Keysym *keysym)
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
             break;
         case 'k':
-            if (car_delta_ > 0)
-                car_delta_ -= 1;
-            if (car_)
-                car_->setDelta(car_delta_);
+            if (car_) {
+                const auto car_delta = car_->getDelta();
+                if (car_delta > 0)
+                    car_->setDelta(car_delta - 1);
+            } else {
+                log::error("No car to set delta");
+            }
             break;
         case 'l':
-            if (car_delta_ < 32)
-                car_delta_ += 1;
             if (car_) {
-                car_->setDelta(car_delta_);
+                const auto car_delta = car_->getDelta();
+                if (car_delta < 32) // FIXME: magic number
+                    car_->setDelta(car_delta + 1);
+            } else {
+                log::error("No car to set delta");
             }
             break;
         case '=':
@@ -218,11 +223,14 @@ void SpritePlayer::handleKeyPress(SDL_Keysym *keysym)
             update_anim = true;
             break;
         case 'n':
-            if (play_with_car_ && car_remap_ > -1) {
-                car_remap_ -= 1;
-                INFO("remap: {}", car_remap_);
-            }
-            {
+            if (play_with_car_) {
+                log::warn("changing remap for car sprite, but it does not do anything");
+                const auto remap = car_->getRemap();
+                if (remap > 0) {
+                    car_->setRemap(remap - 1);
+                    log::info("remap: {}", car_->getRemap());
+                }
+            } else {
                 auto spr_type = ped_.getSpriteType();
                 do {
                     if (std::to_underlying(spr_type) > 0) {
@@ -235,11 +243,14 @@ void SpritePlayer::handleKeyPress(SDL_Keysym *keysym)
             update_anim = true;
             break;
         case 'm':
-            if (play_with_car_ && car_remap_ < 11) {
-                car_remap_ += 1;
-                INFO("remap: {}", car_remap_);
-            }
-            {
+            if (play_with_car_) {
+                log::warn("changing remap for car sprite, but it does not do anything");
+                const auto remap = car_->getRemap();
+                if (remap < 11) {
+                    car_->setRemap(remap + 1);
+                    log::info("remap: {}", car_->getRemap());
+                }
+            } else {
                 auto spr_type = ped_.getSpriteType();
                 do {
                     auto spr_type_int = std::to_underlying(spr_type) + 1;
@@ -296,7 +307,7 @@ void SpritePlayer::handleKeyPress(SDL_Keysym *keysym)
 void SpritePlayer::safeTryLoadCar() noexcept
 {
     try {
-        car_.emplace(PED_POS, 0, 0, car_model_, car_remap_);
+        car_.emplace(PED_POS, 0, 0, car_model_, 0);
     } catch (Util::UnknownKey &uk) {
         car_.reset();
         ERROR("not a model");

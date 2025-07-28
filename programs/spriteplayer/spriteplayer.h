@@ -41,7 +41,7 @@ private:
     bool play_with_car_ { false };
     uint32_t car_delta_ { 0 };
 
-    std::unique_ptr<Car> car_;
+    std::optional<Car> car_;
     Pedestrian ped_ { glm::vec3 { 0.5f, 0.5f, 0.5f }, PED_POS, 0xffffffff };
 
     Sprite::SpriteType sprite_type_ { ped_.getSpriteType() };

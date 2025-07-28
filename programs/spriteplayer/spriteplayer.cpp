@@ -290,7 +290,7 @@ void SpritePlayer::handleKeyPress(SDL_Keysym *keysym)
 void SpritePlayer::safeTryLoadCar() noexcept
 {
     try {
-        car_ = std::make_unique<Car>(PED_POS, 0, 0, car_model_, car_remap_);
+        car_.emplace(PED_POS, 0, 0, car_model_, car_remap_);
     } catch (Util::UnknownKey &uk) {
         car_.reset();
         ERROR("not a model");

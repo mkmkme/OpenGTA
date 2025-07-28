@@ -124,7 +124,7 @@ void SpritePlayer::drawScene(uint32_t now_ticks)
 
         glPushMatrix();
         glTranslatef(10, 10, 0);
-        font_.drawString("{} offset {}", OpenGTA::GraphicsBase::getSpriteName(sprite_type_), frame_offset_);
+        font_.drawString("{} offset {}", OpenGTA::GraphicsBase::getSpriteName(ped_.getSpriteType()), frame_offset_);
         glPopMatrix();
     }
 
@@ -222,12 +222,15 @@ void SpritePlayer::handleKeyPress(SDL_Keysym *keysym)
                 car_remap_ -= 1;
                 INFO("remap: {}", car_remap_);
             }
-            do {
-                if (std::to_underlying(sprite_type_) > 0) {
-                    sprite_type_ = SpriteType(std::to_underlying(sprite_type_) - 1);
-                }
-            } while (style.spriteNumbers.countByType(sprite_type_) == 0);
-            ped_.setSpriteType(sprite_type_);
+            {
+                auto spr_type = ped_.getSpriteType();
+                do {
+                    if (std::to_underlying(spr_type) > 0) {
+                        spr_type = SpriteType(std::to_underlying(spr_type) - 1);
+                    }
+                } while (style.spriteNumbers.countByType(spr_type) == 0);
+                ped_.setSpriteType(spr_type);
+            }
             frame_offset_ = 0;
             update_anim = true;
             break;
@@ -236,11 +239,14 @@ void SpritePlayer::handleKeyPress(SDL_Keysym *keysym)
                 car_remap_ += 1;
                 INFO("remap: {}", car_remap_);
             }
-            do {
-                int spr_type = std::to_underlying(sprite_type_) + 1;
-                sprite_type_ = spr_type > 20 ? ped_.getSpriteType() : SpriteType(spr_type);
-            } while (style.spriteNumbers.countByType(sprite_type_) == 0);
-            ped_.setSpriteType(sprite_type_);
+            {
+                auto spr_type = ped_.getSpriteType();
+                do {
+                    auto spr_type_int = std::to_underlying(spr_type) + 1;
+                    spr_type = spr_type_int > 20 ? ped_.getSpriteType() : SpriteType(spr_type_int);
+                } while (style.spriteNumbers.countByType(spr_type) == 0);
+                ped_.setSpriteType(spr_type);
+            }
             frame_offset_ = 0;
             update_anim = true;
             break;

@@ -43,8 +43,6 @@ private:
 
     std::optional<Car> car_;
     Pedestrian ped_ { glm::vec3 { 0.5f, 0.5f, 0.5f }, PED_POS, 0xffffffff };
-
-    Sprite::SpriteType sprite_type_ { ped_.getSpriteType() };
 };
 
 } // namespace OpenGTA

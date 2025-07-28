@@ -99,18 +99,16 @@ void SpritePlayer::drawScene(uint32_t now_ticks)
         glPushMatrix();
         glTranslatef(10, 10, 0);
 
-        std::string sprite_info;
         if (car_) {
-            sprite_info = fmt::format(
+            font_.drawString(
                 "{} model: {} name: {}",
                 vtype2name(car_->carInfo.vtype),
                 car_model_,
                 OpenGTA::MainMsgLookup::Instance().get().getText(fmt::format("car{}", car_model_))
             );
         } else {
-            sprite_info = "not a model: " + std::to_string(car_model_);
+            font_.drawString("not a model: {}", car_model_);
         }
-        font_.drawString(sprite_info);
         glPopMatrix();
     } else {
         if (play_anim_ && now_ticks > play_anim_time_ + 200) {
@@ -126,9 +124,7 @@ void SpritePlayer::drawScene(uint32_t now_ticks)
 
         glPushMatrix();
         glTranslatef(10, 10, 0);
-        std::string sprite_info = std::string { OpenGTA::GraphicsBase::getSpriteName(sprite_type_) } + " offset " +
-            std::to_string(frame_offset_);
-        font_.drawString(sprite_info);
+        font_.drawString("{} offset {}", OpenGTA::GraphicsBase::getSpriteName(sprite_type_), frame_offset_);
         glPopMatrix();
     }
 
@@ -257,11 +253,11 @@ void SpritePlayer::handleKeyPress(SDL_Keysym *keysym)
             break;
         case SDLK_F2:
             bbox_toggle_ = !bbox_toggle_;
-            OpenGTA::SpriteManager::Instance().setDrawBBox(bbox_toggle_);
+            SpriteManager::Instance().setDrawBBox(bbox_toggle_);
             break;
         case SDLK_F3:
             texsprite_toggle_ = !texsprite_toggle_;
-            OpenGTA::SpriteManager::Instance().setDrawTexBorder(texsprite_toggle_);
+            SpriteManager::Instance().setDrawTexBorder(texsprite_toggle_);
             break;
         case SDLK_F5:
             first_offset_ = frame_offset_;
@@ -285,7 +281,7 @@ void SpritePlayer::handleKeyPress(SDL_Keysym *keysym)
             break;
     }
     if (update_anim) {
-        ped_.setAnimation(OpenGTA::SpriteObject::Animation(frame_offset_, 0));
+        ped_.setAnimation(SpriteObject::Animation(frame_offset_, 0));
         if (play_with_car_)
             safeTryLoadCar();
     }
@@ -294,7 +290,7 @@ void SpritePlayer::handleKeyPress(SDL_Keysym *keysym)
 void SpritePlayer::safeTryLoadCar() noexcept
 {
     try {
-        car_ = std::make_unique<OpenGTA::Car>(PED_POS, 0, 0, car_model_, car_remap_);
+        car_ = std::make_unique<Car>(PED_POS, 0, 0, car_model_, car_remap_);
     } catch (Util::UnknownKey &uk) {
         car_.reset();
         ERROR("not a model");

@@ -22,13 +22,9 @@
  * distribution.                                                         *
  ************************************************************************/
 
-#include <SDL_timer.h>
-
 #include <fmt/base.h>
 
 #define SDL_MAIN_HANDLED
-
-#include <SDL2/SDL_opengl.h>
 
 #include "graphics/camera.h"
 #include "graphics/font.h"

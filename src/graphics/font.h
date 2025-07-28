@@ -25,6 +25,8 @@
 #include <memory>
 #include <string>
 
+#include <fmt/format.h>
+
 #include "graphics/base.h"
 #include "graphics/texturecache.h"
 
@@ -40,6 +42,12 @@ public:
     GLfloat drawString_r2l(const std::string &text);
     [[nodiscard]] uint16_t getHeight() const noexcept { return scale * fontSource->getCharHeight(); }
     void resetTextures() noexcept;
+
+    template <typename... Args>
+    GLfloat drawString(fmt::format_string<Args...> text, Args &&...args)
+    {
+        return drawString(fmt::format(std::move(text), std::forward<Args>(args)...));
+    }
 
 private:
     void cleanup() noexcept;

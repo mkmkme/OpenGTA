@@ -264,7 +264,7 @@ OpenGL::PagedTexture CityView::renderMap2Texture()
 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glFinish();
-    glm::vec3 v_off;
+    glm::vec3 v_off {};
     int persp_find_done = 0;
     int break_loop_safe = 500;
     while (persp_find_done != 3) {

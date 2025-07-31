@@ -214,7 +214,8 @@ void Graphics24Bit::loadSpriteInfo()
                 styleFile.read(si.delta[j].size);
                 styleFile.read(w);
                 _bytes_read += 6;
-                si.delta[j].ptr = reinterpret_cast<unsigned char *>(w); // NOLINT(performance-no-int-to-ptr)
+                si.delta[j].ptr =
+                    reinterpret_cast<unsigned char *>(static_cast<uint64_t>(w)); // NOLINT(performance-no-int-to-ptr)
             }
         }
         spriteInfos.emplace_back(si);

@@ -379,7 +379,7 @@ Animation *Manager::findAnimation(uint16_t id)
 void Manager::createAnimation(const std::vector<uint16_t> &indices, uint16_t fps, size_t id)
 {
     Animation *anim = new Animation(indices, fps);
-    guiAnimations.insert(std::make_pair(id, anim));
+    guiAnimations.emplace(static_cast<uint16_t>(id), anim);
     anim->set(Util::Animation::Status::PlayForward, Util::Animation::OnDone::Loop);
 }
 

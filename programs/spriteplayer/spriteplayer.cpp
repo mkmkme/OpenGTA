@@ -307,7 +307,7 @@ void SpritePlayer::handleKeyPress(SDL_Keysym *keysym)
 void SpritePlayer::safeTryLoadCar() noexcept
 {
     try {
-        car_.emplace(PED_POS, 0, 0, car_model_, 0);
+        car_.emplace(PED_POS, 0.f, 0, car_model_, 0);
     } catch (Util::UnknownKey &uk) {
         car_.reset();
         ERROR("not a model");

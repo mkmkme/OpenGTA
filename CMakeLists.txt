@@ -1,5 +1,8 @@
 cmake_minimum_required(VERSION 3.21)
 
+set(CMAKE_MSVC_DEBUG_INFORMATION_FORMAT Embedded)
+cmake_policy(SET CMP0141 NEW)
+
 project(OpenGTA)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)

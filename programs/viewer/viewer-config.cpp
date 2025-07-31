@@ -93,11 +93,11 @@ ViewerConfig::ParseArgsResult ViewerConfig::parseArgs(int argc, char **argv)
 
         if (result.count("city")) {
             auto city_name = result["city"].as<std::string>();
-            if (const auto *it = std::ranges::find(cities, city_name, &CityInfo::name); it == cities.end()) {
+            if (const auto it = std::ranges::find(cities, city_name, &CityInfo::name); it == cities.end()) {
                 ERROR("City {} not found, falling back to NYC", city_name);
                 city_id_ = 0;
             } else {
-                city_id_ = it - cities.data();
+                city_id_ = std::ranges::distance(cities.begin(), it);
             }
         }
 

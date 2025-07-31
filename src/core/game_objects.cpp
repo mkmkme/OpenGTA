@@ -513,7 +513,7 @@ void CarSprite::closeDoor(uint8_t k)
 void CarSprite::setSirenAnim(bool on)
 {
     if (!(assertDeltaById(15) && assertDeltaById(16))) {
-        ERROR("Trying to set siren anim on car-sprite that has no such delta!");
+        log::error("Trying to set siren anim on car-sprite that has no such delta!");
         return;
     }
     animState.set_item(10, on);

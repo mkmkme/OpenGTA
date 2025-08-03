@@ -27,10 +27,10 @@ private:
 
     bool done_ { false };
 
-    int frame_offset_ { 0 };
-    int first_offset_ { 0 };
-    int second_offset_ { 0 };
-    int now_frame_ { 0 };
+    uint16_t frame_offset_ { 0 };
+    uint16_t first_offset_ { 0 };
+    uint16_t second_offset_ { 0 };
+    uint16_t now_frame_ { 0 };
     bool play_anim_ { false };
     uint32_t play_anim_time_ { 0 };
     bool bbox_toggle_ { false };

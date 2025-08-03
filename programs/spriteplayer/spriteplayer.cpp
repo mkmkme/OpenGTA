@@ -308,7 +308,7 @@ void SpritePlayer::safeTryLoadCar() noexcept
 {
     try {
         car_.emplace(PED_POS, 0.f, 0, car_model_, 0);
-    } catch (Util::UnknownKey &uk) {
+    } catch (Util::UnknownKey &) {
         car_.reset();
         ERROR("not a model");
     }

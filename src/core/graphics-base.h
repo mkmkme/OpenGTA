@@ -85,8 +85,8 @@ public:
     void prepareSideTexture(uint32_t idx, std::span<uint8_t> dst);
     void prepareLidTexture(uint32_t idx, std::span<uint8_t> dst);
     void prepareAuxTexture(uint32_t idx, std::span<uint8_t> dst);
-    [[nodiscard]] unsigned int getRandomPedRemapNumber() const;
-    unsigned int getPedRemapNumberType(unsigned int _type);
+    [[nodiscard]] uint16_t getRandomPedRemapNumber() const;
+    uint16_t getPedRemapNumberType(unsigned int _type);
 
     SpriteNumbers spriteNumbers {};
 
@@ -156,8 +156,8 @@ protected:
 
     Util::Set sideTexBlockMove;
 
-    unsigned int firstValidPedRemap {};
-    unsigned int lastValidPedRemap {};
+    uint16_t firstValidPedRemap {};
+    uint16_t lastValidPedRemap {};
 };
 
 } // namespace OpenGTA

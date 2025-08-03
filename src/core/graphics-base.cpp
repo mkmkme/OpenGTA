@@ -90,17 +90,17 @@ CarInfo &GraphicsBase::findCarByModel(uint8_t model)
     throw Util::UnknownKey("Searching for car model {} failed", int(model));
 }
 
-unsigned int GraphicsBase::getRandomPedRemapNumber() const
+uint16_t GraphicsBase::getRandomPedRemapNumber() const
 {
     static thread_local std::mt19937 generator(std::random_device {}());
-    std::uniform_int_distribution<int> distribution(firstValidPedRemap, lastValidPedRemap - 1);
+    std::uniform_int_distribution<uint16_t> distribution(firstValidPedRemap, lastValidPedRemap - 1);
     return distribution(generator);
 }
 
-unsigned int GraphicsBase::getPedRemapNumberType(unsigned int _type)
+uint16_t GraphicsBase::getPedRemapNumberType(unsigned int _type)
 {
     ERROR("not implemented");
-    return _type;
+    return static_cast<uint16_t>(_type);
 }
 
 uint8_t GraphicsBase::getFormat() const

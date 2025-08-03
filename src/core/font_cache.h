@@ -34,7 +34,7 @@ public:
     FontCache(const FontCache &copy) = delete;
     FontCache &operator=(const FontCache &copy) = delete;
 
-    OpenGL::DrawableFont &getFont(const std::string &file, uint32_t scale);
+    OpenGL::DrawableFont &getFont(const std::string &file, uint16_t scale);
 
     static FontCache &Instance()
     {
@@ -46,7 +46,7 @@ private:
     FontCache() = default;
     struct FontIdentifier {
         const std::string filename;
-        const uint32_t scale;
+        const uint16_t scale;
         auto operator<=>(const FontIdentifier &) const = default;
     };
     std::map<FontIdentifier, OpenGL::DrawableFont> loaded_fonts_;

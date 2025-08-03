@@ -33,11 +33,11 @@ Font::Font(const std::string &file)
     }
     INFO("total width {} largest width {}", ww, lw);
     palette.loadFromFile(pf);
-    size_t ih = charHeight;
-    while (ww > 1024) {
-        ih *= 2;
-        ww /= 2;
-    }
+    // size_t ih = charHeight;
+    // while (ww > 1024) {
+    // ih *= 2;
+    // ww /= 2;
+    // }
     loadMapping(file);
 }
 
@@ -87,26 +87,25 @@ Font::Character::Character(Util::PhysFSFile &pf, uint8_t height) noexcept
 void Font::loadMapping(const std::string &name)
 {
     std::string name2 { Util::string_lower(name) };
-#define chr(n) ((char) (n))
     if (name2 == "big1.fon") {
         INFO("found mapping: big1.fon - {}", name);
         addMapping('!', 0);
         addMapping('-', 12);
-        for (int j = 65; j < 91; j++) {
-            addMapping(chr(j), j - 33);
+        for (unsigned char j = 65; j < 91; j++) {
+            addMapping(j, j - 33);
         }
-        for (int j = 192; j < 195; j++) {
-            addMapping(chr(j), j - 97);
+        for (unsigned char j = 192; j < 195; j++) {
+            addMapping(j, j - 97);
         }
         addMapping(196, 98);
         addMapping(198, 99);
         addMapping(199, 100);
-        for (int j = 200; j < 208; j++)
+        for (unsigned char j = 200; j < 208; j++)
             addMapping(j, j - 99);
-        for (int j = 210; j < 213; j++)
+        for (unsigned char j = 210; j < 213; j++)
             addMapping(j, j - 101);
         addMapping(214, 112);
-        for (int j = 217; j < 221; j++)
+        for (unsigned char j = 217; j < 221; j++)
             addMapping(j, j - 104);
         addMapping(223, 117);
     } else if (std::set<std::string> { "pager1.fon", "pager2.fon" }.contains(name2)) {
@@ -118,8 +117,8 @@ void Font::loadMapping(const std::string &name)
         addMapping(')', 8);
         addMapping(',', 11);
         addMapping('.', 13);
-        for (int j = 48; j < 58; j++) {
-            addMapping(chr(j), j - 33);
+        for (unsigned char j = 48; j < 58; j++) {
+            addMapping(j, j - 33);
         }
         addMapping(':', 25);
         addMapping(';', 26);
@@ -127,33 +126,33 @@ void Font::loadMapping(const std::string &name)
         addMapping('>', 29);
         addMapping('?', 30);
         addMapping('_', 62);
-        for (int j = 65; j < 91; j++) {
-            addMapping(chr(j), j - 33);
+        for (unsigned char j = 65; j < 91; j++) {
+            addMapping(j, j - 33);
         }
-        for (int j = 192; j < 195; j++) {
-            addMapping(chr(j), j - 97);
+        for (unsigned char j = 192; j < 195; j++) {
+            addMapping(j, j - 97);
         }
         addMapping(196, 98);
         addMapping(198, 99);
         addMapping(199, 100);
-        for (int j = 200; j < 208; j++)
+        for (unsigned char j = 200; j < 208; j++)
             addMapping(j, j - 99);
-        for (int j = 210; j < 213; j++)
+        for (unsigned char j = 210; j < 213; j++)
             addMapping(j, j - 101);
         addMapping(214, 112);
-        for (int j = 217; j < 221; j++)
+        for (unsigned char j = 217; j < 221; j++)
             addMapping(j, j - 104);
         addMapping(223, 117);
     } else if (name2 == "street1.fon") {
         INFO("found mapping: streen1.fon - {}", name);
-        for (int j = 65; j < 91; j++) {
-            addMapping(chr(j), j - 33);
+        for (unsigned char j = 65; j < 91; j++) {
+            addMapping(j, j - 33);
         }
-        for (int j = 48; j < 58; j++) {
-            addMapping(chr(j), j - 33);
+        for (unsigned char j = 48; j < 58; j++) {
+            addMapping(j, j - 33);
         }
-        for (int j = 97; j < 123; j++) {
-            addMapping(chr(j), j - 33);
+        for (unsigned char j = 97; j < 123; j++) {
+            addMapping(j, j - 33);
         }
         WARN("incomplete mapping");
     } else if (name2 == "m_mmiss.fon") {
@@ -179,17 +178,17 @@ void Font::loadMapping(const std::string &name)
         addMapping(']', 60);
         addMapping('|', 91);
         addMapping('~', 93);
-        for (int j = 65; j < 91; j++) {
-            addMapping(chr(j), j - 33);
+        for (unsigned char j = 65; j < 91; j++) {
+            addMapping(j, j - 33);
         }
-        for (int j = 97; j < 123; j++) {
-            addMapping(chr(j), j - 33);
+        for (unsigned char j = 97; j < 123; j++) {
+            addMapping(j, j - 33);
         }
-        for (int j = 48; j < 58; j++) {
-            addMapping(chr(j), j - 33);
+        for (unsigned char j = 48; j < 58; j++) {
+            addMapping(j, j - 33);
         }
-        for (int j = 192; j < 195; j++) {
-            addMapping(chr(j), j - 97);
+        for (unsigned char j = 192; j < 195; j++) {
+            addMapping(j, j - 97);
         }
         // incomplete
     } else if (name2 == "f_mtext.fon") {
@@ -212,15 +211,15 @@ void Font::loadMapping(const std::string &name)
         addMapping('=', 28);
         addMapping('>', 29);
         addMapping('?', 30);
-        for (int j = 48; j < 58; j++) {
-            addMapping(chr(j), j - 33);
+        for (unsigned char j = 48; j < 58; j++) {
+            addMapping(j, j - 33);
         }
         addMapping('\\', 59);
-        for (int j = 65; j < 91; j++) {
-            addMapping(chr(j), j - 33);
+        for (unsigned char j = 65; j < 91; j++) {
+            addMapping(j, j - 33);
         }
-        for (int j = 97; j < 123; j++) {
-            addMapping(chr(j), j - 33);
+        for (unsigned char j = 97; j < 123; j++) {
+            addMapping(j, j - 33);
         }
         // incomplete
 
@@ -241,38 +240,38 @@ void Font::loadMapping(const std::string &name)
         addMapping('>', 29);
         addMapping('?', 30);
         addMapping('\\', 59);
-        for (int j = 65; j < 91; j++) {
-            addMapping(chr(j), j - 33);
+        for (unsigned char j = 65; j < 91; j++) {
+            addMapping(j, j - 33);
         }
-        for (int j = 97; j < 123; j++) {
-            addMapping(chr(j), j - 33);
+        for (unsigned char j = 97; j < 123; j++) {
+            addMapping(j, j - 33);
         }
-        for (int j = 48; j < 58; j++) {
-            addMapping(chr(j), j - 33);
+        for (unsigned char j = 48; j < 58; j++) {
+            addMapping(j, j - 33);
         }
-        for (int j = 192; j < 195; j++) {
-            addMapping(chr(j), j - 97);
+        for (unsigned char j = 192; j < 195; j++) {
+            addMapping(j, j - 97);
         }
         addMapping(196, 98);
         addMapping(198, 99);
         addMapping(199, 100);
-        for (int j = 200; j < 208; j++)
+        for (unsigned char j = 200; j < 208; j++)
             addMapping(j, j - 99);
-        for (int j = 210; j < 213; j++)
+        for (unsigned char j = 210; j < 213; j++)
             addMapping(j, j - 101);
         addMapping(214, 112);
-        for (int j = 217; j < 221; j++)
+        for (unsigned char j = 217; j < 221; j++)
             addMapping(j, j - 104);
         addMapping(223, 117);
-        for (int j = 224; j < 227; j++)
+        for (unsigned char j = 224; j < 227; j++)
             addMapping(j, j - 106);
         addMapping(228, 121);
-        for (int j = 230; j < 240; j++)
+        for (unsigned char j = 230; j < 240; j++)
             addMapping(j, j - 108);
-        for (int j = 242; j < 245; j++)
+        for (unsigned char j = 242; j < 245; j++)
             addMapping(j, j - 110);
         addMapping(246, 135);
-        for (int j = 249; j < 253; j++)
+        for (unsigned char j = 249; j < 253; j++)
             addMapping(j, j - 113);
 
     } else if (std::set<std::string> { "sub1.fon", "sub2.fon" }.contains(name2)) {
@@ -292,42 +291,42 @@ void Font::loadMapping(const std::string &name)
         addMapping('>', 29);
         addMapping('?', 30);
 
-        for (int j = 65; j < 91; j++) {
-            addMapping(chr(j), j - 33);
+        for (unsigned char j = 65; j < 91; j++) {
+            addMapping(j, j - 33);
         }
-        for (int j = 97; j < 123; j++) {
-            addMapping(chr(j), j - 33);
+        for (unsigned char j = 97; j < 123; j++) {
+            addMapping(j, j - 33);
         }
-        for (int j = 48; j < 58; j++) {
-            addMapping(chr(j), j - 33);
+        for (unsigned char j = 48; j < 58; j++) {
+            addMapping(j, j - 33);
         }
-        for (int j = 192; j < 195; j++) {
-            addMapping(chr(j), j - 97);
+        for (unsigned char j = 192; j < 195; j++) {
+            addMapping(j, j - 97);
         }
         addMapping(196, 98);
         addMapping(198, 99);
         addMapping(199, 100);
-        for (int j = 200; j < 208; j++)
+        for (unsigned char j = 200; j < 208; j++)
             addMapping(j, j - 99);
-        for (int j = 210; j < 213; j++)
+        for (unsigned char j = 210; j < 213; j++)
             addMapping(j, j - 101);
         addMapping(214, 112);
-        for (int j = 217; j < 221; j++)
+        for (unsigned char j = 217; j < 221; j++)
             addMapping(j, j - 104);
         addMapping(223, 117);
-        for (int j = 224; j < 227; j++)
+        for (unsigned char j = 224; j < 227; j++)
             addMapping(j, j - 106);
         addMapping(228, 121);
-        for (int j = 230; j < 240; j++)
+        for (unsigned char j = 230; j < 240; j++)
             addMapping(j, j - 108);
-        for (int j = 242; j < 245; j++)
+        for (unsigned char j = 242; j < 245; j++)
             addMapping(j, j - 110);
         addMapping(246, 135);
-        for (int j = 249; j < 253; j++)
+        for (unsigned char j = 249; j < 253; j++)
             addMapping(j, j - 113);
     } else if (std::set<std::string> { "score1.fon", "score2.fon", "score8.fon" }.contains(name2)) {
-        for (int j = 48; j < 58; j++) {
-            addMapping(chr(j), j - 48);
+        for (unsigned char j = 48; j < 58; j++) {
+            addMapping(j, j - 48);
         }
     } else {
         ERROR("mapping for font {} is not known", name);

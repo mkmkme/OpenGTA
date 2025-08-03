@@ -39,14 +39,16 @@
 #include <sys/types.h>
 #endif
 
-#include <core/active-style.h>
-#include <core/graphics-base.h>
-#include <core/sprite-info.h>
+#include "util/errors.h"
+#include "util/file-manager.h"
+#include "util/log.h"
+#include "util/set.h"
 
-#include <util/errors.h>
-#include <util/file-manager.h>
-#include <util/set.h>
+#include "core/active-style.h"
+#include "core/graphics-base.h"
+#include "core/sprite-info.h"
 
+namespace {
 SDL_Surface *image = nullptr;
 
 void display_image(SDL_Surface *s)
@@ -96,6 +98,7 @@ SDL_Surface *get_image(std::span<const uint8_t> rp, unsigned int w, unsigned int
     SDL_UnlockSurface(s);
     return s;
 }
+} // namespace
 
 int main(int argc, char *argv[])
 {
@@ -104,7 +107,6 @@ int main(int argc, char *argv[])
     std::string file = "STYLE001.G24";
     SDL_Init(SDL_INIT_VIDEO);
 
-    int c = 0;
     int mode = 0;
     int remap = -1;
     int delta = 0;
@@ -175,20 +177,21 @@ int main(int argc, char *argv[])
     if (!mode)
         return 0;
 
+    const auto idx_ = static_cast<uint8_t>(idx);
     switch (section) {
         case 0:
-            graphics.getSide(idx, 0, rgba);
+            graphics.getSide(idx_, 0, rgba);
             image = get_image(graphics.getTmpBuffer(rgba), 64, 64);
             break;
         case 1:
-            graphics.getLid(idx, 0, rgba);
+            graphics.getLid(idx_, 0, rgba);
             image = get_image(graphics.getTmpBuffer(rgba), 64, 64);
             break;
         case 2:
-            graphics.getAux(idx, 0, rgba);
+            graphics.getAux(idx_, 0, rgba);
             image = get_image(graphics.getTmpBuffer(rgba), 64, 64);
             break;
-        case 3:
+        case 3: {
             const auto &sprite = graphics.getSprite(idx);
             fmt::println("Sprite is {} x {} with {} deltas", sprite.w, sprite.h, sprite.deltaCount);
             auto sbitmap = graphics.getSpriteBitmap(idx, remap, delta);
@@ -202,6 +205,9 @@ int main(int argc, char *argv[])
                 close(dump_fd);
             }
 #endif
+        } break;
+        default:
+            OpenGTA::log::warn("unknown mode {}", mode);
             break;
     }
 

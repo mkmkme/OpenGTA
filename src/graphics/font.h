@@ -35,7 +35,7 @@
 namespace OpenGL {
 class DrawableFont {
 public:
-    DrawableFont(const std::string &filename, unsigned int scale) noexcept;
+    DrawableFont(const std::string &filename, uint16_t scale) noexcept;
     DrawableFont(const DrawableFont &) = delete;
     DrawableFont(DrawableFont &&) noexcept = default;
     GLfloat drawString(const std::string &text);
@@ -57,6 +57,6 @@ private:
     std::string srcName;
     std::unique_ptr<TextureCache<char>> texCache;
     std::map<char, FontQuad> drawables;
-    unsigned int scale;
+    uint16_t scale;
 };
 } // namespace OpenGL

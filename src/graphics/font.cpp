@@ -30,10 +30,10 @@
 #include "base.h"
 
 namespace OpenGL {
-DrawableFont::DrawableFont(const std::string &filename, unsigned int scale) noexcept
+DrawableFont::DrawableFont(const std::string &filename, uint16_t scale) noexcept
     : fontSource(std::make_unique<OpenGTA::Font>(filename))
-    , texCache(std::make_unique<TextureCache<char>>(("FontTextures: " + filename).c_str()))
     , srcName(filename)
+    , texCache(std::make_unique<TextureCache<char>>(("FontTextures: " + filename).c_str()))
     , scale(scale)
 {
 }

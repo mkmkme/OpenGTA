@@ -32,10 +32,19 @@ public:
         [[nodiscard]] bool downOk() const noexcept { return Util::getBit(typeMap, 2); }
         [[nodiscard]] bool leftOk() const noexcept { return Util::getBit(typeMap, 3); }
         [[nodiscard]] bool rightOk() const noexcept { return Util::getBit(typeMap, 4); }
-        [[nodiscard]] uint8_t blockType() const noexcept { return Util::getRangeBit(typeMap, 5, 7); }
+        [[nodiscard]] uint8_t blockType() const noexcept
+        {
+            return static_cast<uint8_t>(Util::getRangeBit(typeMap, 5, 7));
+        }
         [[nodiscard]] bool isFlat() const noexcept { return Util::getBit(typeMap, 8); }
-        [[nodiscard]] uint8_t slopeType() const noexcept { return Util::getRangeBit(typeMap, 9, 14); }
-        [[nodiscard]] uint8_t rotation() const noexcept { return Util::getRangeBit(typeMap, 15, 16); }
+        [[nodiscard]] uint8_t slopeType() const noexcept
+        {
+            return static_cast<uint8_t>(Util::getRangeBit(typeMap, 9, 14));
+        }
+        [[nodiscard]] uint8_t rotation() const noexcept
+        {
+            return static_cast<uint8_t>(Util::getRangeBit(typeMap, 15, 16));
+        }
         /* m1win seems to indicate:
          * 000 - Nothing
          * 001 - traffic lights

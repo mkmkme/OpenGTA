@@ -9,10 +9,10 @@ namespace OpenGTA {
 class MessageDB {
 public:
     MessageDB();
-    MessageDB(const std::string &file);
+    explicit MessageDB(const std::string &file);
     void load(const std::string &file);
     const std::string &getText(const std::string &id);
-    const std::string &getText(const uint32_t id);
+    const std::string &getText(uint32_t id);
 
 private:
     std::map<std::string, std::string> messages;

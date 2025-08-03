@@ -35,7 +35,7 @@ Animation::Animation(uint16_t num, uint16_t fps) noexcept
     lastChangeTicks = 0;
 }
 
-void Animation::update(uint32_t nowTicks)
+void Animation::update(const uint32_t nowTicks)
 {
     if (status == Status::Stopped)
         return;

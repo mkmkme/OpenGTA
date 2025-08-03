@@ -36,6 +36,8 @@ namespace Util {
  */
 class Animation {
 public:
+    using CallbackType = std::function<void()>;
+
     enum class Status : uint8_t {
         Stopped = 0,
         PlayForward,
@@ -58,7 +60,6 @@ public:
     [[nodiscard]] OnDone getDone() const { return onDone; }
     void jumpToFrame(uint16_t num, Status andDo);
     void update(uint32_t nowTicks);
-    using CallbackType = std::function<void()>;
     void setCallback(CallbackType cb) { callback = std::move(cb); }
 
     uint16_t currentFrame;

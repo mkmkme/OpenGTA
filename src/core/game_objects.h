@@ -23,16 +23,15 @@
 #ifndef GAME_OBJECTS_H
 #define GAME_OBJECTS_H
 
-#include <core/entity_controller.h>
-#include <core/graphics-base.h>
-#include <math/obox.h>
-
-#include <util/animation.h>
-#include <util/cell_iterator.h>
-// #include <OpenSteer/Proximity.h>
 #include <list>
 
-#include <util/set.h>
+#include "util/animation.h"
+#include "util/cell_iterator.h"
+#include "util/set.h"
+
+#include "core/entity_controller.h"
+#include "core/graphics-base.h"
+#include "math/obox.h"
 
 namespace OpenGTA {
 
@@ -54,6 +53,7 @@ struct GameObject_common {
         , rot(r)
     {
     }
+    virtual ~GameObject_common() noexcept = default;
     [[nodiscard]] float heightOverTerrain(const glm::vec3 &) const;
 };
 
@@ -88,7 +88,7 @@ protected:
     uint16_t sprNum;
 
 private:
-    int16_t remap;
+    uint16_t remap;
 };
 
 class Pedestrian : public GameObject_common, public Sprite, public OBox {

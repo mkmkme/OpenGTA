@@ -20,6 +20,10 @@
  * 3. This notice may not be removed or altered from any source          *
  * distribution.                                                         *
  ************************************************************************/
+
+#define NOMINMAX
+
+#include <limits>
 #include <numbers>
 
 #include <core/active-map.h>
@@ -126,17 +130,17 @@ Sprite::Animation::Animation(uint16_t foff, uint8_t num, float speed) noexcept
 
 Sprite::Sprite() noexcept
     : sprNum(0)
-    , remap(-1)
-    //, anim(SpriteManager::Instance().getAnimationById(0)),
     , animId()
+    , remap(std::numeric_limits<uint16_t>::max())
+    //, anim(SpriteManager::Instance().getAnimationById(0)),
     , sprType(SpriteType::arrow)
 {
 }
 
 Sprite::Sprite(uint16_t sprN, int16_t rem, SpriteType sprT) noexcept
     : sprNum(sprN)
-    , remap(rem)
     , animId()
+    , remap(rem)
     , sprType(sprT)
 {
 }
@@ -252,7 +256,7 @@ void Pedestrian::update(uint32_t ticks)
         rot -= 360.0f;
     if (rot < 0.0f)
         rot += 360.0f;
-    using std::numbers::pi;
+    const auto pi = std::numbers::pi_v<float>;
     switch (m_control.getMove()) {
         case Move::Backward:
             moveDelta.x -= sin(rot * pi / 180.0f) * anim.moveSpeed * delta;

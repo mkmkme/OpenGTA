@@ -27,7 +27,7 @@ void explodePed() noexcept
         auto p = ped.pos;
         p.y += 0.2f;
         OpenGTA::SpriteManager::Instance().createExplosion(p);
-    } catch (Util::UnknownKey &e) {
+    } catch (Util::UnknownKey &) {
         WARN("Cannot place explosion - press F4 to switch to player-mode first!");
     }
 }
@@ -47,7 +47,7 @@ void addAutoPed() noexcept
         INFO("now {} peds", OpenGTA::SpriteManager::Instance().getPeds().size());
 
         // pr2.m_control = &OpenGTA::nullAI;
-    } catch (Util::UnknownKey &e) {
+    } catch (Util::UnknownKey &) {
         WARN("Cannot place peds now - press F4 to switch to player-mode first!");
     }
 }

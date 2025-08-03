@@ -24,7 +24,7 @@ struct CityInfo {
     }
 };
 
-constexpr std::array cities = {
+const std::array cities = {
     CityInfo { .name = "NYC", .style = "STYLE001" },
     CityInfo { .name = "SANB", .style = "STYLE002" },
     CityInfo { .name = "MIAMI", .style = "STYLE003" },

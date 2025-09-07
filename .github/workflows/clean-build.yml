@@ -23,6 +23,7 @@ jobs:
         uses: actions/checkout@v3
       - name: ⚒️ Build OpenGTA 🐧
         run: |
+          vcpkg install
           cmake --preset vcpkg
           cmake --build --preset vcpkg-relwithdebinfo -j $(nproc)
   # Windows-Build:

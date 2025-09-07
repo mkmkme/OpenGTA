@@ -13,7 +13,7 @@
 #include <SDL2/SDL.h>
 #include <core/font.h>
 #include <fmt/format.h>
-#include <glad/glad.h>
+#include <glad/gl.h>
 
 #include <util/file-manager.h>
 
@@ -126,10 +126,17 @@ int main(int /*argc*/, char **argv) // NOLINT(bugprone-exception-escape)
 
     SDL_Init(SDL_INIT_VIDEO);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
-    auto *window = SDL_CreateWindow("Shader shenanigans", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 800, 600, SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE);
+    auto *window = SDL_CreateWindow(
+        "Shader shenanigans",
+        SDL_WINDOWPOS_CENTERED,
+        SDL_WINDOWPOS_CENTERED,
+        800,
+        600,
+        SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE
+    );
     auto *context = SDL_GL_CreateContext(window);
 
-    if (!gladLoadGLLoader((GLADloadproc) SDL_GL_GetProcAddress)) {
+    if (!gladLoadGL((GLADloadfunc) SDL_GL_GetProcAddress)) {
         fmt::print(stderr, "Failed to initialize GLAD\n");
         return 1;
     }
@@ -188,10 +195,24 @@ int main(int /*argc*/, char **argv) // NOLINT(bugprone-exception-escape)
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
     // Position attribute
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void *) 0); // NOLINT(performance-no-int-to-ptr,*-use-nullptr)
+    glVertexAttribPointer(
+        0,
+        3,
+        GL_FLOAT,
+        GL_FALSE,
+        5 * sizeof(float),
+        (void *) 0
+    ); // NOLINT(performance-no-int-to-ptr,*-use-nullptr)
     glEnableVertexAttribArray(0);
     // Texture coord attribute
-    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void *) (3 * sizeof(float))); // NOLINT(performance-no-int-to-ptr)
+    glVertexAttribPointer(
+        1,
+        2,
+        GL_FLOAT,
+        GL_FALSE,
+        5 * sizeof(float),
+        (void *) (3 * sizeof(float))
+    ); // NOLINT(performance-no-int-to-ptr)
     glEnableVertexAttribArray(1);
 
     // Load and create a texture
@@ -232,7 +253,12 @@ int main(int /*argc*/, char **argv) // NOLINT(bugprone-exception-escape)
         glBindVertexArray(VAO);
         glDrawArrays(GL_TRIANGLES, 0, 3);
         glCheckError();
-        glDrawElements(GL_TRIANGLES, countof(indices), GL_UNSIGNED_INT, (void *) 0); // NOLINT(performance-no-int-to-ptr,*-use-nullptr)
+        glDrawElements(
+            GL_TRIANGLES,
+            countof(indices),
+            GL_UNSIGNED_INT,
+            (void *) 0
+        ); // NOLINT(performance-no-int-to-ptr,*-use-nullptr)
         glCheckError();
 
         SDL_GL_SwapWindow(window);

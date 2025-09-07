@@ -5,7 +5,7 @@
 #endif
 
 #include <SDL2/SDL.h>
-#include <glad/glad.h>
+#include <glad/gl.h>
 
 int main()
 {
@@ -14,7 +14,14 @@ int main()
         return -1;
     }
 
-    SDL_Window *window = SDL_CreateWindow("OpenGL Texture", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 800, 600, SDL_WINDOW_OPENGL);
+    SDL_Window *window = SDL_CreateWindow(
+        "OpenGL Texture",
+        SDL_WINDOWPOS_UNDEFINED,
+        SDL_WINDOWPOS_UNDEFINED,
+        800,
+        600,
+        SDL_WINDOW_OPENGL
+    );
     if (!window) {
         std::cerr << "Failed to create window: " << SDL_GetError() << std::endl;
         SDL_Quit();
@@ -29,7 +36,7 @@ int main()
         return -1;
     }
 
-    if (!gladLoadGLLoader((GLADloadproc) SDL_GL_GetProcAddress)) {
+    if (!gladLoadGL((GLADloadfunc) SDL_GL_GetProcAddress)) {
         std::cerr << "Failed to initialize GLAD" << std::endl;
         SDL_GL_DeleteContext(context);
         SDL_DestroyWindow(window);
@@ -76,6 +83,7 @@ int main()
     glDeleteShader(fragmentShader);
 
     // Set up vertex data and buffers
+    // clang-format off
     float vertices[] = {
         // positions          // texture coords
         0.5f,
@@ -107,6 +115,7 @@ int main()
         2,
         3 // second triangle
     };
+    // clang-format on
 
     GLuint VBO, VAO, EBO;
     glGenVertexArrays(1, &VAO);

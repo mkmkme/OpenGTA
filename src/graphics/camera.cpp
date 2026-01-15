@@ -1,6 +1,10 @@
 #include <core/active-map.h>
 #include <glm/geometric.hpp>
 
+#ifdef OGTA_USE_MODERN_GL
+#include <glm/gtc/matrix_transform.hpp>
+#endif
+
 #include <graphics/camera.h>
 #include <graphics/screen.h>
 
@@ -270,6 +274,13 @@ void Camera::interpolate(const glm::vec3 &to, uint32_t start, uint32_t end)
     interpolateStart = start;
     interpolateEnd = end;
 }
+
+#ifdef OGTA_USE_MODERN_GL
+glm::mat4 Camera::getViewMatrix() const
+{
+    return glm::lookAt(eye, center, up);
+}
+#endif
 
 #if 0
   void QuaternionCamera::update(Uint32 ticks) {

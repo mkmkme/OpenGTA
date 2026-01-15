@@ -27,6 +27,11 @@
 #include "util/log.h"
 
 #include "base/config.h"
+
+#ifdef OGTA_USE_MODERN_GL
+#include <glm/gtc/matrix_transform.hpp>
+#endif
+
 #ifdef _WIN32
 #include <Windows.h>
 #elif defined(__APPLE__)
@@ -282,4 +287,18 @@ void Screen::makeScreenshot(const char *filename) const noexcept
     SDL_SaveBMP(image, filename);
     SDL_FreeSurface(image);
 }
+
+#ifdef OGTA_USE_MODERN_GL
+glm::mat4 Screen::getProjectionMatrix() const
+{
+    const float aspect = static_cast<float>(width_) / static_cast<float>(height_);
+    return glm::perspective(glm::radians(field_of_view_), aspect, near_plane_, far_plane_);
+}
+
+glm::mat4 Screen::getOrthoMatrix() const
+{
+    return glm::ortho(0.0f, static_cast<float>(width_), static_cast<float>(height_), 0.0f, -1.0f, 1.0f);
+}
+#endif
+
 } // namespace OpenGL

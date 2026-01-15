@@ -26,3 +26,20 @@ target_include_directories(
                      ${OpenGTA_BINARY_DIR}/src)
 target_link_libraries(gfxextract PRIVATE ogta::core ogta::graphics ogta::util
                                          fmt::fmt OpenGL::GLU ${PHYSFS_LIBRARY})
+
+if(OGTA_USE_MODERN_GL)
+  add_executable(spriteplayer-shader 
+    spriteplayer-shader/main.cpp 
+    spriteplayer-shader/spriteplayer-shader.cpp)
+  target_include_directories(spriteplayer-shader PRIVATE ${PHYSFS_INCLUDE_DIR})
+  target_link_libraries(
+    spriteplayer-shader 
+    PRIVATE ogta::core 
+            ogta::graphics 
+            ogta::util 
+            glad::glad
+            OpenGL::GLU
+            fmt::fmt 
+            ${PHYSFS_LIBRARY})
+  target_compile_definitions(spriteplayer-shader PRIVATE OGTA_USE_MODERN_GL)
+endif()

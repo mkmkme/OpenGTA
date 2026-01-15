@@ -24,6 +24,11 @@
 #pragma once
 
 #include <SDL2/SDL_video.h>
+
+#ifdef OGTA_USE_MODERN_GL
+#include <glm/mat4x4.hpp>
+#endif
+
 namespace OpenGL {
 
 enum class VSyncMode : uint8_t {
@@ -58,6 +63,11 @@ public:
     void makeScreenshot(const char *filename) const noexcept;
     void setupGlVars(float fov, float near_p, float far_p) noexcept;
     void setVSyncMode(VSyncMode mode) noexcept { vsync_mode_ = mode; }
+
+#ifdef OGTA_USE_MODERN_GL
+    [[nodiscard]] glm::mat4 getProjectionMatrix() const;
+    [[nodiscard]] glm::mat4 getOrthoMatrix() const;
+#endif
 
 private:
     void initGL();

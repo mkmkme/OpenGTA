@@ -3,6 +3,10 @@
 #include <SDL2/SDL.h>
 #include <glm/ext/vector_float3.hpp>
 
+#ifdef OGTA_USE_MODERN_GL
+#include <glm/mat4x4.hpp>
+#endif
+
 namespace OpenGL {
 
 class Screen;
@@ -37,6 +41,10 @@ public:
     [[nodiscard]] const glm::vec3 &getEye() const { return eye; }
     [[nodiscard]] const glm::vec3 &getCenter() const { return center; }
     [[nodiscard]] const glm::vec3 &getUp() const { return up; }
+
+#ifdef OGTA_USE_MODERN_GL
+    [[nodiscard]] glm::mat4 getViewMatrix() const;
+#endif
 
 private:
     void update_game();

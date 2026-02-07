@@ -11,10 +11,7 @@ set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
-# Use glad from third_party if didn't use vcpkg
-if(NOT DEFINED CMAKE_TOOLCHAIN_FILE)
-    list(APPEND CMAKE_PREFIX_PATH "${CMAKE_CURRENT_SOURCE_DIR}/third_party/glad")
-endif()
+list(APPEND CMAKE_PREFIX_PATH "${CMAKE_CURRENT_SOURCE_DIR}/third_party/glad")
 
 include(cmake/build-options.cmake)
 include(cmake/colored-output.cmake)

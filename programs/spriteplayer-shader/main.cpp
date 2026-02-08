@@ -46,6 +46,12 @@ inline void usage(const char *a0)
 
 int main(int argc, char *argv[])
 {
+    // Initialize SDL early to allow setting GL attributes
+    if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER) < 0) {
+        fmt::print(stderr, "Failed to initialize SDL: {}\n", SDL_GetError());
+        return 1;
+    }
+
     std::string style_file = "STYLE001.G24";
     if (argc > 2) {
         fmt::print(stderr, "Usage: {} [STYLE_FILENAME]\n", argv[0]);
@@ -61,27 +67,18 @@ int main(int argc, char *argv[])
 
     const Util::PhysFSContext pfs("spriteplayer-shader");
 
-#ifdef OGTA_USE_MODERN_GL
     // Request OpenGL 3.3 Core Profile
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
+#ifdef __APPLE__
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, SDL_GL_CONTEXT_FORWARD_COMPATIBLE_FLAG);
 #endif
 
     OpenGL::Screen screen;
     OpenGL::Camera camera;
 
     screen.activate(640, 480);
-
-#ifdef OGTA_USE_MODERN_GL
-    // Initialize GLAD after context creation
-    int version = gladLoadGL((GLADloadfunc) SDL_GL_GetProcAddress);
-    if (version == 0) {
-        fmt::print(stderr, "Failed to initialize GLAD\n");
-        return 1;
-    }
-    fmt::print("OpenGL Version: {}.{}\n", GLAD_VERSION_MAJOR(version), GLAD_VERSION_MINOR(version));
-#endif
 
     OpenGTA::ActiveStyle::Instance().load(style_file);
     OpenGTA::ActiveStyle::Instance().get().setDeltaHandling(true);

@@ -2,16 +2,12 @@
 
 #include <fmt/base.h>
 
+#include "graphics/spritecache.h"
 #include "util/errors.h"
 #include "util/log.h"
 
 #include "core/active-style.h"
 #include "core/main-msg-lookup.h"
-#include "core/spritemanager.h"
-
-#ifdef OGTA_USE_MODERN_GL
-#include "graphics/spritecache.h"
-#endif
 
 namespace {
 // TODO: enum class
@@ -40,10 +36,9 @@ SpritePlayerShader::SpritePlayerShader(OpenGL::Screen &screen, OpenGL::Camera &c
     , camera_(camera)
     , font_(font)
 {
-#ifdef OGTA_USE_MODERN_GL
     spriteRenderer_ = std::make_unique<OpenGL::SpriteRendererModern>();
     spriteRenderer_->init();
-#endif
+    fontRenderer_ = std::make_unique<OpenGL::FontRendererModern>("F_MTEXT.FON", 1);
 }
 
 void SpritePlayerShader::run()
@@ -97,17 +92,14 @@ void SpritePlayerShader::drawScene(uint32_t now_ticks)
     screen_.set3DProjection();
     camera_.update(now_ticks, screen_);
 
-#ifdef OGTA_USE_MODERN_GL
     // Get matrices for modern rendering
     glm::mat4 projection = screen_.getProjectionMatrix();
     glm::mat4 view = camera_.getViewMatrix();
-#endif
 
     if (play_with_car_) {
         if (car_) {
             car_->update(now_ticks);
 
-#ifdef OGTA_USE_MODERN_GL
             // Get sprite info from style
             GraphicsBase &style = ActiveStyle::Instance().get();
             const auto sprNum = style.spriteNumbers.reIndex(car_->getSpriteNumber(), car_->getSpriteType());
@@ -134,12 +126,29 @@ void SpritePlayerShader::drawScene(uint32_t now_ticks)
             if (texsprite_toggle_) {
                 spriteRenderer_->drawTextureBorder(car_->pos, car_->rot, w, h, view, projection);
             }
-#endif
         }
 
         screen_.setFlatProjection();
 
-        // Font rendering removed - not compatible with Core Profile
+        // Modern Font Rendering
+        if (fontRenderer_) {
+            glm::mat4 ortho = screen_.getOrthoMatrix();
+            glm::vec3 color(1.0f, 0.0f, 0.0f); // Red text
+
+            std::string label;
+            if (car_) {
+                label = fmt::format(
+                    "{} model: {} name: {}",
+                    vtype2name(car_->carInfo.vtype),
+                    car_model_,
+                    OpenGTA::MainMsgLookup::Instance().get().getText(fmt::format("car{}", car_model_))
+                );
+            } else {
+                label = fmt::format("not a model: {}", car_model_);
+            }
+
+            fontRenderer_->renderText(label, 20.0f, 20.0f, 2.0f, color, ortho);
+        }
     } else {
         if (play_anim_ && now_ticks > play_anim_time_ + 200) {
             ++now_frame_;
@@ -149,7 +158,6 @@ void SpritePlayerShader::drawScene(uint32_t now_ticks)
             play_anim_time_ = now_ticks;
         }
 
-#ifdef OGTA_USE_MODERN_GL
         // Get pedestrian sprite info
         GraphicsBase &style = ActiveStyle::Instance().get();
         uint16_t sprNum = style.spriteNumbers.reIndex(
@@ -181,11 +189,17 @@ void SpritePlayerShader::drawScene(uint32_t now_ticks)
         if (texsprite_toggle_) {
             spriteRenderer_->drawTextureBorder(ped_.pos, ped_.rot, w, h, view, projection);
         }
-#endif
 
         screen_.setFlatProjection();
 
-        // Font rendering removed - not compatible with Core Profile
+        // Modern Font Rendering
+        if (fontRenderer_) {
+            glm::mat4 ortho = screen_.getOrthoMatrix();
+            glm::vec3 color(1.0f, 0.0f, 0.0f); // Red text
+            std::string label =
+                fmt::format("{} offset {}", OpenGTA::GraphicsBase::getSpriteName(ped_.getSpriteType()), frame_offset_);
+            fontRenderer_->renderText(label, 20.0f, 20.0f, 2.0f, color, ortho);
+        }
     }
 
     SDL_GL_SwapWindow(screen_.get());

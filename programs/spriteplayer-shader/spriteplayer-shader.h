@@ -1,16 +1,10 @@
 #pragma once
 
-#ifdef OGTA_USE_MODERN_GL
-#include <glad/gl.h>
-#endif
-
 #include "graphics/camera.h"
+#include "graphics/font-renderer-modern.h"
 #include "graphics/font.h"
 #include "graphics/screen.h"
-
-#ifdef OGTA_USE_MODERN_GL
 #include "graphics/sprite-renderer-modern.h"
-#endif
 
 #include "core/game_objects.h"
 
@@ -33,9 +27,8 @@ private:
     OpenGL::Camera &camera_;
     OpenGL::DrawableFont &font_;
 
-#ifdef OGTA_USE_MODERN_GL
     std::unique_ptr<OpenGL::SpriteRendererModern> spriteRenderer_;
-#endif
+    std::unique_ptr<OpenGL::FontRendererModern> fontRenderer_;
 
     bool done_ { false };
 

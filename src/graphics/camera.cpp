@@ -55,7 +55,9 @@ void Camera::update_game()
 
     center += -delta;
     eye += -delta;
+#ifndef OGTA_USE_MODERN_GL
     gluLookAt(eye.x, eye.y, eye.z, center.x, center.y, center.z, up.x, up.y, up.z);
+#endif
 }
 
 void Camera::setFollowMode(const glm::vec3 &target)
@@ -176,7 +178,9 @@ void Camera::update(uint32_t ticks, OpenGL::Screen &screen)
         if (doRotate)
             rotateAround(glm::vec3(center.x, 0, center.z), 0, 0.01f, 0);
     }
+#ifndef OGTA_USE_MODERN_GL
     gluLookAt(eye.x, eye.y, eye.z, center.x, center.y, center.z, up.x, up.y, up.z);
+#endif
 }
 
 void Camera::setRotating(bool demo)

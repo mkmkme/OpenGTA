@@ -22,6 +22,10 @@
  ************************************************************************/
 #include "util/image_loader.h"
 
+#ifdef OGTA_USE_MODERN_GL
+#include <glad/gl.h>
+#endif
+
 #include <cassert>
 #include <cstdint>
 
@@ -179,6 +183,17 @@ uint32_t createGLTexture(size_t w, size_t h, bool rgba, std::span<const uint8_t>
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+#ifdef OGTA_USE_MODERN_GL
+    GLint internalFormat = rgba ? GL_RGBA8 : GL_RGB8;
+    GLenum format = rgba ? GL_RGBA : GL_RGB;
+    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+    glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, w, h, 0, format, GL_UNSIGNED_BYTE, pixels.data());
+    glPixelStorei(GL_UNPACK_ALIGNMENT, 4); // Restore default
+    if (mipmapTextures) {
+        glGenerateMipmap(GL_TEXTURE_2D);
+    }
+#else
     if (rgba) {
         if (mipmapTextures)
             gluBuild2DMipmaps(GL_TEXTURE_2D, 4, w, h, GL_RGBA, GL_UNSIGNED_BYTE, pixels.data());
@@ -190,6 +205,8 @@ uint32_t createGLTexture(size_t w, size_t h, bool rgba, std::span<const uint8_t>
         else
             glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, w, h, 0, GL_RGB, GL_UNSIGNED_BYTE, pixels.data());
     }
+#endif
+
     if (supportedMaxAnisoDegree > 1.0f)
         glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, &supportedMaxAnisoDegree);
 

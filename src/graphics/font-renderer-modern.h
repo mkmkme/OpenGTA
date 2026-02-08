@@ -9,6 +9,8 @@
 #include <glad/gl.h>
 #include <glm/glm.hpp>
 
+#include "graphics/shader.h"
+
 #include "core/font.h"
 
 namespace OpenGL {
@@ -37,8 +39,8 @@ private:
 
     std::unique_ptr<OpenGTA::Font> fontSource_;
     std::map<char, Character> Characters;
-    GLuint shaderProgram_;
     GLuint VAO, VBO;
+    std::unique_ptr<Shader> shader_;
     uint16_t scale_;
 
     void loadCharacter(char c);

@@ -2,97 +2,19 @@
 
 #ifdef OGTA_USE_MODERN_GL
 
-// #include <algorithm>
 #include <cstring>
-// #include <iostream>
 #include <vector>
 
 #include <fmt/format.h>
 #include <glm/gtc/matrix_transform.hpp>
 
-// #include "util/image_loader.h"
-#include "util/log.h"
-
 namespace OpenGL {
-
-const char *textVertexShaderSource = R"(
-#version 330 core
-layout (location = 0) in vec4 vertex; // <vec2 pos, vec2 tex>
-out vec2 TexCoords;
-
-uniform mat4 projection;
-
-void main()
-{
-    gl_Position = projection * vec4(vertex.xy, 0.0, 1.0);
-    TexCoords = vertex.zw;
-}
-)";
-
-const char *textFragmentShaderSource = R"(
-#version 330 core
-in vec2 TexCoords;
-out vec4 color;
-
-uniform sampler2D text;
-uniform vec3 textColor;
-
-void main()
-{
-    vec4 sampled = texture(text, TexCoords);
-    // Simple alpha test
-    if (sampled.a < 0.1)
-        discard;
-    color = vec4(textColor, 1.0) * sampled;
-}
-)";
 
 FontRendererModern::FontRendererModern(const std::string &filename, uint16_t scale)
     : fontSource_(std::make_unique<OpenGTA::Font>(filename))
+    , shader_(std::make_unique<Shader>("data/shaders/font.vert", "data/shaders/font.frag"))
     , scale_(scale)
 {
-    // Compile Vertex Shader
-    GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
-    glShaderSource(vertexShader, 1, &textVertexShaderSource, NULL);
-    glCompileShader(vertexShader);
-
-    // Check Vertex Shader
-    GLint success;
-    GLchar infoLog[512];
-    glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &success);
-    if (!success) {
-        glGetShaderInfoLog(vertexShader, 512, NULL, infoLog);
-        ERROR("Vertex Shader Compilation Failed: {}", infoLog);
-    }
-
-    // Compile Fragment Shader
-    GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-    glShaderSource(fragmentShader, 1, &textFragmentShaderSource, NULL);
-    glCompileShader(fragmentShader);
-
-    // Check Fragment Shader
-    glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &success);
-    if (!success) {
-        glGetShaderInfoLog(fragmentShader, 512, NULL, infoLog);
-        ERROR("Fragment Shader Compilation Failed: {}", infoLog);
-    }
-
-    // Link Program
-    shaderProgram_ = glCreateProgram();
-    glAttachShader(shaderProgram_, vertexShader);
-    glAttachShader(shaderProgram_, fragmentShader);
-    glLinkProgram(shaderProgram_);
-
-    // Check Linking
-    glGetProgramiv(shaderProgram_, GL_LINK_STATUS, &success);
-    if (!success) {
-        glGetProgramInfoLog(shaderProgram_, 512, nullptr, infoLog);
-        ERROR("Shader Linking Failed: {}", infoLog);
-    }
-
-    glDeleteShader(vertexShader);
-    glDeleteShader(fragmentShader);
-
     // Configure VAO/VBO
     glGenVertexArrays(1, &VAO);
     glGenBuffers(1, &VBO);
@@ -107,7 +29,7 @@ FontRendererModern::FontRendererModern(const std::string &filename, uint16_t sca
 
 FontRendererModern::~FontRendererModern()
 {
-    glDeleteProgram(shaderProgram_);
+    glDeleteProgram(shader_->getProgram());
     glDeleteVertexArrays(1, &VAO);
     glDeleteBuffers(1, &VBO);
     for (auto const &[key, val] : Characters) {
@@ -176,10 +98,10 @@ void FontRendererModern::renderText(
     glDisable(GL_DEPTH_TEST); // Ensure text draws on top
     glDisable(GL_CULL_FACE);  // Disable culling for 2D text (projection flip might invert winding)
 
-    glUseProgram(shaderProgram_);
-    glUniform1i(glGetUniformLocation(shaderProgram_, "text"), 0);
-    glUniform3f(glGetUniformLocation(shaderProgram_, "textColor"), color.x, color.y, color.z);
-    glUniformMatrix4fv(glGetUniformLocation(shaderProgram_, "projection"), 1, GL_FALSE, &projection[0][0]);
+    shader_->use();
+    shader_->setInt("text", 0);
+    shader_->setVec3("textColor", color);
+    shader_->setMat4("projection", projection);
     glActiveTexture(GL_TEXTURE0);
     glBindVertexArray(VAO);
 

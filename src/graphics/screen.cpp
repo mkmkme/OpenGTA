@@ -20,22 +20,20 @@
  * 3. This notice may not be removed or altered from any source          *
  * distribution.                                                         *
  ************************************************************************/
-#include "graphics/screen.h"
+#include "base/config.h"
 
+#ifdef OGTA_USE_MODERN_GL
+#include <glad/gl.h>
+#include <glm/gtc/matrix_transform.hpp>
+#endif
+
+#include "graphics/screen.h"
 #include "util/errors.h"
 #include "util/image_loader.h"
 #include "util/log.h"
 
-#include "base/config.h"
-
-#ifdef OGTA_USE_MODERN_GL
-#include <glm/gtc/matrix_transform.hpp>
-#endif
-
 #ifdef _WIN32
 #include <Windows.h>
-#elif defined(__APPLE__)
-#include <OpenGL/glext.h>
 #endif
 
 #ifdef __APPLE__
@@ -52,6 +50,31 @@ namespace {
 
 inline GLboolean queryExtension(const char *extName) noexcept
 {
+#ifdef OGTA_USE_MODERN_GL
+    // Try the legacy way first (returns NULL in Core Profile)
+    const char *p = (const char *) glGetString(GL_EXTENSIONS);
+    if (p) {
+        const char *end = p + strlen(p);
+        while (p < end) {
+            size_t n = strcspn(p, " ");
+            if ((strlen(extName) == n) && (strncmp(extName, p, n) == 0)) {
+                return GL_TRUE;
+            }
+            p += (n + 1);
+        }
+    } else {
+        // Fallback to modern way (OpenGL 3.0+)
+        GLint numExtensions = 0;
+        glGetIntegerv(GL_NUM_EXTENSIONS, &numExtensions);
+        for (int i = 0; i < numExtensions; ++i) {
+            const char *extension = (const char *) glGetStringi(GL_EXTENSIONS, i);
+            if (extension && strcmp(extension, extName) == 0) {
+                return GL_TRUE;
+            }
+        }
+    }
+    return GL_FALSE;
+#else
     // from the 'Red Book'
     char *p = (char *) glGetString(GL_EXTENSIONS);
     char *end = p + strlen(p);
@@ -63,6 +86,7 @@ inline GLboolean queryExtension(const char *extName) noexcept
         p += (n + 1);
     }
     return GL_FALSE;
+#endif
 }
 
 inline void checkAndClearSDLError(const char *context) noexcept
@@ -146,26 +170,21 @@ void Screen::toggleFullscreen() noexcept
 
 void Screen::initScreen(uint32_t w, uint32_t h)
 {
-    int err = SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER);
-    if (err)
+    if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER) != 0) {
         throw Util::InvalidFormat("SDL_Init failed: {}", SDL_GetError());
+    }
     checkAndClearSDLError("SDL_Init");
 
-    INFO("Creating window {}x{}", w, h);
-    window_ = SDL_CreateWindow("OpenGTA", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, w, h, SDL_WINDOW_OPENGL);
-    checkAndClearSDLError("SDL_CreateWindow");
-    assert(window_ != nullptr);
+    // Get desktop display mode to determine BPP
+    SDL_DisplayMode mode;
+    if (SDL_GetDesktopDisplayMode(0, &mode) != 0) {
+        ERROR("SDL_GetDesktopDisplayMode failed: {}", SDL_GetError());
+        // Fallback to a safe default if query fails
+        mode.format = SDL_PIXELFORMAT_RGB888;
+    }
+    const auto bpp = SDL_BITSPERPIXEL(mode.format);
 
-    gl_context_ = SDL_GL_CreateContext(window_);
-    assert(gl_context_ != nullptr);
-    checkAndClearSDLError("SDL_GL_CreateContext");
-
-    SDL_Surface *surface = SDL_GetWindowSurface(window_);
-    checkAndClearSDLError("SDL_GetWindowSurface");
-
-    const auto bpp = surface->format->BitsPerPixel;
-
-    INFO("video-probe:");
+    INFO("video-probe (Desktop):");
     INFO(" bpp: {}", bpp);
 
     auto [r, g, b] = [bpp]() -> std::tuple<int, int, int> {
@@ -180,7 +199,8 @@ void Screen::initScreen(uint32_t w, uint32_t h)
             case 8:
                 return { 2, 3, 3 };
             default:
-                throw Util::NotSupported("Invalid bit-per-pixel setting");
+                // Fallback: assume 24/32-bit color if unknown
+                return { 8, 8, 8 };
         }
     }();
 
@@ -189,8 +209,26 @@ void Screen::initScreen(uint32_t w, uint32_t h)
     SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, b);
     SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 16);
     SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
+#ifdef __APPLE__
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, SDL_GL_CONTEXT_FORWARD_COMPATIBLE_FLAG);
+#endif
 
     checkAndClearSDLError("SDL_GL_SetAttribute");
+
+    INFO("Creating window {}x{}", w, h);
+    window_ = SDL_CreateWindow("OpenGTA", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, w, h, SDL_WINDOW_OPENGL);
+    checkAndClearSDLError("SDL_CreateWindow");
+    assert(window_ != nullptr);
+
+    gl_context_ = SDL_GL_CreateContext(window_);
+    assert(gl_context_ != nullptr);
+    checkAndClearSDLError("SDL_GL_CreateContext");
+
+#ifdef OGTA_USE_MODERN_GL
+    if (!gladLoadGL((GLADloadfunc) SDL_GL_GetProcAddress)) {
+        throw Util::InvalidFormat("Failed to initialize GLAD");
+    }
+#endif
 }
 
 void Screen::initGL()
@@ -216,15 +254,23 @@ void Screen::initGL()
     glLightfv( GL_LIGHT0, GL_POSITION, LightPosition );
     glEnable( GL_LIGHT0 );
     */
+#ifndef OGTA_USE_MODERN_GL
     glEnable(GL_COLOR_MATERIAL);
+#endif
     glCullFace(GL_BACK);
     // glPolygonMode(GL_FRONT, GL_FILL);
     // glPolygonMode(GL_BACK, GL_LINE);
+#ifndef OGTA_USE_MODERN_GL
     glEnable(GL_TEXTURE_2D);
+#endif
 
     if (queryExtension("GL_EXT_texture_filter_anisotropic")) {
         GLfloat maxAniso = 1.0f;
         glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &maxAniso);
+        // Consume error if any (e.g. GL_INVALID_ENUM on some drivers)
+        if (glGetError() != GL_NO_ERROR) {
+            WARN("GL_EXT_texture_filter_anisotropic not supported");
+        }
         // if (maxAniso >= 2.0f)
         ImageUtil::supportedMaxAnisoDegree = maxAniso;
         INFO("GL supports anisotropic filtering with degree: {}", maxAniso);
@@ -247,21 +293,25 @@ void Screen::resize(uint32_t w, uint32_t h) noexcept
 
 void Screen::set3DProjection() const noexcept
 {
+#ifndef OGTA_USE_MODERN_GL
     float ratio = float(width_) / float(height_);
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
     gluPerspective(field_of_view_, ratio, near_plane_, far_plane_);
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
+#endif
 }
 
 void Screen::setFlatProjection() const noexcept
 {
+#ifndef OGTA_USE_MODERN_GL
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
     glOrtho(0, width_, 0, height_, -1, 1);
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
+#endif
 }
 
 void Screen::makeScreenshot(const char *filename) const noexcept

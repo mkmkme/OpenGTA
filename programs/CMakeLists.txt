@@ -35,11 +35,10 @@ if(OGTA_USE_MODERN_GL)
   target_link_libraries(
     spriteplayer-shader 
     PRIVATE ogta::core 
-            ogta::graphics 
+            ogta::graphics_modern
             ogta::util 
             glad::glad
             OpenGL::GLU
             fmt::fmt 
             ${PHYSFS_LIBRARY})
-  target_compile_definitions(spriteplayer-shader PRIVATE OGTA_USE_MODERN_GL)
 endif()

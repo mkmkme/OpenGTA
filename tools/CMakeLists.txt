@@ -37,17 +37,19 @@ target_include_directories(shaders-test PRIVATE ${PHYSFS_INCLUDE_DIR})
 target_link_libraries(shaders-test PRIVATE glad::glad OpenGL::GLU fmt::fmt
                                            SDL2::SDL2 ${PHYSFS_LIBRARY})
 
-add_executable(display-font-shader display-font-shader.cpp)
-target_include_directories(display-font-shader PRIVATE ${PHYSFS_INCLUDE_DIR})
-target_link_libraries(
-  display-font-shader
-  PRIVATE ogta::core
-          ogta::graphics
-          ogta::util
-          glad::glad
-          OpenGL::GLU
-          fmt::fmt
-          ${PHYSFS_LIBRARY})
+if(OGTA_USE_MODERN_GL)
+  add_executable(display-font-shader display-font-shader.cpp)
+  target_include_directories(display-font-shader PRIVATE ${PHYSFS_INCLUDE_DIR})
+  target_link_libraries(
+    display-font-shader
+    PRIVATE ogta::core
+            ogta::graphics_modern
+            ogta::util
+            glad::glad
+            OpenGL::GLU
+            fmt::fmt
+            ${PHYSFS_LIBRARY})
+endif()
 
 add_executable(obj-dump obj-dump.cpp)
 target_include_directories(obj-dump PRIVATE ${PHYSFS_INCLUDE_DIR})

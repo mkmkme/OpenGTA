@@ -95,6 +95,10 @@ void SpritePlayerShader::drawScene(uint32_t now_ticks)
     // Get matrices for modern rendering
     glm::mat4 projection = screen_.getProjectionMatrix();
     glm::mat4 view = camera_.getViewMatrix();
+    glm::mat4 ui_projection = screen_.getOrthoMatrix();
+    const glm::vec3 ui_text_color(1.0f, 1.0f, 1.0f);
+    const float ui_text_x = 10.0f;
+    const float ui_text_y = static_cast<float>(screen_.height()) - 10.0f - static_cast<float>(font_.getHeight());
 
     if (play_with_car_) {
         if (car_) {
@@ -132,9 +136,6 @@ void SpritePlayerShader::drawScene(uint32_t now_ticks)
 
         // Modern Font Rendering
         if (fontRenderer_) {
-            glm::mat4 ortho = screen_.getOrthoMatrix();
-            glm::vec3 color(1.0f, 0.0f, 0.0f); // Red text
-
             std::string label;
             if (car_) {
                 label = fmt::format(
@@ -147,7 +148,7 @@ void SpritePlayerShader::drawScene(uint32_t now_ticks)
                 label = fmt::format("not a model: {}", car_model_);
             }
 
-            fontRenderer_->renderText(label, 20.0f, 20.0f, 2.0f, color, ortho);
+            fontRenderer_->renderText(label, ui_text_x, ui_text_y, 1.0f, ui_text_color, ui_projection);
         }
     } else {
         if (play_anim_ && now_ticks > play_anim_time_ + 200) {
@@ -194,11 +195,9 @@ void SpritePlayerShader::drawScene(uint32_t now_ticks)
 
         // Modern Font Rendering
         if (fontRenderer_) {
-            glm::mat4 ortho = screen_.getOrthoMatrix();
-            glm::vec3 color(1.0f, 0.0f, 0.0f); // Red text
             std::string label =
                 fmt::format("{} offset {}", OpenGTA::GraphicsBase::getSpriteName(ped_.getSpriteType()), frame_offset_);
-            fontRenderer_->renderText(label, 20.0f, 20.0f, 2.0f, color, ortho);
+            fontRenderer_->renderText(label, ui_text_x, ui_text_y, 1.0f, ui_text_color, ui_projection);
         }
     }
 

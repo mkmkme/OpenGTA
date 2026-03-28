@@ -10,6 +10,10 @@
 
 namespace OpenGL {
 
+namespace {
+constexpr float kAdvanceSpacingMultiplier = 1.1f;
+}
+
 FontRendererModern::FontRendererModern(const std::string &filename, uint16_t scale)
     : fontSource_(std::make_unique<OpenGTA::Font>(filename))
     , shader_(std::make_unique<Shader>("data/shaders/font.vert", "data/shaders/font.frag"))
@@ -78,7 +82,7 @@ void FontRendererModern::loadCharacter(char c)
         .TextureID = texture,
         .Size = glm::ivec2(w, h),
         .Bearing = glm::ivec2(0, 0),
-        .Advance = float(fontSource_->getMoveWidth(c)) * 1.1f // Use logic from old renderer
+        .Advance = float(fontSource_->getMoveWidth(c)) * kAdvanceSpacingMultiplier,
     };
     Characters.insert(std::pair<char, Character>(c, character));
 }

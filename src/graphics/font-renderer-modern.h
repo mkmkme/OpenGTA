@@ -20,6 +20,11 @@ public:
     explicit FontRendererModern(const std::string &filename, uint16_t scale = 1);
     ~FontRendererModern();
 
+    FontRendererModern(const FontRendererModern &) = delete;
+    FontRendererModern &operator=(const FontRendererModern &) = delete;
+    FontRendererModern(FontRendererModern &&) = delete;
+    FontRendererModern &operator=(FontRendererModern &&) = delete;
+
     void renderText(
         const std::string &text,
         float x,

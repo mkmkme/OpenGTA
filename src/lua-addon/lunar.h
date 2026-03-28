@@ -9,20 +9,22 @@
  *
  */
 
+#include <fmt/format.h>
+
 #include <lua-addon/lua.h>
 
 template <typename T>
 class Lunar {
-    typedef struct {
+    struct userdataType {
         T *pT;
-    } userdataType;
+    };
 
 public:
-    typedef int (T::*mfp)(lua_State *L);
-    typedef struct {
+    using mfp = int (T::*)(lua_State *L);
+    struct RegType {
         const char *name;
         mfp mfunc;
-    } RegType;
+    };
 
     static void Register(lua_State *L)
     {
@@ -132,7 +134,7 @@ public:
         int status = lua_pcall(L, 1 + nargs, nresults, errfunc); // call method
         if (status) {
             const char *msg = lua_tostring(L, -1);
-            if (msg == NULL)
+            if (msg == nullptr)
                 msg = "(error with no message)";
             lua_pushfstring(L, "%s:%s status = %d\n%s", T::className, method, status, msg);
             lua_remove(L, base); // remove old message
@@ -158,7 +160,7 @@ public:
             ud->pT = obj; // store pointer to object in userdata
             lua_pushvalue(L, mt);
             lua_setmetatable(L, -2);
-            if (gc == false) {
+            if (!gc) {
                 lua_checkstack(L, 3);
                 subtable(L, mt, "do not trash", "k");
                 lua_pushvalue(L, -2);
@@ -216,9 +218,7 @@ private:
                 return 0; // do not delete object
         }
         userdataType *ud = static_cast<userdataType *>(lua_touserdata(L, 1));
-        T *obj = ud->pT;
-        if (obj)
-            delete obj; // call destructor for T objects
+        delete ud->pT;
         return 0;
     }
 
@@ -227,7 +227,7 @@ private:
         char buff[32];
         userdataType *ud = static_cast<userdataType *>(lua_touserdata(L, 1));
         T *obj = ud->pT;
-        sprintf(buff, "%p", obj);
+        fmt::format_to_n(buff, sizeof(buff), "{:p}", static_cast<void *>(obj));
         lua_pushfstring(L, "%s (%s)", T::className, buff);
         return 1;
     }
@@ -265,7 +265,7 @@ private:
 
     static void *pushuserdata(lua_State *L, void *key, size_t sz)
     {
-        void *ud = 0;
+        void *ud = nullptr;
         lua_pushlightuserdata(L, key);
         lua_gettable(L, -2); // lookup[key]
         if (lua_isnil(L, -1)) {

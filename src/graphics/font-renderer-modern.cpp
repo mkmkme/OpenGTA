@@ -29,7 +29,6 @@ FontRendererModern::FontRendererModern(const std::string &filename, uint16_t sca
 
 FontRendererModern::~FontRendererModern()
 {
-    glDeleteProgram(shader_->getProgram());
     glDeleteVertexArrays(1, &VAO);
     glDeleteBuffers(1, &VBO);
     for (auto const &[key, val] : Characters) {

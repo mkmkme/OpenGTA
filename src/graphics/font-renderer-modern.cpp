@@ -12,7 +12,12 @@ namespace OpenGL {
 
 namespace {
 constexpr float kAdvanceSpacingMultiplier = 1.1f;
+
+size_t charIndex(char c)
+{
+    return static_cast<size_t>(static_cast<unsigned char>(c));
 }
+} // namespace
 
 FontRendererModern::FontRendererModern(const std::string &filename, uint16_t scale)
     : fontSource_(std::make_unique<OpenGTA::Font>(filename))
@@ -35,14 +40,17 @@ FontRendererModern::~FontRendererModern()
 {
     glDeleteVertexArrays(1, &VAO);
     glDeleteBuffers(1, &VBO);
-    for (auto const &[key, val] : Characters) {
-        glDeleteTextures(1, &val.TextureID);
+    for (const auto &ch : Characters) {
+        if (ch.TextureID != 0) {
+            glDeleteTextures(1, &ch.TextureID);
+        }
     }
 }
 
 void FontRendererModern::loadCharacter(char c)
 {
-    if (Characters.contains(c))
+    auto &entry = Characters[charIndex(c)];
+    if (entry.TextureID != 0)
         return;
 
     unsigned int w, h;
@@ -78,13 +86,12 @@ void FontRendererModern::loadCharacter(char c)
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-    Character character = {
+    entry = {
         .TextureID = texture,
         .Size = glm::ivec2(w, h),
         .Bearing = glm::ivec2(0, 0),
         .Advance = float(fontSource_->getMoveWidth(c)) * kAdvanceSpacingMultiplier,
     };
-    Characters.insert(std::pair<char, Character>(c, character));
 }
 
 void FontRendererModern::renderText(
@@ -112,12 +119,12 @@ void FontRendererModern::renderText(
 
     for (char c : text) {
         loadCharacter(c);
-        if (!Characters.contains(c)) {
+        const auto &ch = Characters[charIndex(c)];
+        if (ch.TextureID == 0) {
             continue;
         }
-        Character ch = Characters[c];
 
-        if (c != ' ' && ch.TextureID != 0) {
+        if (c != ' ') {
             float xpos = x + (ch.Bearing.x * appliedScale);
             float ypos = y + (ch.Bearing.y * appliedScale);
 

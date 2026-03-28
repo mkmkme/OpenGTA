@@ -2,7 +2,7 @@
 
 #ifdef OGTA_USE_MODERN_GL
 
-#include <map>
+#include <array>
 #include <memory>
 #include <string>
 
@@ -43,7 +43,7 @@ private:
     };
 
     std::unique_ptr<OpenGTA::Font> fontSource_;
-    std::map<char, Character> Characters;
+    std::array<Character, 256> Characters {};
     GLuint VAO, VBO;
     std::unique_ptr<Shader> shader_;
     uint16_t scale_;

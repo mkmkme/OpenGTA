@@ -104,7 +104,8 @@ namespace OpenGL {
 
 Screen::Screen() noexcept
     : window_ { nullptr }
-    , video_flags_ { SDL_WINDOW_OPENGL | SDL_GL_DOUBLEBUFFER } // FIXME: review the need of the last one
+    , video_flags_ { SDL_WINDOW_OPENGL }
+
     // FIXME: the below need to be args
     , vsync_mode_ { OGTA_DEFAULT_SCREEN_VSYNC ? VSyncMode::SDL : VSyncMode::NoSync }
     , width_ { OGTA_DEFAULT_SCREEN_WIDTH }

@@ -2,10 +2,8 @@
 
 #ifdef OGTA_USE_MODERN_GL
 
-#include <cstring>
 #include <vector>
 
-#include <fmt/format.h>
 #include <glm/gtc/matrix_transform.hpp>
 
 namespace OpenGL {
@@ -56,29 +54,12 @@ void FontRendererModern::loadCharacter(char c)
     unsigned int w, h;
     const auto src = fontSource_->getCharacterBitmap(fontSource_->getIdByChar(c), &w, &h);
 
-    unsigned int glwidth = 1;
-    unsigned int glheight = 1;
-    while (glwidth < w)
-        glwidth <<= 1;
-    while (glheight < h)
-        glheight <<= 1;
-
-    std::vector<uint8_t> dst(glwidth * glheight * 4, 0);
-    const unsigned char *r = src.data();
-    unsigned char *t = dst.data();
-
-    for (unsigned int i = 0; i < h; i++) {
-        memcpy(t, r, w * 4);
-        t += glwidth * 4;
-        r += w * 4;
-    }
-
     GLuint texture;
     glGenTextures(1, &texture);
     glBindTexture(GL_TEXTURE_2D, texture);
 
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, glwidth, glheight, 0, GL_RGBA, GL_UNSIGNED_BYTE, dst.data());
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, w, h, 0, GL_RGBA, GL_UNSIGNED_BYTE, src.data());
     glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
 
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
@@ -86,12 +67,11 @@ void FontRendererModern::loadCharacter(char c)
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-    entry = {
-        .TextureID = texture,
-        .Size = glm::ivec2(w, h),
-        .Bearing = glm::ivec2(0, 0),
-        .Advance = float(fontSource_->getMoveWidth(c)) * kAdvanceSpacingMultiplier,
-    };
+    entry.TextureID = texture;
+    entry.Size = glm::ivec2(w, h);
+    entry.Bearing = glm::ivec2(0, 0);
+    entry.UV = glm::vec2(1.0f, 1.0f);
+    entry.Advance = float(fontSource_->getMoveWidth(c)) * kAdvanceSpacingMultiplier;
 }
 
 void FontRendererModern::renderText(
@@ -131,16 +111,8 @@ void FontRendererModern::renderText(
             float w = ch.Size.x * appliedScale;
             float h = ch.Size.y * appliedScale;
 
-            // Texture coords (uv) need to match the padded texture size
-            unsigned int glwidth = 1;
-            while (glwidth < ch.Size.x)
-                glwidth <<= 1;
-            unsigned int glheight = 1;
-            while (glheight < ch.Size.y)
-                glheight <<= 1;
-
-            float uw = (float) ch.Size.x / glwidth;
-            float vh = (float) ch.Size.y / glheight;
+            float uw = ch.UV.x;
+            float vh = ch.UV.y;
 
             // Vertices for a quad [x, y, u, v]
             // Assuming top-left origin for screen and top-left for texture

@@ -21,6 +21,9 @@ class Lunar {
 
 public:
     using mfp = int (T::*)(lua_State *L);
+
+    Lunar() = delete;
+
     struct RegType {
         const char *name;
         mfp mfunc;
@@ -184,8 +187,6 @@ public:
     }
 
 private:
-    Lunar(); // hide default constructor
-
     // member function dispatcher
     static int thunk(lua_State *L)
     {

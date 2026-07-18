@@ -5,6 +5,7 @@
 #include <core/car-info.h>
 #include <core/main-msg-lookup.h>
 
+#include <util/errors.h>
 #include <util/file-manager.h>
 
 
@@ -41,6 +42,9 @@ void print_car(OpenGTA::CarInfo &ci)
 
 int main(int argc, char *argv[])
 {
+
+    Util::enableBacktraces();
+
     if (argc != 2) {
         std::cerr << "USAGE: " << argv[0] << " STYLE_FILE" << std::endl;
         return 1;

@@ -69,37 +69,37 @@ WidthHeightPair lookupImageSize(const std::string &name, const uint32_t size)
     height = h;
 
     // m4 tools/raw_images.m4
-    if ((iname.find("CUT") == 0) && (iname.find(".RA") == 4)) {
+    if ((iname.starts_with("CUT")) && (iname.find(".RA") == 4)) {
         SET_SIZE(640, 480);
     }
-    if ((iname.find("F_BMG.RA") == 0)) {
+    if ((iname.starts_with("F_BMG.RA"))) {
         SET_SIZE(100, 50);
     }
-    if ((iname.find("F_DMA.RA") == 0)) {
+    if ((iname.starts_with("F_DMA.RA"))) {
         SET_SIZE(78, 109);
     }
-    if ((iname.find("F_LOGO") == 0) && (iname.find(".RA") == 7)) {
+    if ((iname.starts_with("F_LOGO")) && (iname.find(".RA") == 7)) {
         SET_SIZE(640, 168);
     }
-    if ((iname.find("F_LOWER") == 0) && (iname.find(".RA") == 8)) {
+    if ((iname.starts_with("F_LOWER")) && (iname.find(".RA") == 8)) {
         SET_SIZE(640, 312);
     }
-    if ((iname.find("F_PLAYN.RA") == 0)) {
+    if ((iname.starts_with("F_PLAYN.RA"))) {
         SET_SIZE(180, 50);
     }
-    if ((iname.find("F_PLAY") == 0) && (iname.find(".RA") == 7)) {
+    if ((iname.starts_with("F_PLAY")) && (iname.find(".RA") == 7)) {
         SET_SIZE(102, 141);
     }
-    if ((iname.find("F_UPPER.RA") == 0)) {
+    if ((iname.starts_with("F_UPPER.RA"))) {
         SET_SIZE(640, 168);
     }
 #undef SET_SIZE
 
     // end-of-generated code
-    if (iname.find(".RAW") == iname.length() - 4)
+    if (iname.ends_with(".RAW"))
         bpp = 3;
 
-    if (iname.find(".RAT") == iname.length() - 4)
+    if (iname.ends_with(".RAT"))
         bpp = 1;
 
     if (!bpp || bpp * width * height != size)

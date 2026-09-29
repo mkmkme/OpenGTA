@@ -225,7 +225,7 @@ void copyImage2Image(
     auto d = dest.begin();
     uint32_t srcOff = 0;
     for (uint16_t j = 0; j < srcHeight; ++j) {
-        std::ranges::copy_n(src.begin() + srcOff, srcWidth, d);
+        std::copy_n(src.begin() + srcOff, srcWidth, d);
         srcOff += srcWidth;
         d += destWidth;
     }

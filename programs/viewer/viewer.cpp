@@ -156,10 +156,12 @@ void Viewer::showGammaConfig()
 void Viewer::createIngameUI()
 {
     {
-        SDL_Rect r { .x = static_cast<int>((screen_.width() / 2) - 50),
-                     .y = static_cast<int>(screen_.height() - 32),
-                     .w = 100,
-                     .h = 32 };
+        SDL_Rect r {
+            .x = static_cast<int>((screen_.width() / 2) - 50),
+            .y = static_cast<int>(screen_.height() - 32),
+            .w = 100,
+            .h = 32,
+        };
         SDL_Rect rs { .x = 0, .y = 0, .w = 16, .h = 16 };
         guiManager_.cacheStyleArrowSprite(16, -1);
         guiManager_.cacheStyleArrowSprite(17, -1);

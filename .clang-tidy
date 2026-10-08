@@ -16,6 +16,7 @@ Checks: [
   '-bugprone-crtp-constructor-accessibility',
   '-bugprone-suspicious-stringview-data-usage',
 
+  '-cert-dcl03-c', # Same as misc-static-assert
   '-cert-dcl16-c',
   '-cert-msc32-c',
 
@@ -58,6 +59,7 @@ Checks: [
 
   '-misc-no-recursion',
   '-misc-non-private-member-variables-in-classes',
+  '-misc-static-assert', # Too many false positives
 
   '-modernize-avoid-c-arrays',
   '-modernize-return-braced-init-list',

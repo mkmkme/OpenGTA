@@ -4,6 +4,8 @@
 #include <concepts>
 #include <cstddef>
 #include <cstdint>
+#include <limits>
+#include <type_traits>
 
 consteval size_t getBitCount(size_t byteCount)
 {
@@ -20,29 +22,34 @@ constexpr bool getBit(const std::unsigned_integral auto value, uint8_t bit)
 
 constexpr void setBit(std::unsigned_integral auto *value, uint8_t bit, bool set)
 {
-    assert(bit >= 1 && bit <= getBitCount(sizeof(value)));
+    assert(bit >= 1 && bit <= getBitCount(sizeof(*value)));
+    constexpr std::remove_pointer_t<decltype(value)> one = 1;
+    const auto mask = one << (bit - 1);
     if (set)
-        *value |= (1 << (bit - 1));
+        *value |= mask;
     else
-        *value &= ~(1 << (bit - 1));
+        *value &= ~mask;
 }
 
 constexpr auto getRangeBit(const std::unsigned_integral auto value, uint8_t start, uint8_t end) -> decltype(value)
 {
-    assert(start >= 1 && start <= getBitCount(sizeof(value)));
-    assert(end >= start && end <= getBitCount(sizeof(value)));
-    constexpr decltype(value) one = 1;
-    const auto mask = (one << (end - start + 1)) - one;
+    constexpr auto bits = getBitCount(sizeof(value));
+    assert(start >= 1 && start <= bits);
+    assert(end >= start && end <= bits);
+    const auto width = end - start + 1;
+    const auto mask = std::numeric_limits<decltype(value)>::max() >> (bits - width);
     const auto val = value >> (start - 1);
     return static_cast<decltype(value)>(val & mask);
 }
 
 constexpr void setRangeBit(std::unsigned_integral auto *value, uint8_t start, uint8_t end, bool bit)
 {
-    assert(start >= 1 && start <= getBitCount(sizeof(value)));
-    assert(end >= start && end <= getBitCount(sizeof(value)));
-    constexpr std::remove_pointer_t<decltype(value)> one = 1;
-    const auto mask = (one << (end - start + 1)) - one;
+    using T = std::remove_pointer_t<decltype(value)>;
+    constexpr auto bits = getBitCount(sizeof(T));
+    assert(start >= 1 && start <= bits);
+    assert(end >= start && end <= bits);
+    const auto width = end - start + 1;
+    const auto mask = std::numeric_limits<T>::max() >> (bits - width);
     if (bit)
         *value |= (mask << (start - 1));
     else
@@ -57,9 +64,13 @@ constexpr void copyRangeBit(
 )
     requires(sizeof(val) <= sizeof(*value))
 {
-    const auto mask = val << (start - 1);
-    assert(start >= 1 && start <= getBitCount(sizeof(value)));
-    assert(end >= start && end <= getBitCount(sizeof(value)));
+    using T = std::remove_pointer_t<decltype(value)>;
+    constexpr auto bits = getBitCount(sizeof(T));
+    assert(start >= 1 && start <= bits);
+    assert(end >= start && end <= bits);
+    const auto width = end - start + 1;
+    assert(static_cast<T>(val) <= (std::numeric_limits<T>::max() >> (bits - width)));
+    const auto mask = static_cast<T>(val) << (start - 1);
     setRangeBit(value, start, end, 0);
     *value |= mask;
 }

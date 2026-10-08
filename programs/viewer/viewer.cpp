@@ -127,10 +127,12 @@ void Viewer::createPedAt(const glm::vec3 &v)
 void Viewer::showGammaConfig()
 {
     if (gamma_slide_) {
-        SDL_Rect r { .x = static_cast<int>(screen_.width() / 2),
-                     .y = static_cast<int>(screen_.height() / 2),
-                     .w = 200,
-                     .h = 30 };
+        SDL_Rect r {
+            .x = static_cast<int>(screen_.width() / 2),
+            .y = static_cast<int>(screen_.height() / 2),
+            .w = 200,
+            .h = 30,
+        };
 
         auto *sb = new GUI::ScrollBar(GUI::GAMMA_SCROLLBAR_ID, r);
         sb->color.r = sb->color.g = sb->color.b = 180;
@@ -212,12 +214,11 @@ void Viewer::removeIngameUI()
 void Viewer::carToggle()
 {
     Pedestrian &pped = localPlayer_.getPed();
-    auto pos = pped.pos;
     auto &cars = OpenGTA::SpriteManager::Instance().getCars();
     float min_dist = 360;
     auto j = cars.end();
     for (auto it = cars.begin(); it != cars.end(); ++it) {
-        if (float tmp_dist = glm::distance(pos, it->second.pos); tmp_dist < min_dist) {
+        if (float tmp_dist = glm::distance(pped.pos, it->second.pos); tmp_dist < min_dist) {
             j = it;
             min_dist = tmp_dist;
         }

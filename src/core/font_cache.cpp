@@ -29,7 +29,7 @@ namespace OpenGTA {
 
 OpenGL::DrawableFont &FontCache::getFont(const std::string &file, uint16_t scale)
 {
-    auto i = loaded_fonts_.find({ file, scale });
+    auto i = loaded_fonts_.find({ .filename=file, .scale=scale });
     if (i == loaded_fonts_.end()) {
         OpenGL::DrawableFont fnt(file, scale);
         i = loaded_fonts_.emplace(FontIdentifier { .filename = file, .scale = scale }, std::move(fnt)).first;

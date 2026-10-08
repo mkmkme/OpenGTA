@@ -21,12 +21,13 @@ public:
         }
         return nextId++;
     }
-    constexpr uint32_t getPlayerId() const noexcept { return lastPlayerId; }
+    [[nodiscard]] constexpr uint32_t getPlayerId() const noexcept { return lastPlayerId; }
+
+    TypeIdBlackBox(const TypeIdBlackBox &) = delete;
+    TypeIdBlackBox &operator=(const TypeIdBlackBox &) = delete;
 
 private:
     TypeIdBlackBox() = default;
-    TypeIdBlackBox(const TypeIdBlackBox &) = delete;
-    TypeIdBlackBox &operator=(const TypeIdBlackBox &) = delete;
 
     uint32_t nextId = 0;
     constexpr static uint32_t firstPlayerId = 0xffffffff - 32;

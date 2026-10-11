@@ -26,7 +26,7 @@
 #include <list>
 #include <vector>
 
-#include <util/pf_tree.hpp>
+// #include <util/pf_tree.hpp>
 
 namespace Util {
 
@@ -65,7 +65,6 @@ public:
     struct Callback_Lua {
         void call(T);
     };
-    using TreeOfCheats = PrefixFreeTree::Walker<uint32_t, Callback_Lua>;
 
 private:
     std::vector<uint32_t> cheat_fn_refs;

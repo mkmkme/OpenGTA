@@ -10,7 +10,6 @@ add_library(
   key_handler.cpp
   log.cpp
   map_helper.cpp
-  pf_tree.cpp
   physfsrwops.c
   set.cpp
   string_helpers.cpp

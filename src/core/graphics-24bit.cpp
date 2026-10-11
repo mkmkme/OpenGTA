@@ -34,13 +34,13 @@ Graphics24Bit::Graphics24Bit(const std::string &style)
     // actually the next two are style003.g24, but at least somewhere close
     firstValidPedRemap = 60;
     lastValidPedRemap = 116;
-    if (style.find("001") != std::string::npos) {
+    if (style.contains("001")) {
         firstValidPedRemap = 75;
         lastValidPedRemap = 131;
-    } else if (style.find("002") != std::string::npos) {
+    } else if (style.contains("002")) {
         firstValidPedRemap = 79;
         lastValidPedRemap = 135;
-    } else if (style.find("003") != std::string::npos) {
+    } else if (style.contains("003")) {
         // already set
     } else {
         WARN("Unknown g24 style - ped remaps most likely broken!");
@@ -199,8 +199,8 @@ void Graphics24Bit::loadSpriteInfo()
         // sanity check
         if (v)
             WARN("Compression flag active in sprite!");
-        if (int(si.w) * int(si.h) != int(si.size)) {
-            ERROR("Sprite info size mismatch: {}x{} != {}", int(si.w), int(si.h), si.size);
+        if (static_cast<int>(si.w) * static_cast<int>(si.h) != static_cast<int>(si.size)) {
+            ERROR("Sprite info size mismatch: {}x{} != {}", si.w, si.h, si.size);
             return;
         }
         if (si.deltaCount > 32) {
@@ -252,7 +252,7 @@ void Graphics24Bit::loadSpriteGraphics()
             const auto page = offset / 65536;
             const auto y = (offset % 65536) / 256;
             const auto x = (offset % 65536) % 256;
-            info.delta[k].ptr = rawSprites.data() + page * _pagewise + 256 * y + x;
+            info.delta[k].ptr = rawSprites.data() + (page * _pagewise) + (256 * y) + x;
         }
         i++;
     }
@@ -269,7 +269,7 @@ void Graphics24Bit::applyClut(unsigned char *src, unsigned char *dst, size_t len
 {
     uint32_t off = (65536 * (clutIdx / 64)) + (4 * (clutIdx % 64));
     for (size_t i = 0; i < len; i++) {
-        uint32_t coff = (uint32_t(*src) * 256) + off;
+        uint32_t coff = (static_cast<uint32_t>(*src) * 256) + off;
         *dst = rawClut[coff + 2];
         ++dst;
         *dst = rawClut[coff + 1];
@@ -291,8 +291,8 @@ std::span<const uint8_t> Graphics24Bit::getLid(uint8_t idx, unsigned int /*not_u
 {
     prepareLidTexture(idx - 1, tileTmp);
     unsigned char *src = tileTmp.data();
-    unsigned char *dst = (rgba) ? tileTmpRGBA.data() : tileTmpRGB.data();
-    uint16_t clutIdx = palIndex[static_cast<size_t>(4 * (idx + sideSize / 4096))];
+    unsigned char *dst = rgba ? tileTmpRGBA.data() : tileTmpRGB.data();
+    uint16_t clutIdx = palIndex[static_cast<size_t>(4 * (idx + (sideSize / 4096)))];
     applyClut(src, dst, 4096, clutIdx, rgba);
 
     if (rgba)
@@ -304,7 +304,7 @@ std::span<const uint8_t> Graphics24Bit::getSide(uint8_t idx, unsigned int /*not_
 {
     prepareSideTexture(idx - 1, tileTmp);
     unsigned char *src = tileTmp.data();
-    unsigned char *dst = (rgba) ? tileTmpRGBA.data() : tileTmpRGB.data();
+    unsigned char *dst = rgba ? tileTmpRGBA.data() : tileTmpRGB.data();
     uint16_t clutIdx = palIndex[static_cast<size_t>(idx * 4)];
     applyClut(src, dst, 4096, clutIdx, rgba);
 
@@ -318,8 +318,8 @@ std::span<const uint8_t> Graphics24Bit::getAux(uint8_t idx, unsigned int /*not_u
     prepareAuxTexture(idx - 1, tileTmp);
 
     unsigned char *src = tileTmp.data();
-    unsigned char *dst = (rgba) ? tileTmpRGBA.data() : tileTmpRGB.data();
-    uint16_t clutIdx = palIndex[4 * (idx + sideSize / 4096 + lidSize / 4096)];
+    unsigned char *dst = rgba ? tileTmpRGBA.data() : tileTmpRGB.data();
+    uint16_t clutIdx = palIndex[4 * (idx + (sideSize / 4096) + (lidSize / 4096))];
     applyClut(src, dst, 4096, clutIdx, rgba);
 
     if (rgba)
@@ -352,15 +352,15 @@ std::vector<uint8_t> Graphics24Bit::getSpriteBitmap(size_t id, int remap, uint32
     auto *result_raw = result.data();
     unsigned int skip_cluts = 0;
     if (remap > -1)
-        skip_cluts = spriteclutSize / 1024 + remap + 1;
+        skip_cluts = (spriteclutSize / 1024) + remap + 1;
 
     uint16_t clutIdx = palIndex[info.clut + (tileclutSize / 1024)] + skip_cluts;
     //  uint16_t clutIdx = palIndex[info->clut + (spriteclutSize + tileclutSize) / 1024] + (remap > -1 ? remap+2 :
     //  0);
     applyClut(result.data(), bigbuf_raw, page_size, clutIdx, true);
-    assert(page_size > uint32_t(info.w * info.h * 4));
+    assert(page_size > static_cast<uint32_t>(info.w * info.h * 4));
     for (uint16_t i = 0; i < info.h; i++) {
-        memcpy(result_raw, bigbuf_raw + static_cast<size_t>((256 * y + x) * 4), static_cast<size_t>(info.w * 4));
+        memcpy(result_raw, bigbuf_raw + static_cast<size_t>(((256 * y) + x) * 4), static_cast<size_t>(info.w * 4));
         result_raw += static_cast<ptrdiff_t>(info.w * 4);
         bigbuf_raw += static_cast<ptrdiff_t>(256 * 4);
     }

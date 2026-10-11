@@ -2,7 +2,9 @@
 
 #include <iostream>
 
+#ifndef OGTA_STD_STACKTRACE_AVAILABLE
 #include "util/log.h"
+#endif
 
 namespace Util {
 void enableBacktraces()

@@ -14,8 +14,9 @@ BinPackParameters: false
 BraceWrapping:
   AfterFunction: true
   SplitEmptyRecord: false
-BreakBeforeBinaryOperators: false
+BreakBeforeBinaryOperators: NonAssignment
 BreakBeforeBraces: Custom
+BreakBinaryOperations: OnePerLine
 BreakConstructorInitializers: BeforeComma
 ColumnLimit: 120
 ConstructorInitializerIndentWidth: 4

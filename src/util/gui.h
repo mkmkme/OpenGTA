@@ -81,7 +81,7 @@ private:
     using AnimationMap = std::map<uint16_t, Animation *>;
     using GuiObjectList = std::list<Object *>;
 
-    [[nodiscard]] bool isInside(const Object &o, uint16_t x, uint16_t y) const noexcept;
+    [[nodiscard]] bool isInside(const Object &o, int x, int y) const noexcept;
 
     AnimationMap guiAnimations;
     std::map<uint8_t, GuiObjectList> guiLayers;

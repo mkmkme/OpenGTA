@@ -143,10 +143,10 @@ void Label::draw([[maybe_unused]] Manager &manager)
     glEnable(GL_TEXTURE_2D);
     if (align == 0) {
         glTranslatef(rect.x, rect.y, 0);
-        rect.w = uint16_t(font.drawString(text));
+        rect.w = static_cast<uint16_t>(font.drawString(text));
     } else if (align == 1) {
         glTranslatef(rect.x, rect.y, 0);
-        rect.w = uint16_t(font.drawString_r2l(text));
+        rect.w = static_cast<uint16_t>(font.drawString_r2l(text));
     }
     rect.h = font.getHeight();
     glPopMatrix();
@@ -188,10 +188,10 @@ void Pager::draw(Manager &manager)
     glPushMatrix();
     glColor4ub(color.r, color.g, color.b, color.a);
     glTranslatef(rect.x + offset, rect.y + 4, 0);
-    int slen = (int) font.drawString(
+    int slen = static_cast<int>(font.drawString(
         "test - hello world, this is a really long message. it will not end. never... or "
         "maybe sometime, but not yet. The end."
-    );
+    ));
     if (slen + offset < -10) {
         color.a = 0;
         manager.remove(this);
@@ -261,7 +261,7 @@ const OpenGL::PagedTexture &Manager::getCachedImage(size_t Id)
 {
     auto i = texCache.find(Id);
     if (i == texCache.end())
-        throw Util::UnknownKey("cached texture id " + std::to_string(int(Id)));
+        throw Util::UnknownKey("cached texture id " + std::to_string(Id));
     return i->second;
 }
 
@@ -280,7 +280,7 @@ ImageUtil::WidthHeightPair Manager::cacheStyleArrowSprite(const size_t id, int r
     OpenGTA::GraphicsBase &graphics = OpenGTA::ActiveStyle::Instance().get();
     const auto t = graphics.spriteNumbers.reIndex(id, OpenGTA::GraphicsBase::SpriteNumbers::SpriteType::arrow);
     const OpenGTA::SpriteInfo &info = graphics.getSprite(t);
-    texCache.insert(std::make_pair(id, OpenGL::SpriteCache::Instance().createSprite(size_t(t), remap, 0, info)));
+    texCache.insert(std::make_pair(id, OpenGL::SpriteCache::Instance().createSprite(t, remap, 0, info)));
     return ImageUtil::WidthHeightPair(info.w, info.h);
 }
 
@@ -326,7 +326,7 @@ Object *Manager::findObject(const size_t id)
                 return obj;
         }
     }
-    throw Util::UnknownKey("object by id " + std::to_string(int(id)));
+    throw Util::UnknownKey("object by id " + std::to_string(id));
 }
 
 void Manager::removeById(const size_t id)
@@ -338,10 +338,11 @@ void Manager::removeById(const size_t id)
     //   ERROR << "failed to find object " << id << " - cannot remove it" << std::endl;
 }
 
-bool Manager::isInside(const Object &obj, uint16_t x, uint16_t y) const noexcept
+bool Manager::isInside(const Object &obj, int x, int y) const noexcept
 {
     return (obj.rect.x <= x) && (x <= obj.rect.x + obj.rect.w) && (obj.rect.y <= y) && (y <= obj.rect.y + obj.rect.h);
 }
+
 void Manager::receive(SDL_MouseButtonEvent &mb_event, uint32_t height)
 {
     auto l = guiLayers.rbegin();
@@ -392,8 +393,8 @@ const int WEAPON_DISPLAY_ID = 100;
 
 WeaponDisplay::WeaponDisplay(const SDL_Rect &r)
     : Object(WEAPON_DISPLAY_ID, r)
-    , img({ r.x + 2, r.y + 2, r.w - 4, r.h - 4 }, 0)
-    , label({ r.x + 2, r.y + r.h, r.w - 4, r.h - 4 }, "", "F_MTEXT.FON", 1)
+    , img({ .x = r.x + 2, .y = r.y + 2, .w = r.w - 4, .h = r.h - 4 }, 0)
+    , label({ .x = r.x + 2, .y = r.y + r.h, .w = r.w - 4, .h = r.h - 4 }, "", "F_MTEXT.FON", 1)
 {
 }
 
@@ -430,15 +431,15 @@ void ScrollBar::draw(Manager &manager)
     glColor3ub(innerColor.r, innerColor.g, innerColor.b);
     glBegin(GL_QUADS);
     glVertex2i(rect.x + 2, rect.y + 2);
-    glVertex2i(rect.x + int(rect.w * value) - 2, rect.y + 2);
-    glVertex2i(rect.x + int(rect.w * value) - 2, rect.y + rect.h - 2);
+    glVertex2i(rect.x + static_cast<int>(rect.w * value) - 2, rect.y + 2);
+    glVertex2i(rect.x + static_cast<int>(rect.w * value) - 2, rect.y + rect.h - 2);
     glVertex2i(rect.x + 2, rect.y + rect.h - 2);
     glEnd();
 }
 
 void ScrollBar::receive(SDL_MouseButtonEvent &mb_event)
 {
-    value = (mb_event.x - rect.x) / float(rect.w - 4);
+    value = (mb_event.x - rect.x) / static_cast<float>(rect.w - 4);
     INFO("{}", value);
     if (changeCB)
         changeCB(value * 2);

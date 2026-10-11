@@ -34,7 +34,7 @@ using MapOfPair2Int = std::map<Pair2Int, int>;
  * @return 0 if no entry at that \e position
  * @return count otherwise
  */
-int item_count(MapOfPair2Int &m, int a, int b);
+int item_count(const MapOfPair2Int &m, int a, int b);
 /** insert (may overwrite) count 1 at Pair2Int(a, b).
  */
 void register_item1(MapOfPair2Int &m, int a, int b);

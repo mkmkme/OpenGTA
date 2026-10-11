@@ -13,7 +13,7 @@ std::mt19937::result_type get_seed()
                            std::chrono::high_resolution_clock::now().time_since_epoch()
     )
                            .count();
-    return std::mt19937::result_type(secs + msecs);
+    return static_cast<std::mt19937::result_type>(secs + msecs);
 }
 
 } // namespace
@@ -47,7 +47,7 @@ TupleOfUint8 SpriteCreationArea::getValidCoord()
     return std::make_pair(x, y);
 }
 
-int item_count(MapOfPair2Int &m, int a, int b)
+int item_count(const MapOfPair2Int &m, int a, int b)
 {
     if (auto it = m.find({ a, b }); it != m.end())
         return it->second;

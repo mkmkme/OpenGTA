@@ -14,7 +14,7 @@ OpenGTA::LoadedAnim::LoadedAnim(Util::PhysFSFile &styleFile)
         ERROR("found animation with {} frames ???", frameCount);
 
     frame.reserve(frameCount);
-    for (int i = 0; i < frameCount; i++) {
+    for (uint8_t i = 0; i < frameCount; i++) {
         uint8_t tmp = 0;
         styleFile.read(tmp);
         frame.push_back(tmp);

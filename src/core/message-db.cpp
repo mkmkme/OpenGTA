@@ -76,7 +76,7 @@ void MessageDB::load(const std::string &file)
             } else if (v == 0x00) {
                 DEBUG("v == 0, tmp = {}", tmp);
                 buff[i] = 0x00;
-                if (tmp.length() > 0)
+                if (!tmp.empty())
                     messages[tmp] = std::string(buff);
                 // std::cout << tmp << " : " << buff << std::endl;
                 /*else

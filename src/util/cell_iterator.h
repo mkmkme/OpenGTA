@@ -101,8 +101,8 @@ public:
         return p;
     }
     [[nodiscard]] bool isBlockType(uint8_t t) const;
-    [[nodiscard]] std::pair<bool, CellIterator> findTypeInCol(uint8_t t) const;
-    [[nodiscard]] std::pair<bool, CellIterator> findNeighbourWithType(uint8_t t, float angle_hint) const;
+    [[nodiscard]] std::optional<CellIterator> findTypeInCol(uint8_t t) const;
+    [[nodiscard]] std::optional<CellIterator> findNeighbourWithType(uint8_t t, float angle_hint) const;
     int x, y, z;
     [[nodiscard]] OpenGTA::Map::BlockInfo &getBlock() const;
 

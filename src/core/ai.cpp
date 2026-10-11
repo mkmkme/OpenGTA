@@ -17,10 +17,9 @@ void walk_pavement(OpenGTA::Pedestrian *ped)
     // OpenGTA::Map::BlockInfo & bi = ci.getBlock();
     // INFO << " ped in bt: " << int(bi.blockType()) << std::endl;
     // INFO << ped->pos.x << " " << ped->pos.z << std::endl;
-    auto f = ci.findNeighbourWithType(3, ped->rot);
-    if (f.first) {
-        // INFO << "next: " << f.second.x << " " << f.second.y << std::endl;
-        ped->aiData.pos1 = glm::vec3(f.second.x + 0.5f, ped->pos.y, f.second.y + 0.5f);
+    if (auto f = ci.findNeighbourWithType(3, ped->rot)) {
+        // INFO << "next: " << f->x << " " << f->y << std::endl;
+        ped->aiData.pos1 = glm::vec3(f->x + 0.5f, ped->pos.y, f->y + 0.5f);
         ped->aiMode = 1;
     }
 }

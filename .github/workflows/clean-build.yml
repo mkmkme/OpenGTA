@@ -5,29 +5,21 @@ jobs:
   Linux-Build:
     runs-on: ubuntu-24.04
     steps:
-      # - name: 🐧 Install dependencies
-      #   run: |
-      #     sudo apt update
-      #     sudo apt install --no-install-recommends -y cmake libgl1-mesa-dev ninja-build
-      #     sudo apt install --no-install-recommends -y \
-      #       libcxxopts-dev \
-      #       libfmt-dev \
-      #       libglm-dev \
-      #       libglu1-mesa-dev \
-      #       libsdl2-dev \
-      #       libsdl2-image-dev \
-      #       libphysfs-dev \
-      #       liblua5.4-dev \
-      #       libgtest-dev
       - name: Check out repository code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v7
       - name: ⚒️ Build OpenGTA 🐧
         run: |
           cmake --preset vcpkg
           cmake --build --preset vcpkg-relwithdebinfo -j $(nproc)
-  # Windows-Build:
-  #   runs-on: windows-latest
-  #   steps:
+  Windows-Build:
+    runs-on: windows-latest
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v7
+      - name: ⚒️ Build OpenGTA 🪟
+        run: |
+          cmake --preset vcpkg
+          cmake --build --preset vcpkg-relwithdebinfo
   #     - name: 🐸 Install Conan
   #       run: pipx install conan
   #     - name: Check out repository code

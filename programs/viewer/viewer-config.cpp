@@ -93,7 +93,8 @@ ViewerConfig::ParseArgsResult ViewerConfig::parseArgs(int argc, char **argv)
 
         if (result.contains("city")) {
             auto city_name = result["city"].as<std::string>();
-            if (const auto *const it = std::ranges::find(cities, city_name, &CityInfo::name); it == cities.end()) {
+            // Ignore this warning below, it'll fail on Windows
+            if (const auto it = std::ranges::find(cities, city_name, &CityInfo::name); it == cities.end()) {
                 ERROR("City {} not found, falling back to NYC", city_name);
                 city_id_ = 0;
             } else {

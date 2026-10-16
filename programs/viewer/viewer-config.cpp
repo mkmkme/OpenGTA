@@ -63,15 +63,15 @@ ViewerConfig::ParseArgsResult ViewerConfig::parseArgs(int argc, char **argv)
 
     try {
         auto result = options.parse(argc, argv);
-        if (result.count("help")) {
+        if (result.contains("help")) {
             fmt::print("{}", options.help());
             return ParseArgsResult::ExitSuccess;
         }
-        if (result.count("version")) {
+        if (result.contains("version")) {
             Util::printVersionInfo();
             return ParseArgsResult::ExitSuccess;
         }
-        if (result.count("l")) {
+        if (result.contains("l")) {
             auto log_level = result["log-level"].as<std::string>();
             const std::map<std::string, OpenGTA::log::Level> log_levels = {
                 { "error", OpenGTA::log::Level::error },
@@ -87,13 +87,13 @@ ViewerConfig::ParseArgsResult ViewerConfig::parseArgs(int argc, char **argv)
                 OpenGTA::log::level = it->second;
             }
         }
-        if (result.count("flip-colors")) {
+        if (result.contains("flip-colors")) {
             highcolor_data_ = !highcolor_data_;
         }
 
-        if (result.count("city")) {
+        if (result.contains("city")) {
             auto city_name = result["city"].as<std::string>();
-            if (const auto it = std::ranges::find(cities, city_name, &CityInfo::name); it == cities.end()) {
+            if (const auto *const it = std::ranges::find(cities, city_name, &CityInfo::name); it == cities.end()) {
                 ERROR("City {} not found, falling back to NYC", city_name);
                 city_id_ = 0;
             } else {

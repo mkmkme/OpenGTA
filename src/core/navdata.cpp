@@ -22,7 +22,9 @@ namespace OpenGTA {
 
 bool Rect2D::isInside(uint8_t _x, uint8_t _y)
 {
-    if ((_x >= x) && (_y >= y) && (uint16_t(_x) <= uint16_t(x) + w) && (uint16_t(_y) <= uint16_t(y) + h)) {
+    const uint16_t max_x = static_cast<uint16_t>(x) + w;
+    const uint16_t max_y = static_cast<uint16_t>(y) + h;
+    if ((_x >= x) && (_y >= y) && (_x <= max_x) && (_y <= max_y)) {
         lastSubLocation = subLocation(_x, _y);
         return true;
     }
@@ -39,8 +41,8 @@ uint8_t Rect2D::subLocation(uint8_t _x, uint8_t _y) const
 {
     uint8_t in_x = _x - x; // offset in rect; assume: x <= _x
     uint8_t in_y = _y - y;
-    float rel_x = float(in_x) / w;
-    float rel_y = float(in_y) / h;
+    float rel_x = static_cast<float>(in_x) / w;
+    float rel_y = static_cast<float>(in_y) / h;
     uint8_t res = 0;
     const float oneThird = 1.0f / 3.0f;
     const float twoThirds = 2.0f / 3.0f;
@@ -125,6 +127,9 @@ std::string NavData::Sector::getFullName() const
             // n.append("Southwest ");
             n.append(_sw);
             break;
+        default:
+            WARN("invalid sub-location: {}", lastSubLocation);
+            break;
     }
 
     n.append(" ");
@@ -166,7 +171,7 @@ NavData::NavData(uint32_t size, Util::PhysFSFile &pf, size_t level_num)
             WARN("skipping zero size sector");
             continue;
         }
-        sec.name = msg.getText(fmt::format("{:03}area{:03}", level_num, int(sec.sam)));
+        sec.name = msg.getText(fmt::format("{:03}area{:03}", level_num, sec.sam));
 
         const auto size = sec.getSize();
 
@@ -195,7 +200,7 @@ NavData::Sector *NavData::getSectorAt(uint8_t x, uint8_t y)
         if (area.second.isInside(x, y))
             return &area.second;
     }
-    throw Util::OutOfRange("Querying invalid sector at {}, {}", int(x), int(y));
+    throw Util::OutOfRange("Querying invalid sector at {}, {}", x, y);
 }
 
 void NavData::clear()

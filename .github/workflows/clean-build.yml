@@ -1,14 +1,51 @@
 name: Clean build of OpenGTA
 run-name: 🚘 Test if OpenGTA compiles on multiple platforms
 on: [push]
+
+permissions:
+  contents: read
+
 jobs:
-  Build:
-    runs-on: [ubuntu-latest, windows-latest]
+  Linux-Build:
+    runs-on: ubuntu-slim
     steps:
       - name: Check out repository code
         uses: actions/checkout@v7
+
+      # SDL2's vcpkg port requires system X11, Wayland and IBus headers.
+      - name: Install build tools and platform prerequisites
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            cmake ninja-build libglu1-mesa-dev \
+            libx11-dev libxft-dev libxext-dev \
+            libwayland-dev libxkbcommon-dev libegl1-mesa-dev libibus-1.0-dev
+
+      - name: Set up vcpkg
+        uses: lukka/run-vcpkg@v11
+
+      - name: Configure OpenGTA
+        run: cmake --preset vcpkg -DCMAKE_BUILD_TYPE=RelWithDebInfo
+
       - name: ⚒️ Build OpenGTA
-        uses: lukka/run-cmake@v10
+        run: cmake --build --preset vcpkg-relwithdebinfo
+
+  Windows-Build:
+    runs-on: windows-latest
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v7
+
+      - name: Initialize MSVC environment
+        uses: ilammy/msvc-dev-cmd@v1
         with:
-          configurePreset: 'vcpkg'
-          buildPreset: 'vcpkg-relwithdebinfo'
+          arch: x64
+
+      - name: Set up vcpkg
+        uses: lukka/run-vcpkg@v11
+
+      - name: Configure OpenGTA
+        run: cmake --preset vcpkg -DCMAKE_BUILD_TYPE=RelWithDebInfo
+
+      - name: ⚒️ Build OpenGTA
+        run: cmake --build --preset vcpkg-relwithdebinfo

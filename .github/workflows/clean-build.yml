@@ -40,6 +40,18 @@ jobs:
       - name: ⚒️ Build OpenGTA
         run: cmake --build --preset vcpkg-relwithdebinfo
 
+      - name: Package main programs
+        run: |
+          cmake -P cmake/package-ci-artifacts.cmake
+          tar -czf "build/OpenGTA-macOS-${{ runner.arch }}.tar.gz" -C build/artifact .
+
+      - name: Upload main programs
+        uses: actions/upload-artifact@v4
+        with:
+          name: OpenGTA-macOS-${{ runner.arch }}
+          path: build/OpenGTA-macOS-${{ runner.arch }}.tar.gz
+          if-no-files-found: error
+
   Linux-Build:
     runs-on: ubuntu-latest
     steps:
@@ -80,6 +92,18 @@ jobs:
       - name: ⚒️ Build OpenGTA
         run: cmake --build --preset vcpkg-relwithdebinfo
 
+      - name: Package main programs
+        run: |
+          cmake -P cmake/package-ci-artifacts.cmake
+          tar -czf "build/OpenGTA-Linux-${{ runner.arch }}.tar.gz" -C build/artifact .
+
+      - name: Upload main programs
+        uses: actions/upload-artifact@v4
+        with:
+          name: OpenGTA-Linux-${{ runner.arch }}
+          path: build/OpenGTA-Linux-${{ runner.arch }}.tar.gz
+          if-no-files-found: error
+
   Windows-Build:
     runs-on: windows-latest
     steps:
@@ -115,3 +139,13 @@ jobs:
 
       - name: ⚒️ Build OpenGTA
         run: cmake --build --preset vcpkg-relwithdebinfo
+
+      - name: Package main programs
+        run: cmake -P cmake/package-ci-artifacts.cmake
+
+      - name: Upload main programs
+        uses: actions/upload-artifact@v4
+        with:
+          name: OpenGTA-Windows-${{ runner.arch }}
+          path: build/artifact/
+          if-no-files-found: error

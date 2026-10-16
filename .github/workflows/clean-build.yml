@@ -17,7 +17,7 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y --no-install-recommends \
-            cmake ninja-build autoconf-archive libglu1-mesa-dev \
+            cmake ninja-build autoconf-archive libltdl-dev libglu1-mesa-dev \
             libx11-dev libxft-dev libxext-dev \
             libwayland-dev libxkbcommon-dev libegl1-mesa-dev libibus-1.0-dev
 

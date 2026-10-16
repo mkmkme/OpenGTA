@@ -295,7 +295,7 @@ void Screen::resize(uint32_t w, uint32_t h) noexcept
 void Screen::set3DProjection() const noexcept
 {
 #ifndef OGTA_USE_MODERN_GL
-    float ratio = float(width_) / float(height_);
+    float ratio = static_cast<float>(width_) / static_cast<float>(height_);
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
     gluPerspective(field_of_view_, ratio, near_plane_, far_plane_);

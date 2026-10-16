@@ -9,6 +9,37 @@ env:
   VCPKG_BINARY_SOURCES: 'clear;default,readwrite'
 
 jobs:
+  macOS-Build:
+    runs-on: macos-latest
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v7
+
+      - name: Set up vcpkg
+        uses: lukka/run-vcpkg@v11
+
+      - name: Restore vcpkg binary cache
+        id: vcpkg-cache
+        uses: actions/cache/restore@v4
+        with:
+          path: ${{ env.VCPKG_DEFAULT_BINARY_CACHE }}
+          key: ${{ runner.os }}-${{ runner.arch }}-vcpkg-${{ hashFiles('vcpkg*.json') }}
+          restore-keys: |
+            ${{ runner.os }}-${{ runner.arch }}-vcpkg-
+
+      - name: Configure OpenGTA
+        run: cmake --preset vcpkg -DCMAKE_BUILD_TYPE=RelWithDebInfo
+
+      - name: Save vcpkg binary cache
+        if: steps.vcpkg-cache.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v4
+        with:
+          path: ${{ env.VCPKG_DEFAULT_BINARY_CACHE }}
+          key: ${{ steps.vcpkg-cache.outputs.cache-primary-key }}
+
+      - name: ⚒️ Build OpenGTA
+        run: cmake --build --preset vcpkg-relwithdebinfo
+
   Linux-Build:
     runs-on: ubuntu-latest
     steps:

@@ -2,37 +2,13 @@ name: Clean build of OpenGTA
 run-name: 🚘 Test if OpenGTA compiles on multiple platforms
 on: [push]
 jobs:
-  Linux-Build:
-    runs-on: ubuntu-24.04
+  Build:
+    runs-on: [ubuntu-latest, windows-latest]
     steps:
       - name: Check out repository code
         uses: actions/checkout@v7
-      - name: ⚒️ Build OpenGTA 🐧
-        run: |
-          cmake --preset vcpkg
-          cmake --build --preset vcpkg-relwithdebinfo -j $(nproc)
-  Windows-Build:
-    runs-on: windows-latest
-    steps:
-      - name: Check out repository code
-        uses: actions/checkout@v7
-      - name: ⚒️ Build OpenGTA 🪟
-        run: |
-          cmake --preset vcpkg
-          cmake --build --preset vcpkg-relwithdebinfo
-  #     - name: 🐸 Install Conan
-  #       run: pipx install conan
-  #     - name: Check out repository code
-  #       uses: actions/checkout@v3
-  #       with:
-  #         fetch-depth: 0
-  #     - name: ⚙️ Install dependencies
-  #       run: |
-  #         conan profile detect --force
-  #         conan install ${{ github.workspace }} `
-  #             -u -b missing `
-  #             -c:h tools.cmake.cmake_layout:build_folder_vars="['settings.compiler']"
-  #     - name: ⚒️ Build OpenGTA 🪟
-  #       run: |
-  #         cmake --preset 'MSVC'
-  #         cmake --build --preset 'MSVC Release'
+      - name: ⚒️ Build OpenGTA
+        uses: lukka/run-cmake@v10
+        with:
+          configurePreset: 'vcpkg'
+          buildPreset: 'vcpkg-relwithdebinfo'
